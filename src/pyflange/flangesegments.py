@@ -1,4 +1,4 @@
-# pyFlangeXL - python library for large flanges design
+# pyFlange - python library for large flanges design
 # Copyright (C) 2024  KCI The Engineers B.V.,
 #                     Siemens Gamesa Renewable Energy B.V.,
 #                     Nederlandse Organisatie voor toegepast-natuurwetenschappelijk onderzoek TNO.
@@ -16,24 +16,32 @@
 # You should have received a copy of the GNU General Public License
 # version 3 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+''' This module contains ``FlangeSegment`` classes, which model the mechanical
+behavior of a flange sector containig one bolt only.
 
-# REFERENCES:
-#
-# [1]:  Marc Seidel, SGRE TE TF PST: Fatigue design guide for ring flange connections in wind turbine support structures.
-#       Background to proposed changes to IEC 61400-6
-#       Draft version V06
-#
-# [3]:  Petersen, C.: Nachweis der Betriebsfestigkeit exzentrisch beanspruchter Ringflansch-verbindungen
-#       (Fatigue assessment of eccentrically loaded ring flange connections).
-#       Stahlbau 67 (1998), S. 191-203. https://onlinelibrary.wiley.com/doi/abs/10.1002/stab.199800690
-#
-# [4]:  Petersen, C.: Stahlbau (Steel construction), 4. Auflage Braunschweig: Wiesbaden: Springer Vieweg 2012.
-#       https://link.springer.com/book/10.1007%2F978-3-8348-8610-1
-#
-# [9]:  Tobinaga, I.; Ishihara, T.: A study of action point correction factor for L‐type flanges of wind turbine towers.
-#       Wind Energy 21 (2018), p. 801-806. https://doi.org/10.1002/we.2193
-#
-#
+Currently, the only type of FlangeSegment available is a L-Flange segmen, implementing
+a polinomial relation between shell pull force and bolt force / bolt moment. Nonetheless,
+this module has been structured to be easily extensible with other types of FlangeSegment
+model, such as Polynomial T-Flanges, Multilinear (Petersen) L-Flanges, Multilinear T-Flanges.
+
+The models implemented in this module are based on the following references:
+
+[1]:  Marc Seidel, SGRE TE TF PST: Fatigue design guide for ring flange connections in wind turbine support structures.
+      Background to proposed changes to IEC 61400-6
+      Draft version V06
+
+[3]:  Petersen, C.: Nachweis der Betriebsfestigkeit exzentrisch beanspruchter Ringflansch-verbindungen
+      (Fatigue assessment of eccentrically loaded ring flange connections).
+      Stahlbau 67 (1998), S. 191-203. https://onlinelibrary.wiley.com/doi/abs/10.1002/stab.199800690
+
+[4]:  Petersen, C.: Stahlbau (Steel construction), 4. Auflage Braunschweig: Wiesbaden: Springer Vieweg 2012.
+      https://link.springer.com/book/10.1007%2F978-3-8348-8610-1
+
+[9]:  Tobinaga, I.; Ishihara, T.: A study of action point correction factor for L‐type flanges of wind turbine towers.
+      Wind Energy 21 (2018), p. 801-806. https://doi.org/10.1002/we.2193
+
+
+'''
 
 
 
@@ -54,6 +62,12 @@ from .bolts import Bolt
 
 
 class FlangeSegment (ABC):
+    ''' Abstract FlangeSegment class, meant to be extended and
+    not to be instatiated directly.
+
+    Each FlangeSegment child class must implement the two methods
+    ``.bolt_axial_force(Z)`` and ``.bolt_bending_moment(Z)``.
+    '''
 
     @abstractmethod
     def bolt_axial_force (self, shell_pull):
@@ -67,6 +81,54 @@ class FlangeSegment (ABC):
 
 
 class PolynomialFlangeSegment (FlangeSegment):
+    ''' This is a generic FlangeSegment that implements a polynomial
+    relation between shell pull Z and bolt axial force Fs or bolt
+    bending moment Ms.
+
+    It is not meant to be instantiated directly, but to be subclassed
+    instead.
+
+    The polynomial functions ``.bolt_axial_force(Z)`` and
+    ``.bolt_bending_moment(Z)`` are defined based on 4 points, through
+    which the polynomials pass. Those points are implementation specific.
+
+    The 4 reference points for the Fs(Z) polynomial are:
+
+    - ``P1 = (Z1, Fs1)`` representing the flange segment state at rest (no
+      loads applied, other than the self-weight). Each implementatio of
+      this class should define Z1 as ``shell_force_at_rest`` property and
+      Fs1 as ``bolt_force_at_rest`` property.
+
+    - ``P2 = (Z2, Fs2)`` representing the flange segment ultimate tensile
+      limit state (failure state B). Each implementatio of this class should
+      define Z2 as ``shell_force_at_tensile_ULS`` property and Fs2 as
+      ``bolt_force_at_ultimate_ULS`` property.
+
+    - ``P3 = (Z3, Fs3)`` representing the flange segment in small tensile
+      deformation condition. This point is meant to define the initial slope
+      of the polynomial. Each implementatio of this class should
+      define Z3 as ``shell_force_at_small_displacement`` property and Fs3 as
+      ``bolt_force_at_small_displacement`` property.
+
+    - ``P4 = (Z4, Fs4)`` representing the gap closure state. Each implementatio
+      of this class should define Z4 as ``shell_force_at_closed_gap`` property,
+      while Fs4 is automatically defined.
+
+    The 4 reference points for the Ms(Z) polynomial are:
+
+    - ``Q1 = (Z1, Ms1)`` corresponding to P1 as defined above. Each implementation
+      of this class should define Ms1 as ``bolt_moment_at_rest`` property.
+
+    - ``Q2 = (Z2, Ms2)`` corresponding to P2 as defined above. Each implementation
+      of this class should define Ms2 as ``bolt_moment_at_tensile_ULS`` property.
+
+    - ``Q3 = (Z3, Ms3)`` corresponding to P3 as defined above. Each implementation
+      of this class should define Ms3 as ``bolt_moment_at_small_displacement`` property.
+
+    - ``Q4 = (Z4, Ms4)`` corresponding to P4 as defined above. Each implementatio
+      of this class should define Z4 as ``shell_force_at_closed_gap`` property,
+      while Ms4 is automatically defined.
+    '''
 
     def bolt_axial_force (self, shell_pull):
         ''' Bolt axial force due to a given shell pull force Z.
@@ -353,6 +415,71 @@ class PolynomialFlangeSegment (FlangeSegment):
 
 @dataclass
 class PolynomialLFlangeSegment (PolynomialFlangeSegment):
+    ''' This class provide a ``PolynomialFlangeSegment`` implementation for L-Flanges,
+    based on ref. [1].
+
+    For this particular case of flange, this class defines the polynomial reference
+    points ``P1``, ``P2``, ``P3``, ``P4``, ``Q1``, ``Q2``, ``Q3``, ``Q4`` and inherits
+    the polynomial functions ``.bolt_axial_force(Z)`` and ``.bolt_bending_moment(Z)``
+    from the parent class.
+
+    The parameters required by this class are:
+
+    - ``a`` : ``float``
+        Distance between inner face of the flange and center of the bolt hole.
+
+    - ``b`` : ``float``
+        Distance between center of the bolt hole and center-line of the shell.
+
+    - ``s`` : ``float``
+        Shell thickness.
+
+    - ``t`` : ``float``
+        Flange thickness.
+
+    - ``c`` : ``float``
+        Shell arc length.
+
+    - ``R`` : ``float``
+        Shell outer curvature radius.
+
+    - ``Zg`` : ``float``
+        Load applied to the flange segment shell at rest (normally dead weight
+        of tower + RNA, divided by the number of bolts). Negative if compression.
+
+    - ``bolt`` : ``Bolt``
+        Bolt object representing the flange segment bolt.
+
+    - ``Fv`` : ``float``
+        Applied bolt preload, after preload losses.
+
+    - ``Do`` : ``float``
+        Bolt hole diameter.
+
+    - ``Dw`` : ``float``
+        Washer diameter.
+
+    - ``gap_height`` : ``float``
+        Maximum longitudinal gap height.
+
+    - ``gap_angle`` : ``float``
+        Angle subtended by the gap arc from the flange center.
+
+    - ``E`` : ``float`` [optional]
+        Young modulus of the flange. If omitted, it will be taken equal to 210e9 Pa.
+
+    - ``G`` : ``float`` [optional]
+        Shear modulus of the flange. If omitted, it will be taken equal to 80.77e9 Pa.
+
+    - ``s_ratio`` : ``float`` [optional]
+        Ratio of bottom shell thickness over s. If omitted, it will be take equal to 1.0,
+        threfore, by default, s_botom = s.
+
+    The given parameters are also available as attributes (e.g. ``fseg.a``, ``fseg.Fv``, etc.).
+    This class is designed to be immutable, therefore modifying the attributes after
+    instantiation is not a good idea. If you need a segment with different attributes, just
+    create a new one.
+    '''
 
     a: float        # distance between inner face of the flange and center of the bolt hole
     b: float        # distance between center of the bolt hole and center-line of the shell
@@ -379,7 +506,6 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
 
     #TODO: Verify failure mode B
-
 
     @cached_property
     def _bolt_axial_stiffness (self):

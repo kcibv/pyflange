@@ -1,4 +1,4 @@
-# pyFlangeXL - python library for large flanges design
+# pyFlange - python library for large flanges design
 # Copyright (C) 2024  KCI The Engineers B.V.,
 #                     Siemens Gamesa Renewable Energy B.V.,
 #                     Nederlandse Organisatie voor toegepast-natuurwetenschappelijk onderzoek TNO.
@@ -16,12 +16,54 @@
 # You should have received a copy of the GNU General Public License
 # version 3 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+'''
+The ``gap`` module contains tools for modelling flange gaps.
+
+It corrently contains only one gap model, that is the sinusoidal gap, as defined
+in ref. [1], section 6.7.5.2.
+
+
+**REFERENCES**
+
+- **[1]** IEC 61400-6:2020/AMD1:2024 - Wind Energy Generation Systems - Part 6: Tower and foundation design requirements
+'''
 
 
 def gap_height_distribution (flange_diameter, flange_flatness_tolerance, gap_length):
-    # flange_diameter in meters
-    # flange_flatness_tolerance adimensional (m/m or mm/mm)
-    # gap length in meters
+    ''' Returns the gap heigh probability distribution according to ref. [1]
+
+    Given the following parameters ...
+
+    - ``flange_diameter`` : ``float``
+      The outer diameter of the flange, expressed in meters.
+
+    - ``flange_flatness_tolerance`` : ``float``
+      The flatness tolerance, as defined in ref. [1], expressed in mm/mm (non-dimensional).
+
+    - ``gap_length`` : ``float``
+      The length of the gap, espressed in meters and measured at the outer edge of the flange.
+
+    ... this function returns a `scipy.stats.lognorm <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html>`_
+    object, representing the gap height stocastic variable.
+
+
+    **Example**
+
+    The following example, creates a gap distribution and the calculates
+    the 95% quantile of the gap height
+
+    .. code-block:: python
+
+        from pyflange.gap import gap_height_distribution
+
+        D = 7.50      # Flange diameter in meters
+        u = 0.0014    # Flatness tolerance (non-dimensional)
+        L = 1.22      # Gap length
+        gap_dist = gap_height_distribution(D, u, L)     # a lognorm distribution object
+
+        u95 = gap_dist.ppf(0.95)    # PPF is the inverse of CDF. See scipy.stats.lognorm documentation.
+
+    '''
 
     from math import pi, log, exp, sqrt
     from scipy.stats import lognorm

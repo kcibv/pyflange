@@ -1,4 +1,4 @@
-# pyFlangeXL - python library for large flanges design
+# pyFlange - python library for large flanges design
 # Copyright (C) 2024  KCI The Engineers B.V.,
 #                     Siemens Gamesa Renewable Energy B.V.,
 #                     Nederlandse Organisatie voor toegepast-natuurwetenschappelijk onderzoek TNO.
@@ -15,6 +15,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # version 3 along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+'''
+The ``bolts`` module contains a ``MetricBolt`` class that generates generic
+bolts with metric screw thread and a ``StandardMetricBolt`` function that
+generates MetricBolt objects with standard properties.
+'''
 
 from dataclasses import dataclass
 from functools import cached_property
@@ -42,6 +48,55 @@ class Bolt:
 
 @dataclass
 class MetricBolt (Bolt):
+    ''' Generates a generic bolt with metric screw thread accoridng ISO 68-1, defined
+    by the following parameters:
+
+    - ``nominal_diameter`` : ``float``
+        The outermost diameter of the screw thread.
+
+    - ``thread_pitch`` : ``float``
+        The pitch of the metric thread.
+
+    - ``yield_stress`` : ``float``
+        Nominal yield stress (0.2% strain limit) of the bolt material.
+
+    - ``ultimate_tensile_stress`` : ``float``
+        Nominal ultimate tensile stress of the bolt material.
+
+    - ``elastic_modulus`` : ``float`` [optional]
+        The Young's modulus of the bolt material.
+        If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
+        that the chosen unit for distance is m and the chosen unit for forces is N. If
+        that's not the case, you should enter the proper value of this parameter.
+
+    - ``poissons_ratio`` : ``float`` [optional]
+        The Poisson's ratio of the bolt material.
+        If omitted, it defaults to 0.30.
+
+    - ``shank_length`` : ``float`` [optional]
+        The length of the shank. If omitted, it defaults to 0.
+
+    - ``shank_diameter_ratio`` : ``float`` [optional]
+        The ratio between the shank diameter and the bolt nominal diameter.
+        If omitted, it defaults to 1, which means that the shank hs the
+        nominal diameter.
+
+    - ``stud`` : ``bool`` [optional]
+        True if this is a stud bolt, False if it is not.
+        If omitted, it defaults to False.
+
+    The parameters must be expressed in a consistent system of units. For example,
+    if you chose to input distances in mm and forces in N, then stresses must be
+    expressed in N/mm². All the bolt attributes and methods will return values
+    consistently with the input units of measurement.
+
+    All the input parameters are also available as attributes of the generated
+    object (e.g. ``bolt.shank_length``, ``bolt.yield_stress``, etc.).
+
+    This instances of this calss are designed to be immutable, which means than
+    changing an attribute after creating an object is not a good idea. If you
+    need a different bolt with different attributes, create a new one.
+    '''
 
     nominal_diameter: float
     thread_pitch: float
@@ -62,51 +117,61 @@ class MetricBolt (Bolt):
 
     @cached_property
     def designation (self):
+        ''' Bolt designation string, which is, for example, ``"M16"``
+        for a bolt with nominal diameter 16 mm.
+        '''
         return f"M{int(self.nominal_diameter*1000)}"
 
 
     @cached_property
     def shank_diameter (self):
+        ''' Diameter of the shank. '''
         return self.nominal_diameter * self.shank_diameter_ratio
 
 
     @cached_property
     def thread_height (self):
+        ''' Height of the metric thread fundamental triangle (H),
+        as defined in ISO 68-1:1998.
+        '''
         return 0.5 * 3**0.5 * self.thread_pitch
 
 
     @cached_property
     def thread_basic_minor_diameter (self):
-        # Diameter d1, ref. ISO 68-1
+        ''' Basic minor diameter (d1) as defined in ISO 68-1:1998.'''
         return self.nominal_diameter - 2 * 5/8 * self.thread_height
 
 
     @cached_property
     def thread_basic_pitch_diameter (self):
-        # Diameter d2, ref. ISO 68-1
+        ''' Basic minor diameter (d2) as defined in ISO 68-1:1998.'''
         return self.nominal_diameter - 2 * 3/8 * self.thread_height
 
 
     @cached_property
     def thread_minor_diameter (self):
-        # Diameter d3, ref. ISO 898-1
+        ''' Minor diameter (d3) as defined in ISO 898-1:2013.'''
         return self.thread_basic_minor_diameter - self.thread_height/6
 
 
     @cached_property
     def shank_cross_section_area (self):
+        ''' Area of the shank transversal cross-section.'''
         from math import pi
         return pi * self.shank_diameter**2 / 4
 
 
     @cached_property
     def nominal_cross_section_area (self):
+        ''' Area of a circle with nominal diameter.'''
         from math import pi
         return pi * self.nominal_diameter**2 / 4
 
 
     @cached_property
     def tensile_cross_section_area (self):
+        ''' Tensile stress area.'''
         from math import pi
         return pi * (self.nominal_diameter - 1.081*self.thread_height)**2 / 4
 
@@ -118,6 +183,9 @@ class MetricBolt (Bolt):
 
     @cached_property
     def shear_modulus (self):
+        ''' Shear modulus G, calculated from the Young's modulus and
+        Poisson's ratio, under the assumption of isotropic and elastic
+        bolt material.'''
         return 0.5 * self.elastic_modulus / (1 + self.poissons_ratio)
 
 
@@ -127,6 +195,12 @@ class MetricBolt (Bolt):
     # -------------------------------------------------------------
 
     def ultimate_tensile_capacity (self, standard="Eurocode"):
+        ''' Returns the design ultimate tensile force that the bolt can take,
+        according to a given standard.
+
+        Currently the only standard available is "Eurocode", which is also the
+        default value of the ``standard`` parameter.
+        '''
         if standard == "Eurocode":
             return 0.9 * self.ultimate_tensile_stress * self.tensile_cross_section_area / 1.25
         else:
@@ -134,7 +208,9 @@ class MetricBolt (Bolt):
 
 
     def axial_stiffness (self, length):
-        ''' Axial stiffness of the bolt, according to VDI 2230, Part 1, Section 5.1.1.1'''
+        ''' Given a clamped ``length``, returns the axial stiffness of the bolt,
+        according to VDI 2230, Part 1, Section 5.1.1.1.
+        '''
 
         # Verify input validity
         assert length >= self.shank_length, "The lolt can't be shorter than its shank."
@@ -174,7 +250,9 @@ class MetricBolt (Bolt):
 
 
     def bending_stiffness (self, length):
-        ''' Bending stiffness of the bolt, according to VDI 2230, Part 1, Section 5.1.1.2'''
+        ''' Given a clamped ``length``, returns the bending stiffness of the bolt,
+        according to VDI 2230, Part 1, Section 5.1.1.2.
+        '''
 
         logger.debug(f"{self.designation} BENDING STIFFNESS FOR BOLT LENGTH L = {length*1000:.1f} mm")
 
@@ -224,6 +302,44 @@ class MetricBolt (Bolt):
 
 
 def StandardMetricBolt (designation, material_grade, shank_length=0.0, shank_diameter_ratio=1.0, stud=False):
+    ''' This function provides a convenient way for creating ``MetricBolt``
+    object, given the standard geometry designation (e.g. "M20") and the
+    standard material grade designation (e.g. "8.8").
+
+    The required parameters are:
+
+    - ``designation`` : ``str``
+        The metric screw thread designation. The allowed values are: 'M4', 'M5',
+        'M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22', 'M24',
+        'M27', 'M30', 'M33', 'M36', 'M39', 'M42', 'M45', 'M48', 'M52', 'M56',
+        'M60', 'M64', 'M72', 'M80', 'M90', 'M100'.
+
+        This parameter corresponds to a standard nominal diameter and a relevant
+        thread pitch value (i.e. the standard coarse pitch value).
+
+    - ``material_grade`` : ``str``
+        The material grade designation. The allowed values are: '4.6', '4.8',
+        '5.6', '5.8', '6.8', '8.8', '9.8', '10.9' and '12.9' for carbon-steel
+        bolts; 'A50', 'A70', 'A80' and 'A100' for austenitic bolts; 'D70', 'D80'
+        and 'D100' for duplex bolts; 'C50', 'C70', 'C80' and 'C110' for
+        martensitic bolts; 'F45' and 'F60' for ferritic bolts.
+
+        This parameter corresponds to a standard set of the paraters ``yield_stress``,
+        ``ultimate_tensile_stress``, ``elastic_modulus`` and ``poissons_ratio``.
+
+    - ``shank_length`` : ``float`` [optional]
+        The length of the shank. If omitted, it defaults to 0.
+
+    - ``shank_diameter_ratio`` : ``float`` [optional]
+        The ratio between the shank diameter and the bolt nominal diameter.
+        If omitted, it defaults to 1, which means that the shank hs the
+        nominal diameter.
+
+    - ``stud`` : ``bool`` [optional]
+        True if this is a stud bolt, False if it is not.
+        If omitted, it defaults to False.
+
+    '''
 
     geometry = _standard['geometry'][designation]
     meterial = _standard['materials'][material_grade]
