@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyflange.bolts &mdash; pyflange 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=01f34227"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pyflange.gap" href="gap.html" />
+    <link rel="prev" title="pyflange.flangesegments" href="flangesegments.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyflange
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="flangesegments.html">pyflange.flangesegments</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pyflange.bolts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.MetricBolt"><code class="docutils literal notranslate"><span class="pre">MetricBolt</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.designation"><code class="docutils literal notranslate"><span class="pre">MetricBolt.designation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.shank_diameter"><code class="docutils literal notranslate"><span class="pre">MetricBolt.shank_diameter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.thread_height"><code class="docutils literal notranslate"><span class="pre">MetricBolt.thread_height</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.thread_basic_minor_diameter"><code class="docutils literal notranslate"><span class="pre">MetricBolt.thread_basic_minor_diameter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.thread_basic_pitch_diameter"><code class="docutils literal notranslate"><span class="pre">MetricBolt.thread_basic_pitch_diameter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.thread_minor_diameter"><code class="docutils literal notranslate"><span class="pre">MetricBolt.thread_minor_diameter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.shank_cross_section_area"><code class="docutils literal notranslate"><span class="pre">MetricBolt.shank_cross_section_area</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.nominal_cross_section_area"><code class="docutils literal notranslate"><span class="pre">MetricBolt.nominal_cross_section_area</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.tensile_cross_section_area"><code class="docutils literal notranslate"><span class="pre">MetricBolt.tensile_cross_section_area</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.shear_modulus"><code class="docutils literal notranslate"><span class="pre">MetricBolt.shear_modulus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.ultimate_tensile_capacity"><code class="docutils literal notranslate"><span class="pre">MetricBolt.ultimate_tensile_capacity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.axial_stiffness"><code class="docutils literal notranslate"><span class="pre">MetricBolt.axial_stiffness()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.bending_stiffness"><code class="docutils literal notranslate"><span class="pre">MetricBolt.bending_stiffness()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.StandardMetricBolt"><code class="docutils literal notranslate"><span class="pre">StandardMetricBolt()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gap.html">pyflange.gap</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyflange</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pyflange.bolts</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/bolts.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pyflange.bolts">
+<span id="id1"></span><span id="pyflange-bolts"></span><h1>pyflange.bolts<a class="headerlink" href="#module-pyflange.bolts" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">bolts</span></code> module contains a <code class="docutils literal notranslate"><span class="pre">MetricBolt</span></code> class that generates generic
+bolts with metric screw thread and a <code class="docutils literal notranslate"><span class="pre">StandardMetricBolt</span></code> function that
+generates MetricBolt objects with standard properties.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyflange.bolts.</span></span><span class="sig-name descname"><span class="pre">MetricBolt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nominal_diameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_pitch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_stress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultimate_tensile_stress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elastic_modulus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">210000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poissons_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shank_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shank_diameter_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stud</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.bolts.MetricBolt" title="Link to this definition"></a></dt>
+<dd><p>Generates a generic bolt with metric screw thread accoridng ISO 68-1, defined
+by the following parameters:</p>
+<ul>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">nominal_diameter</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The outermost diameter of the screw thread.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">thread_pitch</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The pitch of the metric thread.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">yield_stress</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Nominal yield stress (0.2% strain limit) of the bolt material.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">ultimate_tensile_stress</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Nominal ultimate tensile stress of the bolt material.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">elastic_modulus</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>The Young’s modulus of the bolt material.
+If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
+that the chosen unit for distance is m and the chosen unit for forces is N. If
+that’s not the case, you should enter the proper value of this parameter.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">poissons_ratio</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>The Poisson’s ratio of the bolt material.
+If omitted, it defaults to 0.30.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">shank_length</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>The length of the shank. If omitted, it defaults to 0.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">shank_diameter_ratio</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>The ratio between the shank diameter and the bolt nominal diameter.
+If omitted, it defaults to 1, which means that the shank hs the
+nominal diameter.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">stud</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">bool</span></code> [optional]</span></dt><dd><p>True if this is a stud bolt, False if it is not.
+If omitted, it defaults to False.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The parameters must be expressed in a consistent system of units. For example,
+if you chose to input distances in mm and forces in N, then stresses must be
+expressed in N/mm². All the bolt attributes and methods will return values
+consistently with the input units of measurement.</p>
+<p>All the input parameters are also available as attributes of the generated
+object (e.g. <code class="docutils literal notranslate"><span class="pre">bolt.shank_length</span></code>, <code class="docutils literal notranslate"><span class="pre">bolt.yield_stress</span></code>, etc.).</p>
+<p>This instances of this calss are designed to be immutable, which means than
+changing an attribute after creating an object is not a good idea. If you
+need a different bolt with different attributes, create a new one.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.designation">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">designation</span></span><a class="headerlink" href="#pyflange.bolts.MetricBolt.designation" title="Link to this definition"></a></dt>
+<dd><p>Bolt designation string, which is, for example, <code class="docutils literal notranslate"><span class="pre">&quot;M16&quot;</span></code>
+for a bolt with nominal diameter 16 mm.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.shank_diameter">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shank_diameter</span></span><a class="headerlink" href="#pyflange.bolts.MetricBolt.shank_diameter" title="Link to this definition"></a></dt>
+<dd><p>Diameter of the shank.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.thread_height">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thread_height</span></span><a class="headerlink" href="#pyflange.bolts.MetricBolt.thread_height" title="Link to this definition"></a></dt>
+<dd><p>Height of the metric thread fundamental triangle (H),
+as defined in ISO 68-1:1998.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.thread_basic_minor_diameter">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thread_basic_minor_diameter</span></span><a class="headerlink" href="#pyflange.bolts.MetricBolt.thread_basic_minor_diameter" title="Link to this definition"></a></dt>
+<dd><p>Basic minor diameter (d1) as defined in ISO 68-1:1998.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.thread_basic_pitch_diameter">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thread_basic_pitch_diameter</span></span><a class="headerlink" href="#pyflange.bolts.MetricBolt.thread_basic_pitch_diameter" title="Link to this definition"></a></dt>
+<dd><p>Basic minor diameter (d2) as defined in ISO 68-1:1998.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.thread_minor_diameter">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thread_minor_diameter</span></span><a class="headerlink" href="#pyflange.bolts.MetricBolt.thread_minor_diameter" title="Link to this definition"></a></dt>
+<dd><p>Minor diameter (d3) as defined in ISO 898-1:2013.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.shank_cross_section_area">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shank_cross_section_area</span></span><a class="headerlink" href="#pyflange.bolts.MetricBolt.shank_cross_section_area" title="Link to this definition"></a></dt>
+<dd><p>Area of the shank transversal cross-section.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.nominal_cross_section_area">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nominal_cross_section_area</span></span><a class="headerlink" href="#pyflange.bolts.MetricBolt.nominal_cross_section_area" title="Link to this definition"></a></dt>
+<dd><p>Area of a circle with nominal diameter.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.tensile_cross_section_area">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tensile_cross_section_area</span></span><a class="headerlink" href="#pyflange.bolts.MetricBolt.tensile_cross_section_area" title="Link to this definition"></a></dt>
+<dd><p>Tensile stress area.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.shear_modulus">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shear_modulus</span></span><a class="headerlink" href="#pyflange.bolts.MetricBolt.shear_modulus" title="Link to this definition"></a></dt>
+<dd><p>Shear modulus G, calculated from the Young’s modulus and
+Poisson’s ratio, under the assumption of isotropic and elastic
+bolt material.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.ultimate_tensile_capacity">
+<span class="sig-name descname"><span class="pre">ultimate_tensile_capacity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">standard</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Eurocode'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.bolts.MetricBolt.ultimate_tensile_capacity" title="Link to this definition"></a></dt>
+<dd><p>Returns the design ultimate tensile force that the bolt can take,
+according to a given standard.</p>
+<p>Currently the only standard available is “Eurocode”, which is also the
+default value of the <code class="docutils literal notranslate"><span class="pre">standard</span></code> parameter.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.axial_stiffness">
+<span class="sig-name descname"><span class="pre">axial_stiffness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.bolts.MetricBolt.axial_stiffness" title="Link to this definition"></a></dt>
+<dd><p>Given a clamped <code class="docutils literal notranslate"><span class="pre">length</span></code>, returns the axial stiffness of the bolt,
+according to VDI 2230, Part 1, Section 5.1.1.1.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.bending_stiffness">
+<span class="sig-name descname"><span class="pre">bending_stiffness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.bolts.MetricBolt.bending_stiffness" title="Link to this definition"></a></dt>
+<dd><p>Given a clamped <code class="docutils literal notranslate"><span class="pre">length</span></code>, returns the bending stiffness of the bolt,
+according to VDI 2230, Part 1, Section 5.1.1.2.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyflange.bolts.StandardMetricBolt">
+<span class="sig-prename descclassname"><span class="pre">pyflange.bolts.</span></span><span class="sig-name descname"><span class="pre">StandardMetricBolt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">designation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_grade</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shank_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shank_diameter_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stud</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.bolts.StandardMetricBolt" title="Link to this definition"></a></dt>
+<dd><p>This function provides a convenient way for creating <code class="docutils literal notranslate"><span class="pre">MetricBolt</span></code>
+object, given the standard geometry designation (e.g. “M20”) and the
+standard material grade designation (e.g. “8.8”).</p>
+<p>The required parameters are:</p>
+<ul>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">designation</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">str</span></code></span></dt><dd><p>The metric screw thread designation. The allowed values are: ‘M4’, ‘M5’,
+‘M6’, ‘M8’, ‘M10’, ‘M12’, ‘M14’, ‘M16’, ‘M18’, ‘M20’, ‘M22’, ‘M24’,
+‘M27’, ‘M30’, ‘M33’, ‘M36’, ‘M39’, ‘M42’, ‘M45’, ‘M48’, ‘M52’, ‘M56’,
+‘M60’, ‘M64’, ‘M72’, ‘M80’, ‘M90’, ‘M100’.</p>
+<p>This parameter corresponds to a standard nominal diameter and a relevant
+thread pitch value (i.e. the standard coarse pitch value).</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">material_grade</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">str</span></code></span></dt><dd><p>The material grade designation. The allowed values are: ‘4.6’, ‘4.8’,
+‘5.6’, ‘5.8’, ‘6.8’, ‘8.8’, ‘9.8’, ‘10.9’ and ‘12.9’ for carbon-steel
+bolts; ‘A50’, ‘A70’, ‘A80’ and ‘A100’ for austenitic bolts; ‘D70’, ‘D80’
+and ‘D100’ for duplex bolts; ‘C50’, ‘C70’, ‘C80’ and ‘C110’ for
+martensitic bolts; ‘F45’ and ‘F60’ for ferritic bolts.</p>
+<p>This parameter corresponds to a standard set of the paraters <code class="docutils literal notranslate"><span class="pre">yield_stress</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ultimate_tensile_stress</span></code>, <code class="docutils literal notranslate"><span class="pre">elastic_modulus</span></code> and <code class="docutils literal notranslate"><span class="pre">poissons_ratio</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">shank_length</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>The length of the shank. If omitted, it defaults to 0.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">shank_diameter_ratio</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>The ratio between the shank diameter and the bolt nominal diameter.
+If omitted, it defaults to 1, which means that the shank hs the
+nominal diameter.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">stud</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">bool</span></code> [optional]</span></dt><dd><p>True if this is a stud bolt, False if it is not.
+If omitted, it defaults to False.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="flangesegments.html" class="btn btn-neutral float-left" title="pyflange.flangesegments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gap.html" class="btn btn-neutral float-right" title="pyflange.gap" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, KCI B.V., SGRE, TNO.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

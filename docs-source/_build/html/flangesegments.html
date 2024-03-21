@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyflange.flangesegments &mdash; pyflange 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=01f34227"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pyflange.bolts" href="bolts.html" />
+    <link rel="prev" title="PyFlange API documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyflange
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pyflange.flangesegments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.FlangeSegment"><code class="docutils literal notranslate"><span class="pre">FlangeSegment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.PolynomialFlangeSegment"><code class="docutils literal notranslate"><span class="pre">PolynomialFlangeSegment</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialFlangeSegment.bolt_axial_force"><code class="docutils literal notranslate"><span class="pre">PolynomialFlangeSegment.bolt_axial_force()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialFlangeSegment.bolt_bending_moment"><code class="docutils literal notranslate"><span class="pre">PolynomialFlangeSegment.bolt_bending_moment()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_rest"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.shell_force_at_rest</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_rest"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.bolt_force_at_rest</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_small_displacement"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.shell_force_at_small_displacement</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_small_displacement"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.bolt_force_at_small_displacement</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_tensile_ULS"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.bolt_force_at_tensile_ULS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_closed_gap"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.shell_force_at_closed_gap</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bolts.html">pyflange.bolts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gap.html">pyflange.gap</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyflange</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pyflange.flangesegments</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/flangesegments.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pyflange.flangesegments">
+<span id="id1"></span><span id="pyflange-flangesegments"></span><h1>pyflange.flangesegments<a class="headerlink" href="#module-pyflange.flangesegments" title="Link to this heading"></a></h1>
+<p>This module contains <code class="docutils literal notranslate"><span class="pre">FlangeSegment</span></code> classes, which model the mechanical
+behavior of a flange sector containig one bolt only.</p>
+<p>Currently, the only type of FlangeSegment available is a L-Flange segmen, implementing
+a polinomial relation between shell pull force and bolt force / bolt moment. Nonetheless,
+this module has been structured to be easily extensible with other types of FlangeSegment
+model, such as Polynomial T-Flanges, Multilinear (Petersen) L-Flanges, Multilinear T-Flanges.</p>
+<p>The models implemented in this module are based on the following references:</p>
+<dl class="simple">
+<dt>[1]:  Marc Seidel, SGRE TE TF PST: Fatigue design guide for ring flange connections in wind turbine support structures.</dt><dd><p>Background to proposed changes to IEC 61400-6
+Draft version V06</p>
+</dd>
+<dt>[3]:  Petersen, C.: Nachweis der Betriebsfestigkeit exzentrisch beanspruchter Ringflansch-verbindungen</dt><dd><p>(Fatigue assessment of eccentrically loaded ring flange connections).
+Stahlbau 67 (1998), S. 191-203. <a class="reference external" href="https://onlinelibrary.wiley.com/doi/abs/10.1002/stab.199800690">https://onlinelibrary.wiley.com/doi/abs/10.1002/stab.199800690</a></p>
+</dd>
+<dt>[4]:  Petersen, C.: Stahlbau (Steel construction), 4. Auflage Braunschweig: Wiesbaden: Springer Vieweg 2012.</dt><dd><p><a class="reference external" href="https://link.springer.com/book/10.1007%2F978-3-8348-8610-1">https://link.springer.com/book/10.1007%2F978-3-8348-8610-1</a></p>
+</dd>
+<dt>[9]:  Tobinaga, I.; Ishihara, T.: A study of action point correction factor for L‐type flanges of wind turbine towers.</dt><dd><p>Wind Energy 21 (2018), p. 801-806. <a class="reference external" href="https://doi.org/10.1002/we.2193">https://doi.org/10.1002/we.2193</a></p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyflange.flangesegments.FlangeSegment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyflange.flangesegments.</span></span><span class="sig-name descname"><span class="pre">FlangeSegment</span></span><a class="headerlink" href="#pyflange.flangesegments.FlangeSegment" title="Link to this definition"></a></dt>
+<dd><p>Abstract FlangeSegment class, meant to be extended and
+not to be instatiated directly.</p>
+<p>Each FlangeSegment child class must implement the two methods
+<code class="docutils literal notranslate"><span class="pre">.bolt_axial_force(Z)</span></code> and <code class="docutils literal notranslate"><span class="pre">.bolt_bending_moment(Z)</span></code>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialFlangeSegment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyflange.flangesegments.</span></span><span class="sig-name descname"><span class="pre">PolynomialFlangeSegment</span></span><a class="headerlink" href="#pyflange.flangesegments.PolynomialFlangeSegment" title="Link to this definition"></a></dt>
+<dd><p>This is a generic FlangeSegment that implements a polynomial
+relation between shell pull Z and bolt axial force Fs or bolt
+bending moment Ms.</p>
+<p>It is not meant to be instantiated directly, but to be subclassed
+instead.</p>
+<p>The polynomial functions <code class="docutils literal notranslate"><span class="pre">.bolt_axial_force(Z)</span></code> and
+<code class="docutils literal notranslate"><span class="pre">.bolt_bending_moment(Z)</span></code> are defined based on 4 points, through
+which the polynomials pass. Those points are implementation specific.</p>
+<p>The 4 reference points for the Fs(Z) polynomial are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">P1</span> <span class="pre">=</span> <span class="pre">(Z1,</span> <span class="pre">Fs1)</span></code> representing the flange segment state at rest (no
+loads applied, other than the self-weight). Each implementatio of
+this class should define Z1 as <code class="docutils literal notranslate"><span class="pre">shell_force_at_rest</span></code> property and
+Fs1 as <code class="docutils literal notranslate"><span class="pre">bolt_force_at_rest</span></code> property.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">P2</span> <span class="pre">=</span> <span class="pre">(Z2,</span> <span class="pre">Fs2)</span></code> representing the flange segment ultimate tensile
+limit state (failure state B). Each implementatio of this class should
+define Z2 as <code class="docutils literal notranslate"><span class="pre">shell_force_at_tensile_ULS</span></code> property and Fs2 as
+<code class="docutils literal notranslate"><span class="pre">bolt_force_at_ultimate_ULS</span></code> property.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">P3</span> <span class="pre">=</span> <span class="pre">(Z3,</span> <span class="pre">Fs3)</span></code> representing the flange segment in small tensile
+deformation condition. This point is meant to define the initial slope
+of the polynomial. Each implementatio of this class should
+define Z3 as <code class="docutils literal notranslate"><span class="pre">shell_force_at_small_displacement</span></code> property and Fs3 as
+<code class="docutils literal notranslate"><span class="pre">bolt_force_at_small_displacement</span></code> property.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">P4</span> <span class="pre">=</span> <span class="pre">(Z4,</span> <span class="pre">Fs4)</span></code> representing the gap closure state. Each implementatio
+of this class should define Z4 as <code class="docutils literal notranslate"><span class="pre">shell_force_at_closed_gap</span></code> property,
+while Fs4 is automatically defined.</p></li>
+</ul>
+<p>The 4 reference points for the Ms(Z) polynomial are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Q1</span> <span class="pre">=</span> <span class="pre">(Z1,</span> <span class="pre">Ms1)</span></code> corresponding to P1 as defined above. Each implementation
+of this class should define Ms1 as <code class="docutils literal notranslate"><span class="pre">bolt_moment_at_rest</span></code> property.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Q2</span> <span class="pre">=</span> <span class="pre">(Z2,</span> <span class="pre">Ms2)</span></code> corresponding to P2 as defined above. Each implementation
+of this class should define Ms2 as <code class="docutils literal notranslate"><span class="pre">bolt_moment_at_tensile_ULS</span></code> property.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Q3</span> <span class="pre">=</span> <span class="pre">(Z3,</span> <span class="pre">Ms3)</span></code> corresponding to P3 as defined above. Each implementation
+of this class should define Ms3 as <code class="docutils literal notranslate"><span class="pre">bolt_moment_at_small_displacement</span></code> property.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Q4</span> <span class="pre">=</span> <span class="pre">(Z4,</span> <span class="pre">Ms4)</span></code> corresponding to P4 as defined above. Each implementatio
+of this class should define Z4 as <code class="docutils literal notranslate"><span class="pre">shell_force_at_closed_gap</span></code> property,
+while Ms4 is automatically defined.</p></li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialFlangeSegment.bolt_axial_force">
+<span class="sig-name descname"><span class="pre">bolt_axial_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shell_pull</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialFlangeSegment.bolt_axial_force" title="Link to this definition"></a></dt>
+<dd><p>Bolt axial force due to a given shell pull force Z.</p>
+<p>The relation between shell pull force Z and bolt axial force Fs,
+is a polynomial function, as defined in ref.[1], section 9.</p>
+<p>The passed shell_pull parameter must be either a real number or
+a numpy.array. If a numpy.array is passed, then the corresponding
+array of Fs values will be returned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialFlangeSegment.bolt_bending_moment">
+<span class="sig-name descname"><span class="pre">bolt_bending_moment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shell_pull</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialFlangeSegment.bolt_bending_moment" title="Link to this definition"></a></dt>
+<dd><p>Bolt bending moment due to a given shell pull force Z.</p>
+<p>The relation between shell pull force Z and bolt bending moment Ms,
+is a polynomial function, as defined in ref.[1], section 9.</p>
+<p>The passed shell_pull parameter must be either a real number or
+a numpy.array. If a numpy.array is passed, then the corresponding
+array of Ms values will be returned.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyflange.flangesegments.</span></span><span class="sig-name descname"><span class="pre">PolynomialLFlangeSegment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Zg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bolt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bolt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Fv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Do</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Dw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap_angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">210000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">80770000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment" title="Link to this definition"></a></dt>
+<dd><p>This class provide a <code class="docutils literal notranslate"><span class="pre">PolynomialFlangeSegment</span></code> implementation for L-Flanges,
+based on ref. [1].</p>
+<p>For this particular case of flange, this class defines the polynomial reference
+points <code class="docutils literal notranslate"><span class="pre">P1</span></code>, <code class="docutils literal notranslate"><span class="pre">P2</span></code>, <code class="docutils literal notranslate"><span class="pre">P3</span></code>, <code class="docutils literal notranslate"><span class="pre">P4</span></code>, <code class="docutils literal notranslate"><span class="pre">Q1</span></code>, <code class="docutils literal notranslate"><span class="pre">Q2</span></code>, <code class="docutils literal notranslate"><span class="pre">Q3</span></code>, <code class="docutils literal notranslate"><span class="pre">Q4</span></code> and inherits
+the polynomial functions <code class="docutils literal notranslate"><span class="pre">.bolt_axial_force(Z)</span></code> and <code class="docutils literal notranslate"><span class="pre">.bolt_bending_moment(Z)</span></code>
+from the parent class.</p>
+<p>The parameters required by this class are:</p>
+<ul>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">a</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Distance between inner face of the flange and center of the bolt hole.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">b</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Distance between center of the bolt hole and center-line of the shell.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">s</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Shell thickness.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">t</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Flange thickness.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">c</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Shell arc length.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">R</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Shell outer curvature radius.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">Zg</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Load applied to the flange segment shell at rest (normally dead weight
+of tower + RNA, divided by the number of bolts). Negative if compression.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">bolt</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">Bolt</span></code></span></dt><dd><p>Bolt object representing the flange segment bolt.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">Fv</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Applied bolt preload, after preload losses.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">Do</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Bolt hole diameter.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">Dw</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Washer diameter.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">gap_height</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Maximum longitudinal gap height.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">gap_angle</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Angle subtended by the gap arc from the flange center.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">E</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>Young modulus of the flange. If omitted, it will be taken equal to 210e9 Pa.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">G</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>Shear modulus of the flange. If omitted, it will be taken equal to 80.77e9 Pa.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">s_ratio</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>Ratio of bottom shell thickness over s. If omitted, it will be take equal to 1.0,
+threfore, by default, s_botom = s.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The given parameters are also available as attributes (e.g. <code class="docutils literal notranslate"><span class="pre">fseg.a</span></code>, <code class="docutils literal notranslate"><span class="pre">fseg.Fv</span></code>, etc.).
+This class is designed to be immutable, therefore modifying the attributes after
+instantiation is not a good idea. If you need a segment with different attributes, just
+create a new one.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_rest">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shell_force_at_rest</span></span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_rest" title="Link to this definition"></a></dt>
+<dd><p>Shell force when no external loads are applied</p>
+<p>The shell loads at rest are normally the self-weights of
+the structure supported by the flange.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_rest">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bolt_force_at_rest</span></span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_rest" title="Link to this definition"></a></dt>
+<dd><p>Bolt axial force when no external loads are applied</p>
+<p>The bolt force at rest is just the bolt pretension.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_small_displacement">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shell_force_at_small_displacement</span></span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_small_displacement" title="Link to this definition"></a></dt>
+<dd><p>Intermediate shell pull, between rest and tensile failure</p>
+<p>This is an auxiliary point that gives the polynomial the right
+value of initial slope. It is evaluated according to ref. [1],
+sec.9.2.2.3.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_small_displacement">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bolt_force_at_small_displacement</span></span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_small_displacement" title="Link to this definition"></a></dt>
+<dd><p>Intermediate bolt pull, between rest and tensile failuse</p>
+<p>This is an auxiliary point that gives the polynomial the right
+value of initial slope. It is evaluated according to ref. [1],
+sec.9.2.2.3.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_tensile_ULS">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bolt_force_at_tensile_ULS</span></span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_tensile_ULS" title="Link to this definition"></a></dt>
+<dd><p>Bolt axial force at tensile failure</p>
+<p>Assuming the failure mode B, in the ULS, the bolt is subjected
+to its maximum tensile capacity.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_closed_gap">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shell_force_at_closed_gap</span></span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_closed_gap" title="Link to this definition"></a></dt>
+<dd><p>Force necessary to completely close the imperfection gap</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="PyFlange API documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bolts.html" class="btn btn-neutral float-right" title="pyflange.bolts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, KCI B.V., SGRE, TNO.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
