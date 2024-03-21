@@ -96,14 +96,89 @@
 </div>
 <section id="pyflange-api-documentation">
 <h1>PyFlange API documentation<a class="headerlink" href="#pyflange-api-documentation" title="Link to this heading"></a></h1>
-<p>General description ….</p>
+<p>This package has the ambitious goal of providing all the tools engineers
+need for the design of large bolted flanges such as the flanges used in
+offshore wind for connecting the turbine tower to the foundation.</p>
+<p>Far from achieving its goal, this package currently contains only an
+implementation of Marc Seidel’s polynomial model for predicting bolt
+forces and moments due to shell pull.</p>
+<p>This package has beend developed within the Bolt and Beoutiful GROW
+project by KCI, Siemens Gamesa and TNO.</p>
+<p>The rest of this documentation will show how to get started and where to
+find extra documentation.</p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
-<p>…</p>
+<p>Once the Bolt and Beautiful project gets closed, this package will be
+released to the public with GPLv3 license and will be installable via</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pyflange
+</pre></div>
+</div>
+<p>Until then, the source needs to stay closed and accessible to a limited
+number of people such as yourself. Therefore you need to install the
+wheel package after downloading it from GitHub.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>&lt;path/to/whl/package&gt;
+pip<span class="w"> </span>install<span class="w"> </span>pyflange-0.1.0-py3-none-any.whl
+</pre></div>
+</div>
 </section>
 <section id="usage-instructions">
 <h2>Usage instructions<a class="headerlink" href="#usage-instructions" title="Link to this heading"></a></h2>
-<p>…</p>
+<p>After installing the package, you can import it in your python code as start
+using it. First of all, you need to create a <cite>FlangeSegment</cite> object as shown
+below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create the bolt object</span>
+<span class="kn">from</span> <span class="nn">pyflange.bolts</span> <span class="kn">import</span> <span class="n">MetricBolt</span>
+<span class="n">M80</span> <span class="o">=</span> <span class="n">StandardMetricBolt</span><span class="p">(</span><span class="s2">&quot;M80&quot;</span><span class="p">,</span> <span class="s2">&quot;10.9&quot;</span><span class="p">,</span> <span class="n">shank_length</span><span class="o">=</span><span class="mf">0.270</span><span class="p">,</span> <span class="n">stud</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Define the gap parameters</span>
+<span class="kn">from</span> <span class="nn">pyflange.gap</span> <span class="kn">import</span> <span class="n">gap_height_distribution</span>
+<span class="n">D</span> <span class="o">=</span> <span class="mf">7.50</span>                        <span class="c1"># meters, flange outer diameter</span>
+<span class="n">gap_angle</span> <span class="o">=</span> <span class="n">pi</span><span class="o">/</span><span class="mi">6</span>                <span class="c1"># 30 deg gap angle</span>
+<span class="n">gap_length</span> <span class="o">=</span> <span class="n">gap_angle</span> <span class="o">*</span> <span class="n">D</span><span class="o">/</span><span class="mi">2</span>    <span class="c1"># outer length of the gap</span>
+<span class="n">u_tol</span> <span class="o">=</span> <span class="mf">0.0014</span>                  <span class="c1"># flatness tolerance in mm/mm</span>
+<span class="n">gap_dist</span> <span class="o">=</span> <span class="n">gap_height_distribution</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">u_tol</span><span class="p">,</span> <span class="n">gap_length</span><span class="p">)</span>    <span class="c1"># lognormal distribution</span>
+
+<span class="c1"># Create the FlangeSegment model</span>
+<span class="kn">from</span> <span class="nn">pyflange.flangesegments</span> <span class="kn">import</span> <span class="n">PolynomialLFlangeSegment</span>
+<span class="n">Nb</span> <span class="o">=</span> <span class="mi">120</span>    <span class="c1"># number of bolts</span>
+<span class="n">fseg</span> <span class="o">=</span> <span class="n">PolyNomialFlangeSegment</span><span class="p">(</span>
+   <span class="n">a</span> <span class="o">=</span> <span class="mf">0.2325</span><span class="p">,</span>             <span class="c1"># distance between inner face of the flange and center of the bolt hole</span>
+   <span class="n">b</span> <span class="o">=</span> <span class="mf">0.1665</span><span class="p">,</span>             <span class="c1"># distance between center of the bolt hole and center-line of the shell</span>
+   <span class="n">s</span> <span class="o">=</span> <span class="mf">0.0720</span><span class="p">,</span>             <span class="c1"># shell thickness</span>
+   <span class="n">t</span> <span class="o">=</span> <span class="mf">0.2000</span><span class="p">,</span>             <span class="c1"># flange thickness</span>
+   <span class="n">c</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="o">/</span><span class="n">Nb</span> <span class="o">*</span> <span class="p">(</span><span class="n">D</span> <span class="o">-</span> <span class="mf">0.072</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>    <span class="c1"># shell arc length</span>
+   <span class="n">R</span> <span class="o">=</span> <span class="n">D</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>                <span class="c1"># shell outer curvature radius</span>
+
+   <span class="n">Zg</span> <span class="o">=</span> <span class="o">-</span><span class="mi">14795000</span> <span class="o">/</span> <span class="n">Nb</span><span class="p">,</span>    <span class="c1"># load applied to the flange segment shell at rest</span>
+                           <span class="c1"># (normally dead weight of tower + RNA, divided by the number of bolts)</span>
+
+   <span class="n">bolt</span> <span class="o">=</span> <span class="n">M80</span><span class="p">,</span>             <span class="c1"># bolt object created above</span>
+   <span class="n">Fv</span> <span class="o">=</span> <span class="mi">2876000</span><span class="p">,</span>           <span class="c1"># applied bolt preload</span>
+
+   <span class="n">Do</span> <span class="o">=</span> <span class="mf">0.086</span><span class="p">,</span>             <span class="c1"># bolt hole diameter</span>
+   <span class="n">Dw</span> <span class="o">=</span> <span class="mf">0.140</span><span class="p">,</span>             <span class="c1"># washer diameter</span>
+
+   <span class="n">gap_height</span> <span class="o">=</span> <span class="n">gap_dist</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.95</span><span class="p">),</span>    <span class="c1"># maximum longitudinal gap height, 95% quantile</span>
+   <span class="n">gap_angle</span> <span class="o">=</span> <span class="n">gap_angle</span><span class="p">)</span>              <span class="c1"># longitudinal gap length</span>
+</pre></div>
+</div>
+<p>Notice that a consistent set of units of measurements has been used for inputs, namely:
+meter for distances, radians for angles and newton for forces. It is not required to
+always use these units (meter, newton), but you should choose your units and always
+apply them consistently.</p>
+<p>Once you have your <cite>fseg</cite> object, you can obtain the bolt forces and moments as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Fs</span> <span class="o">=</span> <span class="n">fseg</span><span class="o">.</span><span class="n">bolt_axial_force</span><span class="p">(</span><span class="mi">3500</span><span class="p">)</span>    <span class="c1"># bolt force corresponding to shell pull Z = 3500 N</span>
+<span class="n">Ms</span> <span class="o">=</span> <span class="n">fseg</span><span class="o">.</span><span class="n">bolt_bending_moment</span><span class="p">(</span><span class="mi">2000</span><span class="p">)</span> <span class="c1"># bolt bending moment corresponding to shell pull Z = 2000 N</span>
+</pre></div>
+</div>
+<p>The argumment <cite>Z</cite>, passed to <cite>bolt_axial_force</cite> and <cite>bolt_bending_moment</cite> can also be a
+numpy array. In that case an array of Fs and Ms value will be returned.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">2500</span><span class="p">,</span> <span class="mi">3000</span><span class="p">])</span>
+<span class="n">Fs</span> <span class="o">=</span> <span class="n">fseg</span><span class="o">.</span><span class="n">bolt_axial_force</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>       <span class="c1"># return the numpy array (Fs(2000), Fs(2500), Fs(3000))</span>
+<span class="n">Ms</span> <span class="o">=</span> <span class="n">fseg</span><span class="o">.</span><span class="n">bolt_bending_moment</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>    <span class="c1"># return the numpy array (Ms(2000), Ms(2500), Ms(3000))</span>
+</pre></div>
+</div>
 </section>
 <section id="indices-and-tables">
 <h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h2>
