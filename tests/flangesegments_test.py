@@ -1,120 +1,128 @@
 
+import pytest
 from pyflange.flangesegments import PolynomialLFlangeSegment
 from pyflange.bolts import MetricBolt
+from pyflange.gap import gap_height_distribution
 
-from math import pi
+from math import *
 import numpy as np
-import matplotlib.pyplot as plt
-
-m = 1
-mm = 0.001*m
-
-kg = 1
-t = 1000*kg
-
-s = 1
-
-N = kg*m/s**2
-kN = 1000*N
-
-Pa = 1
-GPa = 1e9*Pa
 
 
-fseg = PolynomialLFlangeSegment(
+class TestPolynomialLFlangeSegment:
 
-    a = 190*mm,           # distance between inner face of the flange and center of the bolt hole
-    b = 140*mm,           # distance between center of the bolt hole and center-line of the shell
-    s =  80*mm,           # shell thickness
-    t = 170*mm,           # flange thickness
-    c = 2*pi/120 * 6.5*m, # shell arc length
-    R = 6.5*m,            # shell curvature radius
+    @pytest.fixture
+    def fseg (self):
+        D = 7.5
+        Nb = 120
+        t_sh = 0.072
+        Rm = (D - t_sh) / 2
 
-    Zg = -(700*t + 800*t)*9.81*m/s**2 / 120, # load applied to the flange segment shell at rest
-                                             # (normally dead weight of tower + RNA, divided by the number of bolts)
+        return PolynomialLFlangeSegment(
 
-    bolt = MetricBolt("M64", "8.8"),
-    Fv = 1200*kN,                            # applied bolt preload
+            a = 0.2325,         # distance between inner face of the flange and center of the bolt hole
+            b = 0.166,          # distance between center of the bolt hole and center-line of the shell
+            s = t_sh,           # shell thickness
+            t = 0.200,          # flange thickness
+            c = 2*pi/Nb * Rm,   # shell arc length
+            R = D/2,            # shell outer curvature radius
 
-    Do = 66*mm,     # bolt hole diameter
-    Dw = 115*mm,    # washer diameter
+            Zg = -14795000/Nb,  # load applied to the flange segment shell at rest
+                                # (normally dead weight of tower + RNA, divided by the number of bolts)
 
-    gap_height = 1.4*mm,   # maximum longitudinal gap height
-    gap_length = 2000*mm)  # longitudinal gap length
+            bolt = MetricBolt(
+                nominal_diameter = 0.080,
+                thread_pitch = 0.006,
+                shank_diameter_ratio = 76.1/80,
+                shank_length = 0.270,
+                yield_stress = 900e6,
+                ultimate_tensile_stress = 1000e6,
+                stud = True),
+            Fv = 2876000,        # applied bolt preload
 
+            Do = 0.086,     # bolt hole diameter
+            Dw = 0.140,    # washer diameter
 
+            gap_height = gap_height_distribution(D, 0.0014, pi/6*D/2).ppf(0.95),   # maximum longitudinal gap height
+            gap_angle = pi/6,  # longitudinal gap length
 
-Z1 = fseg.shell_force_at_rest
-Fs1 = fseg.bolt_force_at_rest
-
-Z2 = fseg.shell_force_at_tensile_ULS
-Z2A = fseg._ideal_shell_force_at_tensile_ULS
-Z2B = fseg._cantilever_shell_force_at_tensile_ULS
-Fs2 = fseg.bolt_force_at_tensile_ULS
-
-Z3 = fseg.shell_force_at_small_displacement
-Fs3 = fseg.bolt_force_at_small_displacement
-
-poli = fseg._tensile_force_polynomial
-cpoli = fseg._compressive_force_polynomial
-
-
-print("")
-
-print(f"Z1 = {Z1/kN:.2f} kN")
-print(f"Fs1 = {Fs1/kN:.2f} kN")
-print("")
-
-print(f"Z0 = {Z2A/kN:.2f} kN")
-print(f"Z2_ = {Z2B/kN:.2f} kN")
-print(f"Z2 = {Z2/kN:.2f} kN")
-print(f"Fs2 = {Fs2/kN:.2f} kN")
-print("")
-
-print(f"Z3 = {Z3/kN:.2f} kN")
-print(f"Fs3 = {Fs3/kN:.2f} kN")
-print("")
-
-print("Polynomial in tensile domain:")
-print(poli)
-
-Z = np.linspace(Z1, Z2, 1000)
-F = fseg.bolt_axial_force(Z)
-# F = np.array(poli(Zi) for Zi in Z])
-
-plt.xlabel("Z [kN]")
-plt.ylabel("Fs [kN]")
-plt.grid(visible=True)
-plt.plot(Z/kN, F/kN)
-# plt.plot(np.array([Z1, Z3, Z2])/kN, np.array([Fs1, Fs3, Fs2])/kN)
-plt.show()
-
-print("")
-print("Polynomial in compressive domain:")
-print(cpoli)
-
-Z = np.linspace(cpoli.domain[0], cpoli.domain[1], 1000)
-F = cpoli(Z)
-# F = np.array(poli(Zi) for Zi in Z])
-
-plt.xlabel("Z [kN]")
-plt.ylabel("Fs [kN]")
-plt.grid(visible=True)
-plt.plot(Z/kN, F/kN)
-# plt.plot(np.array([Z1, Z3, Z2])/kN, np.array([Fs1, Fs3, Fs2])/kN)
-plt.show()
+            s_ratio = 102/72)        # ratio of bottom shell thickness over tower shell thickness
 
 
-print("")
-print("Total polynomial:")
+    def test_shell_force_at_rest (self, fseg):
+        assert round(fseg.shell_force_at_rest/1000, 1) == -123.3
 
-Z = np.linspace(1.2*cpoli.domain[0], 1.2*poli.domain[1], 2000)
-F = fseg.bolt_axial_force(Z)
-# F = np.array(poli(Zi) for Zi in Z])
 
-plt.xlabel("Z [kN]")
-plt.ylabel("Fs [kN]")
-plt.grid(visible=True)
-plt.plot(Z/kN, F/kN)
-# plt.plot(np.array([Z1, Z3, Z2])/kN, np.array([Fs1, Fs3, Fs2])/kN)
-plt.show()
+    def test_bolt_force_at_rest (self, fseg):
+        assert round(fseg.bolt_force_at_rest/1000, 1) == 2876.0
+
+
+    def test_bolt_moment_at_rest (self, fseg):
+        assert round(fseg.bolt_moment_at_rest, 1) == -14.2
+
+
+    def test_shell_force_at_small_displacement (self, fseg):
+        assert round(fseg.shell_force_at_small_displacement/1000, 1) == 248.1
+
+
+    def test_bolt_force_at_small_displacement (self, fseg):
+        assert round(fseg.bolt_force_at_small_displacement/1000, 1) == 2928.9
+
+
+    def test_bolt_moment_at_small_displacement (self, fseg):
+        assert round(fseg.bolt_moment_at_small_displacement, 1) == 193.2
+
+
+    def test_shell_force_at_tensile_ULS (self, fseg):
+        assert round(fseg.shell_force_at_tensile_ULS/1000, 1) == 2003.8
+
+
+    def test_bolt_force_at_tensile_ULS (self, fseg):
+        assert round(fseg.bolt_force_at_tensile_ULS/1000, 1) == 3595.0
+
+
+    def test_bolt_moment_at_tensile_ULS (self, fseg):
+        assert round(fseg.bolt_moment_at_tensile_ULS, 1) == 2470.5
+
+
+    def test_shell_force_at_closed_gap (self, fseg):
+        assert round(fseg.shell_force_at_closed_gap/1000, 1) == -1234.5
+
+
+    def test_bolt_axial_force (self, fseg):
+        Z1 = fseg.shell_force_at_rest
+        Fs1 = fseg.bolt_force_at_rest
+        Z2 = fseg.shell_force_at_tensile_ULS
+        Fs2 = fseg.bolt_force_at_tensile_ULS
+        Z3 = fseg.shell_force_at_small_displacement
+        Fs3 = fseg.bolt_force_at_small_displacement
+        Z4 = fseg.shell_force_at_closed_gap
+        Fs4 = fseg.bolt_axial_force(Z4)
+
+        assert fseg.bolt_axial_force(Z1) == Fs1
+        assert fseg.bolt_axial_force(Z2) == Fs2
+        assert fseg.bolt_axial_force(Z3) == Fs3
+        assert round(Fs4/1000, 1) == 2815.0
+
+        Z = np.array([Z1, Z2, Z3])
+        Fs = np.array([Fs1, Fs2, Fs3])
+        assert np.equal(Fs, fseg.bolt_axial_force(Z))
+
+
+    def test_bolt_bending_moment (self, fseg):
+        Z1 = fseg.shell_force_at_rest
+        Ms1 = fseg.bolt_moment_at_rest
+        Z2 = fseg.shell_force_at_tensile_ULS
+        Ms2 = fseg.bolt_moment_at_tensile_ULS
+        Z3 = fseg.shell_force_at_small_displacement
+        Ms3 = fseg.bolt_moment_at_small_displacement
+        Z4 = fseg.shell_force_at_closed_gap
+        Ms4 = fseg.bolt_bending_moment(Z4)
+
+        assert fseg.bolt_bending_moment(Z1) == Ms1
+        assert fseg.bolt_bending_moment(Z2) == Ms2
+        assert fseg.bolt_bending_moment(Z3) == Ms3
+        assert round(Ms4, 1) == -273.7
+
+        Z = np.array([Z1, Z2, Z3, Z4])
+        Ms = np.array([Ms1, Ms2, Ms3, Ms4])
+        assert np.equal(Ms, fseg.bolt_bending_moment(Z))

@@ -122,6 +122,7 @@ class TestMetricBolt:
 
     def test_axial_stiffness (self):
 
+        # Hex head bolt
         bolt = MetricBolt(
             nominal_diameter = 0.080,
             thread_pitch = 0.006,
@@ -132,7 +133,7 @@ class TestMetricBolt:
 
         assert round(bolt.axial_stiffness(0.400)/1e6) == 1831
 
-
+        # Stud bolt
         bolt = MetricBolt(
             nominal_diameter = 0.080,
             thread_pitch = 0.006,
@@ -147,6 +148,7 @@ class TestMetricBolt:
 
     def test_bending_stiffness (self):
 
+        # Hex head bolt
         bolt = MetricBolt(
             nominal_diameter = 0.080,
             thread_pitch = 0.006,
@@ -157,7 +159,7 @@ class TestMetricBolt:
 
         assert round(bolt.bending_stiffness(0.400)/1e3) == 648
 
-
+        # Stud bolt
         bolt = MetricBolt(
             nominal_diameter = 0.080,
             thread_pitch = 0.006,

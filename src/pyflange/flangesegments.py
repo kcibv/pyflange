@@ -271,7 +271,7 @@ class PolynomialFlangeSegment (FlangeSegment):
 
         # Value of Z below which the compressive polynomial
         # becomes practically constant
-        Zmin = -self.shell_force_at_closed_gap + Z1
+        Zmin = self.shell_force_at_closed_gap + Z1
 
         # Compressive polynomial coefficients
         c2 = -0.5 * X1 / (Zmin - Z1)
@@ -337,7 +337,7 @@ class PolynomialFlangeSegment (FlangeSegment):
 
         # Value of Z below which the compressive polynomial
         # becomes practically constant
-        Zmin = -self.shell_force_at_closed_gap + Z1
+        Zmin = self.shell_force_at_closed_gap + Z1
 
         # Compressive polynomial coefficients
         c2 = -0.5 * X1 / (Zmin - Z1)
@@ -630,7 +630,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     @cached_property
     def shell_force_at_closed_gap (self):
         ''' Force necessary to completely close the imperfection gap '''
-        return 0.5 * self._gap_stiffness * self.gap_height * self.c
+        return -0.5 * self._gap_stiffness * self.gap_height * self.c
 
 
     @cached_property
@@ -664,7 +664,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # avoid that, we limit the value of Z to 20% of Z0.
         Z0 = self._ideal_shell_force_at_tensile_ULS
         return max(
-            Z0 - self.shell_force_at_closed_gap,
+            Z0 + self.shell_force_at_closed_gap,
             0.2 * Z0)
 
 
@@ -786,7 +786,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         p = self._bolt_axial_stiffness / (self._bolt_axial_stiffness + self._flange_axial_stiffness)
 
         # Initial slope correction factor
-        scf = min(1.0 , (self.shell_force_at_closed_gap / (0.2 * self.Fv))**2)
+        scf = min(1.0 , (-self.shell_force_at_closed_gap / (0.2 * self.Fv))**2)
 
         # Initial slope
         return scf * p
