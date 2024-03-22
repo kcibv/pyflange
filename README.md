@@ -109,6 +109,19 @@ For more details, read the [pyflage API documentation](https://kcibv.github.io/p
 
 
 
+Testing
+-------------------------------------------------------------------------
+
+Once you clone this package, you can run the unit tests (assuming you
+have already the pytest module installed) as follows:
+
+``` python
+cd <path-to-package>
+py -m pytest
+```
+
+
+
 License
 -------------------------------------------------------------------------
 pyFlange - python library for large flanges design
