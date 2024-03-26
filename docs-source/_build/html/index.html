@@ -160,6 +160,10 @@ below.</p>
 
    <span class="n">gap_height</span> <span class="o">=</span> <span class="n">gap_dist</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.95</span><span class="p">),</span>    <span class="c1"># maximum longitudinal gap height, 95% quantile</span>
    <span class="n">gap_angle</span> <span class="o">=</span> <span class="n">gap_angle</span><span class="p">)</span>              <span class="c1"># longitudinal gap length</span>
+
+<span class="c1"># Assert if the flange-segment fails with failure mode B.</span>
+<span class="c1"># If not, an exception will be raised.</span>
+<span class="n">fseg</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="mf">470e6</span><span class="p">,</span> <span class="mf">450e6</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Notice that a consistent set of units of measurements has been used for inputs, namely:
