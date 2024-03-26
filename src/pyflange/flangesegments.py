@@ -505,7 +505,37 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     s_ratio: float = 1.0    # Ratio of bottom shell thickness over s. Default s_botom = s.
 
 
-    #TODO: Verify failure mode B
+    def validate (self, fu_sh, fu_fl):
+        ''' Check if this L-Flange Segment matches the assumptions,
+        that is, if it fails according to failure mode B. If not, it
+        will throw an exceptions.
+
+        The required parameters are respectively: the ultimate tensile
+        stress of the shell (fu_sh) and the ultimate tensile stress
+        of the flange (fu_fl).
+        '''
+
+        # Failure mode A
+        F_tRd = self.bolt.ultimate_tensile_capacity()   # Bolt ultimate tensile capacity
+        Z_uA = F_tRd                                    # Ultimate shell pull for failure mode A
+
+        # Failure mode B
+        M_pl3 = fu_sh * self.c * self.s**2 / 4
+        Z_uB = (F_tRd * self.a + M_pl3) / (self.a + self.b)
+
+        # Check if failure mode A occurs
+        if Z_uA < Z_uB:
+            raise ValueError("The given flange-segment failes with failure mode A, while only failure mode B is supported by the polynomial model.")
+
+        # Failure mode C
+        c2 = self.c / (self.R - self.s/2) * (self.R - self.s/2 - self.b) - self.Do
+        M_pl2 = fu_fl * c2 * self.t**2 / 4
+        Z_uC = (M_pl2 + M_pl3) / self.b
+
+        # Check if failure mode C occurs
+        if Z_uC < Z_uB:
+            raise ValueError("The given flange-segment failes with failure mode C, while only failure mode B is supported by the polynomial model.")
+
 
     @cached_property
     def _bolt_axial_stiffness (self):

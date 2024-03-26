@@ -60,7 +60,7 @@ def create_flange_segment (gap_angle):
     print(f"gap mean height: k_mean = {k_mean/mm:.3f} mm")
     print(f"gap COV: COV_k = {COV_k:.3f}")
 
-    return PolynomialLFlangeSegment(
+    fseg = PolynomialLFlangeSegment(
 
         a = 232.5*mm,           # distance between inner face of the flange and center of the bolt hole
         b = 166.5*mm,           # distance between center of the bolt hole and center-line of the shell
@@ -83,6 +83,11 @@ def create_flange_segment (gap_angle):
 
         s_ratio = 102/72        # ratio of bottom shell thickness over tower shell thickness
     )
+
+    # Assert that failure mode is B.
+    fseg.validate(470*MPa, 450*MPa)
+
+    return fseg
 
 
 

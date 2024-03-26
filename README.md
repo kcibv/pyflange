@@ -76,6 +76,10 @@ fseg = PolyNomialFlangeSegment(
 
     gap_height = gap_dist.ppf(0.95),    # maximum longitudinal gap height, 95% quantile
     gap_angle = gap_angle)              # longitudinal gap length
+
+# Assert if the flange-segment fails with failure mode B.
+# If not, an exception will be raised. 
+fseg.validate(470e6, 450e6)
 ```
 
 > Notice that a consistent set of units of measurements has been used for inputs, namely:
