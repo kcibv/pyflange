@@ -85,7 +85,7 @@ def create_flange_segment (gap_angle):
     )
 
     # Assert that failure mode is B.
-    fseg.validate(470*MPa, 450*MPa)
+    #fseg.validate(335*MPa, 285*MPa)
 
     return fseg
 

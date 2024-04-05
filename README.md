@@ -69,7 +69,7 @@ fseg = PolyNomialFlangeSegment(
                             # (normally dead weight of tower + RNA, divided by the number of bolts)
 
     bolt = M80,             # bolt object created above
-    Fv = 2876000,           # applied bolt preload
+    Fv = 2876000,           # design bolt preload, after preload losses
 
     Do = 0.086,             # bolt hole diameter
     Dw = 0.140,             # washer diameter

@@ -24,6 +24,9 @@ author = 'Marcello Del Buono (m.buono@kci.nl)'
 # The full version, including alpha/beta/rc tags
 release = '0.1.0'
 
+# The root document, containing the toctree
+root_doc = "toc"
+
 
 # -- General configuration ---------------------------------------------------
 

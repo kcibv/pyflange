@@ -505,7 +505,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     s_ratio: float = 1.0    # Ratio of bottom shell thickness over s. Default s_botom = s.
 
 
-    def validate (self, fu_sh, fu_fl):
+    def validate (self, fy_sh, fy_fl):
         ''' Check if this L-Flange Segment matches the assumptions,
         that is, if it fails according to failure mode B. If not, it
         will throw an exceptions.
@@ -514,27 +514,58 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         stress of the shell (fu_sh) and the ultimate tensile stress
         of the flange (fu_fl).
         '''
+        from scipy.optimize import fsolve
+
+        gamma_0 = 1.1
+        fd_sh = fy_sh / gamma_0
+        fd_fl = fy_fl / gamma_0
+
+        fseg_angle = self.c / (self.R - self.s/2)
+        c_hole = fseg_angle * (self.R - self.s/2 - self.b)
+        c_washer = fseg_angle * (self.R - self.s/2 - self.b + (self.Do/2 + self.Dw/2)/2)
 
         # Failure mode A
         F_tRd = self.bolt.ultimate_tensile_capacity()   # Bolt ultimate tensile capacity
-        Z_uA = F_tRd                                    # Ultimate shell pull for failure mode A
+        Zu_A = F_tRd                                    # Ultimate shell pull for failure mode A
+
+        # Shell cross-section ultimate capacities
+        Nu_sh = fd_sh * self.c * self.s                 # Pure axial ultimate capacity
+        Mu_sh = fd_sh * self.c * self.s**2 / 4          # Pure bending ultimate capacity
+        MNu_sh = lambda N: Mu_sh * (1 - (N / Nu_sh)**2) if N < Nu_sh else 0 # Bending ultimate capacity, concurrent with axial force
+
+        # Flange cross-section ultimate capacity (at hole)
+        Vu_fl = fd_fl * c_washer * self.t / 3**0.5                # Pure shear ultimate capacity
+        Mu_fl = fd_fl * c_washer * self.t**2 / 4                  # Pure bending ultimate capacity
+        MVu_fl = lambda V: Mu_fl * (1 - (V / Vu_fl)**2)**0.5 if V < Vu_fl else 0    # Bending ultimate capacity, concurrent with shear
 
         # Failure mode B
-        M_pl3 = fu_sh * self.c * self.s**2 / 4
-        Z_uB = (F_tRd * self.a + M_pl3) / (self.a + self.b)
+        ZB = lambda Mu: (F_tRd + Mu) / (self.a + self.b)
+        Zu_B_sh = fsolve(lambda Z: ZB(MNu_sh(Z)) - Z, ZB(Mu_sh))
+        Zu_B_fl = fsolve(lambda Z: ZB(MVu_fl(Z)) - Z, ZB(Mu_fl))
+        Zu_B = min(Zu_B_sh, Zu_B_fl)
 
-        # Check if failure mode A occurs
-        if Z_uA < Z_uB:
-            raise ValueError("The given flange-segment failes with failure mode A, while only failure mode B is supported by the polynomial model.")
+        # Failure mode D
+        Mu_pl2 = fd_fl * c_hole * self.t**2 / 4
+        DMu_pl2 = F_tRd/2 * (self.Do/2 + self.Dw/2)/2
+        Mu_pl3 = min(MNu_sh(Zu_B_sh), MVu_fl(Zu_B_fl))
+        Zu_D = (Mu_pl2 + DMu_pl2 + Mu_pl3) / self.b
 
-        # Failure mode C
-        c2 = self.c / (self.R - self.s/2) * (self.R - self.s/2 - self.b) - self.Do
-        M_pl2 = fu_fl * c2 * self.t**2 / 4
-        Z_uC = (M_pl2 + M_pl3) / self.b
+        # Failure mode E
+        Zu_E = (Mu_fl + Mu_pl3) / self.b
 
-        # Check if failure mode C occurs
-        if Z_uC < Z_uB:
-            raise ValueError("The given flange-segment failes with failure mode C, while only failure mode B is supported by the polynomial model.")
+        # Governing failure mode check
+        Zu_min = min(Zu_A, Zu_B, Zu_D, Zu_E)
+        if Zu_min == Zu_A:
+            failure_mode = "A"
+        elif Zu_min == Zu_B:
+            failure_mode = "B"
+        elif Zu_min == Zu_D:
+            failure_mode = "D"
+        elif Zu_min == Zu_E:
+            failure_mode = "E"
+
+        if failure_mode != "B":
+            raise ValueError(f"Failure mode {failure_mode} detected, while only failure mode B is supported.")
 
 
     @cached_property
