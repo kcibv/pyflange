@@ -20,8 +20,7 @@
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pyflange.flangesegments" href="flangesegments.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -32,7 +31,7 @@
 
           
           
-          <a href="#" class="icon icon-home">
+          <a href="toc.html" class="icon icon-home">
             pyflange
           </a>
 <div role="search">
@@ -47,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="flangesegments.html">pyflange.flangesegments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bolts.html">pyflange.bolts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gap.html">pyflange.gap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="montecarlo.html">Example: Montecarlo Simulation</a></li>
 </ul>
 
         </div>
@@ -55,14 +55,14 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">pyflange</a>
+          <a href="toc.html">pyflange</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="toc.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">PyFlange API documentation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
@@ -75,25 +75,6 @@
              
   <blockquote>
 <div></div></blockquote>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="flangesegments.html">pyflange.flangesegments</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="flangesegments.html#pyflange.flangesegments.FlangeSegment"><code class="docutils literal notranslate"><span class="pre">FlangeSegment</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="flangesegments.html#pyflange.flangesegments.PolynomialFlangeSegment"><code class="docutils literal notranslate"><span class="pre">PolynomialFlangeSegment</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="flangesegments.html#pyflange.flangesegments.PolynomialLFlangeSegment"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="bolts.html">pyflange.bolts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="bolts.html#pyflange.bolts.MetricBolt"><code class="docutils literal notranslate"><span class="pre">MetricBolt</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="bolts.html#pyflange.bolts.StandardMetricBolt"><code class="docutils literal notranslate"><span class="pre">StandardMetricBolt()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="gap.html">pyflange.gap</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="gap.html#pyflange.gap.gap_height_distribution"><code class="docutils literal notranslate"><span class="pre">gap_height_distribution()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</div>
 <section id="pyflange-api-documentation">
 <h1>PyFlange API documentation<a class="headerlink" href="#pyflange-api-documentation" title="Link to this heading"></a></h1>
 <p>This package has the ambitious goal of providing all the tools engineers
@@ -127,8 +108,9 @@ pip<span class="w"> </span>install<span class="w"> </span>pyflange-0.1.0-py3-non
 using it. First of all, you need to create a <cite>FlangeSegment</cite> object as shown
 below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create the bolt object</span>
-<span class="kn">from</span> <span class="nn">pyflange.bolts</span> <span class="kn">import</span> <span class="n">MetricBolt</span>
+<span class="kn">from</span> <span class="nn">pyflange.bolts</span> <span class="kn">import</span> <span class="n">StandardMetricBolt</span>
 <span class="n">M80</span> <span class="o">=</span> <span class="n">StandardMetricBolt</span><span class="p">(</span><span class="s2">&quot;M80&quot;</span><span class="p">,</span> <span class="s2">&quot;10.9&quot;</span><span class="p">,</span> <span class="n">shank_length</span><span class="o">=</span><span class="mf">0.270</span><span class="p">,</span> <span class="n">stud</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">Nb</span> <span class="o">=</span> <span class="mi">120</span>    <span class="c1"># number of bolts</span>
 
 <span class="c1"># Define the gap parameters</span>
 <span class="kn">from</span> <span class="nn">pyflange.gap</span> <span class="kn">import</span> <span class="n">gap_height_distribution</span>
@@ -140,7 +122,6 @@ below.</p>
 
 <span class="c1"># Create the FlangeSegment model</span>
 <span class="kn">from</span> <span class="nn">pyflange.flangesegments</span> <span class="kn">import</span> <span class="n">PolynomialLFlangeSegment</span>
-<span class="n">Nb</span> <span class="o">=</span> <span class="mi">120</span>    <span class="c1"># number of bolts</span>
 <span class="n">fseg</span> <span class="o">=</span> <span class="n">PolyNomialFlangeSegment</span><span class="p">(</span>
    <span class="n">a</span> <span class="o">=</span> <span class="mf">0.2325</span><span class="p">,</span>             <span class="c1"># distance between inner face of the flange and center of the bolt hole</span>
    <span class="n">b</span> <span class="o">=</span> <span class="mf">0.1665</span><span class="p">,</span>             <span class="c1"># distance between center of the bolt hole and center-line of the shell</span>
@@ -153,13 +134,17 @@ below.</p>
                            <span class="c1"># (normally dead weight of tower + RNA, divided by the number of bolts)</span>
 
    <span class="n">bolt</span> <span class="o">=</span> <span class="n">M80</span><span class="p">,</span>             <span class="c1"># bolt object created above</span>
-   <span class="n">Fv</span> <span class="o">=</span> <span class="mi">2876000</span><span class="p">,</span>           <span class="c1"># applied bolt preload</span>
+   <span class="n">Fv</span> <span class="o">=</span> <span class="mi">2876000</span><span class="p">,</span>           <span class="c1"># design bolt preload, after preload losses</span>
 
    <span class="n">Do</span> <span class="o">=</span> <span class="mf">0.086</span><span class="p">,</span>             <span class="c1"># bolt hole diameter</span>
    <span class="n">Dw</span> <span class="o">=</span> <span class="mf">0.140</span><span class="p">,</span>             <span class="c1"># washer diameter</span>
 
    <span class="n">gap_height</span> <span class="o">=</span> <span class="n">gap_dist</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">0.95</span><span class="p">),</span>    <span class="c1"># maximum longitudinal gap height, 95% quantile</span>
    <span class="n">gap_angle</span> <span class="o">=</span> <span class="n">gap_angle</span><span class="p">)</span>              <span class="c1"># longitudinal gap length</span>
+
+<span class="c1"># Assert if the flange-segment fails with failure mode B.</span>
+<span class="c1"># If not, an exception will be raised.</span>
+<span class="n">fseg</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="mf">325e6</span><span class="p">,</span> <span class="mf">315e6</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Notice that a consistent set of units of measurements has been used for inputs, namely:
@@ -193,9 +178,7 @@ numpy array. In that case an array of Fs and Ms value will be returned.</p>
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="flangesegments.html" class="btn btn-neutral float-right" title="pyflange.flangesegments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

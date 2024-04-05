@@ -3,12 +3,6 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. toctree::
-   :maxdepth: 2
-
-   flangesegments
-   bolts
-   gap
 
 
 
@@ -59,8 +53,9 @@ below.
 .. code-block:: python
 
    # Create the bolt object
-   from pyflange.bolts import MetricBolt
+   from pyflange.bolts import StandardMetricBolt
    M80 = StandardMetricBolt("M80", "10.9", shank_length=0.270, stud=True)
+   Nb = 120    # number of bolts
 
    # Define the gap parameters
    from pyflange.gap import gap_height_distribution
@@ -72,7 +67,6 @@ below.
 
    # Create the FlangeSegment model
    from pyflange.flangesegments import PolynomialLFlangeSegment
-   Nb = 120    # number of bolts
    fseg = PolyNomialFlangeSegment(
       a = 0.2325,             # distance between inner face of the flange and center of the bolt hole
       b = 0.1665,             # distance between center of the bolt hole and center-line of the shell
@@ -85,13 +79,17 @@ below.
                               # (normally dead weight of tower + RNA, divided by the number of bolts)
 
       bolt = M80,             # bolt object created above
-      Fv = 2876000,           # applied bolt preload
+      Fv = 2876000,           # design bolt preload, after preload losses
 
       Do = 0.086,             # bolt hole diameter
       Dw = 0.140,             # washer diameter
 
       gap_height = gap_dist.ppf(0.95),    # maximum longitudinal gap height, 95% quantile
       gap_angle = gap_angle)              # longitudinal gap length
+
+   # Assert if the flange-segment fails with failure mode B.
+   # If not, an exception will be raised.
+   fseg.validate(325e6, 315e6)
 
 Notice that a consistent set of units of measurements has been used for inputs, namely:
 meter for distances, radians for angles and newton for forces. It is not required to

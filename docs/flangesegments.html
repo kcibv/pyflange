@@ -22,7 +22,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pyflange.bolts" href="bolts.html" />
-    <link rel="prev" title="PyFlange API documentation" href="index.html" /> 
+    <link rel="prev" title="&lt;no title&gt;" href="toc.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -33,7 +33,7 @@
 
           
           
-          <a href="index.html" class="icon icon-home">
+          <a href="toc.html" class="icon icon-home">
             pyflange
           </a>
 <div role="search">
@@ -53,6 +53,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.validate"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.validate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_rest"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.shell_force_at_rest</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_rest"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.bolt_force_at_rest</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_small_displacement"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.shell_force_at_small_displacement</span></code></a></li>
@@ -65,6 +66,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bolts.html">pyflange.bolts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gap.html">pyflange.gap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="montecarlo.html">Example: Montecarlo Simulation</a></li>
 </ul>
 
         </div>
@@ -73,14 +75,14 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">pyflange</a>
+          <a href="toc.html">pyflange</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="toc.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">pyflange.flangesegments</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/flangesegments.rst.txt" rel="nofollow"> View page source</a>
@@ -285,6 +287,17 @@ threfore, by default, s_botom = s.</p>
 This class is designed to be immutable, therefore modifying the attributes after
 instantiation is not a good idea. If you need a segment with different attributes, just
 create a new one.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fy_sh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fy_fl</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.validate" title="Link to this definition"></a></dt>
+<dd><p>Check if this L-Flange Segment matches the assumptions,
+that is, if it fails according to failure mode B. If not, it
+will throw an exceptions.</p>
+<p>The required parameters are respectively: the ultimate tensile
+stress of the shell (fu_sh) and the ultimate tensile stress
+of the flange (fu_fl).</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_rest">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shell_force_at_rest</span></span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_rest" title="Link to this definition"></a></dt>
@@ -340,7 +353,7 @@ to its maximum tensile capacity.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="PyFlange API documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="toc.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="bolts.html" class="btn btn-neutral float-right" title="pyflange.bolts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

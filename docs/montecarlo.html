@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Example: Montecarlo Simulation &mdash; pyflange 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=01f34227"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="pyflange.gap" href="gap.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="toc.html" class="icon icon-home">
+            pyflange
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">PyFlange API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flangesegments.html">pyflange.flangesegments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bolts.html">pyflange.bolts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gap.html">pyflange.gap</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Example: Montecarlo Simulation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="toc.html">pyflange</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="toc.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Example: Montecarlo Simulation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/montecarlo.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="example-montecarlo-simulation">
+<span id="id1"></span><h1>Example: Montecarlo Simulation<a class="headerlink" href="#example-montecarlo-simulation" title="Link to this heading"></a></h1>
+<p>This example shows how the Polynomial L-Flange Segment model implementation
+can be used to predict a random serie of actualizations of bolt force and
+bolt moment, based on the random imput of the following parameters.</p>
+<ul class="simple">
+<li><p>Gap Length, assumed normally distributed with mean value <cite>30°</cite> and COV <cite>10%</cite></p></li>
+<li><p>Gap Height, assumed log-normally distributed according to IEC 61400-6 AMD1, section 6.7.5.2</p></li>
+<li><p>Bolt preload, assumed normally distributed with mean value <cite>2876 kN</cite> and COV <cite>10%</cite></p></li>
+</ul>
+<p>All the other parameters are assumed to be deterministically known, and defined as
+follows:</p>
+<ul class="simple">
+<li><p>Bolt <cite>M80</cite> with meterial grade <cite>10.9</cite></p></li>
+<li><p>Distance between inner face of the flange and center of the bolt hole: <cite>a = 232.5 mm</cite></p></li>
+<li><p>Distance between center of the bolt hole and center-line of the shell: <cite>b = 166.5 mm</cite></p></li>
+<li><p>Shell thickness: <cite>s = 72 mm</cite></p></li>
+<li><p>Flange thickness: <cite>t = 200 mm</cite></p></li>
+<li><p>Flange outer diameter: <cite>D = 7.5 m</cite></p></li>
+<li><p>Bolt hole diameter: <cite>Do = 86 mm</cite></p></li>
+<li><p>Washer outer diameter: <cite>Dw = 140 mm</cite></p></li>
+</ul>
+<p>Let’s first define a function that, given an actualization of gap length, gap height and
+bolt preload generates the corresponding FlangeSegment object.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Imports</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span>
+<span class="kn">from</span> <span class="nn">pyflange.bolts</span> <span class="kn">import</span> <span class="n">StandardMetricBolt</span>
+<span class="kn">from</span> <span class="nn">pyflange.flangesegments</span> <span class="kn">import</span> <span class="n">PolynomialLFlangeSegment</span>
+
+<span class="c1"># Define some units for the sake of readability</span>
+<span class="n">m</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">mm</span> <span class="o">=</span> <span class="mf">0.001</span><span class="o">*</span><span class="n">m</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">kN</span> <span class="o">=</span> <span class="mi">1000</span><span class="o">*</span><span class="n">N</span>
+
+<span class="c1"># Create the bolt object</span>
+<span class="n">M80</span> <span class="o">=</span> <span class="n">StandardMetricBolt</span><span class="p">(</span><span class="s2">&quot;M80&quot;</span><span class="p">,</span> <span class="s2">&quot;10.9&quot;</span><span class="p">,</span> <span class="n">shank_length</span><span class="o">=</span><span class="mi">270</span><span class="o">*</span><span class="n">mm</span> <span class="n">stud</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">Nb</span> <span class="o">=</span> <span class="mi">120</span>   <span class="c1"># Number of bolts</span>
+
+<span class="c1"># Flange Segment Constructor</span>
+<span class="k">def</span> <span class="nf">create_flange_segment</span> <span class="p">(</span><span class="n">gap_angle</span><span class="p">,</span> <span class="n">gap_height</span><span class="p">,</span> <span class="n">bolt_preload</span><span class="p">):</span>
+   <span class="k">return</span> <span class="n">PolynomialLFlangeSegment</span><span class="p">(</span>
+      <span class="n">a</span> <span class="o">=</span> <span class="mf">232.5</span><span class="o">*</span><span class="n">mm</span><span class="p">,</span>           <span class="c1"># distance between inner face of the flange and center of the bolt hole</span>
+      <span class="n">b</span> <span class="o">=</span> <span class="mf">166.5</span><span class="o">*</span><span class="n">mm</span><span class="p">,</span>           <span class="c1"># distance between center of the bolt hole and center-line of the shell</span>
+      <span class="n">s</span> <span class="o">=</span> <span class="mi">72</span><span class="o">*</span><span class="n">mm</span><span class="p">,</span>              <span class="c1"># shell thickness</span>
+      <span class="n">t</span> <span class="o">=</span> <span class="mf">200.0</span><span class="o">*</span><span class="n">mm</span><span class="p">,</span>           <span class="c1"># flange thickness</span>
+      <span class="n">c</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="o">/</span><span class="n">Nb</span> <span class="o">*</span> <span class="p">(</span><span class="mf">7.5</span><span class="o">*</span><span class="n">m</span> <span class="o">-</span> <span class="mi">72</span><span class="o">*</span><span class="n">mm</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>   <span class="c1"># shell arc length</span>
+      <span class="n">R</span> <span class="o">=</span> <span class="mf">7.5</span><span class="o">*</span><span class="n">m</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>          <span class="c1"># shell outer curvature radius</span>
+
+      <span class="n">Zg</span> <span class="o">=</span> <span class="o">-</span><span class="mi">15000</span><span class="o">*</span><span class="n">kN</span> <span class="o">/</span> <span class="n">Nb</span><span class="p">,</span>    <span class="c1"># load applied to the flange segment shell at rest</span>
+
+      <span class="n">bolt</span> <span class="o">=</span> <span class="n">M80</span><span class="p">,</span>
+      <span class="n">Fv</span> <span class="o">=</span> <span class="n">bolt_preload</span><span class="p">,</span>      <span class="c1"># applied bolt preload</span>
+
+      <span class="n">Do</span> <span class="o">=</span> <span class="mi">86</span><span class="o">*</span><span class="n">mm</span><span class="p">,</span>     <span class="c1"># bolt hole diameter</span>
+      <span class="n">Dw</span> <span class="o">=</span> <span class="mi">140</span><span class="o">*</span><span class="n">mm</span><span class="p">,</span>    <span class="c1"># washer diameter</span>
+
+      <span class="n">gap_height</span> <span class="o">=</span> <span class="n">gap_height</span><span class="p">,</span>   <span class="c1"># maximum longitudinal gap height</span>
+      <span class="n">gap_angle</span> <span class="o">=</span> <span class="n">gap_angle</span>      <span class="c1"># longitudinal gap length</span>
+   <span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we define the stochastic variables <cite>gap_angle</cite>, <cite>gap_height</cite> and <cite>bolt_pretension</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Gap Height Log-Normal Distribution</span>
+<span class="kn">from</span> <span class="nn">pyflange.gap</span> <span class="kn">import</span> <span class="n">gap_height_distribution</span>
+<span class="n">D</span> <span class="o">=</span> <span class="mf">7.5</span><span class="o">*</span><span class="n">m</span>
+<span class="n">gap_length</span> <span class="o">=</span> <span class="n">pi</span><span class="o">/</span><span class="mi">6</span> <span class="o">*</span> <span class="n">D</span><span class="o">/</span><span class="mi">2</span>
+<span class="n">gap_height_dist</span> <span class="o">=</span> <span class="n">gap_height_distribution</span><span class="p">(</span><span class="mf">7.5</span><span class="o">*</span><span class="n">m</span><span class="p">,</span> <span class="mf">1.4</span><span class="o">*</span><span class="n">mm</span><span class="o">/</span><span class="n">m</span><span class="p">,</span> <span class="n">gap_length</span><span class="p">)</span>
+
+<span class="c1"># Gap angle distribution</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">normal</span>
+<span class="n">mean</span> <span class="o">=</span> <span class="n">pi</span><span class="o">/</span><span class="mi">6</span>
+<span class="n">std</span> <span class="o">=</span> <span class="mf">0.10</span> <span class="o">*</span> <span class="n">mean</span>
+<span class="n">gap_angle_dist</span> <span class="o">=</span> <span class="n">norm</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">std</span><span class="p">)</span>
+
+<span class="c1"># Bolt pretension distribution</span>
+<span class="n">mean</span> <span class="o">=</span> <span class="mi">2876</span><span class="o">*</span><span class="n">kN</span>
+<span class="n">std</span> <span class="o">=</span> <span class="mf">0.10</span> <span class="o">*</span> <span class="n">mean</span>
+<span class="n">bolt_preload_dist</span> <span class="o">=</span> <span class="n">norm</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">std</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next we generate random actualizations of the stochastic parameters and evaluate the
+corresponding values of Fs(Z) and Ms(Z), in discrete form.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let&#39;s define the discrete domain Z of the Fs(Z) and Ms(Z) functions we</span>
+<span class="c1"># want to determine. We define Z as an array of 1000 items, linearly</span>
+<span class="c1"># spaced between -1500 kN and 2100 kN.</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1500</span><span class="o">*</span><span class="n">kN</span><span class="p">,</span> <span class="mi">2100</span><span class="o">*</span><span class="n">kN</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+<span class="c1"># Let&#39;s generating 25000 actualizations of Fs(Z) and Ms(Z) and store them in</span>
+<span class="c1"># two 1000x25000 matrices, where each row is an actualization of the discrete</span>
+<span class="c1"># image of Z through Fs and Ms.</span>
+
+<span class="n">Fs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>    <span class="c1"># Initialize Fs with an empty matrix</span>
+<span class="n">Ms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arrat</span><span class="p">([])</span>    <span class="c1"># Initialize Ms with an empty matrix</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">25000</span><span class="p">):</span>
+
+   <span class="c1"># Generate a random gap height</span>
+   <span class="n">gap_height</span> <span class="o">=</span> <span class="n">gap_height_dist</span><span class="o">.</span><span class="n">rvs</span><span class="p">()</span>
+
+   <span class="c1"># Generate a random gap angle</span>
+   <span class="n">gap_angle</span> <span class="o">=</span> <span class="n">gap_angle_dist</span><span class="o">.</span><span class="n">rvs</span><span class="p">()</span>
+
+   <span class="c1"># Generate a random bolt pretension</span>
+   <span class="n">bolt_preload</span> <span class="o">=</span> <span class="n">bolt_preload_dist</span><span class="o">.</span><span class="n">rvs</span><span class="p">()</span>
+
+   <span class="c1"># Generate the corresponding random FlangeSegment actualization, using the</span>
+   <span class="c1"># factory function defined above</span>
+   <span class="n">fseg</span> <span class="o">=</span> <span class="n">create_flange_segment</span><span class="p">(</span><span class="n">gap_angle</span><span class="p">,</span> <span class="n">gap_height</span><span class="p">,</span> <span class="n">bolt_preload</span><span class="p">)</span>
+
+   <span class="c1"># Generate the Fs image of Z and store it in the Fs matrix</span>
+   <span class="n">Fs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">fseg</span><span class="o">.</span><span class="n">bolt_axial_force</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span> <span class="p">)</span>
+
+   <span class="c1"># Generate the Ms image of Z and store it in the Ms matrix</span>
+   <span class="n">Ms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">fseg</span><span class="o">.</span><span class="n">bolt_bending_moment</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>The generated data in <cite>Fs</cite> and <cite>Ms</cite> can be then used to fit a distribution to
+the data.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gap.html" class="btn btn-neutral float-left" title="pyflange.gap" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, KCI B.V., SGRE, TNO.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
