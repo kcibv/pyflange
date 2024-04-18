@@ -53,7 +53,7 @@ from functools import cached_property
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 import numpy as np
 
@@ -505,14 +505,9 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     s_ratio: float = 1.0    # Ratio of bottom shell thickness over s. Default s_botom = s.
 
 
-    def validate (self, fy_sh, fy_fl):
-        ''' Check if this L-Flange Segment matches the assumptions,
-        that is, if it fails according to failure mode B. If not, it
-        will throw an exceptions.
-
-        The required parameters are respectively: the ultimate tensile
-        stress of the shell (fu_sh) and the ultimate tensile stress
-        of the flange (fu_fl).
+    def failure_mode (self, fy_sh, fy_fl):
+        ''' Determine the failure mode of this flange and returns the
+        corresponding string, which is either "A", "B", "C" or "D".
         '''
         from scipy.optimize import fsolve
 
@@ -539,9 +534,9 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         MVu_fl = lambda V: Mu_fl * (1 - (V / Vu_fl)**2)**0.5 if V < Vu_fl else 0    # Bending ultimate capacity, concurrent with shear
 
         # Failure mode B
-        ZB = lambda Mu: (F_tRd + Mu) / (self.a + self.b)
-        Zu_B_sh = fsolve(lambda Z: ZB(MNu_sh(Z)) - Z, ZB(Mu_sh))
-        Zu_B_fl = fsolve(lambda Z: ZB(MVu_fl(Z)) - Z, ZB(Mu_fl))
+        ZB = lambda Mu: (F_tRd * self.a + Mu) / (self.a + self.b)
+        Zu_B_sh = fsolve(lambda Z: ZB(MNu_sh(Z)) - Z, ZB(Mu_sh))[0]
+        Zu_B_fl = fsolve(lambda Z: ZB(MVu_fl(Z)) - Z, ZB(Mu_fl))[0]
         Zu_B = min(Zu_B_sh, Zu_B_fl)
 
         # Failure mode D
@@ -553,16 +548,28 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # Failure mode E
         Zu_E = (Mu_fl + Mu_pl3) / self.b
 
-        # Governing failure mode check
+        # Determine the governing failure mode
         Zu_min = min(Zu_A, Zu_B, Zu_D, Zu_E)
         if Zu_min == Zu_A:
-            failure_mode = "A"
+            return "A"
         elif Zu_min == Zu_B:
-            failure_mode = "B"
+            return "B"
         elif Zu_min == Zu_D:
-            failure_mode = "D"
+            return "D"
         elif Zu_min == Zu_E:
-            failure_mode = "E"
+            return "E"
+    
+    def validate (self, fy_sh, fy_fl):
+        ''' Check if this L-Flange Segment matches the assumptions,
+        that is, if it fails according to failure mode B. If not, it
+        will throw an exceptions.
+
+        The required parameters are respectively: the ultimate tensile
+        stress of the shell (fu_sh) and the ultimate tensile stress
+        of the flange (fu_fl).
+        '''
+
+        failure_mode = self.failure_mode(fy_sh, fy_fl)
 
         if failure_mode != "B":
             raise ValueError(f"Failure mode {failure_mode} detected, while only failure mode B is supported.")

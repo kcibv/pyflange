@@ -22,7 +22,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pyflange.bolts" href="bolts.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="toc.html" /> 
+    <link rel="prev" title="PyFlange API documentation" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,6 +45,7 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">PyFlange API documentation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">pyflange.flangesegments</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.FlangeSegment"><code class="docutils literal notranslate"><span class="pre">FlangeSegment</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.PolynomialFlangeSegment"><code class="docutils literal notranslate"><span class="pre">PolynomialFlangeSegment</span></code></a><ul>
@@ -53,6 +54,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.failure_mode"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.failure_mode()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.validate"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.validate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_rest"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.shell_force_at_rest</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_rest"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.bolt_force_at_rest</span></code></a></li>
@@ -288,6 +290,13 @@ This class is designed to be immutable, therefore modifying the attributes after
 instantiation is not a good idea. If you need a segment with different attributes, just
 create a new one.</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.failure_mode">
+<span class="sig-name descname"><span class="pre">failure_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fy_sh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fy_fl</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.failure_mode" title="Link to this definition"></a></dt>
+<dd><p>Determine the failure mode of this flange and returns the
+corresponding string, which is either “A”, “B”, “C” or “D”.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.validate">
 <span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fy_sh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fy_fl</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.validate" title="Link to this definition"></a></dt>
 <dd><p>Check if this L-Flange Segment matches the assumptions,
@@ -353,7 +362,7 @@ to its maximum tensile capacity.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="toc.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="PyFlange API documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="bolts.html" class="btn btn-neutral float-right" title="pyflange.bolts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

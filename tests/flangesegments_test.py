@@ -126,3 +126,8 @@ class TestPolynomialLFlangeSegment:
         Z = np.array([Z1, Z2, Z3, Z4])
         Ms = np.array([Ms1, Ms2, Ms3, Ms4])
         assert np.equal(Ms, fseg.bolt_bending_moment(Z))
+
+
+    def test_failure_mode (self, fseg):
+        fm = fseg.failure_mode(335e6, 285e6)
+        assert fm == "B"
