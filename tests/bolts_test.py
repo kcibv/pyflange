@@ -170,3 +170,37 @@ class TestMetricBolt:
             stud = True)
 
         assert round(bolt.bending_stiffness(0.400)/1e3) == 601
+
+
+
+class TestStandardMetricBolt:
+
+    def test_designation (self):
+        bolt = StandardMetricBolt("M16", "8.8")
+        assert bolt.designation == "M16"
+
+
+    def test_shank_diameter (self):
+
+        # Ensure that shank diameter equals nominal diameter by defauls
+        bolt = StandardMetricBolt("M16", "8.8")
+        assert bolt.shank_diameter == 0.016
+
+        # Ensure that shank diameter is a given ratio of the nominal diameter
+        bolt = StandardMetricBolt("M16", "8.8", shank_diameter_ratio = 0.5)
+        assert bolt.shank_diameter == 0.008
+
+
+    def test_shank_cross_section_area (self):
+        bolt = StandardMetricBolt("M16", "8.8", shank_diameter_ratio = 2.0)
+        assert round(bolt.shank_cross_section_area, 6) == 0.000804
+
+
+    def test_tensile_cross_section_area (self):
+        bolt = StandardMetricBolt("M16", "8.8")
+        assert round(bolt.tensile_cross_section_area, 6) == 0.000157
+
+
+    def test_shear_modulus (self):
+        bolt = StandardMetricBolt("M16", "8.8")
+        assert round(bolt.shear_modulus/1e9, 2) == 80.77
