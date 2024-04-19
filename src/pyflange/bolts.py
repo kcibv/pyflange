@@ -342,7 +342,7 @@ def StandardMetricBolt (designation, material_grade, shank_length=0.0, shank_dia
     '''
 
     geometry = _standard['geometry'][designation]
-    meterial = _standard['materials'][material_grade]
+    material = _standard['materials'][material_grade]
 
     return MetricBolt(
         nominal_diameter = geometry['D'],
