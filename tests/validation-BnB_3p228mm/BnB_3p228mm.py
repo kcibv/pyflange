@@ -1,3 +1,7 @@
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 from pyflange.flangesegments import PolynomialLFlangeSegment
 from pyflange.bolts import MetricBolt
@@ -57,17 +61,17 @@ def create_flange_segment (gap_angle):
     k_mean = gap.mean()
     COV_k = gap.std() / k_mean
 
-    print(f"gap mean height: k_mean = {k_mean/mm:.3f} mm")
-    print(f"gap COV: COV_k = {COV_k:.3f}")
+    logger.debug(f"gap mean height: k_mean = {k_mean/mm:.3f} mm")
+    logger.debug(f"gap COV: COV_k = {COV_k:.3f}")
 
     fseg = PolynomialLFlangeSegment(
 
         a = 232.5*mm,           # distance between inner face of the flange and center of the bolt hole
         b = 166.5*mm,           # distance between center of the bolt hole and center-line of the shell
-        s = t_sh,           # shell thickness
+        s = t_sh,               # shell thickness
         t = 200.0*mm,           # flange thickness
-        c = 2*pi/n * (D - t_sh)/2,   # shell arc length
-        R = D/2,          # shell outer curvature radius
+        R = D/2,                # shell outer curvature radius
+        central_angle = 2*pi/n, # angle subtented by the flange segment arc
 
         Zg = -14795*kN / n, # load applied to the flange segment shell at rest
                                                 # (normally dead weight of tower + RNA, divided by the number of bolts)
@@ -81,7 +85,7 @@ def create_flange_segment (gap_angle):
         gap_height = gap.ppf(0.95),   # maximum longitudinal gap height
         gap_angle = gap_angle,  # longitudinal gap length
 
-        s_ratio = 102/72        # ratio of bottom shell thickness over tower shell thickness
+        s_ratio = 100/72        # ratio of bottom shell thickness over tower shell thickness
     )
 
     # Assert that failure mode is B.
@@ -104,7 +108,7 @@ def flange_segment_model_to_excel (book, sheet_name, fseg):
     set_cell_value(book, f"{sheet_name}!b", fseg.b/mm)
     set_cell_value(book, f"{sheet_name}!shell_thickness", fseg.s/mm)
     set_cell_value(book, f"{sheet_name}!t", fseg.t/mm)
-    set_cell_value(book, f"{sheet_name}!shell_arc_length", fseg.c/mm)
+    set_cell_value(book, f"{sheet_name}!central_angle", fseg.central_angle/deg)
     set_cell_value(book, f"{sheet_name}!Radius", fseg.R/mm)
     set_cell_value(book, f"{sheet_name}!Z_dw", fseg.Zg/kN)
     set_cell_value(book, f"{sheet_name}!bolt.size", fseg.bolt.designation)

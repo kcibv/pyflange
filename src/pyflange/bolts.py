@@ -28,7 +28,7 @@ from functools import cached_property
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # UNITS OF MEASUREMENT
 # Distance
@@ -171,9 +171,9 @@ class MetricBolt (Bolt):
 
     @cached_property
     def tensile_cross_section_area (self):
-        ''' Tensile stress area.'''
+        ''' Tensile stress area, according to ISO 891-1:2013, section 9.1.6.1'''
         from math import pi
-        return pi * (self.nominal_diameter - 1.081*self.thread_height)**2 / 4
+        return pi * (self.nominal_diameter - 13/12*self.thread_height)**2 / 4
 
 
 

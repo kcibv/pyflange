@@ -53,7 +53,7 @@ from functools import cached_property
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 import numpy as np
 
@@ -274,9 +274,9 @@ class PolynomialFlangeSegment (FlangeSegment):
         Zmin = self.shell_force_at_closed_gap + Z1
 
         # Compressive polynomial coefficients
-        c2 = -0.5 * X1 / (Zmin - Z1)
+        c2 = 0.5 * X1 / (Z1 - Zmin)
         c1 = X1 - 2*c2*Z1
-        c0 = Fs1 - c1*Z1 + c2*Z1**2
+        c0 = Fs1 - c1*Z1 - c2*Z1**2
 
         # Create and return the polynomial for the tensile domain [Zmin, Z1]
         return Polynomial(
@@ -340,9 +340,9 @@ class PolynomialFlangeSegment (FlangeSegment):
         Zmin = self.shell_force_at_closed_gap + Z1
 
         # Compressive polynomial coefficients
-        c2 = -0.5 * X1 / (Zmin - Z1)
+        c2 = 0.5 * X1 / (Z1 - Zmin)
         c1 = X1 - 2*c2*Z1
-        c0 = Ms1 - c1*Z1 + c2*Z1**2
+        c0 = Ms1 - c1*Z1 - c2*Z1**2
 
         # Create and return the polynomial for the tensile domain [Zmin, Z1]
         return Polynomial(
@@ -437,11 +437,11 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     - ``t`` : ``float``
         Flange thickness.
 
-    - ``c`` : ``float``
-        Shell arc length.
-
     - ``R`` : ``float``
         Shell outer curvature radius.
+
+    - ``central_angle`` : ``float``
+        Angle subtended by the flange segment arc.
 
     - ``Zg`` : ``float``
         Load applied to the flange segment shell at rest (normally dead weight
@@ -485,8 +485,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     b: float        # distance between center of the bolt hole and center-line of the shell
     s: float        # shell thickness
     t: float        # flange thickness
-    c: float        # shell arc length
     R: float        # shell outer curvature radius
+    central_angle: float     # angle subtended by the flange segment
 
     Zg: float       # load applied to the flange segment shell at rest (normally dead weight
                     # of tower + RNA, divided by the number of bolts). Negative if compression.
@@ -515,17 +515,17 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         fd_sh = fy_sh / gamma_0
         fd_fl = fy_fl / gamma_0
 
-        fseg_angle = self.c / (self.R - self.s/2)
-        c_hole = fseg_angle * (self.R - self.s/2 - self.b)
-        c_washer = fseg_angle * (self.R - self.s/2 - self.b + (self.Do/2 + self.Dw/2)/2)
+        c_shell = self.central_angle * (self.R - self.s/2)
+        c_hole = self.central_angle * (self.R - self.s/2 - self.b)
+        c_washer = self.central_angle * (self.R - self.s/2 - self.b + (self.Do/2 + self.Dw/2)/2)
 
         # Failure mode A
         F_tRd = self.bolt.ultimate_tensile_capacity()   # Bolt ultimate tensile capacity
         Zu_A = F_tRd                                    # Ultimate shell pull for failure mode A
 
         # Shell cross-section ultimate capacities
-        Nu_sh = fd_sh * self.c * self.s                 # Pure axial ultimate capacity
-        Mu_sh = fd_sh * self.c * self.s**2 / 4          # Pure bending ultimate capacity
+        Nu_sh = fd_sh * c_shell * self.s                 # Pure axial ultimate capacity
+        Mu_sh = fd_sh * c_shell * self.s**2 / 4          # Pure bending ultimate capacity
         MNu_sh = lambda N: Mu_sh * (1 - (N / Nu_sh)**2) if N < Nu_sh else 0 # Bending ultimate capacity, concurrent with axial force
 
         # Flange cross-section ultimate capacity (at hole)
@@ -600,7 +600,10 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     def _bolt_moment (self, Z, Fs):
         a_red = self.b / (self._prying_lever_ratio - 1)
         a_star = max(0.5, min((self.t / (a_red + self.b))**2 , 1)) * a_red
-        I_tg = self.c * self.t**3 / 12
+        logger.debug(f'a_star = {a_star*1000} mm')
+        c_cbd = self.central_angle * (self.R - self.s/2 - self.b)
+        I_tg = c_cbd * self.t**3 / 12
+        logger.debug(f'I_tg = {I_tg*1e12} mm^4')
         ak = self._stiffness_correction_factor
         bolt_rotation = Z*self.b*a_star / (3*self.E*I_tg*ak) + (Fs - self.Fv) / (2*a_star*self._bolt_axial_stiffness)
         return bolt_rotation * 2*self._bolt_bending_stiffness
@@ -698,7 +701,9 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     @cached_property
     def shell_force_at_closed_gap (self):
         ''' Force necessary to completely close the imperfection gap '''
-        return -0.5 * self._gap_stiffness * self.gap_height * self.c
+        s_avg = (self.s + self.s_ratio * self.s) / 2
+        c = self.central_angle * (self.R - s_avg/2)
+        return -0.5 * self._gap_stiffness * self.gap_height * c
 
 
     @cached_property
@@ -787,11 +792,12 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         '''
 
         # Calculate the shell stiffness
-        Rm = self.R - self.s/2   # radius of the shell midline
-        L_gap = self.R * self.gap_angle
-        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (Rm*1000)) * (L_gap*1000))    # ref. [1], eq.48
-        s_avg = (self.s + self.s_ratio * self.s) / 2
+        s_avg = (self.s + self.s_ratio * self.s) / 2    # Average shell thickness
+        R_shell = self.R - s_avg/2                      # Radius at mid-line of shell with average thickness
+        L_gap = R_shell * self.gap_angle                # Gap lenght at mid-line of shell with average thickness
+        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (R_shell*1000)) * (L_gap*1000))    # ref. [1], eq.48
         k_shell = self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
+        logger.debug(f"L_gap={L_gap}")
         logger.debug(f"k_fac = {k_fac} ")
         logger.debug(f"k_shell_ini = {k_shell/1e6:.2f} kN/mm/m")
 
@@ -835,7 +841,9 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         logger.debug(f"u = {u*1000:.3f} mm")
 
         # Evaluate the segment stiffness
-        k_seg = Z2B / (u * self.c)
+        s_avg = (self.s + self.s_ratio * self.s) / 2
+        c = self.central_angle * (self.R - s_avg/2)
+        k_seg = Z2B / (u * c)
         logger.debug(f"k_seg = {k_seg/1e6} kN/mm/m")
 
         # Return the stiffness correction factor, acc. [1], eq.75

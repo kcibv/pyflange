@@ -23,8 +23,8 @@ class TestPolynomialLFlangeSegment:
             b = 0.166,          # distance between center of the bolt hole and center-line of the shell
             s = t_sh,           # shell thickness
             t = 0.200,          # flange thickness
-            c = 2*pi/Nb * Rm,   # shell arc length
             R = D/2,            # shell outer curvature radius
+            central_angle = 2*pi/Nb,    # angle subtended by the flange segment arc
 
             Zg = -14795000/Nb,  # load applied to the flange segment shell at rest
                                 # (normally dead weight of tower + RNA, divided by the number of bolts)
@@ -45,7 +45,7 @@ class TestPolynomialLFlangeSegment:
             gap_height = gap_height_distribution(D, 0.0014, pi/6*D/2).ppf(0.95),   # maximum longitudinal gap height
             gap_angle = pi/6,  # longitudinal gap length
 
-            s_ratio = 102/72)        # ratio of bottom shell thickness over tower shell thickness
+            s_ratio = 100/72)        # ratio of bottom shell thickness over tower shell thickness
 
 
     def test_shell_force_at_rest (self, fseg):
