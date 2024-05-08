@@ -68,12 +68,12 @@ below.
    # Create the FlangeSegment model
    from pyflange.flangesegments import PolynomialLFlangeSegment
    fseg = PolyNomialFlangeSegment(
-      a = 0.2325,             # distance between inner face of the flange and center of the bolt hole
-      b = 0.1665,             # distance between center of the bolt hole and center-line of the shell
-      s = 0.0720,             # shell thickness
-      t = 0.2000,             # flange thickness
-      c = 2*pi/Nb * (D - 0.072)/2,    # shell arc length
-      R = D/2,                # shell outer curvature radius
+      a = 0.2325,                # distance between inner face of the flange and center of the bolt hole
+      b = 0.1665,                # distance between center of the bolt hole and center-line of the shell
+      s = 0.0720,                # shell thickness
+      t = 0.2000,                # flange thickness
+      R = D/2,                   # shell outer curvature radius
+      central_angle = 2*pi/Nb,   # angle subtented by the flange segment arc
 
       Zg = -14795000 / Nb,    # load applied to the flange segment shell at rest
                               # (normally dead weight of tower + RNA, divided by the number of bolts)
