@@ -43,7 +43,7 @@ below.
 ``` python
 
 # Create the bolt object
-from pyflange.bolts import MetricBolt
+from pyflange.bolts import StandardMetricBolt
 M80 = StandardMetricBolt("M80", "10.9", shank_length=0.270, stud=True)
 
 # Define the gap parameters
@@ -57,22 +57,22 @@ gap_dist = gap_height_distribution(D, u_tol, gap_length)    # lognormal distribu
 # Create the FlangeSegment model
 from pyflange.flangesegments import PolynomialLFlangeSegment
 Nb = 120    # number of bolts
-fseg = PolyNomialFlangeSegment(
-    a = 0.2325,             # distance between inner face of the flange and center of the bolt hole
-    b = 0.1665,             # distance between center of the bolt hole and center-line of the shell
-    s = 0.0720,             # shell thickness
-    t = 0.2000,             # flange thickness
-    R = D/2,                # shell outer curvature radius
-    central_angle: 2*pi/Nb  # angle subtented by the flange segment arc
+fseg = PolyNomialLFlangeSegment(
+    a = 0.2325,              # distance between inner face of the flange and center of the bolt hole
+    b = 0.1665,              # distance between center of the bolt hole and center-line of the shell
+    s = 0.0720,              # shell thickness
+    t = 0.2000,              # flange thickness
+    R = D/2,                 # shell outer curvature radius
+    central_angle = 2*pi/Nb, # angle subtented by the flange segment arc
 
-    Zg = -14795000 / Nb,    # load applied to the flange segment shell at rest
-                            # (normally dead weight of tower + RNA, divided by the number of bolts)
+    Zg = -14795000 / Nb,     # load applied to the flange segment shell at rest
+                             # (normally dead weight of tower + RNA, divided by the number of bolts)
 
-    bolt = M80,             # bolt object created above
-    Fv = 2876000,           # design bolt preload, after preload losses
+    bolt = M80,              # bolt object created above
+    Fv = 2876000,            # design bolt preload, after preload losses
 
-    Do = 0.086,             # bolt hole diameter
-    Dw = 0.140,             # washer diameter
+    Do = 0.086,              # bolt hole diameter
+    Dw = 0.140,              # washer diameter
 
     gap_height = gap_dist.ppf(0.95),    # maximum longitudinal gap height, 95% quantile
     gap_angle = gap_angle)              # longitudinal gap length
