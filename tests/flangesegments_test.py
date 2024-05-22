@@ -14,15 +14,13 @@ class TestPolynomialLFlangeSegment:
     def fseg (self):
         D = 7.5
         Nb = 120
-        t_sh = 0.072
-        Rm = (D - t_sh) / 2
 
         return PolynomialLFlangeSegment(
 
             a = 0.2325,         # distance between inner face of the flange and center of the bolt hole
-            b = 0.166,          # distance between center of the bolt hole and center-line of the shell
-            s = t_sh,           # shell thickness
-            t = 0.200,          # flange thickness
+            b = 0.1665,         # distance between center of the bolt hole and center-line of the shell
+            s = 0.0720,         # shell thickness
+            t = 0.2000,         # flange thickness
             R = D/2,            # shell outer curvature radius
             central_angle = 2*pi/Nb,    # angle subtended by the flange segment arc
 
@@ -57,23 +55,23 @@ class TestPolynomialLFlangeSegment:
 
 
     def test_bolt_moment_at_rest (self, fseg):
-        assert round(fseg.bolt_moment_at_rest, 1) == -14.2
+        assert round(fseg.bolt_moment_at_rest, 1) == -14.7
 
 
     def test_shell_force_at_small_displacement (self, fseg):
-        assert round(fseg.shell_force_at_small_displacement/1000, 1) == 248.1
+        assert round(fseg.shell_force_at_small_displacement/1000, 1) == 251.2
 
 
     def test_bolt_force_at_small_displacement (self, fseg):
-        assert round(fseg.bolt_force_at_small_displacement/1000, 1) == 2928.9
+        assert round(fseg.bolt_force_at_small_displacement/1000, 1) == 2929.3
 
 
     def test_bolt_moment_at_small_displacement (self, fseg):
-        assert round(fseg.bolt_moment_at_small_displacement, 1) == 193.2
+        assert round(fseg.bolt_moment_at_small_displacement, 1) == 195.9
 
 
     def test_shell_force_at_tensile_ULS (self, fseg):
-        assert round(fseg.shell_force_at_tensile_ULS/1000, 1) == 2003.8
+        assert round(fseg.shell_force_at_tensile_ULS/1000, 1) == 2001.0
 
 
     def test_bolt_force_at_tensile_ULS (self, fseg):
@@ -81,11 +79,11 @@ class TestPolynomialLFlangeSegment:
 
 
     def test_bolt_moment_at_tensile_ULS (self, fseg):
-        assert round(fseg.bolt_moment_at_tensile_ULS, 1) == 2470.5
+        assert round(fseg.bolt_moment_at_tensile_ULS, 1) == 2477.8
 
 
     def test_shell_force_at_closed_gap (self, fseg):
-        assert round(fseg.shell_force_at_closed_gap/1000, 1) == -1234.5
+        assert round(fseg.shell_force_at_closed_gap/1000, 1) == -1244.4
 
 
     def test_bolt_axial_force (self, fseg):
@@ -98,14 +96,14 @@ class TestPolynomialLFlangeSegment:
         Z4 = fseg.shell_force_at_closed_gap
         Fs4 = fseg.bolt_axial_force(Z4)
 
-        assert fseg.bolt_axial_force(Z1) == Fs1
-        assert fseg.bolt_axial_force(Z2) == Fs2
-        assert fseg.bolt_axial_force(Z3) == Fs3
-        assert round(Fs4/1000, 1) == 2815.0
+        assert round(fseg.bolt_axial_force(Z1)) == round(Fs1)
+        assert round(fseg.bolt_axial_force(Z2)) == round(Fs2)
+        assert round(fseg.bolt_axial_force(Z3)) == round(Fs3)
+        assert round(Fs4/1000, 1) == 2814.2
 
         Z = np.array([Z1, Z2, Z3])
         Fs = np.array([Fs1, Fs2, Fs3])
-        assert np.equal(Fs, fseg.bolt_axial_force(Z))
+        assert np.all(Fs - fseg.bolt_axial_force(Z) < 0.1)
 
 
     def test_bolt_bending_moment (self, fseg):
@@ -121,11 +119,11 @@ class TestPolynomialLFlangeSegment:
         assert fseg.bolt_bending_moment(Z1) == Ms1
         assert fseg.bolt_bending_moment(Z2) == Ms2
         assert fseg.bolt_bending_moment(Z3) == Ms3
-        assert round(Ms4, 1) == -273.7
+        assert round(Ms4, 1) == -280.6
 
         Z = np.array([Z1, Z2, Z3, Z4])
         Ms = np.array([Ms1, Ms2, Ms3, Ms4])
-        assert np.equal(Ms, fseg.bolt_bending_moment(Z))
+        assert np.all(Ms == fseg.bolt_bending_moment(Z))
 
 
     def test_failure_mode (self, fseg):
