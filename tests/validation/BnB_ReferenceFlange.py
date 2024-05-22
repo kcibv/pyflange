@@ -168,12 +168,12 @@ def flange_segment_model_to_excel (book, sheet_name, fseg):
     set_cell_value(book, f"{sheet_name}!point4.Ms", Ms4)
 
     # Polynomial Data Points
-    set_cell_value(book, f"{sheet_name}!Fs_coeff.tens", fseg._tensile_force_polynomial.coef)
-    set_cell_value(book, f"{sheet_name}!Fs_coeff.comp", fseg._compressive_force_polynomial.coef)
+    set_cell_value(book, f"{sheet_name}!Fs_coeff.tens.0", fseg._tensile_force_polynomial.coef)
+    set_cell_value(book, f"{sheet_name}!Fs_coeff.comp.0", fseg._compressive_force_polynomial.coef)
     set_cell_value(book, f"{sheet_name}!Fs_coeff.const", [Fs4, 0, 0])
 
-    set_cell_value(book, f"{sheet_name}!Ms_coeff.tens", fseg._tensile_moment_polynomial.coef)
-    set_cell_value(book, f"{sheet_name}!Ms_coeff.comp", fseg._compressive_moment_polynomial.coef)
+    set_cell_value(book, f"{sheet_name}!Ms_coeff.tens.0", fseg._tensile_moment_polynomial.coef)
+    set_cell_value(book, f"{sheet_name}!Ms_coeff.comp.0", fseg._compressive_moment_polynomial.coef)
     set_cell_value(book, f"{sheet_name}!Ms_coeff.const", [Ms4, 0, 0])
 
     # Miscellaneous Model Data
@@ -193,7 +193,7 @@ def flange_segment_model_to_excel (book, sheet_name, fseg):
     set_cell_value(book, f"{sheet_name}!true_moment_initial_slope", fseg._tensile_moment_polynomial.deriv()(Z1)*1000)
 
 
-wb = Book(os.path.join(os.path.dirname(__file__), "BnB_3p228mm-Results.xlsx"))
+wb = Book(os.path.join(os.path.dirname(__file__), "BnB_ReferenceFlange-Results.xlsx"))
 
 print("")
 print("Flange Segment Model with 30 deg gap width")

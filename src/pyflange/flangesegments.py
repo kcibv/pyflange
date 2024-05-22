@@ -819,7 +819,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def _stiffness_correction_factor (self):
-        ''' Stiggness corrections factor.
+        ''' Stiffness corrections factor.
 
         This factor, modifies the segment force to accorunt for the
         effect of the gap spring. It is evaluate according to ref. [1],
@@ -863,6 +863,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         # Initial slope correction factor
         scf = min(1.0 , (-self.shell_force_at_closed_gap / (0.2 * self.Fv))**2)
+
+        logger.debug(f"Modified Initial Slope: {scf*p}")
 
         # Initial slope
         return scf * p
