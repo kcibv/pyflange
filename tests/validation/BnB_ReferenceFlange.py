@@ -50,7 +50,7 @@ M80 = MetricBolt(
 
 # Polinomial Segment Model
 
-def create_flange_segment (gap_angle):
+def create_flange_segment (gap_angle, gap_shape_factor=1.0):
 
     D = 7500*mm
     t_sh = 72*mm
@@ -84,6 +84,7 @@ def create_flange_segment (gap_angle):
 
         gap_height = gap.ppf(0.95),   # maximum longitudinal gap height
         gap_angle = gap_angle,  # longitudinal gap length
+        gap_shape_factor = gap_shape_factor,
 
         s_ratio = 100/72        # ratio of bottom shell thickness over tower shell thickness
     )
@@ -218,3 +219,31 @@ print("Flange Segment Model with 120 deg gap width")
 print("-------------------------------------------")
 fseg_120deg = create_flange_segment(120*deg)
 flange_segment_model_to_excel(wb, "Gap120deg", fseg_120deg)
+
+
+
+wb_sf = Book(os.path.join(os.path.dirname(__file__), "BnB_ReferenceFlange-Results-ShapeFactor-1.2.xlsx"))
+
+print("")
+print("Flange Segment Model with 30 deg gap width and shape factor 1.2")
+print("------------------------------------------")
+fseg_30deg_sf  = create_flange_segment( 30*deg, 1.2)
+flange_segment_model_to_excel(wb_sf, "Gap30deg", fseg_30deg_sf)
+
+print("")
+print("Flange Segment Model with 60 deg gap width and shape factor 1.2")
+print("------------------------------------------")
+fseg_60deg_sf  = create_flange_segment( 60*deg, 1.2)
+flange_segment_model_to_excel(wb_sf, "Gap60deg", fseg_60deg_sf)
+
+print("")
+print("Flange Segment Model with 90 deg gap width and shape factor 1.2")
+print("------------------------------------------")
+fseg_90deg_sf  = create_flange_segment( 90*deg, 1.2)
+flange_segment_model_to_excel(wb_sf, "Gap90deg", fseg_90deg_sf)
+
+print("")
+print("Flange Segment Model with 120 deg gap width and shape factor 1.2")
+print("-------------------------------------------")
+fseg_120deg_sf = create_flange_segment(120*deg, 1.2)
+flange_segment_model_to_excel(wb_sf, "Gap120deg", fseg_120deg_sf)

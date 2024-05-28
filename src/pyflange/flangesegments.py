@@ -465,6 +465,11 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     - ``gap_angle`` : ``float``
         Angle subtended by the gap arc from the flange center.
 
+    - ``gap_shape_factor`` : ``float`` [optional]
+        A correction factor that applies to ``Fs2-Fs1`` and to ``Fs3-Fs1`` to
+        account for gap shape different that the default sinusoidal shape. If
+        omitted, it defaults to 1.0 (sinusoida shape).
+
     - ``E`` : ``float`` [optional]
         Young modulus of the flange. If omitted, it will be taken equal to 210e9 Pa.
 
@@ -497,11 +502,12 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     Do: float       # Bolt hole diameter
     Dw: float       # Washer diameter
 
-    gap_height: float   # maximum longitudinal gap height
-    gap_angle: float    # angle subtended by the gap arc from the flange center
+    gap_height: float               # maximum longitudinal gap height
+    gap_angle: float                # angle subtended by the gap arc from the flange center
+    gap_shape_factor: float = 1.0   # Factor accounting for a shape different than sinusoidal
 
-    E: float = 210e9    # Young modulus of the flange
-    G: float = 80.77e9  # Shear modulus of the flange
+    E: float = 210e9        # Young modulus of the flange
+    G: float = 80.77e9      # Shear modulus of the flange
     s_ratio: float = 1.0    # Ratio of bottom shell thickness over s. Default s_botom = s.
 
 
@@ -662,7 +668,11 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # The slope between points P1 and P3 should match the
         # theoretical value of stiffness of the system.
         Z = self.shell_force_at_small_displacement
-        return self.Fv + self._polynomial_initial_slope * (Z - self.Zg)
+        Fs3 = self.Fv + self._polynomial_initial_slope * (Z - self.Zg)
+
+        # Scale Fs2 based on the gap shape
+        Fs1 = self.bolt_force_at_rest
+        return Fs1 + (Fs3 - Fs1) * self.gap_shape_factor
 
 
     @cached_property
@@ -688,7 +698,11 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # The bolt is loaded with the ultimate capacity, by definition.
         # If the pretension Fv is too close to the ultimate capacity Fsu, the polynomial
         # function may get too steep, therefore we make sure that Fs2 is at list 125% of Fv.
-        return max(self.bolt.ultimate_tensile_capacity(), 1.25*self.bolt_force_at_rest)
+        Fs2 = max(self.bolt.ultimate_tensile_capacity(), 1.25*self.bolt_force_at_rest)
+
+        # Scale Fs2 based on the gap shape
+        Fs1 = self.bolt_force_at_rest
+        return Fs1 + (Fs2 - Fs1) * self.gap_shape_factor
 
 
     @cached_property
