@@ -695,10 +695,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         to its maximum tensile capacity.
         '''
 
-        # The bolt is loaded with the ultimate capacity, by definition.
-        # If the pretension Fv is too close to the ultimate capacity Fsu, the polynomial
-        # function may get too steep, therefore we make sure that Fs2 is at list 125% of Fv.
-        Fs2 = max(self.bolt.ultimate_tensile_capacity(), 1.25*self.bolt_force_at_rest)
+        # Bolt force at tensile ULS for sinusoidal gap shape
+        Fs2 = self._ideal_bolt_force_at_tensile_ULS
 
         # Scale Fs2 based on the gap shape
         Fs1 = self.bolt_force_at_rest
@@ -721,6 +719,16 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
 
     @cached_property
+    def _ideal_bolt_force_at_tensile_ULS (self):
+        ''' Bolt axial force at tensile failure for sinusoidal gap shape
+
+        Assuming the failure mode B, in the ULS, the bolt is subjected
+        to its maximum tensile capacity.
+        '''
+        return max(self.bolt.ultimate_tensile_capacity(), 1.25*self.bolt_force_at_rest)
+
+
+    @cached_property
     def _ideal_shell_force_at_tensile_ULS (self):
         ''' Shell pull force at the theoretical state of full prying
 
@@ -729,8 +737,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         This variable is indicated as Z0 in ref. [1].
         '''
-
-        return self.bolt_force_at_tensile_ULS / self._prying_lever_ratio
+        return self._ideal_bolt_force_at_tensile_ULS / self._prying_lever_ratio
 
 
     @cached_property
@@ -845,7 +852,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         # Retrieve point 2B
         Z2B = self._cantilever_shell_force_at_tensile_ULS
-        Fs0 = self.bolt_force_at_tensile_ULS
+        Fs0 = self._ideal_bolt_force_at_tensile_ULS
 
         # Evaluate the displacement u in the ultimate prying state.
         a_red = self.b / (self._prying_lever_ratio - 1)
