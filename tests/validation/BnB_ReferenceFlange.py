@@ -50,7 +50,7 @@ M80 = MetricBolt(
 
 # Polinomial Segment Model
 
-def create_flange_segment (gap_angle, gap_shape_factor=1.0):
+def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0):
 
     D = 7500*mm
     t_sh = 72*mm
@@ -73,20 +73,22 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0):
         R = D/2,                # shell outer curvature radius
         central_angle = 2*pi/n, # angle subtented by the flange segment arc
 
-        Zg = -14795*kN / n, # load applied to the flange segment shell at rest
-                                                # (normally dead weight of tower + RNA, divided by the number of bolts)
+        Zg = -14795*kN / n,     # load applied to the flange segment shell at rest
+                                # (normally dead weight of tower + RNA, divided by the number of bolts)
 
         bolt = M80,
-        Fv = 2876*kN,                            # applied bolt preload
+        Fv = 2876*kN,       # applied bolt preload
 
-        Do = 86*mm,     # bolt hole diameter
-        Dw = 140*mm,    # washer diameter
+        Do = 86*mm,         # bolt hole diameter
+        Dw = 140*mm,        # washer diameter
 
-        gap_height = gap.ppf(0.95),   # maximum longitudinal gap height
-        gap_angle = gap_angle,  # longitudinal gap length
-        gap_shape_factor = gap_shape_factor,
+        gap_height = gap.ppf(0.95),             # maximum longitudinal gap height
+        gap_angle = gap_angle,                  # longitudinal gap length
+        gap_shape_factor = gap_shape_factor,    # scaling factor accounting for the gap shape
 
-        s_ratio = 100/72        # ratio of bottom shell thickness over tower shell thickness
+        tilt_angle = tilt_angle,    # flange tilt angle
+
+        s_ratio = 100/72    # ratio of bottom shell thickness over tower shell thickness
     )
 
     # Assert that failure mode is B.
@@ -247,3 +249,32 @@ print("Flange Segment Model with 120 deg gap width and shape factor 1.2")
 print("-------------------------------------------")
 fseg_120deg_sf = create_flange_segment(120*deg, 1.2)
 flange_segment_model_to_excel(wb_sf, "Gap120deg", fseg_120deg_sf)
+
+
+
+
+wb_tt = Book(os.path.join(os.path.dirname(__file__), "BnB_ReferenceFlange-Results-Tilt-1deg.xlsx"))
+
+print("")
+print("Flange Segment Model with 30 deg gap width and tilt 1 deg")
+print("------------------------------------------")
+fseg_30deg_tt  = create_flange_segment( 30*deg, tilt_angle=1*deg)
+flange_segment_model_to_excel(wb_tt, "Gap30deg", fseg_30deg_tt)
+
+print("")
+print("Flange Segment Model with 60 deg gap width and tilt 1 deg")
+print("------------------------------------------")
+fseg_60deg_tt  = create_flange_segment( 60*deg, tilt_angle=1*deg)
+flange_segment_model_to_excel(wb_tt, "Gap60deg", fseg_60deg_tt)
+
+print("")
+print("Flange Segment Model with 90 deg gap width and tilt 1 deg")
+print("------------------------------------------")
+fseg_90deg_tt  = create_flange_segment( 90*deg, tilt_angle=1*deg)
+flange_segment_model_to_excel(wb_tt, "Gap90deg", fseg_90deg_tt)
+
+print("")
+print("Flange Segment Model with 120 deg gap width and tilt 1 deg")
+print("-------------------------------------------")
+fseg_120deg_tt = create_flange_segment(120*deg, tilt_angle=1*deg)
+flange_segment_model_to_excel(wb_tt, "Gap120deg", fseg_120deg_tt)

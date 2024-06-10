@@ -506,6 +506,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     gap_angle: float                # angle subtended by the gap arc from the flange center
     gap_shape_factor: float = 1.0   # Factor accounting for a shape different than sinusoidal
 
+    tilt_angle: float = 0.0         # angle of flange tilt
+
     E: float = 210e9        # Young modulus of the flange
     G: float = 80.77e9      # Shear modulus of the flange
     s_ratio: float = 1.0    # Ratio of bottom shell thickness over s. Default s_botom = s.
@@ -715,7 +717,62 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         ''' Force necessary to completely close the imperfection gap '''
         s_avg = (self.s + self.s_ratio * self.s) / 2
         c = self.central_angle * (self.R - s_avg/2)
-        return -0.5 * self._gap_stiffness * self.gap_height * c
+        return -0.5 * self._gap_stiffness * self.gap_height * c + self._tilt_neutralization_shell_force
+
+    @cached_property
+    def _tilt_neutralization_shell_force (self):
+        ''' This function solves equation (55) of IEC 61400-6:2020 AMD1
+        to determine the moment M_incl that neutralizes the initial tilt.
+        '''
+
+        # The equation to be solved is A*[inv(B)*C]*M = D,
+        # where A and B are 2x2 matrices, C and D are 2x1 matrices
+        # and M is the scalar to be determined
+
+        # General parameters
+        w = self.a + self.b
+        R_sh = self.R - self.s/2
+        R_fl = self.R - w/2
+        nu = self.E / (2*self.G) - 1
+        k = self.E * self.s**3 / (12*(1-nu**2))
+        n = (3*(1-nu**2))**0.25 / (R_sh * self.s)**0.5
+
+        # Matrix A
+        a11 = 1 / (2*k*n**3)
+        a12 = 1 / (2*k*n**2)
+        a21 = a12
+        a22 = 1 / (k*n)
+        A = np.array([[a11, a12],
+                    [a21, a22]])
+
+        # Matrix B
+        b11 = a11 * R_fl * R_sh / (self.E * w * self.t)
+        b12 = a12
+        b21 = a12
+        b22 = a22 * (12 * R_fl * R_sh) / (self.E * w * self.t**3)
+        B = np.array([[b11, b12],
+                    [b21, b22]])
+
+        # Matrix C
+        c1 = 0
+        c2 = 12 * R_fl**2 / (self.E * w * self.t**3)
+        C = np.array([c1, c2])
+
+        # Matrix D
+        d1 = 0.001    # ux: dummy value, sice irrelevant
+        d2 = self.tilt_angle
+        D = np.array([d1, d2])
+
+        # Reduce matrix equation to H*M = D
+        H = A @ (np.linalg.inv(B) @ C)
+
+        # The last equation of the system H*M = D is h2*M = d2 and
+        # we can therefore determine M from it as d2/h2:
+        M = d2 / H[1]
+
+        # Return the shell pull force corresponding to M
+        c = self.central_angle * R_sh
+        return c * M / (w/2 + self.b)
 
 
     @cached_property
@@ -889,3 +946,6 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         # Initial slope
         return scf * p
+
+
+
