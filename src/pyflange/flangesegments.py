@@ -729,7 +729,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # and M is the scalar to be determined
 
         # General parameters
-        w = self.a + self.b
+        w = self.a + self.b + self.s/2
         R_sh = self.R - self.s/2
         R_fl = self.R - w/2
         nu = self.E / (2*self.G) - 1
