@@ -50,10 +50,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
 
-import logging
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+from .logger import Logger, log_data
+logger = Logger(__name__)
 
 import numpy as np
 
@@ -608,12 +606,13 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     def _bolt_moment (self, Z, Fs):
         a_red = self.b / (self._prying_lever_ratio - 1)
         a_star = max(0.5, min((self.t / (a_red + self.b))**2 , 1)) * a_red
-        logger.debug(f'a_star = {a_star*1000} mm')
         c_cbd = self.central_angle * (self.R - self.s/2 - self.b)
         I_tg = c_cbd * self.t**3 / 12
-        logger.debug(f'I_tg = {I_tg*1e12} mm^4')
         ak = self._stiffness_correction_factor
         bolt_rotation = Z*self.b*a_star / (3*self.E*I_tg*ak) + (Fs - self.Fv) / (2*a_star*self._bolt_axial_stiffness)
+
+        log_data(self, a_star=a_star, I_tg=I_tg)
+
         return bolt_rotation * 2*self._bolt_bending_stiffness
 
 
@@ -717,7 +716,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         ''' Force necessary to completely close the imperfection gap '''
         s_avg = (self.s + self.s_ratio * self.s) / 2
         c = self.central_angle * (self.R - s_avg/2)
-        return -0.5 * self._gap_stiffness * self.gap_height * c + self._tilt_neutralization_shell_force
+        return -0.5 * self._gap_stiffness * self.gap_height * c - self._tilt_neutralization_shell_force
 
     @cached_property
     def _tilt_neutralization_shell_force (self):
@@ -875,9 +874,6 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         L_gap = R_shell * self.gap_angle                # Gap lenght at mid-line of shell with average thickness
         k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (R_shell*1000)) * (L_gap*1000))    # ref. [1], eq.48
         k_shell = self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
-        logger.debug(f"L_gap={L_gap}")
-        logger.debug(f"k_fac = {k_fac} ")
-        logger.debug(f"k_shell_ini = {k_shell/1e6:.2f} kN/mm/m")
 
         # Calculate the flange stiffness
         w = self.a + self.b + self.s/2      # flange segment length
@@ -887,9 +883,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         GA = self.G * A
         L2 = L_gap**2
         k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49
-        logger.debug(f"A_cf = {A*1e6:.2f} mm^2")
-        logger.debug(f"I_cf = {I*1e12:.2f} mm^4")
-        logger.debug(f"k_fl = {k_flange/1e6:.2f} kN/mm/m")
+
+        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange)
 
         # Total gap stiffness according to ref. [1], eq.53
         return 2.2 * (k_shell + k_flange)
@@ -903,7 +898,6 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         effect of the gap spring. It is evaluate according to ref. [1],
         sec.9.2.2.2, where it goes by the symbol alpha-k.
         '''
-        logger.debug("STIFFNESS CORRECTION FACTOR CALCULATION:")
 
         from math import pi
 
@@ -916,13 +910,13 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         w = self.a + self.b + self.s/2
         I = w * self.t**3 / 12
         u = (Z2B * self.b**2 / (3 * self.E * I) + (Fs0 - self.Fv) / (2 * self._bolt_axial_stiffness * a_red)) * (a_red + self.b)   # ref. [1], eq.72
-        logger.debug(f"u = {u*1000:.3f} mm")
 
         # Evaluate the segment stiffness
         s_avg = (self.s + self.s_ratio * self.s) / 2
         c = self.central_angle * (self.R - s_avg/2)
         k_seg = Z2B / (u * c)
-        logger.debug(f"k_seg = {k_seg/1e6} kN/mm/m")
+
+        log_data(self, u=u, k_seg=k_seg)
 
         # Return the stiffness correction factor, acc. [1], eq.75
         return min(1 + self._gap_stiffness / k_seg,
@@ -941,8 +935,6 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         # Initial slope correction factor
         scf = min(1.0 , (-self.shell_force_at_closed_gap / (0.2 * self.Fv))**2)
-
-        logger.debug(f"Modified Initial Slope: {scf*p}")
 
         # Initial slope
         return scf * p

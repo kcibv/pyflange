@@ -1,7 +1,5 @@
-import logging
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+from pyflange.logger import Logger, log_data, read_data_log
+logger = Logger(__name__)
 
 from pyflange.flangesegments import PolynomialLFlangeSegment
 from pyflange.bolts import MetricBolt
@@ -61,9 +59,6 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0):
     k_mean = gap.mean()
     COV_k = gap.std() / k_mean
 
-    logger.debug(f"gap mean height: k_mean = {k_mean/mm:.3f} mm")
-    logger.debug(f"gap COV: COV_k = {COV_k:.3f}")
-
     fseg = PolynomialLFlangeSegment(
 
         a = 232.5*mm,           # distance between inner face of the flange and center of the bolt hole
@@ -93,6 +88,8 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0):
 
     # Assert that failure mode is B.
     #fseg.validate(335*MPa, 285*MPa)
+
+    log_data(fseg, k_mean=k_mean, COV_k=COV_k)
 
     return fseg
 
@@ -195,86 +192,79 @@ def flange_segment_model_to_excel (book, sheet_name, fseg):
     set_cell_value(book, f"{sheet_name}!true_force_initial_slope", fseg._tensile_force_polynomial.deriv()(Z1))
     set_cell_value(book, f"{sheet_name}!true_moment_initial_slope", fseg._tensile_moment_polynomial.deriv()(Z1)*1000)
 
+    # Model internal parameters
+    set_cell_value(book, f"{sheet_name}!gap.k_mean", read_data_log(fseg, "k_mean")/mm)
+    set_cell_value(book, f"{sheet_name}!gap.COV", read_data_log(fseg, "COV_k"))
+    set_cell_value(book, f"{sheet_name}!gap.k_fac", read_data_log(fseg, "k_fac"))
+    set_cell_value(book, f"{sheet_name}!gap.k_shell", read_data_log(fseg, "k_shell_ini")/(kN/mm/m))
+    set_cell_value(book, f"{sheet_name}!flange.A_cf", read_data_log(fseg, "A_cf")/(mm**2))
+    set_cell_value(book, f"{sheet_name}!flange.I_cf", read_data_log(fseg, "I_cf")/(mm**4))
+    set_cell_value(book, f"{sheet_name}!gap.k_fl", read_data_log(fseg, "k_fl")/(kN/mm/m))
+    set_cell_value(book, f"{sheet_name}!u", read_data_log(fseg, "u")/mm)
+    set_cell_value(book, f"{sheet_name}!k_seg", read_data_log(fseg, "k_seg")/(kN/mm/m))
+    set_cell_value(book, f"{sheet_name}!a_star", read_data_log(fseg, "a_star")/mm)
+    set_cell_value(book, f"{sheet_name}!I_tg", read_data_log(fseg, "I_tg")/(mm**4))
 
+
+
+print("\nEvaluating Flange Segment Model with sinusoidal gap shape and no flange tilt ...")
 wb = Book(os.path.join(os.path.dirname(__file__), "BnB_ReferenceFlange-Results.xlsx"))
 
-print("")
-print("Flange Segment Model with 30 deg gap width")
-print("------------------------------------------")
+print("... with 30 deg gap width")
 fseg_30deg  = create_flange_segment( 30*deg)
 flange_segment_model_to_excel(wb, "Gap30deg", fseg_30deg)
 
-print("")
-print("Flange Segment Model with 60 deg gap width")
-print("------------------------------------------")
+print("... with 60 deg gap width")
 fseg_60deg  = create_flange_segment( 60*deg)
 flange_segment_model_to_excel(wb, "Gap60deg", fseg_60deg)
 
-print("")
-print("Flange Segment Model with 90 deg gap width")
-print("------------------------------------------")
+print("... with 90 deg gap width")
 fseg_90deg  = create_flange_segment( 90*deg)
 flange_segment_model_to_excel(wb, "Gap90deg", fseg_90deg)
 
-print("")
-print("Flange Segment Model with 120 deg gap width")
-print("-------------------------------------------")
+print("... with 120 deg gap width")
 fseg_120deg = create_flange_segment(120*deg)
 flange_segment_model_to_excel(wb, "Gap120deg", fseg_120deg)
 
 
 
+print("\nEvaluating Flange Segment Model with gap shape factor 1.2 and no flange tilt ...")
 wb_sf = Book(os.path.join(os.path.dirname(__file__), "BnB_ReferenceFlange-Results-ShapeFactor-1.2.xlsx"))
 
-print("")
-print("Flange Segment Model with 30 deg gap width and shape factor 1.2")
-print("------------------------------------------")
+print("... with 30 deg gap width")
 fseg_30deg_sf  = create_flange_segment( 30*deg, 1.2)
 flange_segment_model_to_excel(wb_sf, "Gap30deg", fseg_30deg_sf)
 
-print("")
-print("Flange Segment Model with 60 deg gap width and shape factor 1.2")
-print("------------------------------------------")
+print("... with 60 deg gap width")
 fseg_60deg_sf  = create_flange_segment( 60*deg, 1.2)
 flange_segment_model_to_excel(wb_sf, "Gap60deg", fseg_60deg_sf)
 
-print("")
-print("Flange Segment Model with 90 deg gap width and shape factor 1.2")
-print("------------------------------------------")
+print("... with 90 deg gap width")
 fseg_90deg_sf  = create_flange_segment( 90*deg, 1.2)
 flange_segment_model_to_excel(wb_sf, "Gap90deg", fseg_90deg_sf)
 
-print("")
-print("Flange Segment Model with 120 deg gap width and shape factor 1.2")
-print("-------------------------------------------")
+print("... with 120 deg gap width")
 fseg_120deg_sf = create_flange_segment(120*deg, 1.2)
 flange_segment_model_to_excel(wb_sf, "Gap120deg", fseg_120deg_sf)
 
 
 
 
+print("\nEvaluating Flange Segment Model with sinusoidal gap shape and 1 deg flange tilt ...")
 wb_tt = Book(os.path.join(os.path.dirname(__file__), "BnB_ReferenceFlange-Results-Tilt-1deg.xlsx"))
 
-print("")
-print("Flange Segment Model with 30 deg gap width and tilt 1 deg")
-print("------------------------------------------")
+print("... with 30 deg gap width")
 fseg_30deg_tt  = create_flange_segment( 30*deg, tilt_angle=1*deg)
 flange_segment_model_to_excel(wb_tt, "Gap30deg", fseg_30deg_tt)
 
-print("")
-print("Flange Segment Model with 60 deg gap width and tilt 1 deg")
-print("------------------------------------------")
+print("... with 60 deg gap width")
 fseg_60deg_tt  = create_flange_segment( 60*deg, tilt_angle=1*deg)
 flange_segment_model_to_excel(wb_tt, "Gap60deg", fseg_60deg_tt)
 
-print("")
-print("Flange Segment Model with 90 deg gap width and tilt 1 deg")
-print("------------------------------------------")
+print("... with 90 deg gap width")
 fseg_90deg_tt  = create_flange_segment( 90*deg, tilt_angle=1*deg)
 flange_segment_model_to_excel(wb_tt, "Gap90deg", fseg_90deg_tt)
 
-print("")
-print("Flange Segment Model with 120 deg gap width and tilt 1 deg")
-print("-------------------------------------------")
+print("... with 120 deg gap width")
 fseg_120deg_tt = create_flange_segment(120*deg, tilt_angle=1*deg)
 flange_segment_model_to_excel(wb_tt, "Gap120deg", fseg_120deg_tt)
