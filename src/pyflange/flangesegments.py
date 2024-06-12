@@ -252,8 +252,8 @@ class PolynomialFlangeSegment (FlangeSegment):
         return Polynomial(
             (a0, a1, a2),       # coefficients
             domain=(Z1, Z2),    # the polynomial is defined between Z1 and Z2
-            window=(Z1, Z2))
-            #symbol="Z")         # used to render the independent variable in serializations
+            window=(Z1, Z2),
+            symbol="Z")         # used to render the independent variable in serializations
 
 
     @cached_property
@@ -281,8 +281,8 @@ class PolynomialFlangeSegment (FlangeSegment):
         return Polynomial(
             (c0, c1, c2),       # coefficients
             domain=(Zmin, Z1),  # the polynomial is defined between Zmin and Z1
-            window=(Zmin, Z1))
-            #symbol="Z")         # used to render the independent variable in serializations
+            window=(Zmin, Z1),
+            symbol="Z")         # used to render the independent variable in serializations
 
 
     @cached_property
@@ -318,8 +318,8 @@ class PolynomialFlangeSegment (FlangeSegment):
         return Polynomial(
             (a0, a1, a2),       # coefficients
             domain=(Z1, Z2),    # the polynomial is defined between Z1 and Z2
-            window=(Z1, Z2))
-            #symbol="Z")         # used to render the independent variable in serializations
+            window=(Z1, Z2),
+            symbol="Z")         # used to render the independent variable in serializations
 
 
     @cached_property
@@ -347,8 +347,8 @@ class PolynomialFlangeSegment (FlangeSegment):
         return Polynomial(
             (c0, c1, c2),       # coefficients
             domain=(Zmin, Z1),  # the polynomial is defined between Zmin and Z1
-            window=(Zmin, Z1))
-            #symbol="Z")         # used to render the independent variable in serializations
+            window=(Zmin, Z1),
+            symbol="Z")         # used to render the independent variable in serializations
 
 
     @property
@@ -623,10 +623,10 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         ak = self._stiffness_correction_factor
         bolt_rotation = Z*self.b*a_star / (3*self.E*I_tg*ak) + (Fs - self.Fv) / (2*a_star*self._bolt_axial_stiffness)
         
-        #NSe
-        self.a_star=a_star
-        self.I_tg=I_tg
-        self.A_tg=A_tg
+        #Debug
+        self._debug_a_star=a_star
+        self._debug_I_tg=I_tg
+        self._debug_A_tg=A_tg
         return bolt_rotation * 2*self._bolt_bending_stiffness
 
 
@@ -725,14 +725,14 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         s_avg = (self.s + self.s_ratio * self.s) / 2
         c = self.central_angle * (self.R - s_avg/2)
         delta_Z_gap=-0.5 * self._gap_stiffness * self.gap_height * c
-        
-        #NSe
-        self.Fv_c=0
         self.delta_Z_gap=delta_Z_gap
         self.delta_Z_gap_c=0
         self.delta_Z_gap_incl=0
-        self.M_incl=0
         self.delta_Z_gap_tot=delta_Z_gap
+        
+        #Debug
+        self._debug_Fv_c=0
+        self._debug_M_incl=0
         return delta_Z_gap
 
 
@@ -843,12 +843,14 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         #logger.debug(f"I_cf = {I*1e12:.2f} mm^4")
         #logger.debug(f"k_fl = {k_flange/1e6:.2f} kN/mm/m")
         
-        #NSe
-        self.A_cf=A
-        self.I_cf=I
         self.k_fl=k_flange
         self.k_shell=k_shell
-        self.k_fac=k_fac
+        
+        #Debug
+        self._debug_A_cf=A
+        self._debug_I_cf=I
+        self._debug_k_fl=k_flange
+        self._debug_k_fac=k_fac
         
         # Total gap stiffness according to ref. [1], eq.53
         return 2.2 * (k_shell + k_flange)
@@ -883,11 +885,11 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         k_seg = Z2B / (u * c)
         #logger.debug(f"k_seg = {k_seg/1e6} kN/mm/m")
         
-        #NSe
-        self.k_seg=k_seg
-        self.u=u
-        self.alpha_k=min(1 + self._gap_stiffness / k_seg,4 * pi/3 / self.gap_angle)
-        self.Z2_tilde=Z2B
+        #Debug
+        self._debug_k_seg=k_seg
+        self._debug_u=u
+        self._debug_alpha_k=min(1 + self._gap_stiffness / k_seg,4 * pi/3 / self.gap_angle)
+        self._debug_Z2_tilde=Z2B
         # Return the stiffness correction factor, acc. [1], eq.75
         return min(1 + self._gap_stiffness / k_seg,
                    4 * pi/3 / self.gap_angle)
@@ -913,7 +915,77 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
 @dataclass
 class PolynomialTFlangeSegment (PolynomialFlangeSegment):
+    ''' This class provide a ``PolynomialFlangeSegment`` implementation for T-Flanges,
+    based on ref. [1].
 
+    For this particular case of flange, this class defines the polynomial reference
+    points ``P1``, ``P2``, ``P3``, ``P4``, ``Q1``, ``Q2``, ``Q3``, ``Q4`` and inherits
+    the polynomial functions ``.bolt_axial_force(Z)`` and ``.bolt_bending_moment(Z)``
+    from the parent class.
+
+    The parameters required by this class are:
+
+    - ``a`` : ``float``
+        Distance between inner face of the flange and center of the bolt hole.
+
+    - ``b`` : ``float``
+        Distance between center of the bolt hole and center-line of the shell.
+
+    - ``s`` : ``float``
+        Shell thickness.
+
+    - ``t`` : ``float``
+        Flange thickness.
+
+    - ``R`` : ``float``
+        Shell outer curvature radius.
+
+    - ``central_angle`` : ``float``
+        Angle subtended by the flange segment arc.
+
+    - ``Zg`` : ``float``
+        Load applied to the flange segment shell at rest (normally dead weight
+        of tower + RNA, divided by the number of bolts). Negative if compression.
+
+    - ``bolt`` : ``Bolt``
+        Bolt object representing the flange segment bolt.
+
+    - ``Fv`` : ``float``
+        Applied bolt preload, after preload losses.
+
+    - ``Do`` : ``float``
+        Bolt hole diameter.
+
+    - ``Dw`` : ``float``
+        Washer diameter.
+
+    - ``gap_height`` : ``float``
+        Maximum longitudinal gap height.
+
+    - ``gap_angle`` : ``float``
+        Angle subtended by the gap arc from the flange center.
+    
+    - ``tilt_angle`` : ``float``
+        Inclination angle of the Flange, where the inclination angle is defined per side of the connection
+
+    - ``E`` : ``float`` [optional]
+        Young modulus of the flange. If omitted, it will be taken equal to 210e9 Pa.
+
+    - ``G`` : ``float`` [optional]
+        Shear modulus of the flange. If omitted, it will be taken equal to 80.77e9 Pa.
+
+    - ``s_ratio`` : ``float`` [optional]
+        Ratio of bottom shell thickness over s. If omitted, it will be take equal to 1.0,
+        threfore, by default, s_botom = s.
+    
+    - ``r`` : ``float`` [optional]
+        Radius of the rouding between the shell and the flange
+
+    The given parameters are also available as attributes (e.g. ``fseg.a``, ``fseg.Fv``, etc.).
+    This class is designed to be immutable, therefore modifying the attributes after
+    instantiation is not a good idea. If you need a segment with different attributes, just
+    create a new one.
+    '''
     a: float        # distance between inner face of the flange and center of the bolt hole
     b: float        # distance between center of the bolt hole and center-line of the shell
     s: float        # shell thickness
@@ -942,7 +1014,9 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     def failure_mode (self, fy_sh, fy_fl,gamma_0 = 1.1):
         ''' Determine the failure mode of this flange and returns the
-        corresponding string, which is either "A", "B", "C" or "D".
+        corresponding string, which is either "A", "B", "C" or "D". 
+        The second return value is a tuple with the segment forces of all failure modes,
+        as (Zu_A, Zu_B, Zu_D, Zu_E)
         '''
         from scipy.optimize import fsolve
         
@@ -982,13 +1056,13 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         Zu_min = min(Zu_A, Zu_B, Zu_D, Zu_E)
         
         if Zu_min == Zu_A:
-            return "A",[Zu_A, Zu_B, Zu_D, Zu_E]
+            return "A",(Zu_A, Zu_B, Zu_D, Zu_E)
         elif Zu_min == Zu_B:
-            return "B",[Zu_A, Zu_B, Zu_D, Zu_E]
+            return "B",(Zu_A, Zu_B, Zu_D, Zu_E)
         elif Zu_min == Zu_D:
-            return "D",[Zu_A, Zu_B, Zu_D, Zu_E]
+            return "D",(Zu_A, Zu_B, Zu_D, Zu_E)
         elif Zu_min == Zu_E:
-            return "E",[Zu_A, Zu_B, Zu_D, Zu_E]
+            return "E",(Zu_A, Zu_B, Zu_D, Zu_E)
     
     def validate (self, fy_sh, fy_fl,gamma_0 = 1.1):
         ''' Check if this L-Flange Segment matches the assumptions,
@@ -1042,15 +1116,15 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         phi_T_low=(Fs-self.Fv)*( self.b**2/(2*self.E*I_tg) + 1/(0.85*self.G*A_tg) )
         phi_T_high=Z*( self.b**2/(ak*4*self.E*I_tg) + 1/(0.85*self.G*A_tg) )
         
-        Fs2=self.bolt_force_at_tensile_ULS
+        Z2 = self.shell_force_at_tensile_ULS
         
         #bolt_rotation = Z/(2*Fs2)*phi_T_high + (1-Z/(2*Fs2))*phi_T_low
-        bolt_rotation=phi_T_low+(phi_T_high-phi_T_low)/(Fs2-self.Zg)*(Z-self.Zg)
+        bolt_rotation=phi_T_low+(phi_T_high-phi_T_low)/(Z2-self.Zg)*(Z-self.Zg)
         
-        #NSe
-        self.a_star=a_star
-        self.I_tg=I_tg
-        self.A_tg=A_tg
+        #Debug
+        self._debug_a_star=a_star
+        self._debug_I_tg=I_tg
+        self._debug_A_tg=A_tg
         
         if phi:
             return bolt_rotation * 2*self._bolt_bending_stiffness,phi_T_low,phi_T_high
@@ -1153,13 +1227,15 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         
         #total shell force at closed gap
         delta_Z_gap_tot=delta_Z_gap+delta_Z_gap_c+delta_Z_gap_incl
-        self.Fv_c=Fv_c
         self.delta_Z_gap=delta_Z_gap
         self.delta_Z_gap_c=delta_Z_gap_c
         self.delta_Z_gap_incl=delta_Z_gap_incl
-        self.M_incl=M_incl
         self.delta_Z_gap_tot=delta_Z_gap_tot
-                
+        
+        #Debug
+        self._debug_Fv_c=Fv_c
+        self._debug_M_incl=M_incl
+   
         return delta_Z_gap_tot 
 
 
@@ -1246,12 +1322,13 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49
 
         # Total gap stiffness according to ref. [1], eq.53
-        #NSe
-        self.A_cf=A
-        self.I_cf=I
         self.k_fl=k_flange
         self.k_shell=k_shell
-        self.k_fac=k_fac
+        
+        #Debug
+        self._debug_A_cf=A
+        self._debug_I_cf=I
+        self._debug_k_fac=k_fac
         return 2.2 * (k_shell + k_flange)
 
 
@@ -1286,11 +1363,11 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         # Evaluate the segment stiffness
         k_seg = Z2B / (u * cm)
         
-        #NSe
-        self.k_seg=k_seg
-        self.u=u
-        self.alpha_k=min(1 + self._gap_stiffness / k_seg,4 * pi/3 / self.gap_angle)
-        self.Z2_tilde=Z2B
+        #Debug
+        self._debug_k_seg=k_seg
+        self._debug_u=u
+        self._debug_alpha_k=min(1 + self._gap_stiffness / k_seg,4 * pi/3 / self.gap_angle)
+        self._debug_Z2_tilde=Z2B
         # Return the stiffness correction factor, acc. [1], eq.75
         return min(1 + self._gap_stiffness / k_seg,
                    4 * pi/3 / self.gap_angle)
@@ -1310,6 +1387,4 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         scf = min(0.5 , 0.5*(-self.shell_force_at_closed_gap / (0.2 * self.Fv))**2)
 
         # Initial slope
-        #Nse
-        self.p=p
         return scf * p

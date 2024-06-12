@@ -100,8 +100,6 @@ class MetricBolt (Bolt):
 
     nominal_diameter: float
     thread_pitch: float
-    
-    geo: dict
 
     yield_stress: float
     ultimate_tensile_stress: float
@@ -351,7 +349,6 @@ def StandardMetricBolt (designation, material_grade, shank_length=0.0, shank_dia
     return MetricBolt(
         nominal_diameter = geometry['D'],
         thread_pitch = geometry['Pc'],
-        geo=geometry,
         yield_stress = material['fy'],
         ultimate_tensile_stress = material['fu'],
         elastic_modulus = material['E'],
