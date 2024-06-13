@@ -725,14 +725,15 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         s_avg = (self.s + self.s_ratio * self.s) / 2
         c = self.central_angle * (self.R - s_avg/2)
         delta_Z_gap=-0.5 * self._gap_stiffness * self.gap_height * c
-        self.delta_Z_gap=delta_Z_gap
-        self.delta_Z_gap_c=0
-        self.delta_Z_gap_incl=0
-        self.delta_Z_gap_tot=delta_Z_gap
         
         #Debug
+        self._debug_delta_Z_gap=delta_Z_gap
+        self._debug_delta_Z_gap_c=0
+        self._debug_delta_Z_gap_incl=0
+        self._debug_delta_Z_gap_tot=delta_Z_gap
         self._debug_Fv_c=0
         self._debug_M_incl=0
+        
         return delta_Z_gap
 
 
@@ -843,8 +844,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         #logger.debug(f"I_cf = {I*1e12:.2f} mm^4")
         #logger.debug(f"k_fl = {k_flange/1e6:.2f} kN/mm/m")
         
-        self.k_fl=k_flange
-        self.k_shell=k_shell
+        self._debug_k_fl=k_flange
+        self._debug_k_shell=k_shell
         
         #Debug
         self._debug_A_cf=A
@@ -909,8 +910,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         scf = min(1.0 , (-self.shell_force_at_closed_gap / (0.2 * self.Fv))**2)
 
         # Initial slope
-        #Nse
-        self.p=p
+        self._debug_p=p
         return scf * p
 
 @dataclass
@@ -966,7 +966,8 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         Angle subtended by the gap arc from the flange center.
     
     - ``tilt_angle`` : ``float``
-        Inclination angle of the Flange, where the inclination angle is defined per side of the connection
+        Inclination angle of the Flange, where the inclination angle is defined per side of the connection.
+        If omitted, it will be take equal to 0.0
 
     - ``E`` : ``float`` [optional]
         Young modulus of the flange. If omitted, it will be taken equal to 210e9 Pa.
@@ -1004,7 +1005,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     gap_height: float   # maximum longitudinal gap height
     gap_angle: float    # angle subtended by the gap arc from the flange center
-    tilt_angle : float
+    tilt_angle : float = 0.0
 
     E: float = 210e9    # Young modulus of the flange
     G: float = 80.77e9  # Shear modulus of the flange
@@ -1227,12 +1228,12 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         
         #total shell force at closed gap
         delta_Z_gap_tot=delta_Z_gap+delta_Z_gap_c+delta_Z_gap_incl
-        self.delta_Z_gap=delta_Z_gap
-        self.delta_Z_gap_c=delta_Z_gap_c
-        self.delta_Z_gap_incl=delta_Z_gap_incl
-        self.delta_Z_gap_tot=delta_Z_gap_tot
         
         #Debug
+        self._debug_delta_Z_gap=delta_Z_gap
+        self._debug_delta_Z_gap_c=delta_Z_gap_c
+        self._debug_delta_Z_gap_incl=delta_Z_gap_incl
+        self._debug_delta_Z_gap_tot=delta_Z_gap_tot
         self._debug_Fv_c=Fv_c
         self._debug_M_incl=M_incl
    
@@ -1319,16 +1320,16 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         EI = self.E * I
         GA = self.G * A
         L2 = L_gap**2
-        k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49
-
-        # Total gap stiffness according to ref. [1], eq.53
-        self.k_fl=k_flange
-        self.k_shell=k_shell
+        k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49      
         
         #Debug
+        self._debug_k_fl=k_flange
+        self._debug_k_shell=k_shell
         self._debug_A_cf=A
         self._debug_I_cf=I
         self._debug_k_fac=k_fac
+        
+        # Total gap stiffness according to ref. [1], eq.53
         return 2.2 * (k_shell + k_flange)
 
 
@@ -1351,7 +1352,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         
         # Retrieve point 2B
         Z0 = self._ideal_shell_force_at_tensile_ULS
-        Z2B=max(Z0 + self.delta_Z_gap,
+        Z2B=max(Z0 + self._debug_delta_Z_gap,
                 0.2 * Z0)
         Fs0 = self.bolt_force_at_tensile_ULS
 
