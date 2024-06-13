@@ -685,7 +685,10 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_tensile_ULS (self):
-        return self._stiffness_correction_factor * self._cantilever_shell_force_at_tensile_ULS
+        Z0 = self._ideal_shell_force_at_tensile_ULS
+        return self._stiffness_correction_factor * max(
+            Z0 + self.shell_force_at_closed_gap,
+            0.2 * Z0)
 
 
     @cached_property
@@ -714,9 +717,10 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     @cached_property
     def shell_force_at_closed_gap (self):
         ''' Force necessary to completely close the imperfection gap '''
-        s_avg = (self.s + self.s_ratio * self.s) / 2
+        s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
-        return -0.5 * self._gap_stiffness * self.gap_height * c - self._tilt_neutralization_shell_force
+        return -(0.5 * self._gap_stiffness * self.gap_height * c + self._tilt_neutralization_shell_force)
+
 
     @cached_property
     def _tilt_neutralization_shell_force (self):
@@ -729,12 +733,15 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # and M is the scalar to be determined
 
         # General parameters
+        s_mean = self.s * (1+self.s_ratio)/2
         w = self.a + self.b + self.s/2
-        R_sh = self.R - self.s/2
+        Af = w * self.t
+        If = w * self.t**3 / 12
+        R_sh = self.R - s_mean/2
         R_fl = self.R - w/2
         nu = self.E / (2*self.G) - 1
-        k = self.E * self.s**3 / (12*(1-nu**2))
-        n = (3*(1-nu**2))**0.25 / (R_sh * self.s)**0.5
+        k = self.E * s_mean**3 / (12*(1-nu**2))
+        n = (3*(1-nu**2))**0.25 / (R_sh * s_mean)**0.5
 
         # Matrix A
         a11 = 1 / (2*k*n**3)
@@ -745,16 +752,16 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
                     [a21, a22]])
 
         # Matrix B
-        b11 = a11 * R_fl * R_sh / (self.E * w * self.t)
+        b11 = a11 + R_fl * R_sh / (self.E * Af)
         b12 = a12
         b21 = a12
-        b22 = a22 * (12 * R_fl * R_sh) / (self.E * w * self.t**3)
+        b22 = a22 + R_fl * R_sh / (self.E * If)
         B = np.array([[b11, b12],
                     [b21, b22]])
 
         # Matrix C
         c1 = 0
-        c2 = 12 * R_fl**2 / (self.E * w * self.t**3)
+        c2 = R_fl**2 / (self.E * If)
         C = np.array([c1, c2])
 
         # Matrix D
@@ -769,9 +776,30 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # we can therefore determine M from it as d2/h2:
         M = d2 / H[1]
 
+        logger.debug(f"k = {k} N.m")
+        logger.debug(f"n = {n} 1/m")
+
+        logger.debug(f"a11 = {a11} 1/Pa")
+        logger.debug(f"a12 = a21 = {a12} m/N")
+        logger.debug(f"a22 = {a22} 1/N")
+
+        logger.debug(f"b11 = {b11} 1/Pa")
+        logger.debug(f"b12 = b21 = {b12} m/N")
+        logger.debug(f"b22 = {b22} 1/N")
+
+        logger.debug(f"c1 = 0")
+        logger.debug(f"c2 = {c2} 1/N")
+
+        logger.debug(f"tilt_angle = {d2} rad")
+
         # Return the shell pull force corresponding to M
         c = self.central_angle * R_sh
-        return c * M / (w/2 + self.b)
+        b_mean = self.b + self.s/2 - s_mean/2
+        logger.debug(f"s_mean = {s_mean}")
+        logger.debug(f"c = {c}")
+        logger.debug(f"b_mean = {b_mean}")
+        logger.debug(f"M = {M} N.m/m")
+        return -c * M / (s_mean/2 + b_mean)
 
 
     @cached_property
@@ -814,7 +842,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # avoid that, we limit the value of Z to 20% of Z0.
         Z0 = self._ideal_shell_force_at_tensile_ULS
         return max(
-            Z0 + self.shell_force_at_closed_gap,
+            Z0 + self.shell_force_at_closed_gap + self._tilt_neutralization_shell_force,
             0.2 * Z0)
 
 
