@@ -203,6 +203,8 @@ class MetricBolt (Bolt):
         '''
         if standard == "Eurocode":
             return 0.9 * self.ultimate_tensile_stress * self.tensile_cross_section_area / 1.25
+        elif standard == "char":
+            return 0.9 * self.ultimate_tensile_stress * self.tensile_cross_section_area
         else:
             raise ValueError(f"Unsupported standard: '{standard}'")
 
@@ -254,7 +256,7 @@ class MetricBolt (Bolt):
         according to VDI 2230, Part 1, Section 5.1.1.2.
         '''
 
-        logger.debug(f"{self.designation} BENDING STIFFNESS FOR BOLT LENGTH L = {length*1000:.1f} mm")
+        #logger.debug(f"{self.designation} BENDING STIFFNESS FOR BOLT LENGTH L = {length*1000:.1f} mm")
 
         # Verify input validity
         assert length >= self.shank_length, "The lolt can't be shorter than its shank."
@@ -286,11 +288,11 @@ class MetricBolt (Bolt):
         LSK = 0.5 * self.nominal_diameter
         bSK = LSK / (E * In)
 
-        logger.debug(f"Bending resilience of hex head: beta_Sk = {bSK*1e9} rad/(GN.m)")
-        logger.debug(f"Bending resilience of unthreaded part beta_1 = {b1*1e9} rad/(GN.m)")
-        logger.debug(f"Bending resilience of threaded part: beta_Gew = {bGew*1e9} rad/(GN.m)")
-        logger.debug(f"Bending resilience of minor diameter of engaged bolt thread: beta_G = {bG*1e9} rad/(GN.m)")
-        logger.debug(f"Bending resilience of nut: beta_M = {bM*1e9} rad/(GN.m)")
+        #logger.debug(f"Bending resilience of hex head: beta_Sk = {bSK*1e9} rad/(GN.m)")
+        #logger.debug(f"Bending resilience of unthreaded part beta_1 = {b1*1e9} rad/(GN.m)")
+        #logger.debug(f"Bending resilience of threaded part: beta_Gew = {bGew*1e9} rad/(GN.m)")
+        #logger.debug(f"Bending resilience of minor diameter of engaged bolt thread: beta_G = {bG*1e9} rad/(GN.m)")
+        #logger.debug(f"Bending resilience of nut: beta_M = {bM*1e9} rad/(GN.m)")
 
         # Total bending stiffness
         if self.stud:
@@ -445,6 +447,5 @@ _standard = {
         "F60" : {"fy": 410*MPa, "fu": 600*MPa, "E":210*GPa, "nu":0.3}
     }
 }
-
 
 
