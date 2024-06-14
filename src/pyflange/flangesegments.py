@@ -686,9 +686,10 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     @cached_property
     def shell_force_at_tensile_ULS (self):
         Z0 = self._ideal_shell_force_at_tensile_ULS
-        return self._stiffness_correction_factor * max(
+        Z2 = self._stiffness_correction_factor * max(
             Z0 + self.shell_force_at_closed_gap,
             0.2 * Z0)
+        return min(Z0, Z2)
 
 
     @cached_property
