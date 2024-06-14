@@ -127,5 +127,5 @@ class TestPolynomialLFlangeSegment:
 
 
     def test_failure_mode (self, fseg):
-        fm = fseg.failure_mode(335e6, 285e6)
+        fm, Zus = fseg.failure_mode(335e6, 285e6)
         assert fm == "B"

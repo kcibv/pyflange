@@ -50,10 +50,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
 
-import logging
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+from .logger import Logger, log_data
+logger = Logger(__name__)
 
 import numpy as np
 
@@ -413,9 +411,6 @@ class PolynomialFlangeSegment (FlangeSegment):
 
 
 
-
-
-
 @dataclass
 class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     ''' This class provide a ``PolynomialFlangeSegment`` implementation for L-Flanges,
@@ -483,6 +478,9 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         Ratio of bottom shell thickness over s. If omitted, it will be take equal to 1.0,
         threfore, by default, s_botom = s.
 
+    - ``r`` : ``float`` [optional]
+        Radius of the rouding between the shell and the flange
+
     The given parameters are also available as attributes (e.g. ``fseg.a``, ``fseg.Fv``, etc.).
     This class is designed to be immutable, therefore modifying the attributes after
     instantiation is not a good idea. If you need a segment with different attributes, just
@@ -514,6 +512,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     E: float = 210e9        # Young modulus of the flange
     G: float = 80.77e9      # Shear modulus of the flange
     s_ratio: float = 1.0    # Ratio of bottom shell thickness over s. Default s_botom = s.
+    r: float = 0.01         # Rounding between flange and shell
 
 
     def failure_mode (self, fy_sh, fy_fl, gamma_0=1.1):
@@ -1247,7 +1246,11 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_tensile_ULS (self):
-        return self._stiffness_correction_factor * self._cantilever_shell_force_at_tensile_ULS
+        Z0 = self._ideal_shell_force_at_tensile_ULS
+        Z2 = self._stiffness_correction_factor * max(
+            Z0 + self.shell_force_at_closed_gap,
+            0.2 * Z0)
+        return min(Z0, Z2)
 
 
     @cached_property
@@ -1324,7 +1327,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         # avoid that, we limit the value of Z to 20% of Z0.
         Z0 = self._ideal_shell_force_at_tensile_ULS
         return max(
-            Z0 + self.shell_force_at_closed_gap,
+            Z0 + self.shell_force_at_closed_gap + self._tilt_neutralization_shell_force,
             0.2 * Z0)
 
 
@@ -1461,3 +1464,6 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         # Initial slope
         return scf * p
+
+
+

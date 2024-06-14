@@ -25,10 +25,8 @@ generates MetricBolt objects with standard properties.
 from dataclasses import dataclass
 from functools import cached_property
 
-import logging
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+from .logger import Logger, log_data
+logger = Logger(__name__)
 
 # UNITS OF MEASUREMENT
 # Distance
@@ -256,8 +254,6 @@ class MetricBolt (Bolt):
         according to VDI 2230, Part 1, Section 5.1.1.2.
         '''
 
-        #logger.debug(f"{self.designation} BENDING STIFFNESS FOR BOLT LENGTH L = {length*1000:.1f} mm")
-
         # Verify input validity
         assert length >= self.shank_length, "The lolt can't be shorter than its shank."
 
@@ -288,11 +284,7 @@ class MetricBolt (Bolt):
         LSK = 0.5 * self.nominal_diameter
         bSK = LSK / (E * In)
 
-        #logger.debug(f"Bending resilience of hex head: beta_Sk = {bSK*1e9} rad/(GN.m)")
-        #logger.debug(f"Bending resilience of unthreaded part beta_1 = {b1*1e9} rad/(GN.m)")
-        #logger.debug(f"Bending resilience of threaded part: beta_Gew = {bGew*1e9} rad/(GN.m)")
-        #logger.debug(f"Bending resilience of minor diameter of engaged bolt thread: beta_G = {bG*1e9} rad/(GN.m)")
-        #logger.debug(f"Bending resilience of nut: beta_M = {bM*1e9} rad/(GN.m)")
+        log_data(self, beta_sk=bSK, beta_1=b1, beta_Gew=bGew, beta_G=bG, beta_M=bM)
 
         # Total bending stiffness
         if self.stud:
