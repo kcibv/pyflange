@@ -269,7 +269,7 @@ class PolynomialFlangeSegment (FlangeSegment):
 
         # Value of Z below which the compressive polynomial
         # becomes practically constant
-        Zmin = self.shell_force_at_closed_gap + Z1
+        Zmin = self.shell_force_at_closed_gap
 
         # Compressive polynomial coefficients
         c2 = 0.5 * X1 / (Z1 - Zmin)
@@ -335,7 +335,7 @@ class PolynomialFlangeSegment (FlangeSegment):
 
         # Value of Z below which the compressive polynomial
         # becomes practically constant
-        Zmin = self.shell_force_at_closed_gap + Z1
+        Zmin = self.shell_force_at_closed_gap
 
         # Compressive polynomial coefficients
         c2 = 0.5 * X1 / (Z1 - Zmin)
@@ -698,7 +698,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     def shell_force_at_tensile_ULS (self):
         Z0 = self._ideal_shell_force_at_tensile_ULS
         Z2 = self._stiffness_correction_factor * max(
-            Z0 + self.shell_force_at_closed_gap,
+            Z0 + self._total_gap_neutralization_shell_force,
             0.2 * Z0)
         return min(Z0, Z2)
 
@@ -728,6 +728,11 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_closed_gap (self):
+        return self.shell_force_at_rest + self._total_gap_neutralization_shell_force
+
+
+    @cached_property
+    def _total_gap_neutralization_shell_force (self):
         ''' Force necessary to completely close the imperfection gap
 
         This is the ``delta-Z_gop,total`` variable defined in ref. [1].
@@ -965,7 +970,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         p = self._bolt_axial_stiffness / (self._bolt_axial_stiffness + self._flange_axial_stiffness)
 
         # Initial slope correction factor
-        scf = min(1.0 , (-self.shell_force_at_closed_gap / (0.2 * self.Fv))**2)
+        scf = min(1.0 , (-self._total_gap_neutralization_shell_force / (0.2 * self.Fv))**2)
 
         # Initial slope
         return scf * p
@@ -1072,6 +1077,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     r: float = 0.01 #rounding between flange and shell
 
+
     def failure_mode (self, fy_sh, fy_fl,gamma_0 = 1.1):
         ''' Determine the failure mode of this flange and returns the
         corresponding string, which is either "A", "B", "C" or "D".
@@ -1139,16 +1145,13 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         if failure_mode != "A":
             raise ValueError(f"Failure mode {failure_mode} detected, while only failure mode B is supported.")
 
-
     @cached_property
     def _bolt_axial_stiffness (self):
         return self.bolt.axial_stiffness(2*self.t)
 
-
     @cached_property
     def _bolt_bending_stiffness (self):
         return self.bolt.bending_stiffness(2*self.t)
-
 
     @cached_property
     def _flange_axial_stiffness (self):
@@ -1160,7 +1163,6 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         h = self.t * 2
         A = pi * ((Dw + h/10)**2 - Do**2) / 4
         return self.E * A / h
-
 
     def _bolt_moment (self, Z, Fs,phi=False):
         a_red = self.b / (self._prying_lever_ratio - 1)
@@ -1191,23 +1193,19 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         else:
             return bolt_rotation * 2*self._bolt_bending_stiffness
 
-
     @cached_property
     def shell_force_at_rest (self):
         return self.Zg
 
-
     @cached_property
     def bolt_force_at_rest (self):
         return self.Fv
-
 
     @cached_property
     def bolt_moment_at_rest (self):
         Z1 = self.shell_force_at_rest
         Fs1 = self.bolt_force_at_rest
         return self._bolt_moment(Z1, Fs1)
-
 
     @cached_property
     def shell_force_at_small_displacement (self):
@@ -1216,7 +1214,6 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         Z0 = self._ideal_shell_force_at_tensile_ULS
         return 0.05 * self._stiffness_correction_factor * Z0
 
-
     @cached_property
     def bolt_force_at_small_displacement (self):
         # The slope between points P1 and P3 should match the
@@ -1224,22 +1221,19 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         Z = self.shell_force_at_small_displacement
         return self.Fv + self._polynomial_initial_slope * (Z - self.Zg)
 
-
     @cached_property
     def bolt_moment_at_small_displacement (self):
         Z3 = self.shell_force_at_small_displacement
         Fs3 = self.bolt_force_at_small_displacement
         return self._bolt_moment(Z3, Fs3)
 
-
     @cached_property
     def shell_force_at_tensile_ULS (self):
         Z0 = self._ideal_shell_force_at_tensile_ULS
         Z2 = self._stiffness_correction_factor * max(
-            Z0 + self.shell_force_at_closed_gap,
+            Z0 + self._total_gap_neutralization_shell_force,
             0.2 * Z0)
         return min(Z0, Z2)
-
 
     @cached_property
     def bolt_force_at_tensile_ULS (self):
@@ -1248,17 +1242,19 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         # function may get too steep, therefore we make sure that Fs2 is at list 125% of Fv.
         return max(self.bolt.ultimate_tensile_capacity(), 1.25*self.bolt_force_at_rest)
 
-
     @cached_property
     def bolt_moment_at_tensile_ULS (self):
         Z2 = self.shell_force_at_tensile_ULS
         Fs2 = self.bolt_force_at_tensile_ULS
         return self._bolt_moment(Z2, Fs2)
 
-
     @cached_property
     def shell_force_at_closed_gap (self):
-        ''' Force necessary to completely close the imperfection gap '''
+        ''' Shell force necessary to completely close the imperfection gap '''
+        return self.shell_force_at_rest + self._total_gap_neutralization_shell_force
+
+    @cached_property
+    def _total_gap_neutralization_shell_force (self):
         Rcbcd = self.R - self.s/2 - self.b
         Rm= self.R - self.s/2
         c_m=self.central_angle*Rm
@@ -1302,11 +1298,9 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         return delta_Z_gap_tot
 
-
     @cached_property
     def _ideal_shell_force_at_tensile_ULS (self):
         return self.bolt_force_at_tensile_ULS * 2
-
 
     @cached_property
     def _cantilever_shell_force_at_tensile_ULS (self):
@@ -1315,9 +1309,8 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         # avoid that, we limit the value of Z to 20% of Z0.
         Z0 = self._ideal_shell_force_at_tensile_ULS
         return max(
-            Z0 + self.shell_force_at_closed_gap + self._tilt_neutralization_shell_force,
+            Z0 + self._total_gap_neutralization_shell_force,
             0.2 * Z0)
-
 
     @cached_property
     def _prying_lever_ratio (self):
@@ -1360,7 +1353,6 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         # Lever ratio
         return (e_reduced + g) / e_reduced
 
-
     @cached_property
     def _gap_stiffness (self):
         ''' Stiffness of the design gap.
@@ -1395,7 +1387,6 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         # Total gap stiffness according to ref. [1], eq.53
         return 2.2 * (k_shell + k_flange)
 
-
     @cached_property
     def _stiffness_correction_factor (self):
         ''' Stiggness corrections factor.
@@ -1411,7 +1402,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         cm=self.central_angle*Rm
 
         #Compute all gap closing forces. This stiffness correction factor only takes delta_Z_gap into account
-        res=self.shell_force_at_closed_gap
+        res=self._total_gap_neutralization_shell_force
 
         # Retrieve point 2B
         Z0 = self._ideal_shell_force_at_tensile_ULS
@@ -1436,7 +1427,6 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         return min(1 + self._gap_stiffness / k_seg,
                    4 * pi/3 / self.gap_angle)
 
-
     @cached_property
     def _polynomial_initial_slope (self):
         ''' Initial slope of the polynomial Fs(Z).
@@ -1448,7 +1438,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         p = self._bolt_axial_stiffness / (self._bolt_axial_stiffness + self._flange_axial_stiffness)
 
         # Initial slope correction factor
-        scf = min(0.5 , 0.5*(-self.shell_force_at_closed_gap / (0.2 * self.Fv))**2)
+        scf = min(0.5 , 0.5*(-self._total_gap_neutralization_shell_force / (0.2 * self.Fv))**2)
 
         # Initial slope
         return scf * p

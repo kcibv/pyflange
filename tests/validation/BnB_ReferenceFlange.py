@@ -188,7 +188,7 @@ def flange_segment_model_to_excel (book, sheet_name, fseg):
     set_cell_value(book, f"{sheet_name}!gap.stiffness", fseg._gap_stiffness/1e6)
     set_cell_value(book, f"{sheet_name}!DZ_gap_inclination", fseg._tilt_neutralization_shell_force/kN)
     set_cell_value(book, f"{sheet_name}!DZ_gap", fseg._parallel_gap_neutralization_shell_force/kN)
-    set_cell_value(book, f"{sheet_name}!DZ_gap_tot", fseg.shell_force_at_closed_gap/kN)
+    set_cell_value(book, f"{sheet_name}!DZ_gap_tot", fseg._total_gap_neutralization_shell_force/kN)
     set_cell_value(book, f"{sheet_name}!stiffness_correction_factor", fseg._stiffness_correction_factor)
     set_cell_value(book, f"{sheet_name}!polynomial_initial_slope", fseg._polynomial_initial_slope)
     set_cell_value(book, f"{sheet_name}!true_force_initial_slope", fseg._tensile_force_polynomial.deriv()(Z1))

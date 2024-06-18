@@ -206,20 +206,20 @@ class TestPolynomialLFlangeSegment:
 
 
     def test_shell_force_at_closed_gap (self):
-        assert round(self.fseg( 30*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -1244.4
-        assert round(self.fseg( 60*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -806.6
-        assert round(self.fseg( 90*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -712.7
-        assert round(self.fseg(120*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -681.3
+        assert round(self.fseg( 30*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -1367.7
+        assert round(self.fseg( 60*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -929.9
+        assert round(self.fseg( 90*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -836.0
+        assert round(self.fseg(120*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -804.6
 
-        assert round(self.fseg( 30*deg, 1.2, 0*deg).shell_force_at_closed_gap/1000, 1) == -1244.4
-        assert round(self.fseg( 60*deg, 1.2, 0*deg).shell_force_at_closed_gap/1000, 1) == -806.6
-        assert round(self.fseg( 90*deg, 1.2, 0*deg).shell_force_at_closed_gap/1000, 1) == -712.7
-        assert round(self.fseg(120*deg, 1.2, 0*deg).shell_force_at_closed_gap/1000, 1) == -681.3
+        assert round(self.fseg( 30*deg, 1.2, 0*deg).shell_force_at_closed_gap/1000, 1) == -1367.7
+        assert round(self.fseg( 60*deg, 1.2, 0*deg).shell_force_at_closed_gap/1000, 1) == -929.9
+        assert round(self.fseg( 90*deg, 1.2, 0*deg).shell_force_at_closed_gap/1000, 1) == -836.0
+        assert round(self.fseg(120*deg, 1.2, 0*deg).shell_force_at_closed_gap/1000, 1) == -804.6
 
-        assert round(self.fseg( 30*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -328.1
-        assert round(self.fseg( 60*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -1.0
-        assert round(self.fseg( 90*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -1.0
-        assert round(self.fseg(120*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -1.0
+        assert round(self.fseg( 30*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -451.4
+        assert round(self.fseg( 60*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -124.3
+        assert round(self.fseg( 90*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -124.3
+        assert round(self.fseg(120*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -124.3
 
 
     def test_bolt_axial_force (self):
@@ -231,7 +231,7 @@ class TestPolynomialLFlangeSegment:
             Fs2 = fseg.bolt_force_at_tensile_ULS
             Z3 = fseg.shell_force_at_small_displacement
             Fs3 = fseg.bolt_force_at_small_displacement
-            Z4 = fseg.shell_force_at_closed_gap + Z1
+            Z4 = fseg.shell_force_at_closed_gap
             Fs4 = fseg.bolt_axial_force(Z4)
 
             assert round(fseg.bolt_axial_force(Z1)) == round(Fs1)
@@ -268,7 +268,7 @@ class TestPolynomialLFlangeSegment:
             Ms2 = fseg.bolt_moment_at_tensile_ULS
             Z3 = fseg.shell_force_at_small_displacement
             Ms3 = fseg.bolt_moment_at_small_displacement
-            Z4 = fseg.shell_force_at_closed_gap + Z1
+            Z4 = fseg.shell_force_at_closed_gap
             Ms4 = fseg.bolt_bending_moment(Z4)
 
             assert round(fseg.bolt_bending_moment(Z1), 1) == round(Ms1, 1)
