@@ -728,16 +728,27 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_closed_gap (self):
+        ''' Force necessary to completely close the imperfection gap
+
+        This is the ``delta-Z_gop,total`` variable defined in ref. [1].
+        '''
+        MAXIMUM_GAP_NEUTRALIZATION_SHELL_FORCE = -1000 # 1 kN
+        return min(self._parallel_gap_neutralization_shell_force - self._tilt_neutralization_shell_force,
+                   MAXIMUM_GAP_NEUTRALIZATION_SHELL_FORCE)
+
+
+    @cached_property
+    def _parallel_gap_neutralization_shell_force (self):
         ''' Force necessary to completely close the imperfection gap '''
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
-        return -(0.5 * self._gap_stiffness * self.gap_height * c + self._tilt_neutralization_shell_force)
+        return -0.5 * self._gap_stiffness * self.gap_height * c
 
 
     @cached_property
     def _tilt_neutralization_shell_force (self):
         ''' This function solves equation (55) of IEC 61400-6:2020 AMD1
-        to determine the moment M_incl that neutralizes the initial tilt.
+        to determine the force DZ_gap,incl that neutralizes the initial tilt.
         '''
 
         # The equation to be solved is A*[inv(B)*C]*M = D,
@@ -788,29 +799,9 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # we can therefore determine M from it as d2/h2:
         M = d2 / H[1]
 
-        logger.debug(f"k = {k} N.m")
-        logger.debug(f"n = {n} 1/m")
-
-        logger.debug(f"a11 = {a11} 1/Pa")
-        logger.debug(f"a12 = a21 = {a12} m/N")
-        logger.debug(f"a22 = {a22} 1/N")
-
-        logger.debug(f"b11 = {b11} 1/Pa")
-        logger.debug(f"b12 = b21 = {b12} m/N")
-        logger.debug(f"b22 = {b22} 1/N")
-
-        logger.debug(f"c1 = 0")
-        logger.debug(f"c2 = {c2} 1/N")
-
-        logger.debug(f"tilt_angle = {d2} rad")
-
         # Return the shell pull force corresponding to M
         c = self.central_angle * R_sh
         b_mean = self.b + self.s/2 - s_mean/2
-        logger.debug(f"s_mean = {s_mean}")
-        logger.debug(f"c = {c}")
-        logger.debug(f"b_mean = {b_mean}")
-        logger.debug(f"M = {M} N.m/m")
         return -c * M / (s_mean/2 + b_mean)
 
 
@@ -854,7 +845,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # avoid that, we limit the value of Z to 20% of Z0.
         Z0 = self._ideal_shell_force_at_tensile_ULS
         return max(
-            Z0 + self.shell_force_at_closed_gap + self._tilt_neutralization_shell_force,
+            Z0 + self._parallel_gap_neutralization_shell_force,
             0.2 * Z0)
 
 
@@ -978,9 +969,6 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         # Initial slope
         return scf * p
-
-
-
 
 
 
