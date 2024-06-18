@@ -64,6 +64,12 @@
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_closed_gap"><code class="docutils literal notranslate"><span class="pre">PolynomialLFlangeSegment.shell_force_at_closed_gap</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment"><code class="docutils literal notranslate"><span class="pre">PolynomialTFlangeSegment</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.failure_mode"><code class="docutils literal notranslate"><span class="pre">PolynomialTFlangeSegment.failure_mode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.validate"><code class="docutils literal notranslate"><span class="pre">PolynomialTFlangeSegment.validate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.shell_force_at_closed_gap"><code class="docutils literal notranslate"><span class="pre">PolynomialTFlangeSegment.shell_force_at_closed_gap</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bolts.html">pyflange.bolts</a></li>
@@ -193,7 +199,7 @@ array of Ms values will be returned.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyflange.flangesegments.</span></span><span class="sig-name descname"><span class="pre">PolynomialLFlangeSegment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Zg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bolt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bolt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Fv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Do</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Dw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap_angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">210000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">80770000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyflange.flangesegments.</span></span><span class="sig-name descname"><span class="pre">PolynomialLFlangeSegment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Zg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bolt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bolt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Fv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Do</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Dw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap_angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap_shape_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tilt_angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">210000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">80770000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment" title="Link to this definition"></a></dt>
 <dd><p>This class provide a <code class="docutils literal notranslate"><span class="pre">PolynomialFlangeSegment</span></code> implementation for L-Flanges,
 based on ref. [1].</p>
 <p>For this particular case of flange, this class defines the polynomial reference
@@ -269,6 +275,13 @@ of tower + RNA, divided by the number of bolts). Negative if compression.</p>
 </dl>
 </li>
 <li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">gap_shape_factor</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>A correction factor that applies to <code class="docutils literal notranslate"><span class="pre">Fs2-Fs1</span></code> and to <code class="docutils literal notranslate"><span class="pre">Fs3-Fs1</span></code> to
+account for gap shape different that the default sinusoidal shape. If
+omitted, it defaults to 1.0 (sinusoida shape).</p>
+</dd>
+</dl>
+</li>
+<li><dl>
 <dt><code class="docutils literal notranslate"><span class="pre">E</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>Young modulus of the flange. If omitted, it will be taken equal to 210e9 Pa.</p>
 </dd>
 </dl>
@@ -284,6 +297,11 @@ threfore, by default, s_botom = s.</p>
 </dd>
 </dl>
 </li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">r</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>Radius of the rouding between the shell and the flange. If omitted, it defaults to 0.01.</p>
+</dd>
+</dl>
+</li>
 </ul>
 <p>The given parameters are also available as attributes (e.g. <code class="docutils literal notranslate"><span class="pre">fseg.a</span></code>, <code class="docutils literal notranslate"><span class="pre">fseg.Fv</span></code>, etc.).
 This class is designed to be immutable, therefore modifying the attributes after
@@ -291,14 +309,14 @@ instantiation is not a good idea. If you need a segment with different attribute
 create a new one.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.failure_mode">
-<span class="sig-name descname"><span class="pre">failure_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fy_sh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fy_fl</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.failure_mode" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">failure_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fy_sh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fy_fl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.failure_mode" title="Link to this definition"></a></dt>
 <dd><p>Determine the failure mode of this flange and returns the
 corresponding string, which is either “A”, “B”, “C” or “D”.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fy_sh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fy_fl</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.validate" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fy_sh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fy_fl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.validate" title="Link to this definition"></a></dt>
 <dd><p>Check if this L-Flange Segment matches the assumptions,
 that is, if it fails according to failure mode B. If not, it
 will throw an exceptions.</p>
@@ -351,7 +369,144 @@ to its maximum tensile capacity.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_closed_gap">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shell_force_at_closed_gap</span></span><a class="headerlink" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_closed_gap" title="Link to this definition"></a></dt>
-<dd><p>Force necessary to completely close the imperfection gap</p>
+<dd><p>Shell force necessary to completely close the imperfection gap.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialTFlangeSegment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyflange.flangesegments.</span></span><span class="sig-name descname"><span class="pre">PolynomialTFlangeSegment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Zg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bolt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bolt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Fv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Do</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Dw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap_angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tilt_angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">210000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">80770000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialTFlangeSegment" title="Link to this definition"></a></dt>
+<dd><p>This class provide a <code class="docutils literal notranslate"><span class="pre">PolynomialFlangeSegment</span></code> implementation for T-Flanges,
+based on ref. [1].</p>
+<p>For this particular case of flange, this class defines the polynomial reference
+points <code class="docutils literal notranslate"><span class="pre">P1</span></code>, <code class="docutils literal notranslate"><span class="pre">P2</span></code>, <code class="docutils literal notranslate"><span class="pre">P3</span></code>, <code class="docutils literal notranslate"><span class="pre">P4</span></code>, <code class="docutils literal notranslate"><span class="pre">Q1</span></code>, <code class="docutils literal notranslate"><span class="pre">Q2</span></code>, <code class="docutils literal notranslate"><span class="pre">Q3</span></code>, <code class="docutils literal notranslate"><span class="pre">Q4</span></code> and inherits
+the polynomial functions <code class="docutils literal notranslate"><span class="pre">.bolt_axial_force(Z)</span></code> and <code class="docutils literal notranslate"><span class="pre">.bolt_bending_moment(Z)</span></code>
+from the parent class.</p>
+<p>The parameters required by this class are:</p>
+<ul>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">a</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Distance between inner face of the flange and center of the bolt hole.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">b</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Distance between center of the bolt hole and center-line of the shell.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">s</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Shell thickness.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">t</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Flange thickness.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">R</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Shell outer curvature radius.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">central_angle</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Angle subtended by the flange segment arc.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">Zg</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Load applied to the flange segment shell at rest (normally dead weight
+of tower + RNA, divided by the number of bolts). Negative if compression.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">bolt</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">Bolt</span></code></span></dt><dd><p>Bolt object representing the flange segment bolt.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">Fv</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Applied bolt preload, after preload losses.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">Do</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Bolt hole diameter.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">Dw</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Washer diameter.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">gap_height</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Maximum longitudinal gap height.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">gap_angle</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Angle subtended by the gap arc from the flange center.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">tilt_angle</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>Inclination angle of the Flange, where the inclination angle is defined per side of the connection.
+If omitted, it will be take equal to 0.0</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">E</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>Young modulus of the flange. If omitted, it will be taken equal to 210e9 Pa.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">G</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>Shear modulus of the flange. If omitted, it will be taken equal to 80.77e9 Pa.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">s_ratio</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>Ratio of bottom shell thickness over s. If omitted, it will be take equal to 1.0,
+threfore, by default, s_botom = s.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">r</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>Radius of the rouding between the shell and the flange. If omitted, it defualts to 0.01.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The given parameters are also available as attributes (e.g. <code class="docutils literal notranslate"><span class="pre">fseg.a</span></code>, <code class="docutils literal notranslate"><span class="pre">fseg.Fv</span></code>, etc.).
+This class is designed to be immutable, therefore modifying the attributes after
+instantiation is not a good idea. If you need a segment with different attributes, just
+create a new one.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialTFlangeSegment.failure_mode">
+<span class="sig-name descname"><span class="pre">failure_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fy_sh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fy_fl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialTFlangeSegment.failure_mode" title="Link to this definition"></a></dt>
+<dd><p>Determine the failure mode of this flange and returns the
+corresponding string, which is either “A”, “B”, “C” or “D”.
+The second return value is a tuple with the segment forces of all failure modes,
+as (Zu_A, Zu_B, Zu_D, Zu_E)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialTFlangeSegment.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fy_sh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fy_fl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.PolynomialTFlangeSegment.validate" title="Link to this definition"></a></dt>
+<dd><p>Check if this L-Flange Segment matches the assumptions,
+that is, if it fails according to failure mode B. If not, it
+will throw an exceptions.</p>
+<p>The required parameters are respectively: the ultimate tensile
+stress of the shell (fu_sh) and the ultimate tensile stress
+of the flange (fu_fl).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.flangesegments.PolynomialTFlangeSegment.shell_force_at_closed_gap">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shell_force_at_closed_gap</span></span><a class="headerlink" href="#pyflange.flangesegments.PolynomialTFlangeSegment.shell_force_at_closed_gap" title="Link to this definition"></a></dt>
+<dd><p>Shell force necessary to completely close the imperfection gap</p>
 </dd></dl>
 
 </dd></dl>

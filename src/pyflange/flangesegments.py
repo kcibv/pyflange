@@ -479,7 +479,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         threfore, by default, s_botom = s.
 
     - ``r`` : ``float`` [optional]
-        Radius of the rouding between the shell and the flange
+        Radius of the rouding between the shell and the flange. If omitted, it defaults to 0.01.
 
     The given parameters are also available as attributes (e.g. ``fseg.a``, ``fseg.Fv``, etc.).
     This class is designed to be immutable, therefore modifying the attributes after
@@ -728,15 +728,14 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_closed_gap (self):
+        ''' Shell force necessary to completely close the imperfection gap.'''
         return self.shell_force_at_rest + self._total_gap_neutralization_shell_force
 
 
     @cached_property
     def _total_gap_neutralization_shell_force (self):
-        ''' Force necessary to completely close the imperfection gap
-
-        This is the ``delta-Z_gop,total`` variable defined in ref. [1].
-        '''
+        # Incremental force necessary to completely close the imperfection gap
+        # This is the ``delta-Z_gop,total`` variable defined in ref. [1].
         MAXIMUM_GAP_NEUTRALIZATION_SHELL_FORCE = -1000 # 1 kN
         return min(self._parallel_gap_neutralization_shell_force - self._tilt_neutralization_shell_force,
                    MAXIMUM_GAP_NEUTRALIZATION_SHELL_FORCE)
@@ -1044,7 +1043,8 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         threfore, by default, s_botom = s.
 
     - ``r`` : ``float`` [optional]
-        Radius of the rouding between the shell and the flange
+        Radius of the rouding between the shell and the flange. If omitted, it defualts to 0.01.
+
 
     The given parameters are also available as attributes (e.g. ``fseg.a``, ``fseg.Fv``, etc.).
     This class is designed to be immutable, therefore modifying the attributes after
