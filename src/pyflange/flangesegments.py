@@ -468,6 +468,9 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         account for gap shape different that the default sinusoidal shape. If
         omitted, it defaults to 1.0 (sinusoida shape).
 
+    - ``tilt_angle`` : ``float`` [optional]
+        Flange tilt angle, in radians. If omitted, it default to 0 rad.
+
     - ``E`` : ``float`` [optional]
         Young modulus of the flange. If omitted, it will be taken equal to 210e9 Pa.
 
