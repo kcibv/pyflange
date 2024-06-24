@@ -31,7 +31,6 @@ rad = 1
 deg = (pi/180)*rad
 
 
-
 # Bolt
 
 M80 = MetricBolt(
