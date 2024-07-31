@@ -620,8 +620,9 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     def _bolt_moment (self, Z, Fs):
         a_red = self.b / (self._prying_lever_ratio - 1)
         a_star = max(0.5, min((self.t / (a_red + self.b))**2 , 1)) * a_red
-        c_cbd = self.central_angle * (self.R - self.s/2 - self.b)
-        I_tg = c_cbd * self.t**3 / 12
+        s_avg = self.s * (1 + self.s_ratio) / 2
+        c = self.central_angle * (self.R - s_avg/2)
+        I_tg = c * self.t**3 / 12
         ak = self._stiffness_correction_factor
         bolt_rotation = Z*self.b*a_star / (3*self.E*I_tg*ak) + (Fs - self.Fv) / (2*a_star*self._bolt_axial_stiffness)
 
@@ -810,8 +811,15 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         c = self.central_angle * R_sh
         b_mean = self.b + self.s/2 - s_mean/2
         return -c * M / (s_mean/2 + b_mean)
-
     
+    @cached_property
+    def _early_prying_neutralization_shell_force (self):
+        '''Increase of the gap closing force to consider the reduced efficiency 
+        of the preload due to early prying at the edges. This needs only to
+        be considered for T-Flanges
+        '''
+        pass
+
     @cached_property
     def _ideal_bolt_force_at_tensile_ULS (self):
         ''' Bolt axial force at tensile failure for sinusoidal gap shape
@@ -1178,21 +1186,22 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         a_red = self.b / (self._prying_lever_ratio - 1)
         a_star = max(0.5, min((self.t / (a_red + self.b))**2 , 1)) * a_red
 
-        Rcbcd = self.R - self.s/2 - self.b
-        cbcd=self.central_angle*Rcbcd
-        A_tg=cbcd*self.t
-        I_tg = cbcd * self.t**3 / 12
+        s_avg = self.s * (1 + self.s_ratio) / 2
+        c = self.central_angle * (self.R - s_avg/2)
+        A_tg= c *self.t
+        I_tg = c * self.t**3 / 12
 
         ak = self._stiffness_correction_factor
 
         phi_T_low=(Fs-self.Fv)*( self.b**2/(2*self.E*I_tg) + 1/(0.85*self.G*A_tg) )
         phi_T_high=Z*( self.b**2/(ak*4*self.E*I_tg) + 1/(0.85*self.G*A_tg) )
 
-        Z2 = self.shell_force_at_tensile_ULS
+        Z0 = self._ideal_shell_force_at_tensile_ULS
+        Z_close=self.shell_force_at_closed_gap
+        
+        bolt_rotation=phi_T_low+(phi_T_high-phi_T_low)/(Z0-Z_close)*(Z-Z_close)
 
-        bolt_rotation=phi_T_low+(phi_T_high-phi_T_low)/(Z2-self.Zg)*(Z-self.Zg)
-
-        log_data(self, a_star=a_star, I_tg=I_tg, A_tg=A_tg)
+        log_data(self, a_star=a_star)
 
         return bolt_rotation * 2*self._bolt_bending_stiffness
 
@@ -1325,13 +1334,11 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         of the preload due to early prying at the edges. This needs only to
         be considered for T-Flanges
         '''
-        # Calculate geometric properties
-        Rcbcd = self.R - self.s/2 - self.b                    
+        # Calculate geometric properties                
         Rm= self.R - self.s/2
         c_m=self.central_angle*Rm
-        cbcd=self.central_angle*Rcbcd
-        A_tg=cbcd*self.t
-        I_tg = cbcd * self.t**3 / 12
+        A_tg= c_m *self.t
+        I_tg = c_m * self.t**3 / 12
        
         # Calculate the gap stiffness
         k_gap=self._gap_stiffness/2.2                 #total gap stiffness, without the adjustment factor of 2.2 acc. to [1] eq.26
@@ -1342,7 +1349,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         #Reduction due to early prying (30)
         delta_Z_gap_c=-max((self.Fv-Fv_c) * ((3*self.a+2*self.b)*self.b**2/(2*(self.a+self.b)**3)),0)
         
-        log_data(self, Fv_c=Fv_c)
+        log_data(self, Fv_c=Fv_c, A_tg=A_tg, I_tg=I_tg)
         
         return delta_Z_gap_c
     
@@ -1417,9 +1424,11 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         '''
 
         # Calculate the shell stiffness
-        Rm = self.R - self.s/2   # radius of the shell midline
-        L_gap = Rm * self.gap_angle
-        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (Rm*1000)) * (L_gap*1000))    # ref. [1], eq.48
+        #Rm = self.R - self.s/2   # radius of the shell midline
+        #L_gap = Rm * self.gap_angle
+        L_gap = self.R * self.gap_angle
+        #k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (Rm*1000)) * (L_gap*1000))    # ref. [1], eq.48
+        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48
         s_avg = (self.s + self.s_ratio * self.s) / 2
         k_shell = self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
 
@@ -1481,12 +1490,18 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         # Load factor of the tension spring
         p = self._bolt_axial_stiffness / (self._bolt_axial_stiffness + self._flange_axial_stiffness)
-
+        p_max=(self.bolt_force_at_tensile_ULS - self.bolt_force_at_rest) / (self.shell_force_at_tensile_ULS - self.shell_force_at_rest)
+        
         # Initial slope correction factor
-        scf = min(0.5 , 0.5*(-self._total_gap_neutralization_shell_force / (0.2 * self.Fv))**2)
+        #scf = min(0.5 , 0.5*(-self._total_gap_neutralization_shell_force / (0.2 * self.Fv))**2)
+        
+        #gap closing ratio
+        gap_closing_ratio=self._total_gap_neutralization_shell_force/(self.Fv)
         
         # Initial slope
-        return scf * p
+        xi_ini=min(gap_closing_ratio*p*0.5,p_max)
+        
+        return -xi_ini
 
 
 
