@@ -811,15 +811,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         c = self.central_angle * R_sh
         b_mean = self.b + self.s/2 - s_mean/2
         return -c * M / (s_mean/2 + b_mean)
-    
-    @cached_property
-    def _early_prying_neutralization_shell_force (self):
-        '''Increase of the gap closing force to consider the reduced efficiency 
-        of the preload due to early prying at the edges. This needs only to
-        be considered for T-Flanges
-        '''
-        pass
 
+    
     @cached_property
     def _ideal_bolt_force_at_tensile_ULS (self):
         ''' Bolt axial force at tensile failure for sinusoidal gap shape
