@@ -208,20 +208,22 @@ def flange_segment_model_to_excel (book, sheet_name, fseg):
 
     #Calculate Boltmoment-interpolation points
     out=[]
-    for i in [fseg.shell_force_at_rest,fseg.shell_force_at_rest+100]:
-        Rcbcd = fseg.R - fseg.s/2 - fseg.b
-        cbcd=fseg.central_angle*Rcbcd
-        A_tg=cbcd*fseg.t
-        I_tg = cbcd * fseg.t**3 / 12
-    
+    for Z in [fseg.shell_force_at_rest,fseg.shell_force_at_rest+100]:
+        Fs=fseg.bolt_axial_force(Z)
+        s_avg = fseg.s * (1 + fseg.s_ratio) / 2
+        c = fseg.central_angle * (fseg.R - s_avg/2)
+        A_tg= c *fseg.t
+        I_tg = c * fseg.t**3 / 12
+
         ak = fseg._stiffness_correction_factor
-        myFs=fseg.bolt_axial_force(i)
-        phi_T_low=(myFs-fseg.Fv)*( fseg.b**2/(2*fseg.E*I_tg) + 1/(0.85*fseg.G*A_tg) )
-        phi_T_high=i*( fseg.b**2/(ak*4*fseg.E*I_tg) + 1/(0.85*fseg.G*A_tg) )
-    
-        Z2 = fseg.shell_force_at_tensile_ULS
-    
-        bolt_rotation=phi_T_low+(phi_T_high-phi_T_low)/(Z2-fseg.Zg)*(i-fseg.Zg)
+
+        phi_T_low=(Fs-fseg.Fv)*( fseg.b**2/(2*fseg.E*I_tg) + 1/(0.85*fseg.G*A_tg) )
+        phi_T_high=Z*( fseg.b**2/(ak*4*fseg.E*I_tg) + 1/(0.85*fseg.G*A_tg) )
+
+        Z0 = fseg._ideal_shell_force_at_tensile_ULS
+        Z_close=fseg.shell_force_at_closed_gap
+        
+        bolt_rotation=phi_T_low+(phi_T_high-phi_T_low)/(Z0-Z_close)*(Z-Z_close)
         
         MT_low=phi_T_low * 2*fseg._bolt_bending_stiffness
         MT_high=phi_T_high * 2*fseg._bolt_bending_stiffness
@@ -230,13 +232,13 @@ def flange_segment_model_to_excel (book, sheet_name, fseg):
         out.append([MT_low,MT_high,MT])
     
     #Out
-    set_cell_value(book, f"{sheet_name}!DZdwDZ", fseg.shell_force_at_rest+100)
+    set_cell_value(book, f"{sheet_name}!DZdwDZ", (fseg.shell_force_at_rest+100)/1000)
     set_cell_value(book, f"{sheet_name}!MZTlow1", out[0][0])
     set_cell_value(book, f"{sheet_name}!MZThigh1", out[0][1])
     set_cell_value(book, f"{sheet_name}!MZT1_", out[0][2])
-    set_cell_value(book, f"{sheet_name}!MZTlow2", out[0][0])
-    set_cell_value(book, f"{sheet_name}!MZThigh2", out[0][1])
-    set_cell_value(book, f"{sheet_name}!MZT2_", out[0][2])
+    set_cell_value(book, f"{sheet_name}!MZTlow2", out[1][0])
+    set_cell_value(book, f"{sheet_name}!MZThigh2", out[1][1])
+    set_cell_value(book, f"{sheet_name}!MZT2_", out[1][2])
     
 
 print("\nEvaluating Flange Segment Model with sinusoidal gap shape and no flange tilt ...")
