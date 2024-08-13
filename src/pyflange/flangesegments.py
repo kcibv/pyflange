@@ -684,11 +684,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # The slope between points P1 and P3 should match the
         # theoretical value of stiffness of the system.
         Z = self.shell_force_at_small_displacement
-        Fs3 = self.Fv + self._polynomial_initial_slope * (Z - self.Zg)
-
-        # Scale Fs2 based on the gap shape
-        Fs1 = self.bolt_force_at_rest
-        return Fs1 + (Fs3 - Fs1) * self.gap_shape_factor
+        return self.Fv + self._polynomial_initial_slope * (Z - self.Zg)
 
 
     @cached_property
@@ -909,9 +905,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         # Calculate the shell stiffness
         s_avg = (self.s + self.s_ratio * self.s) / 2    # Average shell thickness
-        R_shell = self.R - s_avg/2                      # Radius at mid-line of shell with average thickness
-        L_gap = R_shell * self.gap_angle                # Gap lenght at mid-line of shell with average thickness
-        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (R_shell*1000)) * (L_gap*1000))    # ref. [1], eq.48
+        L_gap = self.R * self.gap_angle                 # Gap lenght at mid-line of shell with average thickness
+        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48
         k_shell = self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
 
         # Calculate the flange stiffness
@@ -973,10 +968,10 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         p = self._bolt_axial_stiffness / (self._bolt_axial_stiffness + self._flange_axial_stiffness)
 
         # Initial slope correction factor
-        scf = min(1.0 , (-self._total_gap_neutralization_shell_force / (0.2 * self.Fv))**2)
+        scf = min(1.0 , (-self._total_gap_neutralization_shell_force / (0.5 * self.Fv)))
 
         # Initial slope
-        return scf * p
+        return scf * p * self.gap_shape_factor
 
 
 

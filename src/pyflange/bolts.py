@@ -201,8 +201,6 @@ class MetricBolt (Bolt):
         '''
         if standard == "Eurocode":
             return 0.9 * self.ultimate_tensile_stress * self.tensile_cross_section_area / 1.25
-        elif standard == "char":
-            return 0.9 * self.ultimate_tensile_stress * self.tensile_cross_section_area
         else:
             raise ValueError(f"Unsupported standard: '{standard}'")
 

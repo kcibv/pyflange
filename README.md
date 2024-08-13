@@ -57,7 +57,7 @@ gap_dist = gap_height_distribution(D, u_tol, gap_length)    # lognormal distribu
 # Create the FlangeSegment model
 from pyflange.flangesegments import PolynomialLFlangeSegment
 Nb = 120    # number of bolts
-fseg = PolyNomialLFlangeSegment(
+fseg = PolynomialLFlangeSegment(
     a = 0.2325,              # distance between inner face of the flange and center of the bolt hole
     b = 0.1665,              # distance between center of the bolt hole and center-line of the shell
     s = 0.0720,              # shell thickness
