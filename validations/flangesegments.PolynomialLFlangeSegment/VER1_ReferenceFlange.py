@@ -41,7 +41,6 @@ M48 = MetricBolt(
     ultimate_tensile_stress = 1040*MPa,
     stud = True)
 
-print("Bolt axial stiffness:", 1/M48.axial_stiffness(0.250))
 
 
 
