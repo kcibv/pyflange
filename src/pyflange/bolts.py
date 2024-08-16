@@ -441,8 +441,13 @@ _standard = {
 
 
 
+class Washer:
+    pass
+
+
+
 @dataclass
-class FlatWasher:
+class FlatWasher (Washer):
     ''' Generates a generic flat washer.
 
     - ``outer_diameter`` : ``float``

@@ -2,7 +2,7 @@ from pyflange.logger import Logger, log_data
 logger = Logger(__name__)
 
 from pyflange.flangesegments import PolynomialLFlangeSegment
-from pyflange.bolts import MetricBolt
+from pyflange.bolts import MetricBolt, FlatWasher
 from pyflange.gap import gap_height_distribution
 
 from math import pi
@@ -39,7 +39,7 @@ M48 = MetricBolt(
     shank_length = 238*mm,
     yield_stress = 900*MPa,
     ultimate_tensile_stress = 1040*MPa,
-    stud = True)
+    stud = False)
 
 
 
@@ -74,7 +74,7 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0):
         Fv = 809*kN,       # applied bolt preload
 
         Do = 52*mm,         # bolt hole diameter
-        Dw = 92*mm,        # washer diameter
+        washer = FlatWasher(outer_diameter=92*mm, inner_diameter=49.4*mm, thickness=8*mm),   # washer
 
         gap_height = gap.ppf(0.95),             # maximum longitudinal gap height
         gap_angle = gap_angle,                  # longitudinal gap length
