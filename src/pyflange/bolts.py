@@ -439,3 +439,74 @@ _standard = {
 }
 
 
+
+
+@dataclass
+class FlatWasher:
+    ''' Generates a generic flat washer.
+
+    - ``outer_diameter`` : ``float``
+        The outer diameter of the washer.
+
+    - ``inner_diameter`` : ``float``
+        The hole diameter of the washer.
+
+    - ``elastic_modulus`` : ``float`` [optional]
+        The Young's modulus of the washer material.
+        If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
+        that the chosen unit for distance is m and the chosen unit for forces is N. If
+        that's not the case, you should enter the proper value of this parameter.
+
+    - ``poissons_ratio`` : ``float`` [optional]
+        The Poisson's ratio of the bolt material.
+        If omitted, it defaults to 0.30.
+
+    The parameters must be expressed in a consistent system of units. For example,
+    if you chose to input distances in mm and forces in N, then stresses must be
+    expressed in N/mm². All the bolt attributes and methods will return values
+    consistently with the input units of measurement.
+
+    All the input parameters are also available as attributes of the generated
+    object (e.g. ``washer.thickness``, ``washer.poissons_ratio``, etc.).
+
+    This instances of this calss are designed to be immutable, which means than
+    changing an attribute after creating an object is not a good idea. If you
+    need a different washer with different attributes, create a new one.
+    '''
+
+    outer_diameter: float
+    inner_diameter: float
+    thickness: float
+
+    elastic_modulus: float = 210*GPa
+    poissons_ratio: float = 0.3
+
+    @cached_property
+    def area (self):
+        ''' Area of the washer flat surface '''
+        from math import pi
+        return pi/4 * (self.outer_diameter**2 - self.inner_diameter**2)
+
+    @cached_property
+    def axial_stiffness (self):
+        ''' The compressive stiffness of the flange: t / EA'''
+        return self.elastic_modulus * self.area / self.thickness
+
+
+
+def ISOFlatWasher (designation):
+    ''' Standard washer according to ISO 7089
+
+    Returns a washer having the standard dimensions defined in ISO 7089,
+    given the corresponding metric bolt designation.
+
+    For example, ``ISOFlatWasher("M16")`` will return a ``FlatWasher``
+    instance with outer diameter 30 mm, hole diameter 17 mm and
+    thickness 3 mm.
+    '''
+
+    params = _standard["geometry"][designation]
+    return FlatWasher(
+        outer_diameter = params['D_was'],
+        inner_diameter = params['d_was'],
+        thickness = params['t_was'])

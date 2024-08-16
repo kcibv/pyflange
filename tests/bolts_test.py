@@ -1,6 +1,6 @@
 
 import pytest
-from pyflange.bolts import MetricBolt, StandardMetricBolt
+from pyflange.bolts import MetricBolt, StandardMetricBolt, FlatWasher, ISOFlatWasher
 
 
 class TestMetricBolt:
@@ -204,3 +204,51 @@ class TestStandardMetricBolt:
     def test_shear_modulus (self):
         bolt = StandardMetricBolt("M16", "8.8")
         assert round(bolt.shear_modulus/1e9, 2) == 80.77
+
+
+
+class TestFlatWasher:
+
+    def outer_diameter (self):
+        washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1)
+        assert washer.outer_diameter == 10
+
+    def inner_diameter (self):
+        washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1)
+        assert washer.inner_diameter == 3
+
+    def thickness (self):
+        washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1)
+        assert washer.outer_diameter == 1
+
+    def elastic_modulus (self):
+        washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1)
+        assert washer.elastic_modulus == 210e9
+
+        washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1, elastic_modulus=100)
+        assert washer.elastic_modulus == 100
+
+    def poissons_ratio (self):
+        washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1)
+        assert washer.poissons_ratio == 0.3
+
+        washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1, poissons_ratio=0.5)
+        assert washer.poissons_ratio == 0.5
+
+    def area (self):
+        washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1)
+        assert round(washer.area,3) == 71.471
+
+    def axial_stiffness (self):
+        washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=2)
+        assert round(washer.axial_stiffness, 3) == 7504479451262.618
+
+
+def test_ISOFlatWasher ():
+    washer = ISOFlatWasher("M16")
+    assert isinstance(washer, FlatWasher)
+    assert washer.outer_diameter == 0.030
+    assert washer.inner_diameter == 0.017
+    assert washer.thickness == 0.003
+    assert washer.elastic_modulus == 210e9
+    assert washer.poissons_ratio == 0.3
