@@ -347,6 +347,151 @@ def StandardMetricBolt (designation, material_grade, shank_length=0.0, shank_dia
         shank_diameter_ratio = shank_diameter_ratio,
         stud = stud)
 
+
+
+
+
+class Washer:
+    pass
+
+
+
+@dataclass
+class FlatWasher (Washer):
+    ''' Generates a generic flat washer.
+
+    - ``outer_diameter`` : ``float``
+        The outer diameter of the washer.
+
+    - ``inner_diameter`` : ``float``
+        The hole diameter of the washer.
+
+    - ``elastic_modulus`` : ``float`` [optional]
+        The Young's modulus of the washer material.
+        If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
+        that the chosen unit for distance is m and the chosen unit for forces is N. If
+        that's not the case, you should enter the proper value of this parameter.
+
+    - ``poissons_ratio`` : ``float`` [optional]
+        The Poisson's ratio of the washer material.
+        If omitted, it defaults to 0.30.
+
+    The parameters must be expressed in a consistent system of units. For example,
+    if you chose to input distances in mm and forces in N, then stresses must be
+    expressed in N/mm². All the bolt attributes and methods will return values
+    consistently with the input units of measurement.
+
+    All the input parameters are also available as attributes of the generated
+    object (e.g. ``washer.thickness``, ``washer.poissons_ratio``, etc.).
+
+    This instances of this calss are designed to be immutable, which means than
+    changing an attribute after creating an object is not a good idea. If you
+    need a different washer with different attributes, create a new one.
+    '''
+
+    outer_diameter: float
+    inner_diameter: float
+    thickness: float
+
+    elastic_modulus: float = 210*GPa
+    poissons_ratio: float = 0.3
+
+    @cached_property
+    def area (self):
+        ''' Area of the washer flat surface '''
+        from math import pi
+        return pi/4 * (self.outer_diameter**2 - self.inner_diameter**2)
+
+    @cached_property
+    def axial_stiffness (self):
+        ''' The compressive stiffness of the flange: t / EA'''
+        return self.elastic_modulus * self.area / self.thickness
+
+
+
+def ISOFlatWasher (designation):
+    ''' Standard washer according to ISO 7089
+
+    Returns a washer having the standard dimensions defined in ISO 7089,
+    given the corresponding metric bolt designation.
+
+    For example, ``ISOFlatWasher("M16")`` will return a ``FlatWasher``
+    instance with outer diameter 30 mm, hole diameter 17 mm and
+    thickness 3 mm.
+    '''
+
+    params = _standard["geometry"][designation]
+    return FlatWasher(
+        outer_diameter = params['D_was'],
+        inner_diameter = params['d_was'],
+        thickness = params['t_was'])
+
+
+
+
+class Nut:
+    pass
+
+
+@dataclass
+class HexNut (Nut):
+    ''' Generates a generic flat washer.
+
+    - ``nominal_diameter`` : ``float``
+        The nominal diameter of the inner thread.
+
+    - ``thickness`` : ``float``
+        The height of the bolt.
+
+    - ``inscribed_diameter`` : ``float``
+        The diameter of the circle inscribed in the hexagon.
+        Correponds to the distance between two opposite flats.
+
+    - ``circumscribed_diameter`` : ``float``
+        The diameter of the circle circumscribed in the hexagon.
+        Correponds to the distance between two opposite vertices..
+
+    - ``bearing_diameter`` : ``gloat``
+        The outer diameter of the circular contatact surface between nut and washer.
+
+    - ``elastic_modulus`` : ``float`` [optional]
+        The Young's modulus of the nut material.
+        If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
+        that the chosen unit for distance is m and the chosen unit for forces is N. If
+        that's not the case, you should enter the proper value of this parameter.
+
+    - ``poissons_ratio`` : ``float`` [optional]
+        The Poisson's ratio of the nut material.
+        If omitted, it defaults to 0.30.
+
+    The parameters must be expressed in a consistent system of units. For example,
+    if you chose to input distances in mm and forces in N, then stresses must be
+    expressed in N/mm². All the bolt attributes and methods will return values
+    consistently with the input units of measurement.
+
+    All the input parameters are also available as attributes of the generated
+    object (e.g. ``washer.thickness``, ``washer.poissons_ratio``, etc.).
+
+    This instances of this calss are designed to be immutable, which means than
+    changing an attribute after creating an object is not a good idea. If you
+    need a different nut with different attributes, create a new one.
+    '''
+
+    nominal_diameter: float         # nominal diameter of the thread
+    thickness: float                # height of the nut
+    inscribed_diameter: float       # distance between flats
+    circumscribed_diameter: float   # distances between vertices
+
+    bearing_diameter: float         # the diameter of the surface in contact with the washer
+
+    elastic_modulus: float = 210*GPa
+    poissons_ratio: float = 0.3
+
+
+
+
+
+
 _standard = {
 
     "geometry": {
@@ -437,81 +582,3 @@ _standard = {
         "F60" : {"fy": 410*MPa, "fu": 600*MPa, "E":210*GPa, "nu":0.3}
     }
 }
-
-
-
-
-class Washer:
-    pass
-
-
-
-@dataclass
-class FlatWasher (Washer):
-    ''' Generates a generic flat washer.
-
-    - ``outer_diameter`` : ``float``
-        The outer diameter of the washer.
-
-    - ``inner_diameter`` : ``float``
-        The hole diameter of the washer.
-
-    - ``elastic_modulus`` : ``float`` [optional]
-        The Young's modulus of the washer material.
-        If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
-        that the chosen unit for distance is m and the chosen unit for forces is N. If
-        that's not the case, you should enter the proper value of this parameter.
-
-    - ``poissons_ratio`` : ``float`` [optional]
-        The Poisson's ratio of the bolt material.
-        If omitted, it defaults to 0.30.
-
-    The parameters must be expressed in a consistent system of units. For example,
-    if you chose to input distances in mm and forces in N, then stresses must be
-    expressed in N/mm². All the bolt attributes and methods will return values
-    consistently with the input units of measurement.
-
-    All the input parameters are also available as attributes of the generated
-    object (e.g. ``washer.thickness``, ``washer.poissons_ratio``, etc.).
-
-    This instances of this calss are designed to be immutable, which means than
-    changing an attribute after creating an object is not a good idea. If you
-    need a different washer with different attributes, create a new one.
-    '''
-
-    outer_diameter: float
-    inner_diameter: float
-    thickness: float
-
-    elastic_modulus: float = 210*GPa
-    poissons_ratio: float = 0.3
-
-    @cached_property
-    def area (self):
-        ''' Area of the washer flat surface '''
-        from math import pi
-        return pi/4 * (self.outer_diameter**2 - self.inner_diameter**2)
-
-    @cached_property
-    def axial_stiffness (self):
-        ''' The compressive stiffness of the flange: t / EA'''
-        return self.elastic_modulus * self.area / self.thickness
-
-
-
-def ISOFlatWasher (designation):
-    ''' Standard washer according to ISO 7089
-
-    Returns a washer having the standard dimensions defined in ISO 7089,
-    given the corresponding metric bolt designation.
-
-    For example, ``ISOFlatWasher("M16")`` will return a ``FlatWasher``
-    instance with outer diameter 30 mm, hole diameter 17 mm and
-    thickness 3 mm.
-    '''
-
-    params = _standard["geometry"][designation]
-    return FlatWasher(
-        outer_diameter = params['D_was'],
-        inner_diameter = params['d_was'],
-        thickness = params['t_was'])

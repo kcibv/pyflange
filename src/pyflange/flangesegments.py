@@ -55,7 +55,7 @@ logger = Logger(__name__)
 
 import numpy as np
 
-from .bolts import Bolt, Washer
+from .bolts import Bolt, Washer, Nut
 
 
 
@@ -505,6 +505,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     Do: float       # Bolt hole diameter
     washer: Washer  # Bolt washer
+    nut: Nut        # Bolt nut
 
     gap_height: float               # maximum longitudinal gap height
     gap_angle: float                # angle subtended by the gap arc from the flange center
@@ -531,9 +532,10 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         b_E = self.b-(self.Do+self.washer.outer_diameter)/4
         b_red = self.b-self.s/2-0.8*self.r
 
+        Dw = self.washer.outer_diameter if self.washer else self.nut.bearing_diameter
         c_shell = self.central_angle * (self.R - self.s/2)
         c_hole = self.central_angle * (self.R - self.s/2 - self.b)
-        c_washer = self.central_angle * (self.R - self.s/2 - self.b + (self.Do/2 + self.washer.outer_diameter/2)/2)
+        c_washer = self.central_angle * (self.R - self.s/2 - self.b + (self.Do/2 + Dw/2)/2)
 
         # Failure mode A
         F_tRd = self.bolt.ultimate_tensile_capacity()   # Bolt ultimate tensile capacity
@@ -559,7 +561,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # Failure mode D
         b_D = self.b if Zu_B == Zu_B_sh else b_red
         Mu_pl2 = fd_fl * c_hole * self.t**2 / 4
-        DMu_pl2 = F_tRd/2 * (self.Do/2 + self.washer.outer_diameter/2)/2
+        DMu_pl2 = F_tRd/2 * (self.Do/2 + Dw/2)/2
         Mu_pl3 = min(MNu_sh(Zu_B_sh), MVu_fl(Zu_B_fl))
         Zu_D = (Mu_pl2 + DMu_pl2 + Mu_pl3) / b_D
 
@@ -597,13 +599,13 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def _bolt_axial_stiffness (self):
-        tw = 2 * self.washer.thickness if self.washer else 0
+        tw = self.washer.thickness if self.washer else 0
         return self.bolt.axial_stiffness(2*self.t + 2*tw)
 
 
     @cached_property
     def _bolt_bending_stiffness (self):
-        tw = 2 * self.washer.thickness if self.washer else 0
+        tw = self.washer.thickness if self.washer else 0
         return self.bolt.bending_stiffness(2*self.t + 2*tw)
 
 
@@ -612,7 +614,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # Stiffnes of flange w.r.t. compression in thickness direction,
         # when no gap is present. Calculated according to ref. [3] and [4].
         from math import pi, inf
-        Dw = self.washer.outer_diameter if self.washer else self.Do
+        Dw = self.washer.outer_diameter if self.washer else self.nut.bearing_diameter
         Do = self.Do
         h = self.t * 2
         A = pi * ((Dw + h/10)**2 - Do**2) / 4

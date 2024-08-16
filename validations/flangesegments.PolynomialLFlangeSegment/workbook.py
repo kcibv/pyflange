@@ -59,7 +59,7 @@ def flangesegment_to_excel (book, sheet_name, fseg):
     set_cell_value(book, f"{sheet_name}!bolt.E", fseg.bolt.elastic_modulus/GPa)
     set_cell_value(book, f"{sheet_name}!bolt.pretension", fseg.Fv/kN)
     set_cell_value(book, f"{sheet_name}!Do", fseg.Do/mm)
-    set_cell_value(book, f"{sheet_name}!Dw", fseg.washer.outer_diameter/mm)
+    set_cell_value(book, f"{sheet_name}!Dw", (fseg.washer.outer_diameter if fseg.washer else fseg.nut.bearing_diameter)/mm)
     set_cell_value(book, f"{sheet_name}!gap.h", fseg.gap_height/mm)
     set_cell_value(book, f"{sheet_name}!gap.L", fseg.gap_angle * fseg.R/mm)
     set_cell_value(book, f"{sheet_name}!E_mod", fseg.E/GPa)

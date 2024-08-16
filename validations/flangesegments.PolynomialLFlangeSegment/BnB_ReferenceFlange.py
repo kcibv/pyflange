@@ -2,7 +2,7 @@ from pyflange.logger import Logger, log_data
 logger = Logger(__name__)
 
 from pyflange.flangesegments import PolynomialLFlangeSegment
-from pyflange.bolts import MetricBolt
+from pyflange.bolts import MetricBolt, HexNut
 from pyflange.gap import gap_height_distribution
 
 from math import pi
@@ -44,6 +44,13 @@ M80 = MetricBolt(
     stud = True)
 
 
+M80_hex_nut = HexNut(
+    nominal_diameter = 80*mm,
+    thickness = 64*mm,
+    inscribed_diameter = 115*mm,
+    circumscribed_diameter = 127.5*mm,
+    bearing_diameter = 140*mm
+)
 
 
 # Polinomial Segment Model
@@ -75,7 +82,8 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0):
         Fv = 2876*kN,       # applied bolt preload
 
         Do = 86*mm,         # bolt hole diameter
-        Dw = 140*mm,        # washer diameter
+        washer = None,      # no washer
+        nut = M80_hex_nut,  # bolt nut
 
         gap_height = gap.ppf(0.95),             # maximum longitudinal gap height
         gap_angle = gap_angle,                  # longitudinal gap length
