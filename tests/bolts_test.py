@@ -244,6 +244,7 @@ class TestFlatWasher:
         assert round(washer.axial_stiffness, 3) == 7504479451262.618
 
 
+
 def test_ISOFlatWasher ():
     washer = ISOFlatWasher("M16")
     assert isinstance(washer, FlatWasher)
@@ -252,9 +253,6 @@ def test_ISOFlatWasher ():
     assert washer.thickness == 0.003
     assert washer.elastic_modulus == 210e9
     assert washer.poissons_ratio == 0.3
-
-
-
 
 
 
@@ -295,6 +293,7 @@ class TestHexNut:
         assert nut.poissons_ratio == 0.5
 
 
+
 def test_ISOHexNut ():
     nut = ISOHexNut("M16")
     assert isinstance(nut, HexNut)
@@ -303,3 +302,14 @@ def test_ISOHexNut ():
     assert nut.inscribed_diameter == 0.024
     assert nut.circumscribed_diameter == 0.02675
     assert nut.bearing_diameter == 0.0225
+
+
+
+def test_RoundNut ():
+    nut = RoundNut("M42")
+    assert isinstance(nut, HexNut)
+    assert nut.nominal_diameter == 0.042
+    assert nut.thickness == 0.042
+    assert nut.inscribed_diameter == 0.065
+    assert nut.circumscribed_diameter == 0.07130
+    assert nut.bearing_diameter == 0.078
