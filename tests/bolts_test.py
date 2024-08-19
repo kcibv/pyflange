@@ -1,6 +1,6 @@
 
 import pytest
-from pyflange.bolts import MetricBolt, StandardMetricBolt, FlatWasher, ISOFlatWasher
+from pyflange.bolts import *
 
 
 class TestMetricBolt:
@@ -209,37 +209,37 @@ class TestStandardMetricBolt:
 
 class TestFlatWasher:
 
-    def outer_diameter (self):
+    def test_outer_diameter (self):
         washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1)
         assert washer.outer_diameter == 10
 
-    def inner_diameter (self):
+    def test_inner_diameter (self):
         washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1)
         assert washer.inner_diameter == 3
 
-    def thickness (self):
+    def test_thickness (self):
         washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1)
-        assert washer.outer_diameter == 1
+        assert washer.thickness == 1
 
-    def elastic_modulus (self):
+    def test_elastic_modulus (self):
         washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1)
         assert washer.elastic_modulus == 210e9
 
         washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1, elastic_modulus=100)
         assert washer.elastic_modulus == 100
 
-    def poissons_ratio (self):
+    def test_poissons_ratio (self):
         washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1)
         assert washer.poissons_ratio == 0.3
 
         washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1, poissons_ratio=0.5)
         assert washer.poissons_ratio == 0.5
 
-    def area (self):
+    def test_area (self):
         washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=1)
         assert round(washer.area,3) == 71.471
 
-    def axial_stiffness (self):
+    def test_axial_stiffness (self):
         washer = FlatWasher(outer_diameter=10, inner_diameter=3, thickness=2)
         assert round(washer.axial_stiffness, 3) == 7504479451262.618
 
@@ -252,3 +252,54 @@ def test_ISOFlatWasher ():
     assert washer.thickness == 0.003
     assert washer.elastic_modulus == 210e9
     assert washer.poissons_ratio == 0.3
+
+
+
+
+
+
+class TestHexNut:
+
+    def test_nominal_diameter (self):
+        nut = HexNut(nominal_diameter=16, thickness=10, inscribed_diameter=20, circumscribed_diameter=30, bearing_diameter=40)
+        assert nut.nominal_diameter == 16
+
+    def test_thickness (self):
+        nut = HexNut(nominal_diameter=16, thickness=10, inscribed_diameter=20, circumscribed_diameter=30, bearing_diameter=40)
+        assert nut.thickness == 10
+
+    def test_inscribed_diameter (self):
+        nut = HexNut(nominal_diameter=16, thickness=10, inscribed_diameter=20, circumscribed_diameter=30, bearing_diameter=40)
+        assert nut.inscribed_diameter == 20
+
+    def test_circumscribed_diameter (self):
+        nut = HexNut(nominal_diameter=16, thickness=10, inscribed_diameter=20, circumscribed_diameter=30, bearing_diameter=40)
+        assert nut.circumscribed_diameter == 30
+
+    def test_bearing_diameter (self):
+        nut = HexNut(nominal_diameter=16, thickness=10, inscribed_diameter=20, circumscribed_diameter=30, bearing_diameter=40)
+        assert nut.bearing_diameter == 40
+
+    def test_elastic_modulus (self):
+        nut = HexNut(nominal_diameter=16, thickness=10, inscribed_diameter=20, circumscribed_diameter=30, bearing_diameter=40)
+        assert nut.elastic_modulus == 210e9
+
+        nut = HexNut(nominal_diameter=16, thickness=10, inscribed_diameter=20, circumscribed_diameter=30, bearing_diameter=40, elastic_modulus=100)
+        assert nut.elastic_modulus == 100
+
+    def test_poissons_ratio (self):
+        nut = HexNut(nominal_diameter=16, thickness=10, inscribed_diameter=20, circumscribed_diameter=30, bearing_diameter=40)
+        assert nut.poissons_ratio == 0.3
+
+        nut = HexNut(nominal_diameter=16, thickness=10, inscribed_diameter=20, circumscribed_diameter=30, bearing_diameter=40, poissons_ratio=0.5)
+        assert nut.poissons_ratio == 0.5
+
+
+def test_ISOHexNut ():
+    nut = ISOHexNut("M16")
+    assert isinstance(nut, HexNut)
+    assert nut.nominal_diameter == 0.016
+    assert nut.thickness == 0.0148
+    assert nut.inscribed_diameter == 0.024
+    assert nut.circumscribed_diameter == 0.02675
+    assert nut.bearing_diameter == 0.0225

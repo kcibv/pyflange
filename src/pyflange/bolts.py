@@ -333,7 +333,7 @@ def StandardMetricBolt (designation, material_grade, shank_length=0.0, shank_dia
 
     '''
 
-    geometry = _standard['geometry'][designation]
+    geometry = _standard['bolts'][designation]
     material = _standard['materials'][material_grade]
 
     return MetricBolt(
@@ -420,11 +420,11 @@ def ISOFlatWasher (designation):
     thickness 3 mm.
     '''
 
-    params = _standard["geometry"][designation]
+    params = _standard["flat_washers"][designation]
     return FlatWasher(
-        outer_diameter = params['D_was'],
-        inner_diameter = params['d_was'],
-        thickness = params['t_was'])
+        outer_diameter = params['D'],
+        inner_diameter = params['d'],
+        thickness = params['t'])
 
 
 
@@ -488,52 +488,134 @@ class HexNut (Nut):
     poissons_ratio: float = 0.3
 
 
+def ISOHexNut (designation):
+    ''' Standard Hex Nut
+
+    Returns an ISO 4032 HexNut, given the metric designation. For example:
+    ``nut = ISOHexNut('M16')``
+    '''
+    params = _standard["hex_nuts"][designation]
+    return HexNut(
+        nominal_diameter = params["D_nom"],
+        thickness = params["t"],
+        inscribed_diameter = params["D_ins"],
+        circumscribed_diameter = params["D_cir"],
+        bearing_diameter = params["D_brg"]
+    )
+
+
 
 
 
 
 _standard = {
 
-    "geometry": {
 
-        "M4"  : {"D"    : 4.00*mm,     # nominal diameter
-                "Pc"   : 0.70*mm,     # coarse screw thead pitch
-                "Pf"   : None,        # fine screaw thead pitch
-                "t_nut": 3.20*mm,     # nut thickness
-                "t_hex": 2.80*mm,     # hex head thickness
-                "D_hex": 7.66*mm,     # hex head/nut circumscribed circle diameter
-                "d_hex": 7.00*mm,     # hex head/nut inscribed circle diameter
-                "d_was": 4.30*mm,     # washer hole diameter ISO 7089
-                "D_was": 9.00*mm,     # washer outer diameter ISO 7089
-                "t_was": 0.80*mm},    # washer thickness ISO 7089
+    "bolts": {
 
-        "M5"  : {"D": 5*mm, "Pc":0.80*mm, "Pf":None, "t_nut": 4.7*mm, "t_hex": 3.5*mm, "D_hex":  8.79*mm, "d_hex":  8*mm, "d_was":  5.3*mm, "D_was": 10*mm, "t_was": 1.0*mm},
-        "M6"  : {"D": 6*mm, "Pc":1.00*mm, "Pf":None, "t_nut": 5.2*mm, "t_hex": 4.0*mm, "D_hex": 11.05*mm, "d_hex": 10*mm, "d_was":  6.4*mm, "D_was": 12*mm, "t_was": 1.6*mm},
-        "M8"  : {"D": 8*mm, "Pc":1.25*mm, "Pf":1.00, "t_nut": 6.8*mm, "t_hex": 5.3*mm, "D_hex": 14.38*mm, "d_hex": 13*mm, "d_was":  8.4*mm, "D_was": 16*mm, "t_was": 1.6*mm},
-        "M10" : {"D":10*mm, "Pc":1.50*mm, "Pf":1.25, "t_nut": 8.4*mm, "t_hex": 6.4*mm, "D_hex": 18.90*mm, "d_hex": 17*mm, "d_was": 10.5*mm, "D_was": 20*mm, "t_was": 2.0*mm},
-        "M12" : {"D":12*mm, "Pc":1.75*mm, "Pf":1.50, "t_nut":10.8*mm, "t_hex": 7.5*mm, "D_hex": 21.10*mm, "d_hex": 19*mm, "d_was": 13.0*mm, "D_was": 24*mm, "t_was": 2.5*mm},
-        "M14" : {"D":14*mm, "Pc":2.00*mm, "Pf":1.50, "t_nut":12.8*mm, "t_hex": 8.8*mm, "D_hex": 24.49*mm, "d_hex": 22*mm, "d_was": 15.0*mm, "D_was": 28*mm, "t_was": 2.5*mm},  # 2nd choice
-        "M16" : {"D":16*mm, "Pc":2.00*mm, "Pf":1.50, "t_nut":14.8*mm, "t_hex":10.0*mm, "D_hex": 26.75*mm, "d_hex": 24*mm, "d_was": 17.0*mm, "D_was": 30*mm, "t_was": 3.0*mm},
-        "M18" : {"D":18*mm, "Pc":2.50*mm, "Pf":2.00, "t_nut":15.8*mm, "t_hex":11.5*mm, "D_hex": 30.14*mm, "d_hex": 27*mm, "d_was": 19.0*mm, "D_was": 34*mm, "t_was": 3.0*mm},  # 2nd choice
-        "M20" : {"D":20*mm, "Pc":2.50*mm, "Pf":2.00, "t_nut":18.0*mm, "t_hex":12.5*mm, "D_hex": 33.53*mm, "d_hex": 30*mm, "d_was": 21.0*mm, "D_was": 37*mm, "t_was": 3.0*mm},
-        "M22" : {"D":22*mm, "Pc":2.50*mm, "Pf":2.00, "t_nut":19.4*mm, "t_hex":14.0*mm, "D_hex": 35.72*mm, "d_hex": 32*mm, "d_was": 23.0*mm, "D_was": 39*mm, "t_was": 3.0*mm},  # 2nd choice
-        "M24" : {"D":24*mm, "Pc":3.00*mm, "Pf":2.00, "t_nut":21.5*mm, "t_hex":15.0*mm, "D_hex": 39.98*mm, "d_hex": 36*mm, "d_was": 25.0*mm, "D_was": 44*mm, "t_was": 4.0*mm},
-        "M27" : {"D":27*mm, "Pc":3.00*mm, "Pf":2.00, "t_nut":23.8*mm, "t_hex":17.0*mm, "D_hex": 45.20*mm, "d_hex": 41*mm, "d_was": 28.0*mm, "D_was": 50*mm, "t_was": 4.0*mm},  # 2nd choice
-        "M30" : {"D":30*mm, "Pc":3.50*mm, "Pf":2.00, "t_nut":25.6*mm, "t_hex":18.7*mm, "D_hex": 50.85*mm, "d_hex": 46*mm, "d_was": 31.0*mm, "D_was": 56*mm, "t_was": 4.0*mm},
-        "M33" : {"D":33*mm, "Pc":3.50*mm, "Pf":2.00, "t_nut":28.7*mm, "t_hex":21.0*mm, "D_hex": 55.37*mm, "d_hex": 50*mm, "d_was": 34.0*mm, "D_was": 60*mm, "t_was": 5.0*mm},  # 2nd choice
-        "M36" : {"D":36*mm, "Pc":4.00*mm, "Pf":3.00, "t_nut":31.0*mm, "t_hex":22.5*mm, "D_hex": 60.79*mm, "d_hex": 55*mm, "d_was": 37.0*mm, "D_was": 66*mm, "t_was": 5.0*mm},
-        "M39" : {"D":39*mm, "Pc":4.00*mm, "Pf":3.00, "t_nut":33.4*mm, "t_hex":25.0*mm, "D_hex": 66.44*mm, "d_hex": 60*mm, "d_was": 40.0*mm, "D_was": 72*mm, "t_was": 6.0*mm},  # 2nd choice
-        "M42" : {"D":42*mm, "Pc":4.50*mm, "Pf":3.00, "t_nut":34.0*mm, "t_hex":26.0*mm, "D_hex": 71.30*mm, "d_hex": 65*mm, "d_was": 43.0*mm, "D_was": 78*mm, "t_was": 7.0*mm},
-        "M45" : {"D":45*mm, "Pc":4.50*mm, "Pf":3.00, "t_nut":36.0*mm, "t_hex":28.0*mm, "D_hex": 76.95*mm, "d_hex": 70*mm, "d_was": 46.0*mm, "D_was": 85*mm, "t_was": 7.0*mm},  # 2nd choice
-        "M48" : {"D":48*mm, "Pc":5.00*mm, "Pf":3.00, "t_nut":38.0*mm, "t_hex":30.0*mm, "D_hex": 82.60*mm, "d_hex": 75*mm, "d_was": 50.0*mm, "D_was": 92*mm, "t_was": 8.0*mm},
-        "M52" : {"D":52*mm, "Pc":5.00*mm, "Pf":4.00, "t_nut":42.0*mm, "t_hex":33.0*mm, "D_hex": 88.25*mm, "d_hex": 80*mm, "d_was": 54.0*mm, "D_was": 98*mm, "t_was": 8.0*mm},  # 2nd choice
-        "M56" : {"D":56*mm, "Pc":5.50*mm, "Pf":4.00, "t_nut":45.0*mm, "t_hex":35.0*mm, "D_hex": 93.56*mm, "d_hex": 85*mm, "d_was": 58.0*mm, "D_was":105*mm, "t_was": 9.0*mm},
-        "M60" : {"D":60*mm, "Pc":5.50*mm, "Pf":4.00, "t_nut":48.0*mm, "t_hex":38.0*mm, "D_hex": 99.21*mm, "d_hex": 90*mm, "d_was": 62.0*mm, "D_was":110*mm, "t_was": 9.0*mm},  # 2nd choice
-        "M64" : {"D":64*mm, "Pc":6.00*mm, "Pf":4.00, "t_nut":51.0*mm, "t_hex":40.0*mm, "D_hex":104.86*mm, "d_hex": 95*mm, "d_was": 66.0*mm, "D_was":115*mm, "t_was": 9.0*mm},
-        "M72" : {"D":72*mm, "Pc":6.00*mm, "Pf":4.00, "t_nut":58.0*mm, "t_hex":46.5*mm, "D_hex":116.20*mm, "d_hex":105*mm, "d_was": 74.0*mm, "D_was":125*mm, "t_was":10.0*mm},
-        "M80" : {"D":80*mm, "Pc":6.00*mm, "Pf":4.00, "t_nut":64.0*mm, "t_hex":51.6*mm, "D_hex":127.50*mm, "d_hex":115*mm, "d_was": 82.0*mm, "D_was":140*mm, "t_was":12.0*mm},
-        "M90" : {"D":90*mm, "Pc":6.00*mm, "Pf":4.00, "t_nut":72.0*mm, "t_hex":57.7*mm, "D_hex":144.10*mm, "d_hex":130*mm, "d_was": 93.0*mm, "D_was":160*mm, "t_was":12.0*mm},
-        "M100": {"D":100*mm,"Pc":6.00*mm, "Pf":4.00, "t_nut":80.0*mm, "t_hex":63.9*mm, "D_hex":161.02*mm, "d_hex":145*mm, "d_was":104.0*mm, "D_was":175*mm, "t_was":14.0*mm}
+        "M4"  : {"D"    : 4.00*mm,      # nominal diameter
+                 "Pc"   : 0.70*mm,      # coarse screw thead pitch
+                 "Pf"   : None },       # fine screaw thead pitch
+
+        "M5"  : {"D": 5*mm, "Pc":0.80*mm, "Pf":None},
+        "M6"  : {"D": 6*mm, "Pc":1.00*mm, "Pf":None},
+        "M8"  : {"D": 8*mm, "Pc":1.25*mm, "Pf":1.00},
+        "M10" : {"D":10*mm, "Pc":1.50*mm, "Pf":1.25},
+        "M12" : {"D":12*mm, "Pc":1.75*mm, "Pf":1.50},
+        "M14" : {"D":14*mm, "Pc":2.00*mm, "Pf":1.50},  # 2nd choice
+        "M16" : {"D":16*mm, "Pc":2.00*mm, "Pf":1.50},
+        "M18" : {"D":18*mm, "Pc":2.50*mm, "Pf":2.00},  # 2nd choice
+        "M20" : {"D":20*mm, "Pc":2.50*mm, "Pf":2.00},
+        "M22" : {"D":22*mm, "Pc":2.50*mm, "Pf":2.00},  # 2nd choice
+        "M24" : {"D":24*mm, "Pc":3.00*mm, "Pf":2.00},
+        "M27" : {"D":27*mm, "Pc":3.00*mm, "Pf":2.00},  # 2nd choice
+        "M30" : {"D":30*mm, "Pc":3.50*mm, "Pf":2.00},
+        "M33" : {"D":33*mm, "Pc":3.50*mm, "Pf":2.00},  # 2nd choice
+        "M36" : {"D":36*mm, "Pc":4.00*mm, "Pf":3.00},
+        "M39" : {"D":39*mm, "Pc":4.00*mm, "Pf":3.00},  # 2nd choice
+        "M42" : {"D":42*mm, "Pc":4.50*mm, "Pf":3.00},
+        "M45" : {"D":45*mm, "Pc":4.50*mm, "Pf":3.00},  # 2nd choice
+        "M48" : {"D":48*mm, "Pc":5.00*mm, "Pf":3.00},
+        "M52" : {"D":52*mm, "Pc":5.00*mm, "Pf":4.00},  # 2nd choice
+        "M56" : {"D":56*mm, "Pc":5.50*mm, "Pf":4.00},
+        "M60" : {"D":60*mm, "Pc":5.50*mm, "Pf":4.00},  # 2nd choice
+        "M64" : {"D":64*mm, "Pc":6.00*mm, "Pf":4.00},
+        "M72" : {"D":72*mm, "Pc":6.00*mm, "Pf":4.00},
+        "M80" : {"D":80*mm, "Pc":6.00*mm, "Pf":4.00},
+        "M90" : {"D":90*mm, "Pc":6.00*mm, "Pf":4.00},
+        "M100": {"D":100*mm,"Pc":6.00*mm, "Pf":4.00}
+    },
+
+    "flat_washers": {
+
+        "M4"  : {"D" : 9.00*mm,     # nominal diameter
+                 "d" : 4.30*mm,     # washer hole diameter ISO 7089
+                 "t" : 0.80*mm},    # washer thickness ISO 7089
+
+        "M5"  : {"d":  5.3*mm, "D": 10*mm, "t": 1.0*mm},
+        "M6"  : {"d":  6.4*mm, "D": 12*mm, "t": 1.6*mm},
+        "M8"  : {"d":  8.4*mm, "D": 16*mm, "t": 1.6*mm},
+        "M10" : {"d": 10.5*mm, "D": 20*mm, "t": 2.0*mm},
+        "M12" : {"d": 13.0*mm, "D": 24*mm, "t": 2.5*mm},
+        "M14" : {"d": 15.0*mm, "D": 28*mm, "t": 2.5*mm},  # 2nd choice
+        "M16" : {"d": 17.0*mm, "D": 30*mm, "t": 3.0*mm},
+        "M18" : {"d": 19.0*mm, "D": 34*mm, "t": 3.0*mm},  # 2nd choice
+        "M20" : {"d": 21.0*mm, "D": 37*mm, "t": 3.0*mm},
+        "M22" : {"d": 23.0*mm, "D": 39*mm, "t": 3.0*mm},  # 2nd choice
+        "M24" : {"d": 25.0*mm, "D": 44*mm, "t": 4.0*mm},
+        "M27" : {"d": 28.0*mm, "D": 50*mm, "t": 4.0*mm},  # 2nd choice
+        "M30" : {"d": 31.0*mm, "D": 56*mm, "t": 4.0*mm},
+        "M33" : {"d": 34.0*mm, "D": 60*mm, "t": 5.0*mm},  # 2nd choice
+        "M36" : {"d": 37.0*mm, "D": 66*mm, "t": 5.0*mm},
+        "M39" : {"d": 40.0*mm, "D": 72*mm, "t": 6.0*mm},  # 2nd choice
+        "M42" : {"d": 43.0*mm, "D": 78*mm, "t": 7.0*mm},
+        "M45" : {"d": 46.0*mm, "D": 85*mm, "t": 7.0*mm},  # 2nd choice
+        "M48" : {"d": 50.0*mm, "D": 92*mm, "t": 8.0*mm},
+        "M52" : {"d": 54.0*mm, "D": 98*mm, "t": 8.0*mm},  # 2nd choice
+        "M56" : {"d": 58.0*mm, "D":105*mm, "t": 9.0*mm},
+        "M60" : {"d": 62.0*mm, "D":110*mm, "t": 9.0*mm},  # 2nd choice
+        "M64" : {"d": 66.0*mm, "D":115*mm, "t": 9.0*mm},
+        "M72" : {"d": 74.0*mm, "D":125*mm, "t":10.0*mm},
+        "M80" : {"d": 82.0*mm, "D":140*mm, "t":12.0*mm},
+        "M90" : {"d": 93.0*mm, "D":160*mm, "t":12.0*mm},
+        "M100": {"d":104.0*mm, "D":175*mm, "t":14.0*mm}
+    },
+
+    "hex_nuts": {
+
+        "M4"  : {"D_nom": 4.00*mm,     # nominal diameter
+                 "t"    : 3.20*mm,     # nut thickness
+                 "D_cir": 7.66*mm,     # nut circumscribed circle diameter
+                 "D_ins": 7.00*mm,
+                 "D_brg": 5.90*mm},    # nut inscribed circle diameter
+
+        "M5"  : {"D_nom": 5*mm, "t": 4.7*mm, "D_cir":  8.79*mm, "D_ins":  8*mm, "D_brg":  6.9*mm},
+        "M6"  : {"D_nom": 6*mm, "t": 5.2*mm, "D_cir": 11.05*mm, "D_ins": 10*mm, "D_brg":  8.9*mm},
+        "M8"  : {"D_nom": 8*mm, "t": 6.8*mm, "D_cir": 14.38*mm, "D_ins": 13*mm, "D_brg": 11.6*mm},
+        "M10" : {"D_nom":10*mm, "t": 8.4*mm, "D_cir": 18.90*mm, "D_ins": 17*mm, "D_brg": 14.6*mm},
+        "M12" : {"D_nom":12*mm, "t":10.8*mm, "D_cir": 21.10*mm, "D_ins": 19*mm, "D_brg": 16.6*mm},
+        "M14" : {"D_nom":14*mm, "t":12.8*mm, "D_cir": 24.49*mm, "D_ins": 22*mm, "D_brg": 19.6*mm},  # 2nd choice
+        "M16" : {"D_nom":16*mm, "t":14.8*mm, "D_cir": 26.75*mm, "D_ins": 24*mm, "D_brg": 22.5*mm},
+        "M18" : {"D_nom":18*mm, "t":15.8*mm, "D_cir": 30.14*mm, "D_ins": 27*mm, "D_brg": 24.9*mm},  # 2nd choice
+        "M20" : {"D_nom":20*mm, "t":18.0*mm, "D_cir": 33.53*mm, "D_ins": 30*mm, "D_brg": 27.7*mm},
+        "M22" : {"D_nom":22*mm, "t":19.4*mm, "D_cir": 35.72*mm, "D_ins": 32*mm, "D_brg": 31.4*mm},  # 2nd choice
+        "M24" : {"D_nom":24*mm, "t":21.5*mm, "D_cir": 39.98*mm, "D_ins": 36*mm, "D_brg": 33.3*mm},
+        "M27" : {"D_nom":27*mm, "t":23.8*mm, "D_cir": 45.20*mm, "D_ins": 41*mm, "D_brg": 38.0*mm},  # 2nd choice
+        "M30" : {"D_nom":30*mm, "t":25.6*mm, "D_cir": 50.85*mm, "D_ins": 46*mm, "D_brg": 42.8*mm},
+        "M33" : {"D_nom":33*mm, "t":28.7*mm, "D_cir": 55.37*mm, "D_ins": 50*mm, "D_brg": 46.6*mm},  # 2nd choice
+        "M36" : {"D_nom":36*mm, "t":31.0*mm, "D_cir": 60.79*mm, "D_ins": 55*mm, "D_brg": 51.1*mm},
+        "M39" : {"D_nom":39*mm, "t":33.4*mm, "D_cir": 66.44*mm, "D_ins": 60*mm, "D_brg": 55.9*mm},  # 2nd choice
+        "M42" : {"D_nom":42*mm, "t":34.0*mm, "D_cir": 71.30*mm, "D_ins": 65*mm, "D_brg": 60.0*mm},
+        "M45" : {"D_nom":45*mm, "t":36.0*mm, "D_cir": 76.95*mm, "D_ins": 70*mm, "D_brg": 64.7*mm},  # 2nd choice
+        "M48" : {"D_nom":48*mm, "t":38.0*mm, "D_cir": 82.60*mm, "D_ins": 75*mm, "D_brg": 69.5*mm},
+        "M52" : {"D_nom":52*mm, "t":42.0*mm, "D_cir": 88.25*mm, "D_ins": 80*mm, "D_brg": 74.2*mm},  # 2nd choice
+        "M56" : {"D_nom":56*mm, "t":45.0*mm, "D_cir": 93.56*mm, "D_ins": 85*mm, "D_brg": 78.7*mm},
+        "M60" : {"D_nom":60*mm, "t":48.0*mm, "D_cir": 99.21*mm, "D_ins": 90*mm, "D_brg": 83.4*mm},  # 2nd choice
+        "M64" : {"D_nom":64*mm, "t":51.0*mm, "D_cir":104.86*mm, "D_ins": 95*mm, "D_brg": 88.2*mm},
+        "M72" : {"D_nom":72*mm, "t":58.0*mm, "D_cir":116.20*mm, "D_ins":105*mm, "D_brg": 97.7*mm},
+        "M80" : {"D_nom":80*mm, "t":64.0*mm, "D_cir":127.50*mm, "D_ins":115*mm, "D_brg":107.2*mm},
+        "M90" : {"D_nom":90*mm, "t":72.0*mm, "D_cir":144.10*mm, "D_ins":130*mm, "D_brg":121.1*mm},
+        "M100": {"D_nom":100*mm,"t":80.0*mm, "D_cir":161.02*mm, "D_ins":145*mm, "D_brg":135.4*mm}
     },
 
     "materials": {
