@@ -43,8 +43,10 @@ below.
 ``` python
 
 # Create the bolt object
-from pyflange.bolts import StandardMetricBolt
-M80 = StandardMetricBolt("M80", "10.9", shank_length=0.270, stud=True)
+from pyflange.bolts import StandardMetricBolt, ISOFlatWasher, ISOHexNut
+M80_bolt   = StandardMetricBolt("M80", "10.9", shank_length=0.270, stud=True)
+M80_washer = ISOFlatWasher("M80")
+M80_nut    = ISOHexNut("M80")
 
 # Define the gap parameters
 from pyflange.gap import gap_height_distribution
@@ -68,11 +70,12 @@ fseg = PolynomialLFlangeSegment(
     Zg = -14795000 / Nb,     # load applied to the flange segment shell at rest
                              # (normally dead weight of tower + RNA, divided by the number of bolts)
 
-    bolt = M80,              # bolt object created above
+    bolt = M80_bolt,         # bolt object created above
     Fv = 2876000,            # design bolt preload, after preload losses
 
     Do = 0.086,              # bolt hole diameter
-    Dw = 0.140,              # washer diameter
+    washer = M80_washer,     # washer object created above
+    nut = M80_nut,           # nut object created above
 
     gap_height = gap_dist.ppf(0.95),    # maximum longitudinal gap height, 95% quantile
     gap_angle = gap_angle)              # longitudinal gap length

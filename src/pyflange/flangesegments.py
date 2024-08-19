@@ -445,7 +445,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         Load applied to the flange segment shell at rest (normally dead weight
         of tower + RNA, divided by the number of bolts). Negative if compression.
 
-    - ``bolt`` : ``Bolt``
+    - ``bolt`` : ``pyflange.bolts.Bolt``
         Bolt object representing the flange segment bolt.
 
     - ``Fv`` : ``float``
@@ -454,8 +454,12 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     - ``Do`` : ``float``
         Bolt hole diameter.
 
-    - ``Dw`` : ``float``
-        Washer diameter.
+    - ``washer`` : ``pyflange.bolts.Washer``
+        Washer object representing the fastener wahsers.
+        If this parameter is ``None``, then no washer is considered to be present.
+
+    - ``nut`` : ``pyflange.bolts.Nut``
+        Nut object representing the fastenrr nut.
 
     - ``gap_height`` : ``float``
         Maximum longitudinal gap height.
