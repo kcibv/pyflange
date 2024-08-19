@@ -17,9 +17,16 @@
 # version 3 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 '''
-The ``bolts`` module contains a ``MetricBolt`` class that generates generic
-bolts with metric screw thread and a ``StandardMetricBolt`` function that
-generates MetricBolt objects with standard properties.
+The ``bolts`` module contains objects representing the bolt, washer and nut
+fastener components. In particular it contains
+
+- A ``MetricBolt`` class that generates generic bolts with metric screw thread and a
+  ``StandardMetricBolt`` function that generates MetricBolt objects with standard properties.
+- A ``FlatWasher`` class that generates generic flat washer and a ``ISOFlatWasher`` frunction
+  that returns a ``FlatWasher`` with standard dimensions.
+- A ``HexNut`` class that generates a generic hexagonal nut, a ``ISOHExNut`` function that
+  generates a ``HexNut`` with ISO 4032 dimensions`` and a ``RoundNut`` function that generates
+  a standard flanged ``HexNut``.
 '''
 
 from dataclasses import dataclass
