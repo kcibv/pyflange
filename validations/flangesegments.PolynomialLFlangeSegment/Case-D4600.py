@@ -108,7 +108,7 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0):
 
 
 print("\nEvaluating Flange Segment Model with sinusoidal gap shape and no flange tilt ...")
-wb = open_workbook("VER1_ReferenceFlange-Results.xlsx")
+wb = open_workbook("Case-D4600_Tilt-0deg_ShapeFactor1.0.xlsx")
 
 print("... with 30 deg gap width")
 fseg_30deg  = create_flange_segment( 30*deg)

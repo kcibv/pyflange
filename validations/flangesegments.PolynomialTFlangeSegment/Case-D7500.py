@@ -242,7 +242,7 @@ def flange_segment_model_to_excel (book, sheet_name, fseg):
     
 
 print("\nEvaluating Flange Segment Model with sinusoidal gap shape and no flange tilt ...")
-wb = Book(os.path.join(os.path.dirname(__file__), "ReferenceTFlange-Results.xlsx"))
+wb = Book(os.path.join(os.path.dirname(__file__), "Case-D7500_Tilt-0deg_ShapeFactor-1.0.xlsx"))
 
 print("... with 30 deg gap width")
 fseg_30deg  = create_flange_segment( 30*deg)
@@ -263,7 +263,7 @@ flange_segment_model_to_excel(wb, "Gap120deg", fseg_120deg)
 
 
 print("\nEvaluating Flange Segment Model with gap shape factor 1.5 and no flange tilt ...")
-wb_sf = Book(os.path.join(os.path.dirname(__file__), "ReferenceTFlange_ShapeFactor_1.5-Results.xlsx"))
+wb_sf = Book(os.path.join(os.path.dirname(__file__), "Case-D7500_Tilt-0deg_ShapeFactor-1.5.xlsx"))
 
 gap_shape_factor=1.5
 print("... with 30 deg gap width")
@@ -286,7 +286,7 @@ flange_segment_model_to_excel(wb_sf, "Gap120deg", fseg_120deg_sf)
 
 
 print("\nEvaluating Flange Segment Model with sinusoidal gap shape and 1 deg flange tilt ...")
-wb_tt = Book(os.path.join(os.path.dirname(__file__), "ReferenceTFlange_Tilt_1deg-Results.xlsx"))
+wb_tt = Book(os.path.join(os.path.dirname(__file__), "Case-D7500_Tilt-1deg_ShapeFactor-1.0.xlsx"))
 
 print("... with 30 deg gap width")
 fseg_30deg_tt  = create_flange_segment( 30*deg, tilt_angle=1*deg)
