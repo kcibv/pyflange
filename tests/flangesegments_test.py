@@ -1,7 +1,7 @@
 
 import pytest
 from pyflange.flangesegments import PolynomialLFlangeSegment, PolynomialTFlangeSegment
-from pyflange.bolts import MetricBolt
+from pyflange.bolts import MetricBolt, HexNut
 from pyflange.gap import gap_height_distribution
 
 from math import *
@@ -17,7 +17,7 @@ class TestPolynomialLFlangeSegment:
     def fseg (self, gap_angle=30*deg, gap_shape_factor=1.0, tilt_angle=0.0):
         D = 7.5
         Nb = 120
-
+        
         return PolynomialLFlangeSegment(
 
             a = 0.2325,         # distance between inner face of the flange and center of the bolt hole
@@ -309,6 +309,23 @@ class TestPolynomialTFlangeSegment:
     def fseg (self, gap_angle=30*deg, gap_shape_factor=1.0, tilt_angle=0.0):
         D = 7.5
         Nb = 200
+        
+        M48 = MetricBolt(
+            nominal_diameter = 0.048,
+            thread_pitch = 0.005,
+            shank_diameter_ratio = 44.752/48,
+            shank_length = 0.150,
+            yield_stress = 900e6,
+            ultimate_tensile_stress = 1000e6,
+            stud = True)
+
+        M48_hex_nut = HexNut(
+            nominal_diameter = 0.048,
+            thickness = 0.064,
+            inscribed_diameter = 0.075,
+            circumscribed_diameter = 0.0826,
+            bearing_diameter = 0.092
+        )
 
         return PolynomialTFlangeSegment(
 
@@ -322,18 +339,12 @@ class TestPolynomialTFlangeSegment:
             Zg = -81400,  # load applied to the flange segment shell at rest
                           # (normally dead weight of tower + RNA, divided by the number of bolts)
 
-            bolt = MetricBolt(
-                nominal_diameter = 0.048,
-                thread_pitch = 0.005,
-                shank_diameter_ratio = 44.752/48,
-                shank_length = 0.150,
-                yield_stress = 900e6,
-                ultimate_tensile_stress = 1000e6,
-                stud = True),
+            bolt = M48,
             Fv = 928000,        # applied bolt preload
 
             Do = 0.052,     # bolt hole diameter
-            Dw = 0.092,    # washer diameter
+            washer = None,      # no washer
+            nut = M48_hex_nut,  # bolt nut
 
             tilt_angle = tilt_angle,
 
@@ -379,88 +390,88 @@ class TestPolynomialTFlangeSegment:
 
 
     def test_bolt_moment_at_rest (self):
-        assert round(self.fseg( 30*deg, 1.0, 0*deg).bolt_moment_at_rest, 1) == 0.0
-        assert round(self.fseg( 60*deg, 1.0, 0*deg).bolt_moment_at_rest, 1) == 0.0
-        assert round(self.fseg( 90*deg, 1.0, 0*deg).bolt_moment_at_rest, 1) == 0.0
-        assert round(self.fseg(120*deg, 1.0, 0*deg).bolt_moment_at_rest, 1) == 0.0
+        assert round(self.fseg( 30*deg, 1.0, 0*deg).bolt_moment_at_rest, 1) == -9.9
+        assert round(self.fseg( 60*deg, 1.0, 0*deg).bolt_moment_at_rest, 1) == -9.1
+        assert round(self.fseg( 90*deg, 1.0, 0*deg).bolt_moment_at_rest, 1) == -8.9
+        assert round(self.fseg(120*deg, 1.0, 0*deg).bolt_moment_at_rest, 1) == -8.8
 
-        assert round(self.fseg( 30*deg, 1.5, 0*deg).bolt_moment_at_rest, 1) == 0.0
-        assert round(self.fseg( 60*deg, 1.5, 0*deg).bolt_moment_at_rest, 1) == 0.0
-        assert round(self.fseg( 90*deg, 1.5, 0*deg).bolt_moment_at_rest, 1) == 0.0
-        assert round(self.fseg(120*deg, 1.5, 0*deg).bolt_moment_at_rest, 1) == 0.0
+        assert round(self.fseg( 30*deg, 1.5, 0*deg).bolt_moment_at_rest, 1) == -9.9
+        assert round(self.fseg( 60*deg, 1.5, 0*deg).bolt_moment_at_rest, 1) == -9.1
+        assert round(self.fseg( 90*deg, 1.5, 0*deg).bolt_moment_at_rest, 1) == -8.9
+        assert round(self.fseg(120*deg, 1.5, 0*deg).bolt_moment_at_rest, 1) == -8.8
 
-        assert round(self.fseg( 30*deg, 1.0, 1*deg).bolt_moment_at_rest, 1) == 0.0
-        assert round(self.fseg( 60*deg, 1.0, 1*deg).bolt_moment_at_rest, 1) == 0.0
-        assert round(self.fseg( 90*deg, 1.0, 1*deg).bolt_moment_at_rest, 1) == 0.0
-        assert round(self.fseg(120*deg, 1.0, 1*deg).bolt_moment_at_rest, 1) == 0.0
+        assert round(self.fseg( 30*deg, 1.0, 1*deg).bolt_moment_at_rest, 1) == -12.1
+        assert round(self.fseg( 60*deg, 1.0, 1*deg).bolt_moment_at_rest, 1) == -11.6
+        assert round(self.fseg( 90*deg, 1.0, 1*deg).bolt_moment_at_rest, 1) == -11.5
+        assert round(self.fseg(120*deg, 1.0, 1*deg).bolt_moment_at_rest, 1) == -11.4
 
 
     def test_shell_force_at_small_displacement (self):
-        assert round(self.fseg( 30*deg, 1.0, 0*deg).shell_force_at_small_displacement/1000, 1) == 128.0
+        assert round(self.fseg( 30*deg, 1.0, 0*deg).shell_force_at_small_displacement/1000, 1) == 127.8
         assert round(self.fseg( 60*deg, 1.0, 0*deg).shell_force_at_small_displacement/1000, 1) == 120.5
         assert round(self.fseg( 90*deg, 1.0, 0*deg).shell_force_at_small_displacement/1000, 1) == 118.5
         assert round(self.fseg(120*deg, 1.0, 0*deg).shell_force_at_small_displacement/1000, 1) == 117.6
 
-        assert round(self.fseg( 30*deg, 1.5, 0*deg).shell_force_at_small_displacement/1000, 1) == 128.0
+        assert round(self.fseg( 30*deg, 1.5, 0*deg).shell_force_at_small_displacement/1000, 1) == 127.8
         assert round(self.fseg( 60*deg, 1.5, 0*deg).shell_force_at_small_displacement/1000, 1) == 120.5
         assert round(self.fseg( 90*deg, 1.5, 0*deg).shell_force_at_small_displacement/1000, 1) == 118.5
         assert round(self.fseg(120*deg, 1.5, 0*deg).shell_force_at_small_displacement/1000, 1) == 117.6
 
-        assert round(self.fseg( 30*deg, 1.0, 1*deg).shell_force_at_small_displacement/1000, 1) == 128.0
+        assert round(self.fseg( 30*deg, 1.0, 1*deg).shell_force_at_small_displacement/1000, 1) == 127.8
         assert round(self.fseg( 60*deg, 1.0, 1*deg).shell_force_at_small_displacement/1000, 1) == 120.5
         assert round(self.fseg( 90*deg, 1.0, 1*deg).shell_force_at_small_displacement/1000, 1) == 118.5
         assert round(self.fseg(120*deg, 1.0, 1*deg).shell_force_at_small_displacement/1000, 1) == 117.6
 
 
     def test_bolt_force_at_small_displacement (self):
-        assert round(self.fseg( 30*deg, 1.0, 0*deg).bolt_force_at_small_displacement/1000, 1) == 940.1
-        assert round(self.fseg( 60*deg, 1.0, 0*deg).bolt_force_at_small_displacement/1000, 1) == 939.7
-        assert round(self.fseg( 90*deg, 1.0, 0*deg).bolt_force_at_small_displacement/1000, 1) == 939.6
-        assert round(self.fseg(120*deg, 1.0, 0*deg).bolt_force_at_small_displacement/1000, 1) == 939.5
+        assert round(self.fseg( 30*deg, 1.0, 0*deg).bolt_force_at_small_displacement/1000, 1) == 940.6
+        assert round(self.fseg( 60*deg, 1.0, 0*deg).bolt_force_at_small_displacement/1000, 1) == 938.6
+        assert round(self.fseg( 90*deg, 1.0, 0*deg).bolt_force_at_small_displacement/1000, 1) == 937.9
+        assert round(self.fseg(120*deg, 1.0, 0*deg).bolt_force_at_small_displacement/1000, 1) == 937.7
 
-        assert round(self.fseg( 30*deg, 1.5, 0*deg).bolt_force_at_small_displacement/1000, 1) == 946.2
-        assert round(self.fseg( 60*deg, 1.5, 0*deg).bolt_force_at_small_displacement/1000, 1) == 945.6
-        assert round(self.fseg( 90*deg, 1.5, 0*deg).bolt_force_at_small_displacement/1000, 1) == 945.4
-        assert round(self.fseg(120*deg, 1.5, 0*deg).bolt_force_at_small_displacement/1000, 1) == 945.3
+        assert round(self.fseg( 30*deg, 1.5, 0*deg).bolt_force_at_small_displacement/1000, 1) == 946.9
+        assert round(self.fseg( 60*deg, 1.5, 0*deg).bolt_force_at_small_displacement/1000, 1) == 943.8
+        assert round(self.fseg( 90*deg, 1.5, 0*deg).bolt_force_at_small_displacement/1000, 1) == 942.9
+        assert round(self.fseg(120*deg, 1.5, 0*deg).bolt_force_at_small_displacement/1000, 1) == 942.6
 
-        assert round(self.fseg( 30*deg, 1.0, 1*deg).bolt_force_at_small_displacement/1000, 1) == 940.1
-        assert round(self.fseg( 60*deg, 1.0, 1*deg).bolt_force_at_small_displacement/1000, 1) == 939.7
-        assert round(self.fseg( 90*deg, 1.0, 1*deg).bolt_force_at_small_displacement/1000, 1) == 939.6
-        assert round(self.fseg(120*deg, 1.0, 1*deg).bolt_force_at_small_displacement/1000, 1) == 939.5
+        assert round(self.fseg( 30*deg, 1.0, 1*deg).bolt_force_at_small_displacement/1000, 1) == 945.1
+        assert round(self.fseg( 60*deg, 1.0, 1*deg).bolt_force_at_small_displacement/1000, 1) == 942.9
+        assert round(self.fseg( 90*deg, 1.0, 1*deg).bolt_force_at_small_displacement/1000, 1) == 942.2
+        assert round(self.fseg(120*deg, 1.0, 1*deg).bolt_force_at_small_displacement/1000, 1) == 942.0
 
 
     def test_bolt_moment_at_small_displacement (self):
-        assert round(self.fseg( 30*deg, 1.0, 0*deg).bolt_moment_at_small_displacement, 1) == 14.4
-        assert round(self.fseg( 60*deg, 1.0, 0*deg).bolt_moment_at_small_displacement, 1) == 13.5
-        assert round(self.fseg( 90*deg, 1.0, 0*deg).bolt_moment_at_small_displacement, 1) == 13.3
-        assert round(self.fseg(120*deg, 1.0, 0*deg).bolt_moment_at_small_displacement, 1) == 13.2
+        assert round(self.fseg( 30*deg, 1.0, 0*deg).bolt_moment_at_small_displacement, 1) == 24.1
+        assert round(self.fseg( 60*deg, 1.0, 0*deg).bolt_moment_at_small_displacement, 1) == 21.4
+        assert round(self.fseg( 90*deg, 1.0, 0*deg).bolt_moment_at_small_displacement, 1) == 20.6
+        assert round(self.fseg(120*deg, 1.0, 0*deg).bolt_moment_at_small_displacement, 1) == 20.2
 
-        assert round(self.fseg( 30*deg, 1.5, 0*deg).bolt_moment_at_small_displacement, 1) == 17.9
-        assert round(self.fseg( 60*deg, 1.5, 0*deg).bolt_moment_at_small_displacement, 1) == 16.9
-        assert round(self.fseg( 90*deg, 1.5, 0*deg).bolt_moment_at_small_displacement, 1) == 16.6
-        assert round(self.fseg(120*deg, 1.5, 0*deg).bolt_moment_at_small_displacement, 1) == 16.5
+        assert round(self.fseg( 30*deg, 1.5, 0*deg).bolt_moment_at_small_displacement, 1) == 26.8
+        assert round(self.fseg( 60*deg, 1.5, 0*deg).bolt_moment_at_small_displacement, 1) == 23.7
+        assert round(self.fseg( 90*deg, 1.5, 0*deg).bolt_moment_at_small_displacement, 1) == 22.8
+        assert round(self.fseg(120*deg, 1.5, 0*deg).bolt_moment_at_small_displacement, 1) == 22.4
 
-        assert round(self.fseg( 30*deg, 1.0, 1*deg).bolt_moment_at_small_displacement, 1) == 16.4
-        assert round(self.fseg( 60*deg, 1.0, 1*deg).bolt_moment_at_small_displacement, 1) == 15.1
-        assert round(self.fseg( 90*deg, 1.0, 1*deg).bolt_moment_at_small_displacement, 1) == 14.8
-        assert round(self.fseg(120*deg, 1.0, 1*deg).bolt_moment_at_small_displacement, 1) == 14.6
+        assert round(self.fseg( 30*deg, 1.0, 1*deg).bolt_moment_at_small_displacement, 1) == 28.6
+        assert round(self.fseg( 60*deg, 1.0, 1*deg).bolt_moment_at_small_displacement, 1) == 26.0
+        assert round(self.fseg( 90*deg, 1.0, 1*deg).bolt_moment_at_small_displacement, 1) == 25.3
+        assert round(self.fseg(120*deg, 1.0, 1*deg).bolt_moment_at_small_displacement, 1) == 25.0
 
 
     def test_shell_force_at_tensile_ULS (self):
-        assert round(self.fseg( 30*deg, 1.0, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1486.2
-        assert round(self.fseg( 60*deg, 1.0, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1539.0
-        assert round(self.fseg( 90*deg, 1.0, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1554.5
-        assert round(self.fseg(120*deg, 1.0, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1557.9
+        assert round(self.fseg( 30*deg, 1.0, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1492.5
+        assert round(self.fseg( 60*deg, 1.0, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1540.5
+        assert round(self.fseg( 90*deg, 1.0, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1555.0
+        assert round(self.fseg(120*deg, 1.0, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1557.8
 
-        assert round(self.fseg( 30*deg, 1.5, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1486.2
-        assert round(self.fseg( 60*deg, 1.5, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1539.0
-        assert round(self.fseg( 90*deg, 1.5, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1554.5
-        assert round(self.fseg(120*deg, 1.5, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1557.9
+        assert round(self.fseg( 30*deg, 1.5, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1492.5
+        assert round(self.fseg( 60*deg, 1.5, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1540.5
+        assert round(self.fseg( 90*deg, 1.5, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1555.0
+        assert round(self.fseg(120*deg, 1.5, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1557.8
 
-        assert round(self.fseg( 30*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1109.4
-        assert round(self.fseg( 60*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1184.3
-        assert round(self.fseg( 90*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1205.9
-        assert round(self.fseg(120*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1211.9
+        assert round(self.fseg( 30*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1126.4
+        assert round(self.fseg( 60*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1185.8
+        assert round(self.fseg( 90*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1206.3
+        assert round(self.fseg(120*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1211.7
 
 
     def test_bolt_force_at_tensile_ULS (self):
@@ -481,37 +492,37 @@ class TestPolynomialTFlangeSegment:
 
 
     def test_bolt_moment_at_tensile_ULS (self):
-        assert round(self.fseg( 30*deg, 1.0, 0*deg).bolt_moment_at_tensile_ULS, 1) == 647.5
-        assert round(self.fseg( 60*deg, 1.0, 0*deg).bolt_moment_at_tensile_ULS, 1) == 688.5
-        assert round(self.fseg( 90*deg, 1.0, 0*deg).bolt_moment_at_tensile_ULS, 1) == 700.9
-        assert round(self.fseg(120*deg, 1.0, 0*deg).bolt_moment_at_tensile_ULS, 1) == 704.8
+        assert round(self.fseg( 30*deg, 1.0, 0*deg).bolt_moment_at_tensile_ULS, 1) == 512.8
+        assert round(self.fseg( 60*deg, 1.0, 0*deg).bolt_moment_at_tensile_ULS, 1) == 543.6
+        assert round(self.fseg( 90*deg, 1.0, 0*deg).bolt_moment_at_tensile_ULS, 1) == 553.1
+        assert round(self.fseg(120*deg, 1.0, 0*deg).bolt_moment_at_tensile_ULS, 1) == 555.7
 
-        assert round(self.fseg( 30*deg, 1.5, 0*deg).bolt_moment_at_tensile_ULS, 1) == 647.5
-        assert round(self.fseg( 60*deg, 1.5, 0*deg).bolt_moment_at_tensile_ULS, 1) == 688.5
-        assert round(self.fseg( 90*deg, 1.5, 0*deg).bolt_moment_at_tensile_ULS, 1) == 700.9
-        assert round(self.fseg(120*deg, 1.5, 0*deg).bolt_moment_at_tensile_ULS, 1) == 704.8
+        assert round(self.fseg( 30*deg, 1.5, 0*deg).bolt_moment_at_tensile_ULS, 1) == 531.1
+        assert round(self.fseg( 60*deg, 1.5, 0*deg).bolt_moment_at_tensile_ULS, 1) == 561.5
+        assert round(self.fseg( 90*deg, 1.5, 0*deg).bolt_moment_at_tensile_ULS, 1) == 571.0
+        assert round(self.fseg(120*deg, 1.5, 0*deg).bolt_moment_at_tensile_ULS, 1) == 573.6
 
-        assert round(self.fseg( 30*deg, 1.0, 1*deg).bolt_moment_at_tensile_ULS, 1) == 483.4
-        assert round(self.fseg( 60*deg, 1.0, 1*deg).bolt_moment_at_tensile_ULS, 1) == 529.8
-        assert round(self.fseg( 90*deg, 1.0, 1*deg).bolt_moment_at_tensile_ULS, 1) == 543.7
-        assert round(self.fseg(120*deg, 1.0, 1*deg).bolt_moment_at_tensile_ULS, 1) == 548.3
+        assert round(self.fseg( 30*deg, 1.0, 1*deg).bolt_moment_at_tensile_ULS, 1) == 367.3
+        assert round(self.fseg( 60*deg, 1.0, 1*deg).bolt_moment_at_tensile_ULS, 1) == 398.9
+        assert round(self.fseg( 90*deg, 1.0, 1*deg).bolt_moment_at_tensile_ULS, 1) == 408.6
+        assert round(self.fseg(120*deg, 1.0, 1*deg).bolt_moment_at_tensile_ULS, 1) == 411.5
 
 
     def test_shell_force_at_closed_gap (self):
-        assert round(self.fseg( 30*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -1054.8
-        assert round(self.fseg( 60*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -920.3
-        assert round(self.fseg( 90*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -879.2
-        assert round(self.fseg(120*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -864.4
+        assert round(self.fseg( 30*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -1046.7
+        assert round(self.fseg( 60*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -918.6
+        assert round(self.fseg( 90*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -878.7
+        assert round(self.fseg(120*deg, 1.0, 0*deg).shell_force_at_closed_gap/1000, 1) == -864.5
 
-        assert round(self.fseg( 30*deg, 1.5, 0*deg).shell_force_at_closed_gap/1000, 1) == -1054.8
-        assert round(self.fseg( 60*deg, 1.5, 0*deg).shell_force_at_closed_gap/1000, 1) == -920.3
-        assert round(self.fseg( 90*deg, 1.5, 0*deg).shell_force_at_closed_gap/1000, 1) == -879.2
-        assert round(self.fseg(120*deg, 1.5, 0*deg).shell_force_at_closed_gap/1000, 1) == -864.4
+        assert round(self.fseg( 30*deg, 1.5, 0*deg).shell_force_at_closed_gap/1000, 1) == -1046.7
+        assert round(self.fseg( 60*deg, 1.5, 0*deg).shell_force_at_closed_gap/1000, 1) == -918.6
+        assert round(self.fseg( 90*deg, 1.5, 0*deg).shell_force_at_closed_gap/1000, 1) == -878.7
+        assert round(self.fseg(120*deg, 1.5, 0*deg).shell_force_at_closed_gap/1000, 1) == -864.5
 
-        assert round(self.fseg( 30*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -1396.2
-        assert round(self.fseg( 60*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -1261.6
-        assert round(self.fseg( 90*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -1220.5
-        assert round(self.fseg(120*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -1205.7
+        assert round(self.fseg( 30*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -1388.1
+        assert round(self.fseg( 60*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -1259.9
+        assert round(self.fseg( 90*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -1220.0
+        assert round(self.fseg(120*deg, 1.0, 1*deg).shell_force_at_closed_gap/1000, 1) == -1205.9
 
 
     def test_bolt_axial_force (self):
@@ -535,20 +546,20 @@ class TestPolynomialTFlangeSegment:
             Fs = np.array([Fs1, Fs2, Fs3])
             assert np.all(np.abs(Fs - fseg.bolt_axial_force(Z)) < 0.1)
 
-        test(self.fseg( 30*deg, 1.0, 0*deg), 906.6)
-        test(self.fseg( 60*deg, 1.0, 0*deg), 908.8)
-        test(self.fseg( 90*deg, 1.0, 0*deg), 909.5)
-        test(self.fseg(120*deg, 1.0, 0*deg), 909.8)
+        test(self.fseg( 30*deg, 1.0, 0*deg), 905.4)
+        test(self.fseg( 60*deg, 1.0, 0*deg), 911.5)
+        test(self.fseg( 90*deg, 1.0, 0*deg), 913.3)
+        test(self.fseg(120*deg, 1.0, 0*deg), 913.9)
 
-        test(self.fseg( 30*deg, 1.5, 0*deg), 895.8)
-        test(self.fseg( 60*deg, 1.5, 0*deg), 899.2)
-        test(self.fseg( 90*deg, 1.5, 0*deg), 900.3)
-        test(self.fseg(120*deg, 1.5, 0*deg), 900.8)
+        test(self.fseg( 30*deg, 1.5, 0*deg), 894.0)
+        test(self.fseg( 60*deg, 1.5, 0*deg), 903.3)
+        test(self.fseg( 90*deg, 1.5, 0*deg), 905.9)
+        test(self.fseg(120*deg, 1.5, 0*deg), 906.8)
 
-        test(self.fseg( 30*deg, 1.0, 1*deg), 909.1)
-        test(self.fseg( 60*deg, 1.0, 1*deg), 907.9)
-        test(self.fseg( 90*deg, 1.0, 1*deg), 907.8)
-        test(self.fseg(120*deg, 1.0, 1*deg), 907.8)
+        test(self.fseg( 30*deg, 1.0, 1*deg), 890.2)
+        test(self.fseg( 60*deg, 1.0, 1*deg), 896.9)
+        test(self.fseg( 90*deg, 1.0, 1*deg), 898.9)
+        test(self.fseg(120*deg, 1.0, 1*deg), 899.7)
 
 
     def test_bolt_bending_moment (self):
@@ -571,21 +582,27 @@ class TestPolynomialTFlangeSegment:
             Z = np.array([Z1, Z2, Z3, Z4])
             Ms = np.array([Ms1, Ms2, Ms3, Ms4])
             assert np.all(np.abs(Ms - fseg.bolt_bending_moment(Z)) < 0.1)
+            
+        '''
+        These values do not correspond directly with the SGRE validation values. 
+        The deviations are due to the different calculation of the initial slope. 
+        The pyflange results are used as comparative values.
+        '''
 
-        test(self.fseg( 30*deg, 1.0, 0*deg), -7.7)
-        test(self.fseg( 60*deg, 1.0, 0*deg), -6.7)
-        test(self.fseg( 90*deg, 1.0, 0*deg), -6.4)
-        test(self.fseg(120*deg, 1.0, 0*deg), -6.2)
+        test(self.fseg( 30*deg, 1.0, 0*deg), -75.8)
+        test(self.fseg( 60*deg, 1.0, 0*deg), -61.1)
+        test(self.fseg( 90*deg, 1.0, 0*deg), -56.7)
+        test(self.fseg(120*deg, 1.0, 0*deg), -55.2)
 
-        test(self.fseg( 30*deg, 1.5, 0*deg), -17.0)
-        test(self.fseg( 60*deg, 1.5, 0*deg), -14.7)
-        test(self.fseg( 90*deg, 1.5, 0*deg), -14.0)
-        test(self.fseg(120*deg, 1.5, 0*deg), -13.8)
+        test(self.fseg( 30*deg, 1.5, 0*deg), -82.0)
+        test(self.fseg( 60*deg, 1.5, 0*deg), -65.9)
+        test(self.fseg( 90*deg, 1.5, 0*deg), -61.1)
+        test(self.fseg(120*deg, 1.5, 0*deg), -59.4)
 
-        test(self.fseg( 30*deg, 1.0, 1*deg), -5.7)
-        test(self.fseg( 60*deg, 1.0, 1*deg), -5.7)
-        test(self.fseg( 90*deg, 1.0, 1*deg), -5.6)
-        test(self.fseg(120*deg, 1.0, 1*deg), -5.6)
+        test(self.fseg( 30*deg, 1.0, 1*deg), -122.4)
+        test(self.fseg( 60*deg, 1.0, 1*deg), -106.2)
+        test(self.fseg( 90*deg, 1.0, 1*deg), -101.2)
+        test(self.fseg(120*deg, 1.0, 1*deg), -99.4)
 
 
     def test_failure_mode (self):
