@@ -50,6 +50,28 @@ class Bolt:
     pass
 
 
+@dataclass
+class BoltCrossSection:
+
+    diameter: float
+
+    @cached_property
+    def area (self):
+        from math import pi
+        return pi * self.diameter**2 / 4
+
+    @cached_property
+    def second_moment_of_area (self):
+        from math import pi
+        return pi * self.diameter**4 / 64
+
+    @cached_property
+    def elastic_section_modulus (self):
+        from math import pi
+        return pi * self.diameter**3 / 32
+
+
+
 
 @dataclass
 class MetricBolt (Bolt):
@@ -158,6 +180,21 @@ class MetricBolt (Bolt):
     def thread_minor_diameter (self):
         ''' Minor diameter (d3) as defined in ISO 898-1:2013.'''
         return self.thread_basic_minor_diameter - self.thread_height/6
+
+
+    @cached_property
+    def nominal_cross_section (self):
+        return BoltCrossSection(self.nominal_diameter)
+
+
+    @cached_property
+    def shank_cross_section (self):
+        return BoltCrossSection(self.shank_diameter)
+
+
+    @cached_property
+    def thread_cross_section (self):
+        return BoltCrossSection(self.nominal_diameter - 13/12*self.thread_height)
 
 
     @cached_property
