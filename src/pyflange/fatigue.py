@@ -6,7 +6,7 @@ calculations.
 In particular, the module contains the following functions ...
 
 - ``markov_matrix_from_SGRE_format(pathFile , unitFactor [optional])`` which reads 
-a .mkv file from SGRE as markov matrix and converts in into a pandas dataframe
+  a .mkv file from SGRE as markov matrix and converts in into a pandas dataframe
 
 ... and the following ``FatigueCurve`` classes:
 
@@ -22,6 +22,7 @@ Each fatigue curve class exxposes the following methods:
   given number of cycles N
 - ``fatigue_curve.damage(n, DS)`` returns the fatigue damage cumulated by
   a stress range DS repeated n times
+
 '''
 
 import numpy as np
@@ -50,6 +51,7 @@ def markov_matrix_from_SGRE_format (pathFile, unitFactor=1e3):
     - ``unitFactor`` : ``float`` [optional]
         A scalind factor to be applied to the moment values, for unit
         conversion. If omitted, it defaults to 1000.
+
     '''
 
     with open(pathFile) as mkv_file:
@@ -136,9 +138,10 @@ class FatigueCurve:
         - `markov_matric` : pandas.DataFrame
             This is the load history expressed as a Markov matrix, encoded
             in a pandas DataFrame having three columns:
-            - `Cycles`: containing the number of cycles
-            - `Mean`: containing the mean stress in Pascal
-            - `Range`: containing the stress range in Pascal
+            - `Cycles`: containing the number of cycles;
+            - `Mean`: containing the mean stress in Pascal;
+            - `Range`: containing the stress range in Pascal.
+
         '''
 
         n = markov_matrix['Cycles'].tonumpy()   # array of number of cycles
