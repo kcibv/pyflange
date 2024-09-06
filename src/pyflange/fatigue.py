@@ -6,13 +6,13 @@ calculations.
 In particular, the module contains the following functions ...
 
 - ``markov_matrix_from_SGRE_format(pathFile , unitFactor [optional])`` which reads 
-a .mkv file from SGRE as markov matrix and converts in into a padas dataframe
+a .mkv file from SGRE as markov matrix and converts in into a pandas dataframe
 
 ... and the following ``FatigueCurve`` classes:
 
 - ``SingleSlopeFatigueCurve``
 - ``DoubleSlopeFatigueCurve``
--``SNCurve``
+- ``SNCurve``
 
 Each fatigue curve class exxposes the following methods:
 
@@ -31,32 +31,43 @@ from math import sqrt, pi, tan, exp, log10
 from dataclasses import dataclass
 import functools
 
-def markov_matrix_from_SGRE_format(pathFile,unitFactor=1e3):
-    ''' Reads .mkv file from SGRE as markov matrix and converts in into
-    a padas dataframe:
-        'Cycles' : Number of cylces
-        'Mean' : mean bending moment
-        'Range' : range of the bending moment
-    
+
+def markov_matrix_from_SGRE_format (pathFile, unitFactor=1e3):
+    ''' Reads a .mkv file into a pandas.DataFrame object
+
+    Reads a Markov matrix from a SGRE .mkv file and converts in into
+    a padas dataframe having the collowing columns:
+
+    - 'Cycles' : Number of cylces
+    - 'Mean'   : mean bending moment
+    - 'Range'  : range of the bending moment
+
+    It takes as inputs:
+
+    - ``pathFile`` : ``str``
+        The path of the .mkv file to be read
+
+    - ``unitFactor`` : ``float`` [optional]
+        A scalind factor to be applied to the moment values, for unit
+        conversion. If omitted, it defaults to 1000.
     '''
-    MM=open(pathFile)
-    
-    MM=MM.readlines()
-    
-    
+
+    with open(pathFile) as mkv_file:
+        MM = mkv_file.readlines()
+
     mm_dict={'Cycles':[],
              'Mean':[],
              'Range':[]
              }
     
-    rowMeans=False
-    rowRanges=False
-    countStartLines=0
+    rowMeans = False
+    rowRanges = False
+    countStartLines = 0
     
     for row in MM:
     
         if row == '---------------------------\n':
-            countStartLines+=1
+            countStartLines += 1
             if countStartLines == 2:
                 rowMeans=True
                 continue
@@ -84,6 +95,7 @@ def markov_matrix_from_SGRE_format(pathFile,unitFactor=1e3):
                 mm_dict['Range'].append(float(rangeValue)*unitFactor)
         
     return pd.DataFrame(mm_dict) 
+
 
 class FatigueCurve:
     ''' A Wohler curve
@@ -115,6 +127,26 @@ class FatigueCurve:
         the dorresponding fatigue damage (D = n / N(DS)).
         '''
         return n / self.N(DS)
+
+    def cumulated_damage (self, markov_matrix):
+        ''' Cumulated damage according to the Miner's rule
+
+        **Parameters**:
+
+        - `markov_matric` : pandas.DataFrame
+            This is the load history expressed as a Markov matrix, encoded
+            in a pandas DataFrame having three columns:
+            - `Cycles`: containing the number of cycles
+            - `Mean`: containing the mean stress in Pascal
+            - `Range`: containing the stress range in Pascal
+        '''
+
+        n = markov_matrix['Cycles'].tonumpy()   # array of number of cycles
+        DS = markov_matrix['Range'].tonumpy()   # array of stress ranges
+        D = self.damage(n, DS)                  # array of damages
+        return np.sum(D)                        # total damage
+
+
 
 
 @dataclass
@@ -170,6 +202,7 @@ class SingleSlopeFatigueCurve (FatigueCurve):
         return (self.a / N)**(1/self.m)
 
 
+
 class MultiSlopeFatigueCurve(FatigueCurve):
     '''Multi-Slope Fatigue Curve
 
@@ -185,6 +218,7 @@ class MultiSlopeFatigueCurve(FatigueCurve):
 
     def DS(self, N):
         return np.maximum.reduce([curve.DS(N) for curve in self.curves])
+
 
 
 class DoubleSlopeFatigueCurve (MultiSlopeFatigueCurve):
@@ -231,59 +265,40 @@ class DoubleSlopeFatigueCurve (MultiSlopeFatigueCurve):
         curve2 = SingleSlopeFatigueCurve(m2, DS12, N12)
         super().__init__(curve1, curve2)
 
-@dataclass
-class SNCurve(MultiSlopeFatigueCurve):
-    ''' Wohler curve with double logarithmic slope for bolts
 
-    This class implements the FatigueCurve interface for a curve with two
-    slopes m1 and m2.
 
-    - `m1` : float
-        The logarithmic slope of the lower cycle values.
+class BoltFatigueCurve (DoubleSlopeFatigueCurve):
+    ''' Bolt Fatigue Curve according to IEC 61400-6 AMD1
 
-    - `m2` : float
-        The logarithmic slope of the higher cycle values.
-        
-    - `N12` : float
-        The knee point, where the slope changes to m2.
+    Given a bolt diameter, creates a DoubleSlopeFatigueCurve having
+    logaritmic slopes m1=3 and m2=5 and change-of-slope at 2 milion cycles
+    and stress range depending on the bolt diameter as specified by
+    IEC 61400-6 AMD1.
 
-    - `DC` : float
-        The damage category of the bolt.
-    
-    - `bolt_diameter` : float
-        The nominal diameter of the bolt.
-    
-    - `size_factor_exponent` : float [optional]
-        The exponent for the calculation of the size factor ks.
-    
+    The constructor parameters are:
+
+    - `diameter` : float
+        The bolt diameter in meters.
+
     - `gamma_M` : float [optional]
-        The safty factor for the material.
+        The material factor. If omitted, it defaults to 1.1.
 
-    This class implements all the methods of FatigueCurve.
+    Thuis class inherits all the properties and methods of the
+    `DoubleSlopeFatigueCurve` class.
     '''
-    
-    m1 : float
-    m2 : float
-    N12 : float
-    
-    DC : float
-    bolt_diameter : float
-    size_factor_exponent : float = 0.0
-    
-    gamma_M : float = 1.0
 
-    def cumulated_damage(self, df_markov):
-        ks=min((30/(self.bolt_diameter*1000))**self.size_factor_exponent,1)
-        DC_red=self.DC*ks/self.gamma_M
-        
-        DC_d = DC_red / ((self.N12/float(2e6))**(1/self.m1))
-        curve1 = SingleSlopeFatigueCurve(self.m1, DC_d, self.N12)
-        curve2 = SingleSlopeFatigueCurve(self.m2, DC_d, self.N12)
-        super().__init__(curve1, curve2)
-        
-        df_markov['Damage']=self.damage(df_markov['Cycles'], df_markov['DS'])
-        df_markov['Damage'].fillna(0)
-        
-        damage_sum=df_markov['Damage'].sum()
+    def __init__ (self, diameter, gamma_M=1.1):
+        N12 = 2.0e6    # knee point
+        m1 = 3
+        m2 = 5
+        if diameter <= 0.030:
+            DSc = 50e6    # reference stress range, in Pa
+        elif diameter <= 0.072:
+            DSc = 50e6 * (0.030/diameter)**0.1
+        else:
+            DSc = 50e6 * (0.030/diameter)**0.1 * (0.072/diameter)**0.25
 
-        return damage_sum
+        # Delegate the rest of the initialization to the parent class
+        super().__init__(self, m1, m2, DSc/gamma_M, N12)
+
+
