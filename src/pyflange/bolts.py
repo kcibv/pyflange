@@ -187,6 +187,8 @@ class MetricBolt (Bolt):
         from math import pi
         return pi * (self.nominal_diameter - 13/12*self.thread_height) ** 3/32 
 
+
+
     # -------------------------------------------------------------
     #   MATERIAL PROPERTIES
     # -------------------------------------------------------------
