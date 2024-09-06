@@ -41,7 +41,13 @@ class TestPolynomialLFlangeSegment:
             Fv = 2876000,        # applied bolt preload
 
             Do = 0.086,     # bolt hole diameter
-            Dw = 0.140,    # washer diameter
+            washer = None,    # no washer diameter
+            nut = HexNut(
+                nominal_diameter = 0.080,
+                thickness = 0.064,
+                inscribed_diameter = 0.115,
+                circumscribed_diameter = 0.1275,
+                bearing_diameter = 0.140),
 
             tilt_angle = tilt_angle,
 
@@ -468,10 +474,10 @@ class TestPolynomialTFlangeSegment:
         assert round(self.fseg( 90*deg, 1.5, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1555.0
         assert round(self.fseg(120*deg, 1.5, 0*deg).shell_force_at_tensile_ULS/1000, 1) == 1557.8
 
-        assert round(self.fseg( 30*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1126.4
-        assert round(self.fseg( 60*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1185.8
-        assert round(self.fseg( 90*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1206.3
-        assert round(self.fseg(120*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1211.7
+        assert round(self.fseg( 30*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1116.4
+        assert round(self.fseg( 60*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1185.9
+        assert round(self.fseg( 90*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1206.4
+        assert round(self.fseg(120*deg, 1.0, 1*deg).shell_force_at_tensile_ULS/1000, 1) == 1211.8
 
 
     def test_bolt_force_at_tensile_ULS (self):
