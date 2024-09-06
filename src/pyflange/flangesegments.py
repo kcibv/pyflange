@@ -1105,8 +1105,12 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     - ``Do`` : ``float``
         Bolt hole diameter.
 
-    - ``Dw`` : ``float``
-        Washer diameter.
+    - ``washer`` : ``pyflange.bolts.Washer``
+        Washer object representing the fastener wahsers.
+        If this parameter is ``None``, then no washer is considered to be present.
+
+    - ``nut`` : ``pyflange.bolts.Nut``
+        Nut object representing the fastenrr nut.
 
     - ``gap_height`` : ``float``
         Maximum longitudinal gap height.
