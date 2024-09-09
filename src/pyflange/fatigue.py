@@ -146,7 +146,7 @@ class FatigueCurve:
 
         n = markov_matrix['Cycles'].tonumpy()   # array of number of cycles
         DS = markov_matrix['Range'].tonumpy()   # array of stress ranges
-        D = self.damage(n, DS)                  # array of damages
+        D = self.damage(n, DS).fillna(0)        # array of damages
         return np.sum(D)                        # total damage
 
 
