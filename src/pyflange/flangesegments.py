@@ -81,26 +81,29 @@ class FlangeSegment (ABC):
     def bolt_bending_moment (self, shell_pull):
         pass
     
-    def bolt_markov_matrix(self,df_markov_shell,bending_factor=0.0,macro_geometric_factor=1.0,mean_factor=1.0,range_factor=1.0):
-        ''' returns the converted dataframe of the markov matirx for the damage
-        calculation of the bolt.
-        
-        - `df_markov_shell` : DataFrame
+    def bolt_markov_matrix(self, df_markov_shell, bending_factor=0.0, macro_geometric_factor=1.0, mean_factor=1.0, range_factor=1.0):
+        ''' Returns the bolt Markov matrix, given the shell Markov matix
+
+        - `df_markov_shell` : pandas.DataFrame
             The markov matrix, containg the colums 'Cycles', 'Range', 'Mean'.
             
-        - `bending_factor` : floatn [optional]
-            The factor that considers the bending portion of the total stress range. 
+        - `bending_factor` : float [optional]
+            The factor that considers the bending portion of the total stress range.
+            If omitted, it will be taken equal to 0.0.
         
-        - `macro_geometric_factor` : floatn [optional]
+        - `macro_geometric_factor` : float [optional]
             The factor that considers macro geometric influences. The factor
             affects the deadweigt of the tower, the mean values of the markov matrix
-            and the range values of the markov matrix. 
+            and the range values of the markov matrix.
+            If omitted, it will be taken equal to 1.0.
         
-        - `mean_factor` : floatn [optional]
+        - `mean_factor` : float [optional]
             The factor that multiplies the mean values of the bending moments of the tower
+            If omitted, it will be taken equal to 1.0.
         
-        - `range_factor` : floatn [optional]
+        - `range_factor` : float [optional]
             The factor that multiplies the range of the bending moments of the tower
+            If omitted, it will be taken equal to 1.0.
         
         '''
         #Calculated area of the tower segment
@@ -114,8 +117,8 @@ class FlangeSegment (ABC):
         W_sp=self.bolt.tensile_moment_of_resistance
         
         #Convert the markov matrix
-        df_markov_shell['Z_mean']=df_markov_shell['Mean'] / W_tw * A_tw * mean_factor
-        df_markov_shell['Z_range']=df_markov_shell['Range'] / W_tw * A_tw * range_factor
+        df_markov_shell['Z_mean']=(df_markov_shell['Mean'] / W_tw * A_tw * mean_factor)*macro_geometric_factor
+        df_markov_shell['Z_range']=(df_markov_shell['Range'] / W_tw * A_tw * range_factor)*macro_geometric_factor
         
         df_markov_shell['Zg']=self.Zg * macro_geometric_factor
         df_markov_shell['Z_from']=df_markov_shell['Z_mean']-0.5*df_markov_shell['Z_range']+df_markov_shell['Zg']
@@ -139,7 +142,8 @@ class FlangeSegment (ABC):
         df_markov_bolt=pd.DataFrame()
         df_markov_bolt['Cycles']=df_markov_shell['Cycles']
         df_markov_bolt['DS']=abs(df_markov_shell['S_to']-df_markov_shell['S_from'])
-
+        df_markov_bolt['DS']=df_markov_bolt['DS'].replace(0,np.nan)
+        
         return df_markov_bolt,df_markov_shell
 
 

@@ -1,10 +1,15 @@
+import sys
+my_tools='C:\\NiklasSellmann\\Mein Ordner\\MyTools'
+if my_tools not in sys.path:
+    sys.path.append(my_tools)
+    
 from pyflange.logger import Logger, log_data
 logger = Logger(__name__)
 
 from pyflange.flangesegments import PolynomialTFlangeSegment
 from pyflange.bolts import MetricBolt, HexNut
 from pyflange.gap import gap_height_distribution
-from pyflange.fatigue import markov_matrix_from_SGRE_format, SNCurve
+from pyflange.fatigue import markov_matrix_from_SGRE_format, BoltFatigueCurve
 
 from math import pi
 import numpy as np
@@ -101,25 +106,16 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0):
     return fseg    
 
 def calculate_damage(fseg):
-    markov_path="C:\\NiklasSellmann\\Mein Ordner\\Masterarbeit_NiklasSellmann\\MarkovMatrizen\\tflange-example-markov.mkv"
+    markov_path="tflange-example-markov.mkv"
     df_markov_shell=markov_matrix_from_SGRE_format(markov_path)
-    df_markov_bolt,df_markov_shell2=fseg.bolt_markov_matrix(df_markov_shell,
+    df_markov_bolt,df_markov_shell=fseg.bolt_markov_matrix(df_markov_shell,
                                            bending_factor=0.601,
                                            macro_geometric_factor=1.0,
                                            mean_factor=1.3,
                                            range_factor=1.5)
     
-    snc=SNCurve(
-            m1=3,
-            m2=5,
-            N12=2e6,
-            DC=50*MPa,
-            bolt_diameter=M48.nominal_diameter,
-            size_factor_exponent=0.1,
-            gamma_M=1.1
-            )
-    
-    dmg=snc.cumulated_damage(df_markov_bolt)
+    bfc=BoltFatigueCurve(M48.nominal_diameter)
+    dmg=bfc.cumulated_damage(df_markov_bolt)
     return dmg
 
 print("\nEvaluating Flange Segment Model with sinusoidal gap shape and no flange tilt ...")
