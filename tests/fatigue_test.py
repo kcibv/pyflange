@@ -82,7 +82,7 @@ class TestFatigue:
             s_ratio = 1.0    # ratio of bottom shell thickness over tower shell thickness
         )
 
-        markov_path=os.path.join("..", "validations","flangesegments.PolynominalTFlangeSegment","tflange-example-markov.mkv")
+        markov_path=os.path.join(os.path.dirname(__file__), "..\\validations\\flangesegments.PolynomialTFlangeSegment\\tflange-example-markov.mkv")
         df_markov_shell=markov_matrix_from_SGRE_format(markov_path)
         df_markov_bolt,df_markov_shell=fseg.bolt_markov_matrix(df_markov_shell,
                                                bending_factor=0.601,
@@ -112,5 +112,3 @@ class TestFatigue:
         assert abs(1-self.calculate_damage( 60*deg, 1.0, 1.0*deg)/2.949) <= delta_max
         assert abs(1-self.calculate_damage( 90*deg, 1.0, 1.0*deg)/2.686) <= delta_max
         assert abs(1-self.calculate_damage( 120*deg, 1.0, 1.0*deg)/2.616) <= delta_max
-        
- 
