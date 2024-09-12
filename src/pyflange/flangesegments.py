@@ -114,8 +114,8 @@ class FlangeSegment (ABC):
         W_sp=self.bolt.tensile_moment_of_resistance
         
         #Convert the markov matrix
-        df_markov_shell['Z_mean']=df_markov_shell['Mean'] / W_tw * A_tw * mean_factor
-        df_markov_shell['Z_range']=df_markov_shell['Range'] / W_tw * A_tw * range_factor
+        df_markov_shell['Z_mean']=(df_markov_shell['Mean'] / W_tw * A_tw * mean_factor)*macro_geometric_factor
+        df_markov_shell['Z_range']=(df_markov_shell['Range'] / W_tw * A_tw * range_factor)*macro_geometric_factor
         
         df_markov_shell['Zg']=self.Zg * macro_geometric_factor
         df_markov_shell['Z_from']=df_markov_shell['Z_mean']-0.5*df_markov_shell['Z_range']+df_markov_shell['Zg']
@@ -139,7 +139,8 @@ class FlangeSegment (ABC):
         df_markov_bolt=pd.DataFrame()
         df_markov_bolt['Cycles']=df_markov_shell['Cycles']
         df_markov_bolt['DS']=abs(df_markov_shell['S_to']-df_markov_shell['S_from'])
-
+        df_markov_bolt['DS']=df_markov_bolt['DS'].replace(0,np.nan)
+        
         return df_markov_bolt,df_markov_shell
 
 

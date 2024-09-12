@@ -144,10 +144,10 @@ class FatigueCurve:
 
         '''
 
-        n = markov_matrix['Cycles'].tonumpy()   # array of number of cycles
-        DS = markov_matrix['Range'].tonumpy()   # array of stress ranges
+        n = markov_matrix['Cycles'].to_numpy()   # array of number of cycles
+        DS = markov_matrix['DS'].to_numpy()   # array of stress ranges
         D = self.damage(n, DS)                  # array of damages
-        return np.sum(D)                        # total damage
+        return np.nansum(D)                        # total damage
 
 
 
@@ -199,7 +199,7 @@ class SingleSlopeFatigueCurve (FatigueCurve):
         return self.DS_ref ** self.m * self.N_ref
 
     def N (self, DS):
-        return self.a / DS**self.m
+        return self.a / DS**self.m 
 
     def DS (self, N):
         return (self.a / N)**(1/self.m)
@@ -302,6 +302,6 @@ class BoltFatigueCurve (DoubleSlopeFatigueCurve):
             DSc = 50e6 * (0.030/diameter)**0.1 * (0.072/diameter)**0.25
 
         # Delegate the rest of the initialization to the parent class
-        super().__init__(self, m1, m2, DSc/gamma_M, N12)
+        super().__init__(m1, m2, DSc/gamma_M, N12)
 
 
