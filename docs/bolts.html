@@ -58,6 +58,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.shank_cross_section_area"><code class="docutils literal notranslate"><span class="pre">MetricBolt.shank_cross_section_area</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.nominal_cross_section_area"><code class="docutils literal notranslate"><span class="pre">MetricBolt.nominal_cross_section_area</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.tensile_cross_section_area"><code class="docutils literal notranslate"><span class="pre">MetricBolt.tensile_cross_section_area</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.tensile_moment_of_resistance"><code class="docutils literal notranslate"><span class="pre">MetricBolt.tensile_moment_of_resistance</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.shear_modulus"><code class="docutils literal notranslate"><span class="pre">MetricBolt.shear_modulus</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.ultimate_tensile_capacity"><code class="docutils literal notranslate"><span class="pre">MetricBolt.ultimate_tensile_capacity()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.axial_stiffness"><code class="docutils literal notranslate"><span class="pre">MetricBolt.axial_stiffness()</span></code></a></li>
@@ -65,9 +66,19 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.StandardMetricBolt"><code class="docutils literal notranslate"><span class="pre">StandardMetricBolt()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.FlatWasher"><code class="docutils literal notranslate"><span class="pre">FlatWasher</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.FlatWasher.area"><code class="docutils literal notranslate"><span class="pre">FlatWasher.area</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.FlatWasher.axial_stiffness"><code class="docutils literal notranslate"><span class="pre">FlatWasher.axial_stiffness</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.ISOFlatWasher"><code class="docutils literal notranslate"><span class="pre">ISOFlatWasher()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.HexNut"><code class="docutils literal notranslate"><span class="pre">HexNut</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.ISOHexNut"><code class="docutils literal notranslate"><span class="pre">ISOHexNut()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.RoundNut"><code class="docutils literal notranslate"><span class="pre">RoundNut()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="gap.html">pyflange.gap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fatigue.html">pyflange.fatigue</a></li>
 <li class="toctree-l1"><a class="reference internal" href="montecarlo.html">Example: Montecarlo Simulation</a></li>
 </ul>
 
@@ -97,9 +108,17 @@
              
   <section id="module-pyflange.bolts">
 <span id="id1"></span><span id="pyflange-bolts"></span><h1>pyflange.bolts<a class="headerlink" href="#module-pyflange.bolts" title="Link to this heading"></a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">bolts</span></code> module contains a <code class="docutils literal notranslate"><span class="pre">MetricBolt</span></code> class that generates generic
-bolts with metric screw thread and a <code class="docutils literal notranslate"><span class="pre">StandardMetricBolt</span></code> function that
-generates MetricBolt objects with standard properties.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">bolts</span></code> module contains objects representing the bolt, washer and nut
+fastener components. In particular it contains</p>
+<ul class="simple">
+<li><p>A <code class="docutils literal notranslate"><span class="pre">MetricBolt</span></code> class that generates generic bolts with metric screw thread and a
+<code class="docutils literal notranslate"><span class="pre">StandardMetricBolt</span></code> function that generates MetricBolt objects with standard properties.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">FlatWasher</span></code> class that generates generic flat washer and a <code class="docutils literal notranslate"><span class="pre">ISOFlatWasher</span></code> frunction
+that returns a <code class="docutils literal notranslate"><span class="pre">FlatWasher</span></code> with standard dimensions.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">HexNut</span></code> class that generates a generic hexagonal nut, a <code class="docutils literal notranslate"><span class="pre">ISOHExNut</span></code> function that
+generates a <code class="docutils literal notranslate"><span class="pre">HexNut</span></code> with ISO 4032 dimensions`` and a <code class="docutils literal notranslate"><span class="pre">RoundNut</span></code> function that generates
+a standard flanged <code class="docutils literal notranslate"><span class="pre">HexNut</span></code>.</p></li>
+</ul>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyflange.bolts.MetricBolt">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyflange.bolts.</span></span><span class="sig-name descname"><span class="pre">MetricBolt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nominal_diameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_pitch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yield_stress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultimate_tensile_stress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elastic_modulus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">210000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poissons_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shank_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shank_diameter_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stud</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.bolts.MetricBolt" title="Link to this definition"></a></dt>
@@ -225,6 +244,12 @@ as defined in ISO 68-1:1998.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.tensile_moment_of_resistance">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tensile_moment_of_resistance</span></span><a class="headerlink" href="#pyflange.bolts.MetricBolt.tensile_moment_of_resistance" title="Link to this definition"></a></dt>
+<dd><p>Tensile moment of resistance, according to ISO 891-1:2013, section 9.1.6.1</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="pyflange.bolts.MetricBolt.shear_modulus">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shear_modulus</span></span><a class="headerlink" href="#pyflange.bolts.MetricBolt.shear_modulus" title="Link to this definition"></a></dt>
 <dd><p>Shear modulus G, calculated from the Young’s modulus and
@@ -305,6 +330,144 @@ If omitted, it defaults to False.</p>
 </dl>
 </li>
 </ul>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyflange.bolts.FlatWasher">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyflange.bolts.</span></span><span class="sig-name descname"><span class="pre">FlatWasher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outer_diameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elastic_modulus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">210000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poissons_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.bolts.FlatWasher" title="Link to this definition"></a></dt>
+<dd><p>Generates a generic flat washer.</p>
+<ul>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">outer_diameter</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The outer diameter of the washer.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">inner_diameter</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The hole diameter of the washer.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">elastic_modulus</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>The Young’s modulus of the washer material.
+If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
+that the chosen unit for distance is m and the chosen unit for forces is N. If
+that’s not the case, you should enter the proper value of this parameter.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">poissons_ratio</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>The Poisson’s ratio of the washer material.
+If omitted, it defaults to 0.30.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The parameters must be expressed in a consistent system of units. For example,
+if you chose to input distances in mm and forces in N, then stresses must be
+expressed in N/mm². All the bolt attributes and methods will return values
+consistently with the input units of measurement.</p>
+<p>All the input parameters are also available as attributes of the generated
+object (e.g. <code class="docutils literal notranslate"><span class="pre">washer.thickness</span></code>, <code class="docutils literal notranslate"><span class="pre">washer.poissons_ratio</span></code>, etc.).</p>
+<p>This instances of this calss are designed to be immutable, which means than
+changing an attribute after creating an object is not a good idea. If you
+need a different washer with different attributes, create a new one.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.FlatWasher.area">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">area</span></span><a class="headerlink" href="#pyflange.bolts.FlatWasher.area" title="Link to this definition"></a></dt>
+<dd><p>Area of the washer flat surface</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyflange.bolts.FlatWasher.axial_stiffness">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">axial_stiffness</span></span><a class="headerlink" href="#pyflange.bolts.FlatWasher.axial_stiffness" title="Link to this definition"></a></dt>
+<dd><p>The compressive stiffness of the flange: t / EA</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyflange.bolts.ISOFlatWasher">
+<span class="sig-prename descclassname"><span class="pre">pyflange.bolts.</span></span><span class="sig-name descname"><span class="pre">ISOFlatWasher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">designation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.bolts.ISOFlatWasher" title="Link to this definition"></a></dt>
+<dd><p>Standard washer according to ISO 7089</p>
+<p>Returns a washer having the standard dimensions defined in ISO 7089,
+given the corresponding metric bolt designation.</p>
+<p>For example, <code class="docutils literal notranslate"><span class="pre">ISOFlatWasher(&quot;M16&quot;)</span></code> will return a <code class="docutils literal notranslate"><span class="pre">FlatWasher</span></code>
+instance with outer diameter 30 mm, hole diameter 17 mm and
+thickness 3 mm.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyflange.bolts.HexNut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyflange.bolts.</span></span><span class="sig-name descname"><span class="pre">HexNut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nominal_diameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inscribed_diameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circumscribed_diameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bearing_diameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elastic_modulus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">210000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poissons_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.bolts.HexNut" title="Link to this definition"></a></dt>
+<dd><p>Generates a generic flat washer.</p>
+<ul>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">nominal_diameter</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The nominal diameter of the inner thread.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">thickness</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The height of the bolt.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">inscribed_diameter</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The diameter of the circle inscribed in the hexagon.
+Correponds to the distance between two opposite flats.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">circumscribed_diameter</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code></span></dt><dd><p>The diameter of the circle circumscribed in the hexagon.
+Correponds to the distance between two opposite vertices..</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">bearing_diameter</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">gloat</span></code></span></dt><dd><p>The outer diameter of the circular contatact surface between nut and washer.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">elastic_modulus</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>The Young’s modulus of the nut material.
+If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
+that the chosen unit for distance is m and the chosen unit for forces is N. If
+that’s not the case, you should enter the proper value of this parameter.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt><code class="docutils literal notranslate"><span class="pre">poissons_ratio</span></code><span class="classifier"><code class="docutils literal notranslate"><span class="pre">float</span></code> [optional]</span></dt><dd><p>The Poisson’s ratio of the nut material.
+If omitted, it defaults to 0.30.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The parameters must be expressed in a consistent system of units. For example,
+if you chose to input distances in mm and forces in N, then stresses must be
+expressed in N/mm². All the bolt attributes and methods will return values
+consistently with the input units of measurement.</p>
+<p>All the input parameters are also available as attributes of the generated
+object (e.g. <code class="docutils literal notranslate"><span class="pre">washer.thickness</span></code>, <code class="docutils literal notranslate"><span class="pre">washer.poissons_ratio</span></code>, etc.).</p>
+<p>This instances of this calss are designed to be immutable, which means than
+changing an attribute after creating an object is not a good idea. If you
+need a different nut with different attributes, create a new one.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyflange.bolts.ISOHexNut">
+<span class="sig-prename descclassname"><span class="pre">pyflange.bolts.</span></span><span class="sig-name descname"><span class="pre">ISOHexNut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">designation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.bolts.ISOHexNut" title="Link to this definition"></a></dt>
+<dd><p>Standard Hex Nut</p>
+<p>Returns an ISO 4032 HexNut, given the metric designation. For example:
+<code class="docutils literal notranslate"><span class="pre">nut</span> <span class="pre">=</span> <span class="pre">ISOHexNut('M16')</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyflange.bolts.RoundNut">
+<span class="sig-prename descclassname"><span class="pre">pyflange.bolts.</span></span><span class="sig-name descname"><span class="pre">RoundNut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">designation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.bolts.RoundNut" title="Link to this definition"></a></dt>
+<dd><p>Standard Hex Nut</p>
+<p>Returns a Standard Flanged HexNut, given the metric designation. For example:
+<code class="docutils literal notranslate"><span class="pre">nut</span> <span class="pre">=</span> <span class="pre">RoundNut('M42')</span></code></p>
 </dd></dl>
 
 </section>

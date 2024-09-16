@@ -138,33 +138,36 @@ not to be instatiated directly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyflange.flangesegments.FlangeSegment.bolt_markov_matrix">
 <span class="sig-name descname"><span class="pre">bolt_markov_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_markov_shell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bending_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_geometric_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyflange.flangesegments.FlangeSegment.bolt_markov_matrix" title="Link to this definition"></a></dt>
-<dd><p>returns the converted dataframe of the markov matirx for the damage
-calculation of the bolt.</p>
+<dd><p>Returns the bolt Markov matrix, given the shell Markov matix</p>
 <ul class="simple">
 <li><dl class="simple">
-<dt><cite>df_markov_shell</cite><span class="classifier">DataFrame</span></dt><dd><p>The markov matrix, containg the colums ‘Cycles’, ‘Range’, ‘Mean’.</p>
+<dt><cite>df_markov_shell</cite><span class="classifier">pandas.DataFrame</span></dt><dd><p>The markov matrix, containg the colums ‘Cycles’, ‘Range’, ‘Mean’.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt><cite>bending_factor</cite><span class="classifier">floatn [optional]</span></dt><dd><p>The factor that considers the bending portion of the total stress range.</p>
+<dt><cite>bending_factor</cite><span class="classifier">float [optional]</span></dt><dd><p>The factor that considers the bending portion of the total stress range.
+If omitted, it will be taken equal to 0.0.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt><cite>macro_geometric_factor</cite><span class="classifier">floatn [optional]</span></dt><dd><p>The factor that considers macro geometric influences. The factor
+<dt><cite>macro_geometric_factor</cite><span class="classifier">float [optional]</span></dt><dd><p>The factor that considers macro geometric influences. The factor
 affects the deadweigt of the tower, the mean values of the markov matrix
-and the range values of the markov matrix.</p>
+and the range values of the markov matrix.
+If omitted, it will be taken equal to 1.0.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt><cite>mean_factor</cite><span class="classifier">floatn [optional]</span></dt><dd><p>The factor that multiplies the mean values of the bending moments of the tower</p>
+<dt><cite>mean_factor</cite><span class="classifier">float [optional]</span></dt><dd><p>The factor that multiplies the mean values of the bending moments of the tower
+If omitted, it will be taken equal to 1.0.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt><cite>range_factor</cite><span class="classifier">floatn [optional]</span></dt><dd><p>The factor that multiplies the range of the bending moments of the tower</p>
+<dt><cite>range_factor</cite><span class="classifier">float [optional]</span></dt><dd><p>The factor that multiplies the range of the bending moments of the tower
+If omitted, it will be taken equal to 1.0.</p>
 </dd>
 </dl>
 </li>
