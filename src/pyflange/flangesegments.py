@@ -143,6 +143,7 @@ class FlangeSegment (ABC):
         df_markov_bolt['Cycles']=df_markov_shell['Cycles']
         df_markov_bolt['DS']=abs(df_markov_shell['S_to']-df_markov_shell['S_from'])
         df_markov_bolt['DS']=df_markov_bolt['DS'].replace(0,np.nan)
+        df_markov_bolt['Range']=df_markov_bolt['DS']
         
         return df_markov_bolt,df_markov_shell
 
@@ -1024,20 +1025,21 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         from math import pi
 
-        # Retrieve point 2B
-        Z2B = self._cantilever_shell_force_at_tensile_ULS
+        # Retrieve point P0
+        Z0 = self._ideal_shell_force_at_tensile_ULS
         Fs0 = self._ideal_bolt_force_at_tensile_ULS
 
         # Evaluate the displacement u in the ultimate prying state.
         a_red = self.b / (self._prying_lever_ratio - 1)
-        w = self.a + self.b + self.s/2
-        I = w * self.t**3 / 12
-        u = (Z2B * self.b**2 / (3 * self.E * I) + (Fs0 - self.Fv) / (2 * self._bolt_axial_stiffness * a_red)) * (a_red + self.b)   # ref. [1], eq.72
+        s_avg = self.s * (1 + self.s_ratio) / 2
+        c = self.central_angle * (self.R - s_avg/2)
+        I = c * self.t**3 / 12
+        u = (Z0 * self.b**2 / (3 * self.E * I) + (Fs0 - self.Fv) / (2 * self._bolt_axial_stiffness * a_red)) * (a_red + self.b)   # ref. [1], eq.72
 
         # Evaluate the segment stiffness
         s_avg = (self.s + self.s_ratio * self.s) / 2
         c = self.central_angle * (self.R - s_avg/2)
-        k_seg = Z2B / (u * c)
+        k_seg = Z0 / (u * c)
 
         log_data(self, u=u, k_seg=k_seg)
 
