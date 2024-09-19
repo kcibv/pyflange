@@ -1011,7 +1011,9 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange)
 
         # Total gap stiffness according to ref. [1], eq.53
-        return 2.2 * (k_shell + k_flange)
+        # f_tot = 2.2
+        f_tot = min(1.4 + 1.2 * self.gap_angle/(pi/2), 2.6)
+        return f_tot * (k_shell + k_flange)
 
 
     @cached_property
