@@ -216,6 +216,13 @@ class MetricBolt (Bolt):
         ''' Tensile stress area, according to ISO 891-1:2013, section 9.1.6.1'''
         from math import pi
         return pi * (self.nominal_diameter - 13/12*self.thread_height)**2 / 4
+   
+    
+    @cached_property
+    def tensile_moment_of_resistance (self):
+        ''' Tensile moment of resistance, according to ISO 891-1:2013, section 9.1.6.1'''
+        from math import pi
+        return pi * (self.nominal_diameter - 13/12*self.thread_height) ** 3/32 
 
 
 

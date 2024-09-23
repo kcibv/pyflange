@@ -5,4 +5,5 @@
    flangesegments
    bolts
    gap
+   fatigue
    montecarlo

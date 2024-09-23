@@ -30,7 +30,7 @@ bolt preload generates the corresponding FlangeSegment object.
 
    # Imports
    from math import pi
-   from pyflange.bolts import StandardMetricBolt
+   from pyflange.bolts import StandardMetricBolt, ISOFlatWasher, ISOHexNut
    from pyflange.flangesegments import PolynomialLFlangeSegment
 
    # Define some units for the sake of readability
@@ -39,8 +39,10 @@ bolt preload generates the corresponding FlangeSegment object.
    N = 1
    kN = 1000*N
 
-   # Create the bolt object
-   M80 = StandardMetricBolt("M80", "10.9", shank_length=270*mm stud=True)
+   # Create the fastener parts
+   M80_bolt = StandardMetricBolt("M80", "10.9", shank_length=270*mm stud=True)
+   M80_washer = ISOFlatWasher("M80")
+   M80_nut    = ISOHexNut("M80")
    Nb = 120   # Number of bolts
 
    # Flange Segment Constructor
@@ -55,11 +57,12 @@ bolt preload generates the corresponding FlangeSegment object.
 
          Zg = -15000*kN / Nb,    # load applied to the flange segment shell at rest
 
-         bolt = M80,
+         bolt = M80_bolt,        # bolt object created above
          Fv = bolt_preload,      # applied bolt preload
 
-         Do = 86*mm,     # bolt hole diameter
-         Dw = 140*mm,    # washer diameter
+         Do = 86*mm,             # bolt hole diameter
+         washer = M80_washer,    # washer object created above
+         nut = M80_nut,          # nut object created above
 
          gap_height = gap_height,   # maximum longitudinal gap height
          gap_angle = gap_angle      # longitudinal gap length

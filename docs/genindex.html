@@ -46,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="flangesegments.html">pyflange.flangesegments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bolts.html">pyflange.bolts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gap.html">pyflange.gap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fatigue.html">pyflange.fatigue</a></li>
 <li class="toctree-l1"><a class="reference internal" href="montecarlo.html">Example: Montecarlo Simulation</a></li>
 </ul>
 
@@ -78,12 +79,16 @@
 <div class="genindex-jumpbox">
  <a href="#A"><strong>A</strong></a>
  | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
@@ -93,6 +98,12 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="bolts.html#pyflange.bolts.FlatWasher.area">area (pyflange.bolts.FlatWasher property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="bolts.html#pyflange.bolts.FlatWasher.axial_stiffness">axial_stiffness (pyflange.bolts.FlatWasher property)</a>
+</li>
       <li><a href="bolts.html#pyflange.bolts.MetricBolt.axial_stiffness">axial_stiffness() (pyflange.bolts.MetricBolt method)</a>
 </li>
   </ul></td>
@@ -109,28 +120,54 @@
 </li>
       <li><a href="flangesegments.html#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_rest">bolt_force_at_rest (pyflange.flangesegments.PolynomialLFlangeSegment property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="flangesegments.html#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_small_displacement">bolt_force_at_small_displacement (pyflange.flangesegments.PolynomialLFlangeSegment property)</a>
 
       <ul>
         <li><a href="flangesegments.html#pyflange.flangesegments.PolynomialTFlangeSegment.bolt_force_at_small_displacement">(pyflange.flangesegments.PolynomialTFlangeSegment property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="flangesegments.html#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_tensile_ULS">bolt_force_at_tensile_ULS (pyflange.flangesegments.PolynomialLFlangeSegment property)</a>
 
       <ul>
         <li><a href="flangesegments.html#pyflange.flangesegments.PolynomialTFlangeSegment.bolt_force_at_tensile_ULS">(pyflange.flangesegments.PolynomialTFlangeSegment property)</a>
 </li>
       </ul></li>
+      <li><a href="flangesegments.html#pyflange.flangesegments.FlangeSegment.bolt_markov_matrix">bolt_markov_matrix() (pyflange.flangesegments.FlangeSegment method)</a>
+</li>
+      <li><a href="fatigue.html#pyflange.fatigue.BoltFatigueCurve">BoltFatigueCurve (class in pyflange.fatigue)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="fatigue.html#pyflange.fatigue.FatigueCurve.cumulated_damage">cumulated_damage() (pyflange.fatigue.FatigueCurve method)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="fatigue.html#pyflange.fatigue.FatigueCurve.damage">damage() (pyflange.fatigue.FatigueCurve method)</a>
+</li>
       <li><a href="bolts.html#pyflange.bolts.MetricBolt.designation">designation (pyflange.bolts.MetricBolt property)</a>
 </li>
+      <li><a href="fatigue.html#pyflange.fatigue.DoubleSlopeFatigueCurve">DoubleSlopeFatigueCurve (class in pyflange.fatigue)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="fatigue.html#pyflange.fatigue.FatigueCurve.DS">DS() (pyflange.fatigue.FatigueCurve method)</a>
+
+      <ul>
+        <li><a href="fatigue.html#pyflange.fatigue.MultiSlopeFatigueCurve.DS">(pyflange.fatigue.MultiSlopeFatigueCurve method)</a>
+</li>
+        <li><a href="fatigue.html#pyflange.fatigue.SingleSlopeFatigueCurve.DS">(pyflange.fatigue.SingleSlopeFatigueCurve method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -145,7 +182,11 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="fatigue.html#pyflange.fatigue.FatigueCurve">FatigueCurve (class in pyflange.fatigue)</a>
+</li>
       <li><a href="flangesegments.html#pyflange.flangesegments.FlangeSegment">FlangeSegment (class in pyflange.flangesegments)</a>
+</li>
+      <li><a href="bolts.html#pyflange.bolts.FlatWasher">FlatWasher (class in pyflange.bolts)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -158,9 +199,31 @@
   </ul></td>
 </tr></table>
 
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="bolts.html#pyflange.bolts.HexNut">HexNut (class in pyflange.bolts)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="bolts.html#pyflange.bolts.ISOFlatWasher">ISOFlatWasher() (in module pyflange.bolts)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="bolts.html#pyflange.bolts.ISOHexNut">ISOHexNut() (in module pyflange.bolts)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="fatigue.html#pyflange.fatigue.markov_matrix_from_SGRE_format">markov_matrix_from_SGRE_format() (in module pyflange.fatigue)</a>
+</li>
       <li><a href="bolts.html#pyflange.bolts.MetricBolt">MetricBolt (class in pyflange.bolts)</a>
 </li>
       <li>
@@ -169,16 +232,32 @@
       <ul>
         <li><a href="bolts.html#module-pyflange.bolts">pyflange.bolts</a>
 </li>
+        <li><a href="fatigue.html#module-pyflange.fatigue">pyflange.fatigue</a>
+</li>
         <li><a href="flangesegments.html#module-pyflange.flangesegments">pyflange.flangesegments</a>
 </li>
         <li><a href="gap.html#module-pyflange.gap">pyflange.gap</a>
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="fatigue.html#pyflange.fatigue.MultiSlopeFatigueCurve">MultiSlopeFatigueCurve (class in pyflange.fatigue)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="fatigue.html#pyflange.fatigue.FatigueCurve.N">N() (pyflange.fatigue.FatigueCurve method)</a>
+
+      <ul>
+        <li><a href="fatigue.html#pyflange.fatigue.MultiSlopeFatigueCurve.N">(pyflange.fatigue.MultiSlopeFatigueCurve method)</a>
+</li>
+        <li><a href="fatigue.html#pyflange.fatigue.SingleSlopeFatigueCurve.N">(pyflange.fatigue.SingleSlopeFatigueCurve method)</a>
+</li>
+      </ul></li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="bolts.html#pyflange.bolts.MetricBolt.nominal_cross_section_area">nominal_cross_section_area (pyflange.bolts.MetricBolt property)</a>
 </li>
@@ -204,6 +283,13 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
+    pyflange.fatigue
+
+      <ul>
+        <li><a href="fatigue.html#module-pyflange.fatigue">module</a>
+</li>
+      </ul></li>
+      <li>
     pyflange.flangesegments
 
       <ul>
@@ -217,6 +303,14 @@
         <li><a href="gap.html#module-pyflange.gap">module</a>
 </li>
       </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="bolts.html#pyflange.bolts.RoundNut">RoundNut() (in module pyflange.bolts)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -241,6 +335,8 @@
 </li>
       <li><a href="flangesegments.html#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_small_displacement">shell_force_at_small_displacement (pyflange.flangesegments.PolynomialLFlangeSegment property)</a>
 </li>
+      <li><a href="fatigue.html#pyflange.fatigue.SingleSlopeFatigueCurve">SingleSlopeFatigueCurve (class in pyflange.fatigue)</a>
+</li>
       <li><a href="bolts.html#pyflange.bolts.StandardMetricBolt">StandardMetricBolt() (in module pyflange.bolts)</a>
 </li>
   </ul></td>
@@ -250,6 +346,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="bolts.html#pyflange.bolts.MetricBolt.tensile_cross_section_area">tensile_cross_section_area (pyflange.bolts.MetricBolt property)</a>
+</li>
+      <li><a href="bolts.html#pyflange.bolts.MetricBolt.tensile_moment_of_resistance">tensile_moment_of_resistance (pyflange.bolts.MetricBolt property)</a>
 </li>
       <li><a href="bolts.html#pyflange.bolts.MetricBolt.thread_basic_minor_diameter">thread_basic_minor_diameter (pyflange.bolts.MetricBolt property)</a>
 </li>
