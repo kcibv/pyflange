@@ -1,6 +1,6 @@
 import pytest
 from pyflange.fatigue import markov_matrix_from_SGRE_format, BoltFatigueCurve
-from pyflange.flangesegments import PolynomialTFlangeSegment
+from pyflange.flangesegments import PolynomialTFlangeSegment, bolt_markov_matrix
 from pyflange.bolts import MetricBolt, HexNut
 from pyflange.gap import gap_height_distribution
 from math import pi
@@ -84,7 +84,7 @@ class TestFatigue:
 
         markov_path=os.path.join(os.path.dirname(__file__), "..\\validations\\flangesegments.PolynomialTFlangeSegment\\tflange-example-markov.mkv")
         df_markov_shell=markov_matrix_from_SGRE_format(markov_path)
-        df_markov_bolt,df_markov_shell=fseg.bolt_markov_matrix(df_markov_shell,
+        df_markov_bolt = bolt_markov_matrix(fseg, df_markov_shell,
                                                bending_factor=0.601,
                                                macro_geometric_factor=1.0,
                                                mean_factor=1.3,
