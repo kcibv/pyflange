@@ -329,8 +329,13 @@ class MetricBolt (Bolt):
     def shank_cross_section_area (self):
         ''' Area of the shank transversal cross-section.
 
-        **DEPRECATED**: use `bolt.shank_cross_section.area` instead
+        **DEPRECATED**: use `bolt.shank_csec.area` instead
         '''
+
+        from .logger import Logger
+        logger = Logger(__name__)
+        logger.warning("MetricBolt.shank_cross_section_area is deprecated; use MetricBolt.shank_csec.area instead.")
+
         from math import pi
         return pi * self.shank_diameter**2 / 4
 
@@ -341,6 +346,11 @@ class MetricBolt (Bolt):
 
         **DEPRECATED**: use `bolt.nominal_csec.area` instead
         '''
+
+        from .logger import Logger
+        logger = Logger(__name__)
+        logger.warning("MetricBolt.nominal_cross_section_area is deprecated; use MetricBolt.nominal_csec.area instead.")
+
         from math import pi
         return pi * self.nominal_diameter**2 / 4
 
@@ -351,6 +361,11 @@ class MetricBolt (Bolt):
 
         **DEPRECATED**: use `bolt.thread_csec.area` instead
         '''
+
+        from .logger import Logger
+        logger = Logger(__name__)
+        logger.warning("MetricBolt.tensile_cross_section_area is deprecated; use MetricBolt.thread_csec.area instead.")
+
         from math import pi
         return pi * (self.nominal_diameter - 13/12*self.thread_height)**2 / 4
 
@@ -359,8 +374,13 @@ class MetricBolt (Bolt):
     def tensile_moment_of_resistance (self):
         ''' Tensile moment of resistance, according to ISO 891-1:2013, section 9.1.6.1
 
-        **DEPRECATED**: use `bolt.thread_csec.elastic_section modulus` instead
+        **DEPRECATED**: use `bolt.thread_csec.elastic_section_modulus` instead
         '''
+
+        from .logger import Logger
+        logger = Logger(__name__)
+        logger.warning("MetricBolt.tensile_moment_of_resistance is deprecated; use MetricBolt.thread_csec.elastic_section_modulus instead.")
+
         from math import pi
         return pi * (self.nominal_diameter - 13/12*self.thread_height) ** 3/32
 
