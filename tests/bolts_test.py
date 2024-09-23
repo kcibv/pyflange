@@ -3,6 +3,27 @@ import pytest
 from pyflange.bolts import *
 
 
+
+class TestBoltCrossSection:
+
+    def test_diameter (self):
+        csec = BoltCrossSection(10)
+        assert csec.diameter == 10
+
+    def test_area (self):
+        csec = BoltCrossSection(10)
+        assert round(csec.area, 6) == 78.539816
+
+    def test_second_moment_of_area (self):
+        csec = BoltCrossSection(10)
+        assert round(csec.second_moment_of_area, 6) == 490.873852
+
+    def test_elastic_section_modulus (self):
+        csec = BoltCrossSection(10)
+        assert round(csec.elastic_section_modulus, 6) == 98.174770
+
+
+
 class TestMetricBolt:
 
     def test_designation (self):
@@ -77,7 +98,7 @@ class TestMetricBolt:
         assert round(bolt.thread_minor_diameter, 5) == 0.01355
 
 
-    def test_shank_cross_section_area (self):
+    def test_nominal_csec (self):
         bolt = MetricBolt(
             nominal_diameter = 0.016,
             thread_pitch = 0.002,
@@ -85,17 +106,34 @@ class TestMetricBolt:
             ultimate_tensile_stress = 800e6,
             shank_diameter_ratio = 2.0)
 
-        assert round(bolt.shank_cross_section_area, 6) == 0.000804
+        csec = bolt.nominal_csec
+        assert isinstance(csec, BoltCrossSection)
+        assert round(csec.diameter, 6) == 0.016000
 
 
-    def test_tensile_cross_section_area (self):
+    def test_shank_csec (self):
+        bolt = MetricBolt(
+            nominal_diameter = 0.016,
+            thread_pitch = 0.002,
+            yield_stress = 640e6,
+            ultimate_tensile_stress = 800e6,
+            shank_diameter_ratio = 2.0)
+
+        csec = bolt.shank_csec
+        assert isinstance(csec, BoltCrossSection)
+        assert round(csec.diameter, 6) == 0.032000
+
+
+    def test_thread_csec (self):
         bolt = MetricBolt(
             nominal_diameter = 0.016,
             thread_pitch = 0.002,
             yield_stress = 640e6,
             ultimate_tensile_stress = 800e6)
 
-        assert round(bolt.tensile_cross_section_area, 6) == 0.000157
+        csec = bolt.thread_csec
+        assert isinstance(csec, BoltCrossSection)
+        assert round(csec.diameter, 6) == 0.014124
 
 
     def test_shear_modulus (self):
@@ -170,6 +208,30 @@ class TestMetricBolt:
             stud = True)
 
         assert round(bolt.bending_stiffness(0.400)/1e3) == 601
+
+
+    # DEPRECATED
+
+    def test_tensile_cross_section_area (self):
+        bolt = MetricBolt(
+            nominal_diameter = 0.016,
+            thread_pitch = 0.002,
+            yield_stress = 640e6,
+            ultimate_tensile_stress = 800e6)
+
+        assert round(bolt.tensile_cross_section_area, 6) == 0.000157
+
+    def test_shank_cross_section_area (self):
+        bolt = MetricBolt(
+            nominal_diameter = 0.016,
+            thread_pitch = 0.002,
+            yield_stress = 640e6,
+            ultimate_tensile_stress = 800e6,
+            shank_diameter_ratio = 2.0)
+
+        assert round(bolt.shank_cross_section_area, 6) == 0.000804
+
+
 
 
 

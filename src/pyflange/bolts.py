@@ -183,46 +183,24 @@ class MetricBolt (Bolt):
 
 
     @cached_property
-    def nominal_cross_section (self):
+    def nominal_csec (self):
+        ''' Bolt cross-section with nominal diameter '''
         return BoltCrossSection(self.nominal_diameter)
 
 
     @cached_property
-    def shank_cross_section (self):
+    def shank_csec (self):
+        ''' Bolt shank cross-section '''
         return BoltCrossSection(self.shank_diameter)
 
 
     @cached_property
-    def thread_cross_section (self):
+    def thread_csec (self):
+        ''' Bolt cross-section used for tensile calculations
+
+        Ref. ISO 891-1:2013, section 9.1.6.1
+        '''
         return BoltCrossSection(self.nominal_diameter - 13/12*self.thread_height)
-
-
-    @cached_property
-    def shank_cross_section_area (self):
-        ''' Area of the shank transversal cross-section.'''
-        from math import pi
-        return pi * self.shank_diameter**2 / 4
-
-
-    @cached_property
-    def nominal_cross_section_area (self):
-        ''' Area of a circle with nominal diameter.'''
-        from math import pi
-        return pi * self.nominal_diameter**2 / 4
-
-
-    @cached_property
-    def tensile_cross_section_area (self):
-        ''' Tensile stress area, according to ISO 891-1:2013, section 9.1.6.1'''
-        from math import pi
-        return pi * (self.nominal_diameter - 13/12*self.thread_height)**2 / 4
-   
-    
-    @cached_property
-    def tensile_moment_of_resistance (self):
-        ''' Tensile moment of resistance, according to ISO 891-1:2013, section 9.1.6.1'''
-        from math import pi
-        return pi * (self.nominal_diameter - 13/12*self.thread_height) ** 3/32 
 
 
 
@@ -340,6 +318,54 @@ class MetricBolt (Bolt):
             return 1 / (b1 + 2*bG + 2*bM + bGew)
         else:
             return 1 / (b1 + bG + bM + bGew + bSK)
+
+
+
+    # -------------------------------------------------------------
+    #   DEPRECATED ATTRIBUTES AND METHODS
+    # -------------------------------------------------------------
+
+    @cached_property
+    def shank_cross_section_area (self):
+        ''' Area of the shank transversal cross-section.
+
+        **DEPRECATED**: use `bolt.shank_cross_section.area` instead
+        '''
+        from math import pi
+        return pi * self.shank_diameter**2 / 4
+
+
+    @cached_property
+    def nominal_cross_section_area (self):
+        ''' Area of a circle with nominal diameter.
+
+        **DEPRECATED**: use `bolt.nominal_csec.area` instead
+        '''
+        from math import pi
+        return pi * self.nominal_diameter**2 / 4
+
+
+    @cached_property
+    def tensile_cross_section_area (self):
+        ''' Tensile stress area, according to ISO 891-1:2013, section 9.1.6.1
+
+        **DEPRECATED**: use `bolt.thread_csec.area` instead
+        '''
+        from math import pi
+        return pi * (self.nominal_diameter - 13/12*self.thread_height)**2 / 4
+
+
+    @cached_property
+    def tensile_moment_of_resistance (self):
+        ''' Tensile moment of resistance, according to ISO 891-1:2013, section 9.1.6.1
+
+        **DEPRECATED**: use `bolt.thread_csec.elastic_section modulus` instead
+        '''
+        from math import pi
+        return pi * (self.nominal_diameter - 13/12*self.thread_height) ** 3/32
+
+
+
 
 
 
