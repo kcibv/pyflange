@@ -45,7 +45,6 @@ The models implemented in this module are based on the following references:
 
 
 
-
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
@@ -76,76 +75,10 @@ class FlangeSegment (ABC):
     def bolt_axial_force (self, shell_pull):
         pass
 
-
     @abstractmethod
     def bolt_bending_moment (self, shell_pull):
         pass
-    
-    def bolt_markov_matrix(self, df_markov_shell, bending_factor=0.0, macro_geometric_factor=1.0, mean_factor=1.0, range_factor=1.0):
-        ''' Returns the bolt Markov matrix, given the shell Markov matix
 
-        - `df_markov_shell` : pandas.DataFrame
-            The markov matrix, containg the colums 'Cycles', 'Range', 'Mean'.
-            
-        - `bending_factor` : float [optional]
-            The factor that considers the bending portion of the total stress range.
-            If omitted, it will be taken equal to 0.0.
-        
-        - `macro_geometric_factor` : float [optional]
-            The factor that considers macro geometric influences. The factor
-            affects the deadweigt of the tower, the mean values of the markov matrix
-            and the range values of the markov matrix.
-            If omitted, it will be taken equal to 1.0.
-        
-        - `mean_factor` : float [optional]
-            The factor that multiplies the mean values of the bending moments of the tower
-            If omitted, it will be taken equal to 1.0.
-        
-        - `range_factor` : float [optional]
-            The factor that multiplies the range of the bending moments of the tower
-            If omitted, it will be taken equal to 1.0.
-        
-        '''
-        #Calculated area of the tower segment
-        s_avg = self.s * (1 + self.s_ratio) / 2
-        c_shell = self.central_angle * (self.R - self.s/2)
-        D = self.R * 2
-        A_tw = s_avg * c_shell
-        W_tw = (D**4 - (D-2*s_avg)**4) / (D-s_avg) * pi/32
-        
-        A_sp=self.bolt.tensile_cross_section_area
-        W_sp=self.bolt.tensile_moment_of_resistance
-        
-        #Convert the markov matrix
-        df_markov_shell['Z_mean']=(df_markov_shell['Mean'] / W_tw * A_tw * mean_factor)*macro_geometric_factor
-        df_markov_shell['Z_range']=(df_markov_shell['Range'] / W_tw * A_tw * range_factor)*macro_geometric_factor
-        
-        df_markov_shell['Zg']=self.Zg * macro_geometric_factor
-        df_markov_shell['Z_from']=df_markov_shell['Z_mean']-0.5*df_markov_shell['Z_range']+df_markov_shell['Zg']
-        df_markov_shell['Z_to']=df_markov_shell['Z_mean']+0.5*df_markov_shell['Z_range']+df_markov_shell['Zg']
-        
-        df_markov_shell['Fs_from']=self.bolt_axial_force(df_markov_shell['Z_from'])
-        df_markov_shell['Fs_to']=self.bolt_axial_force(df_markov_shell['Z_to'])
-        
-        df_markov_shell['Ms_from']=self.bolt_bending_moment(df_markov_shell['Z_from'])
-        df_markov_shell['Ms_to']=self.bolt_bending_moment(df_markov_shell['Z_to'])
-        
-        df_markov_shell['S_Fs_from']=df_markov_shell['Fs_from']/A_sp
-        df_markov_shell['S_Fs_to']=df_markov_shell['Fs_to']/A_sp
-        
-        df_markov_shell['S_Ms_from']=df_markov_shell['Ms_from']/W_sp
-        df_markov_shell['S_Ms_to']=df_markov_shell['Ms_to']/W_sp
-        
-        df_markov_shell['S_from']=df_markov_shell['S_Fs_from']+bending_factor*df_markov_shell['S_Ms_from']
-        df_markov_shell['S_to']=df_markov_shell['S_Fs_to']+bending_factor*df_markov_shell['S_Ms_to']
-        
-        df_markov_bolt=pd.DataFrame()
-        df_markov_bolt['Cycles']=df_markov_shell['Cycles']
-        df_markov_bolt['DS']=abs(df_markov_shell['S_to']-df_markov_shell['S_from'])
-        df_markov_bolt['DS']=df_markov_bolt['DS'].replace(0,np.nan)
-        df_markov_bolt['Range']=df_markov_bolt['DS']
-        
-        return df_markov_bolt,df_markov_shell
 
 
 class PolynomialFlangeSegment (FlangeSegment):
@@ -597,6 +530,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     r: float = 0.01         # Rounding between flange and shell
     
     k_shell_mod: float = None       # optional initial shell stiffness in [N/m/m]. 
+
 
     def failure_mode (self, fy_sh, fy_fl, gamma_0=1.1):
         ''' Determine the failure mode of this flange and returns the
@@ -1609,3 +1543,65 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
 
 
+
+def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_geometric_factor=1.0, mean_factor=1.0, range_factor=1.0):
+    ''' Returns the bolt Markov matrix, given the shell Markov matix
+
+    **Parameters:**
+
+    - `fseg` : pyflange.flangesegments.PolynomialFlangeSegment
+        The flange segment object that contains the force and moment transfer
+        function that convert shell forces to bolt forces.
+
+        **WARNING:** Notice that currently this function works only with
+        PolynomialFlangeSegments, while it should be extended to work with any
+        FlangeSegment object.
+
+    - `flange_markov_matrix` : pandas.DataFrame
+        The flanges bending moments markov matrix, containg the colums
+        'Cycles', 'Range', 'Mean'.
+
+    - `bending_factor` : float [optional]
+        The factor that considers the bending portion of the total stress range.
+        If omitted, it will be taken equal to 0.0.
+
+    - `macro_geometric_factor` : float [optional]
+        The factor that considers macro geometric influences. The factor
+        affects the deadweigt of the tower, the mean values of the markov matrix
+        and the range values of the markov matrix.
+        If omitted, it will be taken equal to 1.0.
+
+    - `mean_factor` : float [optional]
+        The factor that multiplies the mean values of the bending moments of the tower
+        If omitted, it will be taken equal to 1.0.
+
+    - `range_factor` : float [optional]
+        The factor that multiplies the range of the bending moments of the tower
+        If omitted, it will be taken equal to 1.0.
+
+    '''
+
+    #Flange Geometry
+    Rm = fseg.R - fseg.s/2
+    flange_W = pi/4 * (fseg.R**4 - (fseg.R-fseg.s)**4) / Rm
+    shell_A = fseg.s * fseg.central_angle * Rm
+
+    # Bolt Geometry
+    bolt_A = fseg.bolt.tensile_cross_section_area
+    bolt_W = fseg.bolt.tensile_moment_of_resistance
+
+    # Shell Markov Matrix
+    Z_cycles = flange_markov_matrix['Cycles'].to_numpy()
+    Z_mean   = flange_markov_matrix['Mean'].to_numpy() / flange_W * shell_A * mean_factor * macro_geometric_factor
+    Z_ranges = flange_markov_matrix['Range'].to_numpy() / flange_W * shell_A * range_factor * macro_geometric_factor
+    Z_min = Z_mean - Z_ranges/2 + fseg.Zg * macro_geometric_factor
+    Z_max = Z_mean + Z_ranges/2 + fseg.Zg * macro_geometric_factor
+
+    # Bolt ess Markov Matrix
+    S_min = fseg.bolt_axial_force(Z_min)/bolt_A + bending_factor * fseg.bolt_bending_moment(Z_min)/bolt_W
+    S_max = fseg.bolt_axial_force(Z_max)/bolt_A + bending_factor * fseg.bolt_bending_moment(Z_max)/bolt_W
+    return pd.DataFrame({
+        'Cycles': Z_cycles,
+        'Mean'  : (S_min + S_max) / 2,
+        'Range' : np.abs(S_max - S_min)
+    })
