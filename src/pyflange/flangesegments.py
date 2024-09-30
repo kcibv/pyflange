@@ -491,7 +491,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     - ``r`` : ``float`` [optional]
         Radius of the rouding between the shell and the flange. If omitted, it defaults to 0.01.
     
-    - ``k_shell_mod`` : ``float`` [optional]
+    - ``k_shell`` : ``float`` [optional]
         Optional individual initial shell stiffness value. This value can be calculated in a separate FE analysis. 
         The unit must be [N/m/m]. If omitted, the interpolated formula from [1] will be used.
 
@@ -529,7 +529,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     s_ratio: float = 1.0    # Ratio of bottom shell thickness over s. Default s_botom = s.
     r: float = 0.01         # Rounding between flange and shell
     
-    k_shell_mod: float = None       # optional initial shell stiffness in [N/m/m]. 
+    k_shell: float = None       # optional initial shell stiffness in [N/m/m].
 
 
     def failure_mode (self, fy_sh, fy_fl, gamma_0=1.1):
@@ -926,7 +926,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         s_avg = (self.s + self.s_ratio * self.s) / 2    # Average shell thickness
         L_gap = self.R * self.gap_angle                 # Gap lenght at mid-line of shell with average thickness
         k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48
-        k_shell = self.k_shell_mod or self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
+        k_shell = self.k_shell or self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
 
         # Calculate the flange stiffness
         w = self.a + self.b + self.s/2      # flange segment length
@@ -1077,7 +1077,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     - ``r`` : ``float`` [optional]
         Radius of the rouding between the shell and the flange. If omitted, it defualts to 0.01.
     
-    - ``k_shell_mod`` : ``float`` [optional]
+    - ``k_shell`` : ``float`` [optional]
         Optional individual initial shell stiffness value. This value can be calculated in a separate FE analysis. 
         The unit must be [N/m/m]. If omitted, the interpolated formula from [1] will be used.
 
@@ -1115,7 +1115,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     r: float = 0.01 #rounding between flange and shell
     
-    k_shell_mod: float = None       # optional initial shell stiffness in [N/m/m]. 
+    k_shell: float = None       # optional initial shell stiffness in [N/m/m].
 
     def failure_mode (self, fy_sh, fy_fl,gamma_0 = 1.1):
         ''' Determine the failure mode of this flange and returns the
@@ -1458,12 +1458,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         #k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (Rm*1000)) * (L_gap*1000))    # ref. [1], eq.48
         k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48
         s_avg = (self.s + self.s_ratio * self.s) / 2
-        
-        # Check, if individual shell stiffness is present
-        if self.k_shell_mod:
-            k_shell=self.k_shell_mod
-        else:
-            k_shell = self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
+        k_shell = self.k_shell or self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
 
         # Calculate the flange stiffness
         w = (self.a + self.b)*2      # flange segment length
@@ -1580,7 +1575,6 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
     Rm = fseg.R - fseg.s/2
     flange_W = pi/4 * (fseg.R**4 - (fseg.R-fseg.s)**4) / Rm
     shell_A = fseg.s * fseg.central_angle * Rm
-    print(flange_W, shell_A)
 
     # Bolt Geometry
     bolt_A = fseg.bolt.tensile_cross_section_area
