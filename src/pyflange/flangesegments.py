@@ -47,7 +47,7 @@ The models implemented in this module are based on the following references:
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from functools import cached_property
+from functools import cache, cached_property
 
 from .logger import Logger, log_data
 logger = Logger(__name__)
@@ -638,7 +638,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     def _bolt_moment (self, Z, Fs):
         a_red = self.b / (self._prying_lever_ratio - 1)
-        a_star = max(0.5, min((self.t / (a_red + self.b))**2 , 1)) * a_red
+        a_star = max(0.4, min((self.t / (a_red + self.b))**2 , 1)) * a_red
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
         I_tg = c * self.t**3 / 12
@@ -926,13 +926,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         s_avg = (self.s + self.s_ratio * self.s) / 2    # Average shell thickness
         L_gap = self.R * self.gap_angle                 # Gap lenght at mid-line of shell with average thickness
         k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48
-        
-        # Check, if individual shell stiffness is present
-        if self.k_shell_mod:
-            k_shell=self.k_shell_mod
-        else:
-            k_shell = self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
-        
+        k_shell = self.k_shell_mod or self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
+
         # Calculate the flange stiffness
         w = self.a + self.b + self.s/2      # flange segment length
         A = w * self.t                      # flange segment longitudinal cross-section area
@@ -946,7 +941,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         # Total gap stiffness according to ref. [1], eq.53
         # f_tot = 2.2
-        f_tot = min(1.4 + 1.2 * self.gap_angle/(pi/2), 2.6)
+        f_tot = min(1.0 + 1.5 * self.gap_angle/(pi/2), 2.5) * min(self.gap_angle/(pi/6), 1)**2
         return f_tot * (k_shell + k_flange)
 
 
@@ -1585,6 +1580,7 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
     Rm = fseg.R - fseg.s/2
     flange_W = pi/4 * (fseg.R**4 - (fseg.R-fseg.s)**4) / Rm
     shell_A = fseg.s * fseg.central_angle * Rm
+    print(flange_W, shell_A)
 
     # Bolt Geometry
     bolt_A = fseg.bolt.tensile_cross_section_area
@@ -1605,3 +1601,27 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
         'Mean'  : (S_min + S_max) / 2,
         'Range' : np.abs(S_max - S_min)
     })
+
+
+
+
+def shell_stiffness (shell_radius, shell_thickness, gap_angle):
+    ''' Axial stiffness of a flange-segment shell
+
+    This function will return the linear interpolation of the flange
+    stiffnesses measured in 2160 different FEA analyses with several
+    values of shell radius, shell thickness and gap angle.
+    '''
+    import os
+    file_path = os.path.join(os.path.dirname(__file__), "data/flangesegments.shell_stiffness.csv")
+    interpolate_shell_stiffness = _load_shell_stiffness_interpolator_from_csv(file_path)
+    return interpolate_shell_stiffness(shell_radius, shell_thickness, gap_angle)
+
+
+@cache
+def _load_shell_stiffness_interpolator_from_csv (file_path):
+    import pandas as pd
+    from math import pi
+    from scipy.interpolate import LinearNDInterpolator
+    ssdf = pd.read_csv(file_path)
+    return LinearNDInterpolator(list(zip(ssdf['shell_radius'], ssdf['shell_thickness'], ssdf['gap_angle']/180*pi)), ssdf['shell_stiffness'])
