@@ -229,7 +229,7 @@ class MetricBolt (Bolt):
         default value of the ``standard`` parameter.
         '''
         if standard == "Eurocode":
-            return 0.9 * self.ultimate_tensile_stress * self.tensile_cross_section_area / 1.25
+            return 0.9 * self.ultimate_tensile_stress * self.thread_csec.area / 1.25
         else:
             raise ValueError(f"Unsupported standard: '{standard}'")
 
@@ -245,8 +245,8 @@ class MetricBolt (Bolt):
         # Common variables
         from math import pi
         E = self.elastic_modulus
-        An = self.nominal_cross_section_area
-        As = self.shank_cross_section_area
+        An = self.nominal_csec.area
+        As = self.shank_csec.area
         At = pi * self.thread_minor_diameter**2 / 4
 
         # Resilience of unthreaded part

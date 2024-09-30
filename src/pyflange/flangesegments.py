@@ -1577,8 +1577,8 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
     shell_A = fseg.s * fseg.central_angle * Rm
 
     # Bolt Geometry
-    bolt_A = fseg.bolt.tensile_cross_section_area
-    bolt_W = fseg.bolt.tensile_moment_of_resistance
+    bolt_A = fseg.bolt.thread_csec.area
+    bolt_W = fseg.bolt.thread_csec.elastic_section_modulus
 
     # Shell Markov Matrix
     Z_cycles = flange_markov_matrix['Cycles'].to_numpy()
