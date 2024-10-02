@@ -183,19 +183,19 @@ class MetricBolt (Bolt):
 
 
     @cached_property
-    def nominal_csec (self):
+    def nominal_cross_section (self):
         ''' Bolt cross-section with nominal diameter '''
         return BoltCrossSection(self.nominal_diameter)
 
 
     @cached_property
-    def shank_csec (self):
+    def shank_cross_section (self):
         ''' Bolt shank cross-section '''
         return BoltCrossSection(self.shank_diameter)
 
 
     @cached_property
-    def thread_csec (self):
+    def thread_cross_section (self):
         ''' Bolt cross-section used for tensile calculations
 
         Ref. ISO 891-1:2013, section 9.1.6.1
@@ -229,7 +229,7 @@ class MetricBolt (Bolt):
         default value of the ``standard`` parameter.
         '''
         if standard == "Eurocode":
-            return 0.9 * self.ultimate_tensile_stress * self.thread_csec.area / 1.25
+            return 0.9 * self.ultimate_tensile_stress * self.thread_cross_section.area / 1.25
         else:
             raise ValueError(f"Unsupported standard: '{standard}'")
 
@@ -245,8 +245,8 @@ class MetricBolt (Bolt):
         # Common variables
         from math import pi
         E = self.elastic_modulus
-        An = self.nominal_csec.area
-        As = self.shank_csec.area
+        An = self.nominal_cross_section.area
+        As = self.shank_cross_section.area
         At = pi * self.thread_minor_diameter**2 / 4
 
         # Resilience of unthreaded part
@@ -329,12 +329,12 @@ class MetricBolt (Bolt):
     def shank_cross_section_area (self):
         ''' Area of the shank transversal cross-section.
 
-        **DEPRECATED**: use `bolt.shank_csec.area` instead
+        **DEPRECATED**: use `bolt.shank_cross_section.area` instead
         '''
 
         from .logger import Logger
         logger = Logger(__name__)
-        logger.warning("MetricBolt.shank_cross_section_area is deprecated; use MetricBolt.shank_csec.area instead.")
+        logger.warning("MetricBolt.shank_cross_section_area is deprecated; use MetricBolt.shank_cross_section.area instead.")
 
         from math import pi
         return pi * self.shank_diameter**2 / 4
@@ -344,12 +344,12 @@ class MetricBolt (Bolt):
     def nominal_cross_section_area (self):
         ''' Area of a circle with nominal diameter.
 
-        **DEPRECATED**: use `bolt.nominal_csec.area` instead
+        **DEPRECATED**: use `bolt.nominal_cross_section.area` instead
         '''
 
         from .logger import Logger
         logger = Logger(__name__)
-        logger.warning("MetricBolt.nominal_cross_section_area is deprecated; use MetricBolt.nominal_csec.area instead.")
+        logger.warning("MetricBolt.nominal_cross_section_area is deprecated; use MetricBolt.nominal_cross_section.area instead.")
 
         from math import pi
         return pi * self.nominal_diameter**2 / 4
@@ -359,12 +359,12 @@ class MetricBolt (Bolt):
     def tensile_cross_section_area (self):
         ''' Tensile stress area, according to ISO 891-1:2013, section 9.1.6.1
 
-        **DEPRECATED**: use `bolt.thread_csec.area` instead
+        **DEPRECATED**: use `bolt.thread_cross_section.area` instead
         '''
 
         from .logger import Logger
         logger = Logger(__name__)
-        logger.warning("MetricBolt.tensile_cross_section_area is deprecated; use MetricBolt.thread_csec.area instead.")
+        logger.warning("MetricBolt.tensile_cross_section_area is deprecated; use MetricBolt.thread_cross_section.area instead.")
 
         from math import pi
         return pi * (self.nominal_diameter - 13/12*self.thread_height)**2 / 4
@@ -374,12 +374,12 @@ class MetricBolt (Bolt):
     def tensile_moment_of_resistance (self):
         ''' Tensile moment of resistance, according to ISO 891-1:2013, section 9.1.6.1
 
-        **DEPRECATED**: use `bolt.thread_csec.elastic_section_modulus` instead
+        **DEPRECATED**: use `bolt.thread_cross_section.elastic_section_modulus` instead
         '''
 
         from .logger import Logger
         logger = Logger(__name__)
-        logger.warning("MetricBolt.tensile_moment_of_resistance is deprecated; use MetricBolt.thread_csec.elastic_section_modulus instead.")
+        logger.warning("MetricBolt.tensile_moment_of_resistance is deprecated; use MetricBolt.thread_cross_section.elastic_section_modulus instead.")
 
         from math import pi
         return pi * (self.nominal_diameter - 13/12*self.thread_height) ** 3/32
@@ -501,7 +501,7 @@ class FlatWasher (Washer):
 
     @cached_property
     def axial_stiffness (self):
-        ''' The compressive stiffness of the flange: t / EA'''
+        ''' The compressive stiffness of the washer: t / EA'''
         return self.elastic_modulus * self.area / self.thickness
 
 

@@ -937,11 +937,12 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         L2 = L_gap**2
         k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49
 
-        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange)
+        # Stiffness correction factor
+        f_tot = min(1.0 + 1.5 * self.gap_angle/(pi/2), 2.5) * min(self.gap_angle/(pi/6), 1)**2
+
+        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange, f_tot=f_tot)
 
         # Total gap stiffness according to ref. [1], eq.53
-        # f_tot = 2.2
-        f_tot = min(1.0 + 1.5 * self.gap_angle/(pi/2), 2.5) * min(self.gap_angle/(pi/6), 1)**2
         return f_tot * (k_shell + k_flange)
 
 
@@ -1577,8 +1578,8 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
     shell_A = fseg.s * fseg.central_angle * Rm
 
     # Bolt Geometry
-    bolt_A = fseg.bolt.thread_csec.area
-    bolt_W = fseg.bolt.thread_csec.elastic_section_modulus
+    bolt_A = fseg.bolt.thread_cross_section.area
+    bolt_W = fseg.bolt.thread_cross_section.elastic_section_modulus
 
     # Shell Markov Matrix
     Z_cycles = flange_markov_matrix['Cycles'].to_numpy()

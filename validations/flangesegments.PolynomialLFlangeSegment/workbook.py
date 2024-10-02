@@ -116,7 +116,7 @@ def flangesegment_to_excel (book, sheet_name, fseg):
 
     # Miscellaneous Model Data
     set_cell_value(book, f"{sheet_name}!gap.angle", fseg.gap_angle/deg)
-    set_cell_value(book, f"{sheet_name}!bolt.As", fseg.bolt.tensile_cross_section_area/(mm**2))
+    set_cell_value(book, f"{sheet_name}!bolt.As", fseg.bolt.thread_cross_section.area/(mm**2))
     set_cell_value(book, f"{sheet_name}!a_prime", (fseg.b / (fseg._prying_lever_ratio - 1))/mm)
     set_cell_value(book, f"{sheet_name}!Z0", fseg._ideal_shell_force_at_tensile_ULS/kN)
     set_cell_value(book, f"{sheet_name}!Z_2_td", fseg._cantilever_shell_force_at_tensile_ULS/kN)
@@ -137,6 +137,7 @@ def flangesegment_to_excel (book, sheet_name, fseg):
     set_cell_value(book, f"{sheet_name}!gap.COV", read_data_log(fseg, "COV_k"))
     set_cell_value(book, f"{sheet_name}!gap.k_fac", read_data_log(fseg, "k_fac"))
     set_cell_value(book, f"{sheet_name}!gap.k_shell", read_data_log(fseg, "k_shell_ini")/(kN/mm/m))
+    set_cell_value(book, f"{sheet_name}!gap.stiffness_correction_factor", read_data_log(fseg, "f_tot"))
     set_cell_value(book, f"{sheet_name}!flange.A_cf", read_data_log(fseg, "A_cf")/(mm**2))
     set_cell_value(book, f"{sheet_name}!flange.I_cf", read_data_log(fseg, "I_cf")/(mm**4))
     set_cell_value(book, f"{sheet_name}!gap.k_fl", read_data_log(fseg, "k_fl")/(kN/mm/m))

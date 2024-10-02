@@ -98,7 +98,7 @@ class TestMetricBolt:
         assert round(bolt.thread_minor_diameter, 5) == 0.01355
 
 
-    def test_nominal_csec (self):
+    def test_nominal_cross_section (self):
         bolt = MetricBolt(
             nominal_diameter = 0.016,
             thread_pitch = 0.002,
@@ -106,12 +106,12 @@ class TestMetricBolt:
             ultimate_tensile_stress = 800e6,
             shank_diameter_ratio = 2.0)
 
-        csec = bolt.nominal_csec
+        csec = bolt.nominal_cross_section
         assert isinstance(csec, BoltCrossSection)
         assert round(csec.diameter, 6) == 0.016000
 
 
-    def test_shank_csec (self):
+    def test_shank_cross_section (self):
         bolt = MetricBolt(
             nominal_diameter = 0.016,
             thread_pitch = 0.002,
@@ -119,19 +119,19 @@ class TestMetricBolt:
             ultimate_tensile_stress = 800e6,
             shank_diameter_ratio = 2.0)
 
-        csec = bolt.shank_csec
+        csec = bolt.shank_cross_section
         assert isinstance(csec, BoltCrossSection)
         assert round(csec.diameter, 6) == 0.032000
 
 
-    def test_thread_csec (self):
+    def test_thread_cross_section (self):
         bolt = MetricBolt(
             nominal_diameter = 0.016,
             thread_pitch = 0.002,
             yield_stress = 640e6,
             ultimate_tensile_stress = 800e6)
 
-        csec = bolt.thread_csec
+        csec = bolt.thread_cross_section
         assert isinstance(csec, BoltCrossSection)
         assert round(csec.diameter, 6) == 0.014124
 
