@@ -91,9 +91,9 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0):
 
         tilt_angle = tilt_angle,    # flange tilt angle
 
-        s_ratio = 100/72,    # ratio of bottom shell thickness over tower shell thickness
+        s_ratio = 100/72    # ratio of bottom shell thickness over tower shell thickness
 
-        k_shell = shell_stiffness(D/2, (t_sh + 100*mm)/2, gap_angle)
+        #k_shell = shell_stiffness(D/2, (t_sh + 100*mm)/2, gap_angle)
     )
 
     # Assert that failure mode is B.
@@ -106,7 +106,7 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0):
 
 
 print("\nEvaluating Flange Segment Model with sinusoidal gap shape and no flange tilt ...")
-wb = open_workbook("Case-D7500_Tilt-0deg_ShapeFactor-1.0.xlsx")
+wb = open_workbook("Case-L1_D7500_Tilt-0p00deg_ShapeFactor-1p00_Fv2800kN.xlsx")
 
 print("... with 30 deg gap width")
 fseg_30deg  = create_flange_segment( 30*deg)
@@ -126,8 +126,30 @@ flangesegment_to_excel(wb, "PyFlange_Gap120deg", fseg_120deg)
 
 
 
+
+print("\nEvaluating Flange Segment Model with sinusoidal gap shape and 1 deg flange tilt ...")
+wb_tt = open_workbook("Case-L2_D7500_Tilt-0p25deg_ShapeFactor-1p00_Fv2800kN.xlsx")
+
+print("... with 30 deg gap width")
+fseg_30deg_tt  = create_flange_segment( 30*deg, tilt_angle=0.25*deg)
+flangesegment_to_excel(wb_tt, "PyFlange_Gap30deg", fseg_30deg_tt)
+
+print("... with 60 deg gap width")
+fseg_60deg_tt  = create_flange_segment( 60*deg, tilt_angle=0.25*deg)
+flangesegment_to_excel(wb_tt, "PyFlange_Gap60deg", fseg_60deg_tt)
+
+print("... with 90 deg gap width")
+fseg_90deg_tt  = create_flange_segment( 90*deg, tilt_angle=0.25*deg)
+flangesegment_to_excel(wb_tt, "PyFlange_Gap90deg", fseg_90deg_tt)
+
+print("... with 120 deg gap width")
+fseg_120deg_tt = create_flange_segment(120*deg, tilt_angle=0.25*deg)
+flangesegment_to_excel(wb_tt, "PyFlange_Gap120deg", fseg_120deg_tt)
+
+
+
 print("\nEvaluating Flange Segment Model with gap shape factor 1.2 and no flange tilt ...")
-wb_sf = open_workbook("Case-D7500_Tilt-0deg_ShapeFactor-1.2.xlsx")
+wb_sf = open_workbook("Case-L3_D7500_Tilt-0p00deg_ShapeFactor-1p20_Fv2800kN.xlsx")
 
 print("... with 30 deg gap width")
 fseg_30deg_sf  = create_flange_segment( 30*deg, 1.2)
@@ -144,25 +166,3 @@ flangesegment_to_excel(wb_sf, "PyFlange_Gap90deg", fseg_90deg_sf)
 print("... with 120 deg gap width")
 fseg_120deg_sf = create_flange_segment(120*deg, 1.2)
 flangesegment_to_excel(wb_sf, "PyFlange_Gap120deg", fseg_120deg_sf)
-
-
-
-
-print("\nEvaluating Flange Segment Model with sinusoidal gap shape and 1 deg flange tilt ...")
-wb_tt = open_workbook("Case-D7500_Tilt-1deg_ShapeFactor-1.0.xlsx")
-
-print("... with 30 deg gap width")
-fseg_30deg_tt  = create_flange_segment( 30*deg, tilt_angle=1*deg)
-flangesegment_to_excel(wb_tt, "PyFlange_Gap30deg", fseg_30deg_tt)
-
-print("... with 60 deg gap width")
-fseg_60deg_tt  = create_flange_segment( 60*deg, tilt_angle=1*deg)
-flangesegment_to_excel(wb_tt, "PyFlange_Gap60deg", fseg_60deg_tt)
-
-print("... with 90 deg gap width")
-fseg_90deg_tt  = create_flange_segment( 90*deg, tilt_angle=1*deg)
-flangesegment_to_excel(wb_tt, "PyFlange_Gap90deg", fseg_90deg_tt)
-
-print("... with 120 deg gap width")
-fseg_120deg_tt = create_flange_segment(120*deg, tilt_angle=1*deg)
-flangesegment_to_excel(wb_tt, "PyFlange_Gap120deg", fseg_120deg_tt)

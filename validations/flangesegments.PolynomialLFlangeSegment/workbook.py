@@ -119,7 +119,6 @@ def flangesegment_to_excel (book, sheet_name, fseg):
     set_cell_value(book, f"{sheet_name}!bolt.As", fseg.bolt.thread_cross_section.area/(mm**2))
     set_cell_value(book, f"{sheet_name}!a_prime", (fseg.b / (fseg._prying_lever_ratio - 1))/mm)
     set_cell_value(book, f"{sheet_name}!Z0", fseg._ideal_shell_force_at_tensile_ULS/kN)
-    set_cell_value(book, f"{sheet_name}!Z_2_td", fseg._cantilever_shell_force_at_tensile_ULS/kN)
     set_cell_value(book, f"{sheet_name}!bolt.axial_stiffness", fseg._bolt_axial_stiffness/(kN/mm))
     set_cell_value(book, f"{sheet_name}!bolt.bending_stiffness", fseg._bolt_bending_stiffness/kN)
     set_cell_value(book, f"{sheet_name}!clamped_parts_stiffness", fseg._flange_axial_stiffness/(kN/mm))

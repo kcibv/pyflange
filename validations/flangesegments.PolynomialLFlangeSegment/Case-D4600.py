@@ -79,7 +79,7 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0):
                                 # (normally dead weight of tower + RNA, divided by the number of bolts)
 
         bolt = M48,
-        Fv = 809*kN,       # applied bolt preload
+        Fv = 910*kN,       # applied bolt preload
 
         Do = 52*mm,         # bolt hole diameter
         washer = FlatWasher(outer_diameter=92*mm, inner_diameter=49.4*mm, thickness=8*mm),   # washer
@@ -108,7 +108,7 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0):
 
 
 print("\nEvaluating Flange Segment Model with sinusoidal gap shape and no flange tilt ...")
-wb = open_workbook("Case-D4600_Tilt-0deg_ShapeFactor-1.0.xlsx")
+wb = open_workbook("Case-L4_D4600_Tilt-0p00deg_ShapeFactor-1p00_Fv910kN.xlsx")
 
 print("... with 30 deg gap width")
 fseg_30deg  = create_flange_segment( 30*deg)

@@ -851,28 +851,6 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
 
     @cached_property
-    def _cantilever_shell_force_at_tensile_ULS (self):
-        ''' Shekk pull force at full prying, after gap closing
-
-        This property represents the shell pull force necessary to
-        close the inner side of the gap and then keep pulling the
-        bolt to it ultimate tensile limit.
-
-        This value is calculated modelling the flange segment as a
-        simple cantilever (neglecting the gap spring contribution).
-        Ref. [1], variable Z2-tilde.
-        '''
-
-        # Shift the shell pull by the force necessary to close the gap.
-        # If the gap closing force is too high, Z may become negative. In order to
-        # avoid that, we limit the value of Z to 20% of Z0.
-        Z0 = self._ideal_shell_force_at_tensile_ULS
-        return max(
-            Z0 + self._parallel_gap_neutralization_shell_force,
-            0.2 * Z0)
-
-
-    @cached_property
     def _prying_lever_ratio (self):
         ''' Lever ratio A, as defined in [9]'''
 
@@ -1392,16 +1370,6 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     @cached_property
     def _ideal_shell_force_at_tensile_ULS (self):
         return self._ideal_bolt_force_at_tensile_ULS * 2
-
-    @cached_property
-    def _cantilever_shell_force_at_tensile_ULS (self):
-        # Shift the shell pull by the force necessary to close the gap.
-        # If the gap closing force is too high, Z may become negative. In order to
-        # avoid that, we limit the value of Z to 20% of Z0.
-        Z0 = self._ideal_shell_force_at_tensile_ULS
-        return max(
-            Z0 + self._total_gap_neutralization_shell_force,
-            0.2 * Z0)
 
     @cached_property
     def _prying_lever_ratio (self):
