@@ -1191,7 +1191,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     
     def _bolt_moment (self, Z, Fs):
         a_red = self.b / (self._prying_lever_ratio - 1)
-        a_star = max(0.5, min((self.t / (a_red + self.b))**2 , 1)) * a_red
+        a_star = max(0.4, min((self.t / (a_red + self.b))**2 , 1)) * a_red
 
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
@@ -1348,7 +1348,9 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         I_tg = c_m * self.t**3 / 12
        
         # Calculate the gap stiffness
-        k_gap=self._gap_stiffness/2.2                 #total gap stiffness, without the adjustment factor of 2.2 acc. to [1] eq.26
+        alpha_gap=self.gap_angle*180/pi
+        f_tot= min(1 + alpha_gap/90 *1.5,2.5)
+        k_gap=self._gap_stiffness/f_tot                 #total gap stiffness, without the adjustment factor of 2.2 acc. to [1] eq.26
 
         #Preload force at which edge contact occurs (31)
         Fv_c=0.5*self.gap_height/( self.b**3/(3*self.E*I_tg) + self.b**2*self.a/(2*self.E*I_tg) + 1.2*self.b/(self.G*A_tg) + 1/(c_m*(k_gap)) )
@@ -1438,10 +1440,13 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         L2 = L_gap**2
         k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49
         
-        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange)
+        alpha_gap=self.gap_angle*180/pi
+        f_tot= min(1 + alpha_gap/90 *1.5,2.5)
         
+        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange, f_tot=f_tot)
+
         # Total gap stiffness according to ref. [1], eq.53
-        return 2.2 * (k_shell + k_flange)
+        return f_tot * (k_shell + k_flange)
 
     @cached_property
     def _stiffness_correction_factor (self):
@@ -1459,9 +1464,9 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         # Retrieve point 2B
         Z0 = self._ideal_shell_force_at_tensile_ULS
-        Z2B=max(Z0 + self._parallel_gap_neutralization_shell_force,
-                0.2 * Z0)
-        
+        # Z2B=max(Z0 + self._parallel_gap_neutralization_shell_force,
+        #         0.2 * Z0)
+
         Fs0 = self._ideal_bolt_force_at_tensile_ULS
 
         # Evaluate the displacement u in the ultimate prying state.
@@ -1470,9 +1475,9 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         u = (Fs0-self.Fv)/(2*Cs)   # (40)
 
         # Evaluate the segment stiffness
-        k_seg = Z2B / (u * cm)
+        k_seg = Z0 / (u * cm)
         
-        log_data(self, u=u, k_seg=k_seg, Z2B=Z2B)
+        log_data(self, u=u, k_seg=k_seg)
         
         # Return the stiffness correction factor, acc. [1], eq.75
         return min(1 + self._gap_stiffness / k_seg,
