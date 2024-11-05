@@ -1094,7 +1094,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     r: float = 0.01 #rounding between flange and shell
     
-    k_shell: float = None       # optional initial shell stiffness in [N/m/m]. 
+    k_shell: float = None       # optional initial shell stiffness in [N/m/m].
 
     def failure_mode (self, fy_sh, fy_fl,gamma_0 = 1.1):
         ''' Determine the failure mode of this flange and returns the
@@ -1374,16 +1374,6 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         return self._ideal_bolt_force_at_tensile_ULS * 2
 
     @cached_property
-    def _cantilever_shell_force_at_tensile_ULS (self):
-        # Shift the shell pull by the force necessary to close the gap.
-        # If the gap closing force is too high, Z may become negative. In order to
-        # avoid that, we limit the value of Z to 20% of Z0.
-        Z0 = self._ideal_shell_force_at_tensile_ULS
-        return max(
-            Z0 + self._total_gap_neutralization_shell_force,
-            0.2 * Z0)
-
-    @cached_property
     def _prying_lever_ratio (self):
         ''' Lever ratio A, as defined in [9]'''
 
@@ -1439,9 +1429,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         #k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (Rm*1000)) * (L_gap*1000))    # ref. [1], eq.48
         k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48
         s_avg = (self.s + self.s_ratio * self.s) / 2
-        
-        # Check, if individual shell stiffness is present
-        k_shell = self.k_shell or self.E * s_avg / (k_fac * L_gap)   
+        k_shell = self.k_shell or self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
 
         # Calculate the flange stiffness
         w = (self.a + self.b)*2      # flange segment length

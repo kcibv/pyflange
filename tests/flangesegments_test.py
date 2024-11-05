@@ -1,6 +1,6 @@
 
 import pytest
-from pyflange.flangesegments import PolynomialLFlangeSegment, PolynomialTFlangeSegment
+from pyflange.flangesegments import *
 from pyflange.bolts import MetricBolt, HexNut
 from pyflange.gap import gap_height_distribution
 
@@ -615,3 +615,11 @@ class TestPolynomialTFlangeSegment:
         fseg = self.fseg(30*deg, 1.0, 0.0*deg)
         fm, Zus = fseg.failure_mode(335e6, 285e6)
         assert fm == "A"
+
+
+
+
+
+def test_shell_stiffness ():
+    pass
+    assert shell_stiffness(1.5, 0.01, 135*deg) == 83000000
