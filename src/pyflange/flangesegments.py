@@ -45,10 +45,9 @@ The models implemented in this module are based on the following references:
 
 
 
-
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from functools import cached_property
+from functools import cache, cached_property
 
 from .logger import Logger, log_data
 logger = Logger(__name__)
@@ -76,75 +75,10 @@ class FlangeSegment (ABC):
     def bolt_axial_force (self, shell_pull):
         pass
 
-
     @abstractmethod
     def bolt_bending_moment (self, shell_pull):
         pass
-    
-    def bolt_markov_matrix(self, df_markov_shell, bending_factor=0.0, macro_geometric_factor=1.0, mean_factor=1.0, range_factor=1.0):
-        ''' Returns the bolt Markov matrix, given the shell Markov matix
 
-        - `df_markov_shell` : pandas.DataFrame
-            The markov matrix, containg the colums 'Cycles', 'Range', 'Mean'.
-            
-        - `bending_factor` : float [optional]
-            The factor that considers the bending portion of the total stress range.
-            If omitted, it will be taken equal to 0.0.
-        
-        - `macro_geometric_factor` : float [optional]
-            The factor that considers macro geometric influences. The factor
-            affects the deadweigt of the tower, the mean values of the markov matrix
-            and the range values of the markov matrix.
-            If omitted, it will be taken equal to 1.0.
-        
-        - `mean_factor` : float [optional]
-            The factor that multiplies the mean values of the bending moments of the tower
-            If omitted, it will be taken equal to 1.0.
-        
-        - `range_factor` : float [optional]
-            The factor that multiplies the range of the bending moments of the tower
-            If omitted, it will be taken equal to 1.0.
-        
-        '''
-        #Calculated area of the tower segment
-        s_avg = self.s * (1 + self.s_ratio) / 2
-        c_shell = self.central_angle * (self.R - self.s/2)
-        D = self.R * 2
-        A_tw = s_avg * c_shell
-        W_tw = (D**4 - (D-2*s_avg)**4) / (D-s_avg) * pi/32
-        
-        A_sp=self.bolt.tensile_cross_section_area
-        W_sp=self.bolt.tensile_moment_of_resistance
-        
-        #Convert the markov matrix
-        df_markov_shell['Z_mean']=(df_markov_shell['Mean'] / W_tw * A_tw * mean_factor)*macro_geometric_factor
-        df_markov_shell['Z_range']=(df_markov_shell['Range'] / W_tw * A_tw * range_factor)*macro_geometric_factor
-        
-        df_markov_shell['Zg']=self.Zg * macro_geometric_factor
-        df_markov_shell['Z_from']=df_markov_shell['Z_mean']-0.5*df_markov_shell['Z_range']+df_markov_shell['Zg']
-        df_markov_shell['Z_to']=df_markov_shell['Z_mean']+0.5*df_markov_shell['Z_range']+df_markov_shell['Zg']
-        
-        df_markov_shell['Fs_from']=self.bolt_axial_force(df_markov_shell['Z_from'])
-        df_markov_shell['Fs_to']=self.bolt_axial_force(df_markov_shell['Z_to'])
-        
-        df_markov_shell['Ms_from']=self.bolt_bending_moment(df_markov_shell['Z_from'])
-        df_markov_shell['Ms_to']=self.bolt_bending_moment(df_markov_shell['Z_to'])
-        
-        df_markov_shell['S_Fs_from']=df_markov_shell['Fs_from']/A_sp
-        df_markov_shell['S_Fs_to']=df_markov_shell['Fs_to']/A_sp
-        
-        df_markov_shell['S_Ms_from']=df_markov_shell['Ms_from']/W_sp
-        df_markov_shell['S_Ms_to']=df_markov_shell['Ms_to']/W_sp
-        
-        df_markov_shell['S_from']=df_markov_shell['S_Fs_from']+bending_factor*df_markov_shell['S_Ms_from']
-        df_markov_shell['S_to']=df_markov_shell['S_Fs_to']+bending_factor*df_markov_shell['S_Ms_to']
-        
-        df_markov_bolt=pd.DataFrame()
-        df_markov_bolt['Cycles']=df_markov_shell['Cycles']
-        df_markov_bolt['DS']=abs(df_markov_shell['S_to']-df_markov_shell['S_from'])
-        df_markov_bolt['DS']=df_markov_bolt['DS'].replace(0,np.nan)
-        
-        return df_markov_bolt,df_markov_shell
 
 
 class PolynomialFlangeSegment (FlangeSegment):
@@ -557,7 +491,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     - ``r`` : ``float`` [optional]
         Radius of the rouding between the shell and the flange. If omitted, it defaults to 0.01.
     
-    - ``k_shell_mod`` : ``float`` [optional]
+    - ``k_shell`` : ``float`` [optional]
         Optional individual initial shell stiffness value. This value can be calculated in a separate FE analysis. 
         The unit must be [N/m/m]. If omitted, the interpolated formula from [1] will be used.
 
@@ -595,7 +529,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     s_ratio: float = 1.0    # Ratio of bottom shell thickness over s. Default s_botom = s.
     r: float = 0.01         # Rounding between flange and shell
     
-    k_shell_mod: float = None       # optional initial shell stiffness in [N/m/m]. 
+    k_shell: float = None       # optional initial shell stiffness in [N/m/m].
+
 
     def failure_mode (self, fy_sh, fy_fl, gamma_0=1.1):
         ''' Determine the failure mode of this flange and returns the
@@ -703,7 +638,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     def _bolt_moment (self, Z, Fs):
         a_red = self.b / (self._prying_lever_ratio - 1)
-        a_star = max(0.5, min((self.t / (a_red + self.b))**2 , 1)) * a_red
+        a_star = max(0.4, min((self.t / (a_red + self.b))**2 , 1)) * a_red
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
         I_tg = c * self.t**3 / 12
@@ -916,28 +851,6 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
 
     @cached_property
-    def _cantilever_shell_force_at_tensile_ULS (self):
-        ''' Shekk pull force at full prying, after gap closing
-
-        This property represents the shell pull force necessary to
-        close the inner side of the gap and then keep pulling the
-        bolt to it ultimate tensile limit.
-
-        This value is calculated modelling the flange segment as a
-        simple cantilever (neglecting the gap spring contribution).
-        Ref. [1], variable Z2-tilde.
-        '''
-
-        # Shift the shell pull by the force necessary to close the gap.
-        # If the gap closing force is too high, Z may become negative. In order to
-        # avoid that, we limit the value of Z to 20% of Z0.
-        Z0 = self._ideal_shell_force_at_tensile_ULS
-        return max(
-            Z0 + self._parallel_gap_neutralization_shell_force,
-            0.2 * Z0)
-
-
-    @cached_property
     def _prying_lever_ratio (self):
         ''' Lever ratio A, as defined in [9]'''
 
@@ -991,13 +904,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         s_avg = (self.s + self.s_ratio * self.s) / 2    # Average shell thickness
         L_gap = self.R * self.gap_angle                 # Gap lenght at mid-line of shell with average thickness
         k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48
-        
-        # Check, if individual shell stiffness is present
-        if self.k_shell_mod:
-            k_shell=self.k_shell_mod
-        else:
-            k_shell = self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
-        
+        k_shell = self.k_shell or self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
+
         # Calculate the flange stiffness
         w = self.a + self.b + self.s/2      # flange segment length
         A = w * self.t                      # flange segment longitudinal cross-section area
@@ -1007,10 +915,13 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         L2 = L_gap**2
         k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49
 
-        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange)
+        # Stiffness correction factor
+        f_tot = min(1.0 + 1.5 * self.gap_angle/(pi/2), 2.5) * min(self.gap_angle/(pi/6), 1)**2
+
+        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange, f_tot=f_tot)
 
         # Total gap stiffness according to ref. [1], eq.53
-        return 2.2 * (k_shell + k_flange)
+        return f_tot * (k_shell + k_flange)
 
 
     @cached_property
@@ -1024,20 +935,21 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         from math import pi
 
-        # Retrieve point 2B
-        Z2B = self._cantilever_shell_force_at_tensile_ULS
+        # Retrieve point P0
+        Z0 = self._ideal_shell_force_at_tensile_ULS
         Fs0 = self._ideal_bolt_force_at_tensile_ULS
 
         # Evaluate the displacement u in the ultimate prying state.
         a_red = self.b / (self._prying_lever_ratio - 1)
-        w = self.a + self.b + self.s/2
-        I = w * self.t**3 / 12
-        u = (Z2B * self.b**2 / (3 * self.E * I) + (Fs0 - self.Fv) / (2 * self._bolt_axial_stiffness * a_red)) * (a_red + self.b)   # ref. [1], eq.72
+        s_avg = self.s * (1 + self.s_ratio) / 2
+        c = self.central_angle * (self.R - s_avg/2)
+        I = c * self.t**3 / 12
+        u = (Z0 * self.b**2 / (3 * self.E * I) + (Fs0 - self.Fv) / (2 * self._bolt_axial_stiffness * a_red)) * (a_red + self.b)   # ref. [1], eq.72
 
         # Evaluate the segment stiffness
         s_avg = (self.s + self.s_ratio * self.s) / 2
         c = self.central_angle * (self.R - s_avg/2)
-        k_seg = Z2B / (u * c)
+        k_seg = Z0 / (u * c)
 
         log_data(self, u=u, k_seg=k_seg)
 
@@ -1144,7 +1056,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     - ``r`` : ``float`` [optional]
         Radius of the rouding between the shell and the flange. If omitted, it defualts to 0.01.
     
-    - ``k_shell_mod`` : ``float`` [optional]
+    - ``k_shell`` : ``float`` [optional]
         Optional individual initial shell stiffness value. This value can be calculated in a separate FE analysis. 
         The unit must be [N/m/m]. If omitted, the interpolated formula from [1] will be used.
 
@@ -1182,7 +1094,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     r: float = 0.01 #rounding between flange and shell
     
-    k_shell_mod: float = None       # optional initial shell stiffness in [N/m/m]. 
+    k_shell: float = None       # optional initial shell stiffness in [N/m/m]. 
 
     def failure_mode (self, fy_sh, fy_fl,gamma_0 = 1.1):
         ''' Determine the failure mode of this flange and returns the
@@ -1279,7 +1191,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     
     def _bolt_moment (self, Z, Fs):
         a_red = self.b / (self._prying_lever_ratio - 1)
-        a_star = max(0.5, min((self.t / (a_red + self.b))**2 , 1)) * a_red
+        a_star = max(0.4, min((self.t / (a_red + self.b))**2 , 1)) * a_red
 
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
@@ -1436,7 +1348,9 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         I_tg = c_m * self.t**3 / 12
        
         # Calculate the gap stiffness
-        k_gap=self._gap_stiffness/2.2                 #total gap stiffness, without the adjustment factor of 2.2 acc. to [1] eq.26
+        alpha_gap=self.gap_angle*180/pi
+        f_tot= min(1 + alpha_gap/90 *1.5,2.5)
+        k_gap=self._gap_stiffness/f_tot                 #total gap stiffness, without the adjustment factor of 2.2 acc. to [1] eq.26
 
         #Preload force at which edge contact occurs (31)
         Fv_c=0.5*self.gap_height/( self.b**3/(3*self.E*I_tg) + self.b**2*self.a/(2*self.E*I_tg) + 1.2*self.b/(self.G*A_tg) + 1/(c_m*(k_gap)) )
@@ -1527,10 +1441,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         s_avg = (self.s + self.s_ratio * self.s) / 2
         
         # Check, if individual shell stiffness is present
-        if self.k_shell_mod:
-            k_shell=self.k_shell_mod
-        else:
-            k_shell = self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
+        k_shell = self.k_shell or self.E * s_avg / (k_fac * L_gap)   
 
         # Calculate the flange stiffness
         w = (self.a + self.b)*2      # flange segment length
@@ -1541,10 +1452,13 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         L2 = L_gap**2
         k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49
         
-        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange)
+        alpha_gap=self.gap_angle*180/pi
+        f_tot= min(1 + alpha_gap/90 *1.5,2.5)
         
+        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange, f_tot=f_tot)
+
         # Total gap stiffness according to ref. [1], eq.53
-        return 2.2 * (k_shell + k_flange)
+        return f_tot * (k_shell + k_flange)
 
     @cached_property
     def _stiffness_correction_factor (self):
@@ -1562,9 +1476,9 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         # Retrieve point 2B
         Z0 = self._ideal_shell_force_at_tensile_ULS
-        Z2B=max(Z0 + self._parallel_gap_neutralization_shell_force,
-                0.2 * Z0)
-        
+        # Z2B=max(Z0 + self._parallel_gap_neutralization_shell_force,
+        #         0.2 * Z0)
+
         Fs0 = self._ideal_bolt_force_at_tensile_ULS
 
         # Evaluate the displacement u in the ultimate prying state.
@@ -1573,9 +1487,9 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         u = (Fs0-self.Fv)/(2*Cs)   # (40)
 
         # Evaluate the segment stiffness
-        k_seg = Z2B / (u * cm)
+        k_seg = Z0 / (u * cm)
         
-        log_data(self, u=u, k_seg=k_seg, Z2B=Z2B)
+        log_data(self, u=u, k_seg=k_seg)
         
         # Return the stiffness correction factor, acc. [1], eq.75
         return min(1 + self._gap_stiffness / k_seg,
@@ -1605,3 +1519,89 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
 
 
+
+def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_geometric_factor=1.0, mean_factor=1.0, range_factor=1.0):
+    ''' Returns the bolt Markov matrix, given the shell Markov matix
+
+    **Parameters:**
+
+    - `fseg` : pyflange.flangesegments.PolynomialFlangeSegment
+        The flange segment object that contains the force and moment transfer
+        function that convert shell forces to bolt forces.
+
+        **WARNING:** Notice that currently this function works only with
+        PolynomialFlangeSegments, while it should be extended to work with any
+        FlangeSegment object.
+
+    - `flange_markov_matrix` : pandas.DataFrame
+        The flanges bending moments markov matrix, containg the colums
+        'Cycles', 'Range', 'Mean'.
+
+    - `bending_factor` : float [optional]
+        The factor that considers the bending portion of the total stress range.
+        If omitted, it will be taken equal to 0.0.
+
+    - `macro_geometric_factor` : float [optional]
+        The factor that considers macro geometric influences. The factor
+        affects the deadweigt of the tower, the mean values of the markov matrix
+        and the range values of the markov matrix.
+        If omitted, it will be taken equal to 1.0.
+
+    - `mean_factor` : float [optional]
+        The factor that multiplies the mean values of the bending moments of the tower
+        If omitted, it will be taken equal to 1.0.
+
+    - `range_factor` : float [optional]
+        The factor that multiplies the range of the bending moments of the tower
+        If omitted, it will be taken equal to 1.0.
+
+    '''
+
+    #Flange Geometry
+    Rm = fseg.R - fseg.s/2
+    flange_W = pi/4 * (fseg.R**4 - (fseg.R-fseg.s)**4) / Rm
+    shell_A = fseg.s * fseg.central_angle * Rm
+
+    # Bolt Geometry
+    bolt_A = fseg.bolt.thread_cross_section.area
+    bolt_W = fseg.bolt.thread_cross_section.elastic_section_modulus
+
+    # Shell Markov Matrix
+    Z_cycles = flange_markov_matrix['Cycles'].to_numpy()
+    Z_mean   = flange_markov_matrix['Mean'].to_numpy() / flange_W * shell_A * mean_factor * macro_geometric_factor
+    Z_ranges = flange_markov_matrix['Range'].to_numpy() / flange_W * shell_A * range_factor * macro_geometric_factor
+    Z_min = Z_mean - Z_ranges/2 + fseg.Zg * macro_geometric_factor
+    Z_max = Z_mean + Z_ranges/2 + fseg.Zg * macro_geometric_factor
+
+    # Bolt ess Markov Matrix
+    S_min = fseg.bolt_axial_force(Z_min)/bolt_A + bending_factor * fseg.bolt_bending_moment(Z_min)/bolt_W
+    S_max = fseg.bolt_axial_force(Z_max)/bolt_A + bending_factor * fseg.bolt_bending_moment(Z_max)/bolt_W
+    return pd.DataFrame({
+        'Cycles': Z_cycles,
+        'Mean'  : (S_min + S_max) / 2,
+        'Range' : np.abs(S_max - S_min)
+    })
+
+
+
+
+def shell_stiffness (shell_radius, shell_thickness, gap_angle):
+    ''' Axial stiffness of a flange-segment shell
+
+    This function will return the linear interpolation of the flange
+    stiffnesses measured in 2160 different FEA analyses with several
+    values of shell radius, shell thickness and gap angle.
+    '''
+    import os
+    file_path = os.path.join(os.path.dirname(__file__), "data/flangesegments.shell_stiffness.csv")
+    interpolate_shell_stiffness = _load_shell_stiffness_interpolator_from_csv(file_path)
+    return interpolate_shell_stiffness(shell_radius, shell_thickness, gap_angle)
+
+
+@cache
+def _load_shell_stiffness_interpolator_from_csv (file_path):
+    import pandas as pd
+    from math import pi
+    from scipy.interpolate import LinearNDInterpolator
+    ssdf = pd.read_csv(file_path)
+    return LinearNDInterpolator(list(zip(ssdf['shell_radius'], ssdf['shell_thickness'], ssdf['gap_angle']/180*pi)), ssdf['shell_stiffness'])
