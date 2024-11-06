@@ -6,10 +6,10 @@ from pyflange.flangesegments import PolynomialLFlangeSegment, shell_stiffness
 from pyflange.bolts import MetricBolt, HexNut, FlatWasher
 from pyflange.gap import gap_height_distribution
 
-from math import pi
+from math import *
 import numpy as np
 
-from workbook import open_workbook, flangesegment_to_excel
+from workbook import *
 
 
 
@@ -170,6 +170,15 @@ def create_D7500_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0, 
 
 
 
+def damage (fseg, flange_markov_matrix):
+    from pyflange.fatigue import BoltFatigueCurve
+    from pyflange.flangesegments import bolt_markov_matrix
+    kb = max(0.5, 0.5 + 0.5*log(fseg.bolt.nominal_diameter/0.036) / log(150/36))
+    snc = BoltFatigueCurve(fseg.bolt.nominal_diameter)
+    bolt_mm = bolt_markov_matrix(fseg, flange_markov_matrix, bending_factor=kb)
+    return snc.cumulated_damage(bolt_mm)
+
+
 import sys
 params = sys.argv[1:]
 
@@ -192,21 +201,26 @@ if len(params) == 0 or "-h" in params:
 if "1" in params:
     print("\nEvaluating D7500 Flange Segment Model with sinusoidal gap shape and no flange tilt ...")
     wb1 = open_workbook(f"Case_1_D7500_L_Tilt-0p00deg_ShapeFactor-1p00_Fv2800kN_ShellStiff-{'Interp' if '-i' in params else 'Simpl'}.xlsx")
+    flange_markov_matrix = load_markov_matrix(wb1, "SGRE!markov_matrix")
 
     print("... with 30 deg gap width")
     fseg_30deg  = create_D7500_flange_segment( 30*deg, interp_shell_stiff = "-i" in params)
+    fseg_30deg._damage = damage(fseg_30deg, flange_markov_matrix)
     flangesegment_to_excel(wb1, "PyFlange_Gap30deg", fseg_30deg)
 
     print("... with 60 deg gap width")
     fseg_60deg  = create_D7500_flange_segment( 60*deg, interp_shell_stiff = "-i" in params)
+    fseg_60deg._damage = damage(fseg_60deg, flange_markov_matrix)
     flangesegment_to_excel(wb1, "PyFlange_Gap60deg", fseg_60deg)
 
     print("... with 90 deg gap width")
     fseg_90deg  = create_D7500_flange_segment( 90*deg, interp_shell_stiff = "-i" in params)
+    fseg_90deg._damage = damage(fseg_90deg, flange_markov_matrix)
     flangesegment_to_excel(wb1, "PyFlange_Gap90deg", fseg_90deg)
 
     print("... with 120 deg gap width")
     fseg_120deg = create_D7500_flange_segment(120*deg, interp_shell_stiff = "-i" in params)
+    fseg_120deg._damage = damage(fseg_120deg, flange_markov_matrix)
     flangesegment_to_excel(wb1, "PyFlange_Gap120deg", fseg_120deg)
 
 
@@ -214,63 +228,78 @@ if "1" in params:
 if "2" in params:
     print("\nEvaluating D7500 Flange Segment Model with sinusoidal gap shape and 1 deg flange tilt ...")
     wb2 = open_workbook(f"Case_2_D7500_L_Tilt-0p25deg_ShapeFactor-1p00_Fv2800kN_ShellStiff-{'Interp' if '-i' in params else 'Simpl'}.xlsx")
+    flange_markov_matrix = load_markov_matrix(wb2, "SGRE!markov_matrix")
 
     print("... with 30 deg gap width")
-    fseg_30deg_tt  = create_D7500_flange_segment( 30*deg, tilt_angle=0.25*deg, interp_shell_stiff = "-i" in params)
-    flangesegment_to_excel(wb2, "PyFlange_Gap30deg", fseg_30deg_tt)
+    fseg_30deg  = create_D7500_flange_segment( 30*deg, tilt_angle=0.25*deg, interp_shell_stiff = "-i" in params)
+    fseg_30deg._damage = damage(fseg_30deg, flange_markov_matrix)
+    flangesegment_to_excel(wb2, "PyFlange_Gap30deg", fseg_30deg)
 
     print("... with 60 deg gap width")
-    fseg_60deg_tt  = create_D7500_flange_segment( 60*deg, tilt_angle=0.25*deg, interp_shell_stiff = "-i" in params)
-    flangesegment_to_excel(wb2, "PyFlange_Gap60deg", fseg_60deg_tt)
+    fseg_60deg  = create_D7500_flange_segment( 60*deg, tilt_angle=0.25*deg, interp_shell_stiff = "-i" in params)
+    fseg_60deg._damage = damage(fseg_60deg, flange_markov_matrix)
+    flangesegment_to_excel(wb2, "PyFlange_Gap60deg", fseg_60deg)
 
     print("... with 90 deg gap width")
-    fseg_90deg_tt  = create_D7500_flange_segment( 90*deg, tilt_angle=0.25*deg, interp_shell_stiff = "-i" in params)
-    flangesegment_to_excel(wb2, "PyFlange_Gap90deg", fseg_90deg_tt)
+    fseg_90deg  = create_D7500_flange_segment( 90*deg, tilt_angle=0.25*deg, interp_shell_stiff = "-i" in params)
+    fseg_90deg._damage = damage(fseg_90deg, flange_markov_matrix)
+    flangesegment_to_excel(wb2, "PyFlange_Gap90deg", fseg_90deg)
 
     print("... with 120 deg gap width")
-    fseg_120deg_tt = create_D7500_flange_segment(120*deg, tilt_angle=0.25*deg, interp_shell_stiff = "-i" in params)
-    flangesegment_to_excel(wb2, "PyFlange_Gap120deg", fseg_120deg_tt)
+    fseg_120deg = create_D7500_flange_segment(120*deg, tilt_angle=0.25*deg, interp_shell_stiff = "-i" in params)
+    fseg_120deg._damage = damage(fseg_120deg, flange_markov_matrix)
+    flangesegment_to_excel(wb2, "PyFlange_Gap120deg", fseg_120deg)
 
 
 
 if "3" in params:
     print("\nEvaluating D7500 Flange Segment Model with gap shape factor 1.2 and no flange tilt ...")
     wb3 = open_workbook(f"Case_3_D7500_L_Tilt-0p00deg_ShapeFactor-1p20_Fv2800kN_ShellStiff-{'Interp' if '-i' in params else 'Simpl'}.xlsx")
+    flange_markov_matrix = load_markov_matrix(wb3, "SGRE!markov_matrix")
 
     print("... with 30 deg gap width")
-    fseg_30deg_sf  = create_D7500_flange_segment( 30*deg, 1.2, interp_shell_stiff = "-i" in params)
-    flangesegment_to_excel(wb3, "PyFlange_Gap30deg", fseg_30deg_sf)
+    fseg_30deg  = create_D7500_flange_segment( 30*deg, 1.2, interp_shell_stiff = "-i" in params)
+    fseg_30deg._damage = damage(fseg_30deg, flange_markov_matrix)
+    flangesegment_to_excel(wb3, "PyFlange_Gap30deg", fseg_30deg)
 
     print("... with 60 deg gap width")
-    fseg_60deg_sf  = create_D7500_flange_segment( 60*deg, 1.2, interp_shell_stiff = "-i" in params)
-    flangesegment_to_excel(wb3, "PyFlange_Gap60deg", fseg_60deg_sf)
+    fseg_60deg  = create_D7500_flange_segment( 60*deg, 1.2, interp_shell_stiff = "-i" in params)
+    fseg_60deg._damage = damage(fseg_60deg, flange_markov_matrix)
+    flangesegment_to_excel(wb3, "PyFlange_Gap60deg", fseg_60deg)
 
     print("... with 90 deg gap width")
-    fseg_90deg_sf  = create_D7500_flange_segment( 90*deg, 1.2, interp_shell_stiff = "-i" in params)
-    flangesegment_to_excel(wb3, "PyFlange_Gap90deg", fseg_90deg_sf)
+    fseg_90deg  = create_D7500_flange_segment( 90*deg, 1.2, interp_shell_stiff = "-i" in params)
+    fseg_90deg._damage = damage(fseg_90deg, flange_markov_matrix)
+    flangesegment_to_excel(wb3, "PyFlange_Gap90deg", fseg_90deg)
 
     print("... with 120 deg gap width")
-    fseg_120deg_sf = create_D7500_flange_segment(120*deg, 1.2, interp_shell_stiff = "-i" in params)
-    flangesegment_to_excel(wb3, "PyFlange_Gap120deg", fseg_120deg_sf)
+    fseg_120deg = create_D7500_flange_segment(120*deg, 1.2, interp_shell_stiff = "-i" in params)
+    fseg_120deg._damage = damage(fseg_120deg, flange_markov_matrix)
+    flangesegment_to_excel(wb3, "PyFlange_Gap120deg", fseg_120deg)
 
 
 
 if "4" in params:
     print("\nEvaluating D4600 Flange Segment Model with sinusoidal gap shape and no flange tilt ...")
     wb4 = open_workbook(f"Case_4_D4600_L_Tilt-0p00deg_ShapeFactor-1p00_Fv910kN_ShellStiff-{'Interp' if '-i' in params else 'Simpl'}.xlsx")
+    flange_markov_matrix = load_markov_matrix(wb4, "SGRE!markov_matrix")
 
     print("... with 30 deg gap width")
     fseg_30deg  = create_D4600_flange_segment( 30*deg, interp_shell_stiff = "-i" in params)
+    fseg_30deg._damage = damage(fseg_30deg, flange_markov_matrix)
     flangesegment_to_excel(wb4, "PyFlange_Gap30deg", fseg_30deg)
 
     print("... with 60 deg gap width")
     fseg_60deg  = create_D4600_flange_segment( 60*deg, interp_shell_stiff = "-i" in params)
+    fseg_60deg._damage = damage(fseg_60deg, flange_markov_matrix)
     flangesegment_to_excel(wb4, "PyFlange_Gap60deg", fseg_60deg)
 
     print("... with 90 deg gap width")
     fseg_90deg  = create_D4600_flange_segment( 90*deg, interp_shell_stiff = "-i" in params)
+    fseg_90deg._damage = damage(fseg_90deg, flange_markov_matrix)
     flangesegment_to_excel(wb4, "PyFlange_Gap90deg", fseg_90deg)
 
     print("... with 120 deg gap width")
     fseg_120deg = create_D4600_flange_segment(120*deg, interp_shell_stiff = "-i" in params)
+    fseg_120deg._damage = damage(fseg_120deg, flange_markov_matrix)
     flangesegment_to_excel(wb4, "PyFlange_Gap120deg", fseg_120deg)

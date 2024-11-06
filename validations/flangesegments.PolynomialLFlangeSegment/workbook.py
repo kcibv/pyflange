@@ -39,6 +39,25 @@ def set_cell_value (book, name, value):
     book.names[name].refers_to_range.value = value
 
 
+def read_value (book, name):
+    return book.names[name].refers_to_range.value
+
+
+def read_array (book, name):
+    import numpy as np
+    return np.array(read_value(book, name))
+
+
+def load_markov_matrix (book, name):
+    import pandas as pd
+    data = read_array(book, name).T
+    return pd.DataFrame({
+        "Cycles": data[2],
+        "Mean": data[1]*1000,
+        "Range": data[0]*1000
+    })
+
+
 def flangesegment_to_excel (book, sheet_name, fseg):
 
     # Write input values to excel
@@ -144,3 +163,4 @@ def flangesegment_to_excel (book, sheet_name, fseg):
     set_cell_value(book, f"{sheet_name}!k_seg", read_data_log(fseg, "k_seg")/(kN/mm/m))
     set_cell_value(book, f"{sheet_name}!a_star", read_data_log(fseg, "a_star")/mm)
     set_cell_value(book, f"{sheet_name}!I_tg", read_data_log(fseg, "I_tg")/(mm**4))
+    set_cell_value(book, f"{sheet_name}!fatigue.damage", fseg._damage)
