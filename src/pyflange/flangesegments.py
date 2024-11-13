@@ -19,16 +19,20 @@
 ''' This module contains ``FlangeSegment`` classes, which model the mechanical
 behavior of a flange sector containig one bolt only.
 
-Currently, the only type of FlangeSegment available is a L-Flange segmen, implementing
-a polinomial relation between shell pull force and bolt force / bolt moment. Nonetheless,
+Currently, the only two type of FlangeSegment available are an L-Flange segment and a T-Flange segment,
+implementing a polinomial relation between shell pull force and bolt force / bolt moment. Nonetheless,
 this module has been structured to be easily extensible with other types of FlangeSegment
-model, such as Polynomial T-Flanges, Multilinear (Petersen) L-Flanges, Multilinear T-Flanges.
+model, such as Multilinear (Petersen) L-Flanges, Multilinear T-Flanges, etc.
 
 The models implemented in this module are based on the following references:
 
-[1]:  Marc Seidel, SGRE TE TF PST: Fatigue design guide for ring flange connections in wind turbine support structures.
-      Background to proposed changes to IEC 61400-6
-      Draft version V06
+[1]:  Marc Seidel, SGRE TE TF PST: IEC 61400-6 AMD1 Background Document
+      Fatigue design for ring flange connsections in wind turbine support structures.
+      Draft version 2024-09-27
+
+[2]:  IEC 61400-6:2020/AMD1 - wIND ENERGY GENERATION SYSTEMS - Part 6: Tower and foundation
+      design requirements - AMENDMENT 1
+      Draft version 2024-10-01
 
 [3]:  Petersen, C.: Nachweis der Betriebsfestigkeit exzentrisch beanspruchter Ringflansch-verbindungen
       (Fatigue assessment of eccentrically loaded ring flange connections).
@@ -135,7 +139,8 @@ class PolynomialFlangeSegment (FlangeSegment):
         ''' Bolt axial force due to a given shell pull force Z.
 
         The relation between shell pull force Z and bolt axial force Fs,
-        is a polynomial function, as defined in ref.[1], section 9.
+        is a polynomial function, as defined in ref.[1], section 8.2 and in
+        ref.[2], section G.4.2.
 
         The passed shell_pull parameter must be either a real number or
         a numpy.array. If a numpy.array is passed, then the corresponding
@@ -177,7 +182,8 @@ class PolynomialFlangeSegment (FlangeSegment):
         ''' Bolt bending moment due to a given shell pull force Z.
 
         The relation between shell pull force Z and bolt bending moment Ms,
-        is a polynomial function, as defined in ref.[1], section 9.
+        is a polynomial function, as defined in ref.[1], section 8.3 and in
+        Ref.[2], section G.4.2.
 
         The passed shell_pull parameter must be either a real number or
         a numpy.array. If a numpy.array is passed, then the corresponding
@@ -219,10 +225,11 @@ class PolynomialFlangeSegment (FlangeSegment):
     def _tensile_force_polynomial (self):
         ''' Polynomia Fs(Z) in the tensile domain
 
-        This getter returns the polynomial Fs(Z) defined by ref. [1]
+        This getter returns the polynomial Fs(Z) defined by refs. [1] and [2]
         between point 1 (flange semgment at rest) and point 2 (ultimate
         tensile limit state of the bolt).
         '''
+
         from numpy.polynomial.polynomial import Polynomial
         from numpy.linalg import inv
 
@@ -260,6 +267,12 @@ class PolynomialFlangeSegment (FlangeSegment):
 
     @cached_property
     def _compressive_force_polynomial (self):
+        ''' Polynomia Fs(Z) in the tensile domain
+
+        This getter returns the polynomial Fs(Z) defined by refs. [1] and [2]
+        between point 1 (flange semgment at rest) and point 4 (gap closed)
+        '''
+
         from numpy.polynomial.polynomial import Polynomial
 
         # Retrieve origin of the compressive polynomial
@@ -289,6 +302,13 @@ class PolynomialFlangeSegment (FlangeSegment):
 
     @cached_property
     def _tensile_moment_polynomial (self):
+        ''' Polynomia Ms(Z) in the tensile domain
+
+        This getter returns the polynomial Ms(Z) defined by refs. [1] and [2]
+        between point 1 (flange semgment at rest) and point 2 (ultimate
+        tensile limit state of the bolt).
+        '''
+
         from numpy.polynomial.polynomial import Polynomial
         from numpy.linalg import inv
 
@@ -326,6 +346,12 @@ class PolynomialFlangeSegment (FlangeSegment):
 
     @cached_property
     def _compressive_moment_polynomial (self):
+        ''' Polynomia Ms(Z) in the tensile domain
+
+        This getter returns the polynomial Ms(Z) defined by refs. [1] and [2]
+        between point 1 (flange semgment at rest) and point 4 (gap closed)
+        '''
+
         from numpy.polynomial.polynomial import Polynomial
 
         # Retrieve origin of the compressive polynomial
@@ -417,7 +443,7 @@ class PolynomialFlangeSegment (FlangeSegment):
 @dataclass
 class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     ''' This class provide a ``PolynomialFlangeSegment`` implementation for L-Flanges,
-    based on ref. [1].
+    based on ref. [1] and Ref. [2].
 
     For this particular case of flange, this class defines the polynomial reference
     points ``P1``, ``P2``, ``P3``, ``P4``, ``Q1``, ``Q2``, ``Q3``, ``Q4`` and inherits
@@ -496,6 +522,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         The unit must be [N/m/m]. If omitted, the interpolated formula from [1] will be used.
 
     The given parameters are also available as attributes (e.g. ``fseg.a``, ``fseg.Fv``, etc.).
+
     This class is designed to be immutable, therefore modifying the attributes after
     instantiation is not a good idea. If you need a segment with different attributes, just
     create a new one.
@@ -533,9 +560,28 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
 
     def failure_mode (self, fy_sh, fy_fl, gamma_0=1.1):
-        ''' Determine the failure mode of this flange and returns the
-        corresponding string, which is either "A", "B", "C" or "D".
+        ''' Determine the failure mode of this flange
+
+        **Parameters:**
+
+        - ``fy_sh`` : ``float``
+            Yield stress of the shell material.
+
+        - ``fy_fl`` : ``float``
+            Yield stress of the flange material.
+
+        - ``gamma_0`` : ``float`` [optional]
+            Material factor. If omitted, it defaults to 1.1.
+
+
+        **Return value**
+
+        It returns a tuple of two values:
+        - A string describing the failure mode: eiter "A", "B", "D" or "E".
+        - The list [Zu_A, Zu_B, Zu_D, Zu_E] of the shell pull values at which each failure mode occurs.
+
         '''
+
         from scipy.optimize import fsolve
 
         fd_sh = fy_sh / gamma_0
@@ -595,13 +641,22 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
 
     def validate (self, fy_sh, fy_fl, gamma_0=1.1):
-        ''' Check if this L-Flange Segment matches the assumptions,
+        ''' Check if this flnage segment matches the model assumptions
+
+        Check if this L-Flange Segment matches the assumptions,
         that is, if it fails according to failure mode B. If not, it
         will throw an exceptions.
 
-        The required parameters are respectively: the ultimate tensile
-        stress of the shell (fu_sh) and the ultimate tensile stress
-        of the flange (fu_fl).
+        The required parameters are:
+
+        - ``fy_sh`` : ``float``
+            Yield stress of the shell material.
+
+        - ``fy_fl`` : ``float``
+            Yield stress of the flange material.
+
+        - ``gamma_0`` : ``float`` [optional]
+            Material factor. If omitted, it defaults to 1.1.
         '''
 
         failure_mode, failure_shellforces = self.failure_mode(fy_sh, fy_fl, gamma_0=gamma_0)
@@ -671,6 +726,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def bolt_moment_at_rest (self):
+        ''' Bolt bending moment when no external loads are applied'''
+
         Z1 = self.shell_force_at_rest
         Fs1 = self.bolt_force_at_rest
         return self._bolt_moment(Z1, Fs1)
@@ -682,7 +739,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         This is an auxiliary point that gives the polynomial the right
         value of initial slope. It is evaluated according to ref. [1],
-        sec.9.2.2.3.
+        sec.8.2.2.3 and to ref. [2], section G.4.2.
         '''
 
         # Retrieve point 2A (called point 0 in [1]) and determine Z as
@@ -697,7 +754,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         This is an auxiliary point that gives the polynomial the right
         value of initial slope. It is evaluated according to ref. [1],
-        sec.9.2.2.3.
+        sec.8.2.2.3 and to ref. [2], section G.4.2.
         '''
 
         # The slope between points P1 and P3 should match the
@@ -708,6 +765,12 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def bolt_moment_at_small_displacement (self):
+        ''' Intermediate bolt moment, between rest and tensile failuse
+
+        This is the bolt bending moment corresponding to the shell pull
+        Z3 (``.shell_force_at_small_displacement``)`.`
+        '''
+
         Z3 = self.shell_force_at_small_displacement
         Fs3 = self.bolt_force_at_small_displacement
         return self._bolt_moment(Z3, Fs3)
@@ -715,6 +778,14 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_tensile_ULS (self):
+        ''' Ultimate Limit State shell pull
+
+        This is shell pull that brings the flange segment system in
+        its tensile ultimate limit state. It is evaluated according
+        to ref. [1], sec.8.2.2.2 and to ref. [2], section G.4.2, where
+        it is referred to as Z2.
+        '''
+
         Z0 = self._ideal_shell_force_at_tensile_ULS
         Z2 = self._stiffness_correction_factor * max(
             Z0 + self._total_gap_neutralization_shell_force,
@@ -726,8 +797,13 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     def bolt_force_at_tensile_ULS (self):
         ''' Bolt axial force at tensile failure
 
+        This is the bolt tensile force corresponding to the ultimate
+        shell pull (``.shell_force_at_rensile_ULS``).
+
         Assuming the failure mode B, in the ULS, the bolt is subjected
         to its maximum tensile capacity.
+
+        In refs. [1] and [2], this value is colled Fs2.
         '''
 
         # Bolt force at tensile ULS for sinusoidal gap shape
@@ -740,6 +816,14 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def bolt_moment_at_tensile_ULS (self):
+        ''' Bolt bending moment at tensile failure
+
+        This is the bolt bending moment corresponding to the ultimate
+        shell pull (``.shell_force_at_rensile_ULS``).
+
+        In refs. [1] and [2], this value is colled Ms2.
+        '''
+
         Z2 = self.shell_force_at_tensile_ULS
         Fs2 = self.bolt_force_at_tensile_ULS
         return self._bolt_moment(Z2, Fs2)
@@ -770,8 +854,10 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def _tilt_neutralization_shell_force (self):
-        ''' This function solves equation (55) of IEC 61400-6:2020 AMD1
-        to determine the force DZ_gap,incl that neutralizes the initial tilt.
+        ''' Forces that neutralized the flange tilt
+
+        This function solves equation (G.64) of ref. [2] to determine
+        the force DZ_gap,incl that neutralizes the initial tilt.
         '''
 
         # The equation to be solved is A*[inv(B)*C]*M = D,
@@ -845,7 +931,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         This property represents the shell pull forces when the flange segment
         is in tensile ULS and in the ideal situation of no gap.
 
-        This variable is indicated as Z0 in ref. [1].
+        This variable is indicated as Z0 in refs. [1] and [2].
         '''
         return self._ideal_bolt_force_at_tensile_ULS / self._prying_lever_ratio
 
@@ -897,7 +983,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         ''' Stiffness of the design gap.
 
         Returns the gap stiffnes as a spring constant per unit of flange-segment
-        arc length. This is calculated according to ref.[1], sec.9.1.
+        arc length. This is calculated according to ref.[1], sec.8.1 and to
+        ref.[2], eq.G.35.
         '''
 
         # Calculate the shell stiffness
@@ -930,7 +1017,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         This factor, modifies the segment force to accorunt for the
         effect of the gap spring. It is evaluate according to ref. [1],
-        sec.9.2.2.2, where it goes by the symbol alpha-k.
+        sec.8.2.2.2 and ref. [2], eq.G.46,  where it goes by the symbol alpha-k.
         '''
 
         from math import pi
@@ -962,7 +1049,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     def _polynomial_initial_slope (self):
         ''' Initial slope of the polynomial Fs(Z).
 
-        This slope is calculated according to ref. [1], eq.80.
+        This slope is calculated according to ref. [1], section 8.2.2.3
+        and ref. [2], eq.G.55.
         '''
 
         # Load factor of the tension spring
@@ -1097,11 +1185,28 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     k_shell: float = None       # optional initial shell stiffness in [N/m/m].
 
     def failure_mode (self, fy_sh, fy_fl,gamma_0 = 1.1):
-        ''' Determine the failure mode of this flange and returns the
-        corresponding string, which is either "A", "B", "C" or "D".
-        The second return value is a tuple with the segment forces of all failure modes,
-        as (Zu_A, Zu_B, Zu_D, Zu_E)
+        ''' Determine the failure mode of this flange
+
+        **Parameters:**
+
+        - ``fy_sh`` : ``float``
+            Yield stress of the shell material.
+
+        - ``fy_fl`` : ``float``
+            Yield stress of the flange material.
+
+        - ``gamma_0`` : ``float`` [optional]
+            Material factor. If omitted, it defaults to 1.1.
+
+
+        **Return value**
+
+        It returns a tuple of two values:
+        - A string describing the failure mode: eiter "A", "B", "D" or "E".
+        - The list [Zu_A, Zu_B, Zu_D, Zu_E] of the shell pull values at which each failure mode occurs.
+
         '''
+
         from scipy.optimize import fsolve
 
         fd_fl = fy_fl / gamma_0
@@ -1150,13 +1255,22 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
             return "E",(Zu_A, Zu_B, Zu_D, Zu_E)
 
     def validate (self, fy_sh, fy_fl,gamma_0 = 1.1):
-        ''' Check if this L-Flange Segment matches the assumptions,
+        ''' Check if this flnage segment matches the model assumptions
+
+        Check if this L-Flange Segment matches the assumptions,
         that is, if it fails according to failure mode B. If not, it
         will throw an exceptions.
 
-        The required parameters are respectively: the ultimate tensile
-        stress of the shell (fu_sh) and the ultimate tensile stress
-        of the flange (fu_fl).
+        The required parameters are:
+
+        - ``fy_sh`` : ``float``
+            Yield stress of the shell material.
+
+        - ``fy_fl`` : ``float``
+            Yield stress of the flange material.
+
+        - ``gamma_0`` : ``float`` [optional]
+            Material factor. If omitted, it defaults to 1.1.
         '''
 
         failure_mode,failure_shellforces = self.failure_mode(fy_sh, fy_fl,gamma_0=gamma_0)
@@ -1188,7 +1302,8 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         Kf = self.E * A / h
         Kw = self.washer.axial_stiffness if self.washer else inf
         return 1 / (1/Kf + 2 * 1/Kw)
-    
+
+
     def _bolt_moment (self, Z, Fs):
         a_red = self.b / (self._prying_lever_ratio - 1)
         a_star = max(0.4, min((self.t / (a_red + self.b))**2 , 1)) * a_red
@@ -1214,20 +1329,38 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_rest (self):
+        ''' Shell force when no external loads are applied
+
+        The shell loads at rest are normally the self-weights of
+        the structure supported by the flange.
+        '''
         return self.Zg
 
     @cached_property
     def bolt_force_at_rest (self):
+        ''' Bolt axial force when no external loads are applied
+
+        The bolt force at rest is just the bolt pretension.
+        '''
         return self.Fv
 
     @cached_property
     def bolt_moment_at_rest (self):
+        ''' Bolt bending moment when no external loads are applied'''
+
         Z1 = self.shell_force_at_rest
         Fs1 = self.bolt_force_at_rest
         return self._bolt_moment(Z1, Fs1)
 
     @cached_property
     def shell_force_at_small_displacement (self):
+        ''' Intermediate shell pull, between rest and tensile failure
+
+        This is an auxiliary point that gives the polynomial the right
+        value of initial slope. It is evaluated according to ref. [1],
+        sec.8.2.2.3 and to ref. [2], section G.4.2.
+        '''
+
         # Retrieve point 2A (called point 0 in [1]) and determine Z as
         # a low pecentage of the theoretical pull Z0.
         Z0 = self._ideal_shell_force_at_tensile_ULS
@@ -1239,7 +1372,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         This is an auxiliary point that gives the polynomial the right
         value of initial slope. It is evaluated according to ref. [1],
-        sec.9.2.2.3.
+        sec.8.2.2.3 and to ref. [2], section G.4.2.
         '''
 
         # The slope between points P1 and P3 should match the
@@ -1253,12 +1386,26 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def bolt_moment_at_small_displacement (self):
+        ''' Intermediate bolt moment, between rest and tensile failuse
+
+        This is the bolt bending moment corresponding to the shell pull
+        Z3 (``.shell_force_at_small_displacement``)`.`
+        '''
+
         Z3 = self.shell_force_at_small_displacement
         Fs3 = self.bolt_force_at_small_displacement
         return self._bolt_moment(Z3, Fs3)
 
     @cached_property
     def shell_force_at_tensile_ULS (self):
+        ''' Ultimate Limit State shell pull
+
+        This is shell pull that brings the flange segment system in
+        its tensile ultimate limit state. It is evaluated according
+        to ref. [1], sec.8.2.2.2 and to ref. [2], section G.4.2, where
+        it is referred to as Z2.
+        '''
+
         Z0 = self._ideal_shell_force_at_tensile_ULS
         Z2 = self._stiffness_correction_factor * max(
             Z0 + self._total_gap_neutralization_shell_force,
@@ -1269,8 +1416,13 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     def bolt_force_at_tensile_ULS (self):
         ''' Bolt axial force at tensile failure
 
-        Assuming the failure mode A, in the ULS, the bolt is subjected
+        This is the bolt tensile force corresponding to the ultimate
+        shell pull (``.shell_force_at_rensile_ULS``).
+
+        Assuming the failure mode B, in the ULS, the bolt is subjected
         to its maximum tensile capacity.
+
+        In refs. [1] and [2], this value is colled Fs2.
         '''
 
         # Bolt force at tensile ULS for sinusoidal gap shape
@@ -1282,6 +1434,14 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def bolt_moment_at_tensile_ULS (self):
+        ''' Bolt bending moment at tensile failure
+
+        This is the bolt bending moment corresponding to the ultimate
+        shell pull (``.shell_force_at_rensile_ULS``).
+
+        In refs. [1] and [2], this value is colled Ms2.
+        '''
+
         Z2 = self.shell_force_at_tensile_ULS
         Fs2 = self.bolt_force_at_tensile_ULS
         return self._bolt_moment(Z2, Fs2)

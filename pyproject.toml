@@ -24,3 +24,15 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/kcibv/pyflange"
 Issues = "https://github.com/kcibv/pyflange/issues"
+
+
+[tool.setuptools]
+# By default, include-package-data is true in pyproject.toml,
+# so you do NOT have to specify this line.
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pyflange = ["data/*.csv"]
