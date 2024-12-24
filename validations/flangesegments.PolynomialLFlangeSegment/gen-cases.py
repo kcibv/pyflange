@@ -43,6 +43,14 @@ M48 = MetricBolt(
     ultimate_tensile_stress = 1040*MPa,
     stud = False)
 
+M48_hex_nut = HexNut(
+    nominal_diameter = 48*mm,
+    thickness = 38*mm,
+    inscribed_diameter = 75*mm,
+    circumscribed_diameter = 82.6*mm,
+    bearing_diameter = 69.4*mm
+)
+
 M80 = MetricBolt(
     nominal_diameter = 80*mm,
     thread_pitch = 6*mm,
@@ -51,14 +59,6 @@ M80 = MetricBolt(
     yield_stress = 900*MPa,
     ultimate_tensile_stress = 1000*MPa,
     stud = True)
-
-M48_hex_nut = HexNut(
-    nominal_diameter = 48*mm,
-    thickness = 38*mm,
-    inscribed_diameter = 75*mm,
-    circumscribed_diameter = 82.6*mm,
-    bearing_diameter = 69.4*mm
-)
 
 M80_hex_nut = HexNut(
     nominal_diameter = 80*mm,

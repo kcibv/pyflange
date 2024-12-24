@@ -98,7 +98,7 @@ Ms = fseg.bolt_bending_moment(2000) # bolt bending moment corresponding to shell
 ```
 
 The argumment `Z`, passed to `bolt_axial_force` and `bolt_bending_moment` can also be a
-numpy array. In that case an array of Fs and Ms value will be returned.
+numpy array. In that case an array of Fs and Ms values will be returned.
 
 ``` python
 import numpy as np
