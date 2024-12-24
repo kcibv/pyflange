@@ -52,65 +52,65 @@ class Bolt:
 
 @dataclass
 class BoltCrossSection:
+    ''' Bolt circular cross-section.
+
+    Args:
+        diameter: cross-section diameter
+
+    Attributes:
+        diameter: cross-section diameter
+    '''
 
     diameter: float
 
     @cached_property
     def area (self):
+        ''' The cross-section area.'''
         from math import pi
         return pi * self.diameter**2 / 4
 
     @cached_property
     def second_moment_of_area (self):
+        ''' The second moment of area of the cross-section.'''
         from math import pi
         return pi * self.diameter**4 / 64
 
     @cached_property
     def elastic_section_modulus (self):
+        ''' The elastic section modulus of the cross-section.'''
         from math import pi
         return pi * self.diameter**3 / 32
 
 
 
-
 @dataclass
 class MetricBolt (Bolt):
-    ''' Generates a generic bolt with metric screw thread accoridng ISO 68-1, defined
-    by the following parameters:
+    ''' Generic bolt with ISO 68-1 metric screw thread
 
-    - ``nominal_diameter`` : ``float``
-        The outermost diameter of the screw thread.
+    Args:
+        nominal_diameter: The outermost diameter of the screw thread.
 
-    - ``thread_pitch`` : ``float``
-        The pitch of the metric thread.
+        thread_pitch: The pitch of the metric thread.
 
-    - ``yield_stress`` : ``float``
-        Nominal yield stress (0.2% strain limit) of the bolt material.
+        yield_stress: Nominal yield stress (0.2% strain limit) of the bolt material.
 
-    - ``ultimate_tensile_stress`` : ``float``
-        Nominal ultimate tensile stress of the bolt material.
+        ultimate_tensile_stress: Nominal ultimate tensile stress of the bolt material.
 
-    - ``elastic_modulus`` : ``float`` [optional]
-        The Young's modulus of the bolt material.
-        If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
-        that the chosen unit for distance is m and the chosen unit for forces is N. If
-        that's not the case, you should enter the proper value of this parameter.
+        elastic_modulus: The Young's modulus of the bolt material.
+            If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
+            that the chosen unit for distance is m and the chosen unit for forces is N. If
+            that's not the case, you should enter the proper value of this parameter.
 
-    - ``poissons_ratio`` : ``float`` [optional]
-        The Poisson's ratio of the bolt material.
-        If omitted, it defaults to 0.30.
+        poissons_ratio: The Poisson's ratio of the bolt material.
+            If omitted, it defaults to 0.30.
 
-    - ``shank_length`` : ``float`` [optional]
-        The length of the shank. If omitted, it defaults to 0.
+        shank_length: The length of the shank. If omitted, it defaults to 0.
 
-    - ``shank_diameter_ratio`` : ``float`` [optional]
-        The ratio between the shank diameter and the bolt nominal diameter.
-        If omitted, it defaults to 1, which means that the shank hs the
-        nominal diameter.
+        shank_diameter_ratio: The ratio between the shank diameter and the bolt
+            nominal diameter. If omitted, it defaults to 1, which means that the
+            shank has the nominal diameter.
 
-    - ``stud`` : ``bool`` [optional]
-        True if this is a stud bolt, False if it is not.
-        If omitted, it defaults to False.
+        stud: True if this is a stud bolt, False if it is not. If omitted, it defaults to False.
 
     The parameters must be expressed in a consistent system of units. For example,
     if you chose to input distances in mm and forces in N, then stresses must be
@@ -138,14 +138,16 @@ class MetricBolt (Bolt):
     stud: bool = False
 
 
-    # -------------------------------------------------------------
+    # --------------------------------------------------------------------------
     #   GEOMETRY
-    # -------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     @cached_property
     def designation (self):
-        ''' Bolt designation string, which is, for example, ``"M16"``
-        for a bolt with nominal diameter 16 mm.
+        ''' Bolt designation string.
+
+        For example, ``"M16"`` is the designation of a bolt with nominal
+        diameter 16 mm.
         '''
         return f"M{int(self.nominal_diameter*1000)}"
 
@@ -158,85 +160,116 @@ class MetricBolt (Bolt):
 
     @cached_property
     def thread_height (self):
-        ''' Height of the metric thread fundamental triangle (H),
-        as defined in ISO 68-1:1998.
+        ''' Height of the metric thread fundamental triangle (H).
+
+        As defined in ISO 68-1:1998.
         '''
         return 0.5 * 3**0.5 * self.thread_pitch
 
 
     @cached_property
     def thread_basic_minor_diameter (self):
-        ''' Basic minor diameter (d1) as defined in ISO 68-1:1998.'''
+        ''' Basic minor diameter (d1).
+
+        As defined in ISO 68-1:1998.'''
         return self.nominal_diameter - 2 * 5/8 * self.thread_height
 
 
     @cached_property
     def thread_basic_pitch_diameter (self):
-        ''' Basic minor diameter (d2) as defined in ISO 68-1:1998.'''
+        ''' Basic minor diameter (d2).
+
+        As defined in ISO 68-1:1998.'''
         return self.nominal_diameter - 2 * 3/8 * self.thread_height
 
 
     @cached_property
     def thread_minor_diameter (self):
-        ''' Minor diameter (d3) as defined in ISO 898-1:2013.'''
+        ''' Minor diameter (d3).
+
+        As defined in ISO 898-1:2013.'''
         return self.thread_basic_minor_diameter - self.thread_height/6
 
 
     @cached_property
     def nominal_cross_section (self):
-        ''' Bolt cross-section with nominal diameter '''
+        ''' Bolt cross-section with nominal diameter.
+
+        Instance of `BoltCrossSection` class.
+        '''
         return BoltCrossSection(self.nominal_diameter)
 
 
     @cached_property
     def shank_cross_section (self):
-        ''' Bolt shank cross-section '''
+        ''' Bolt shank cross-section.
+
+        Instance of `BoltCrossSection` class.
+        '''
         return BoltCrossSection(self.shank_diameter)
 
 
     @cached_property
     def thread_cross_section (self):
-        ''' Bolt cross-section used for tensile calculations
+        ''' Bolt cross-section used for tensile calculations.
 
+        Instance of `BoltCrossSection` class.
         Ref. ISO 891-1:2013, section 9.1.6.1
         '''
         return BoltCrossSection(self.nominal_diameter - 13/12*self.thread_height)
 
 
 
-    # -------------------------------------------------------------
+    # --------------------------------------------------------------------------
     #   MATERIAL PROPERTIES
-    # -------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     @cached_property
     def shear_modulus (self):
-        ''' Shear modulus G, calculated from the Young's modulus and
-        Poisson's ratio, under the assumption of isotropic and elastic
-        bolt material.'''
+        ''' Shear modulus G.
+
+        Calculated from the Young's modulus and Poisson's ratio, under the
+        assumption of isotropic and elastic bolt material.
+        '''
         return 0.5 * self.elastic_modulus / (1 + self.poissons_ratio)
 
 
 
-    # -------------------------------------------------------------
+    # --------------------------------------------------------------------------
     #   MECHANICAL PROPERTIES
-    # -------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     def ultimate_tensile_capacity (self, standard="Eurocode"):
-        ''' Returns the design ultimate tensile force that the bolt can take,
-        according to a given standard.
+        ''' Evaluate the ultimate tensile force that the bolt can take.
 
-        Currently the only standard available is "Eurocode", which is also the
-        default value of the ``standard`` parameter.
+        Args:
+            standard (str): Standard according to which the ultimate tensile force
+                should be calculated. Currently the only supported standard
+                is *"Eurocode"* (EN 1993-1-8:2005).
+
+        Returns:
+            FRu (float): The bolt ultimate tensile force according to the specified
+                standard.
+
+        Raises:
+            ValueError: if the requested standard is not supported.
+
         '''
-        if standard == "Eurocode":
+        if standard.upper() == "EUROCODE":
             return 0.9 * self.ultimate_tensile_stress * self.thread_cross_section.area / 1.25
         else:
             raise ValueError(f"Unsupported standard: '{standard}'")
 
 
     def axial_stiffness (self, length):
-        ''' Given a clamped ``length``, returns the axial stiffness of the bolt,
-        according to VDI 2230, Part 1, Section 5.1.1.1.
+        ''' Evaluate the axial stiffness of the bolt.
+
+        Args:
+            length (float): clamped length.
+
+        Returns:
+            Ka (float): axial stiffness of the bolt, according to VDI 2230,
+                Part 1, Section 5.1.1.1.
         '''
 
         # Verify input validity
@@ -277,8 +310,14 @@ class MetricBolt (Bolt):
 
 
     def bending_stiffness (self, length):
-        ''' Given a clamped ``length``, returns the bending stiffness of the bolt,
-        according to VDI 2230, Part 1, Section 5.1.1.2.
+        ''' Evaluates the bending stiffness of the bolt.
+
+        Args:
+            length (float): clamped length.
+
+        Returns:
+            Kb (float): bending stiffness of the bolt, according to VDI 2230,
+                Part 1, Section 5.1.1.2.
         '''
 
         # Verify input validity
@@ -321,15 +360,15 @@ class MetricBolt (Bolt):
 
 
 
-    # -------------------------------------------------------------
+    # --------------------------------------------------------------------------
     #   DEPRECATED ATTRIBUTES AND METHODS
-    # -------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     @cached_property
     def shank_cross_section_area (self):
         ''' Area of the shank transversal cross-section.
 
-        **DEPRECATED**: use `bolt.shank_cross_section.area` instead
+        **DEPRECATED**: use `bolt.shank_cross_section.area` instead.
         '''
 
         from .logger import Logger
@@ -357,7 +396,7 @@ class MetricBolt (Bolt):
 
     @cached_property
     def tensile_cross_section_area (self):
-        ''' Tensile stress area, according to ISO 891-1:2013, section 9.1.6.1
+        ''' Tensile stress area, according to ISO 891-1:2013, section 9.1.6.1.
 
         **DEPRECATED**: use `bolt.thread_cross_section.area` instead
         '''
@@ -372,7 +411,7 @@ class MetricBolt (Bolt):
 
     @cached_property
     def tensile_moment_of_resistance (self):
-        ''' Tensile moment of resistance, according to ISO 891-1:2013, section 9.1.6.1
+        ''' Tensile moment of resistance, according to ISO 891-1:2013, section 9.1.6.1.
 
         **DEPRECATED**: use `bolt.thread_cross_section.elastic_section_modulus` instead
         '''
@@ -386,48 +425,34 @@ class MetricBolt (Bolt):
 
 
 
-
-
-
-
 def StandardMetricBolt (designation, material_grade, shank_length=0.0, shank_diameter_ratio=1.0, stud=False):
-    ''' This function provides a convenient way for creating ``MetricBolt``
-    object, given the standard geometry designation (e.g. "M20") and the
-    standard material grade designation (e.g. "8.8").
+    ''' Create a metric bolt with standard dimensions.
 
-    The required parameters are:
+    This function provides a convenient way for creating ``MetricBolt`` object,
+    given the standard geometry designation (e.g. "M20") and the standard material
+    grade designation (e.g. "8.8").
 
-    - ``designation`` : ``str``
-        The metric screw thread designation. The allowed values are: 'M4', 'M5',
-        'M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22', 'M24',
-        'M27', 'M30', 'M33', 'M36', 'M39', 'M42', 'M45', 'M48', 'M52', 'M56',
-        'M60', 'M64', 'M72', 'M80', 'M90', 'M100'.
+    Args:
+        designation (str): The metric screw thread designation. The allowed values are:
+            'M4', 'M5', 'M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22',
+            'M24', 'M27', 'M30', 'M33', 'M36', 'M39', 'M42', 'M45', 'M48', 'M52', 'M56',
+            'M60', 'M64', 'M72', 'M80', 'M90', 'M100'.
 
-        This parameter corresponds to a standard nominal diameter and a relevant
-        thread pitch value (i.e. the standard coarse pitch value).
+        material_grade (str): The material grade designation. The allowed values are:
+            '4.6', '4.8', '5.6', '5.8', '6.8', '8.8', '9.8', '10.9' and '12.9' for
+            carbon-steel bolts; 'A50', 'A70', 'A80' and 'A100' for austenitic bolts;
+            'D70', 'D80' and 'D100' for duplex bolts; 'C50', 'C70', 'C80' and 'C110' for
+            martensitic bolts; 'F45' and 'F60' for ferritic bolts.
 
-    - ``material_grade`` : ``str``
-        The material grade designation. The allowed values are: '4.6', '4.8',
-        '5.6', '5.8', '6.8', '8.8', '9.8', '10.9' and '12.9' for carbon-steel
-        bolts; 'A50', 'A70', 'A80' and 'A100' for austenitic bolts; 'D70', 'D80'
-        and 'D100' for duplex bolts; 'C50', 'C70', 'C80' and 'C110' for
-        martensitic bolts; 'F45' and 'F60' for ferritic bolts.
+        shank_length (float): The length of the shank.
 
-        This parameter corresponds to a standard set of the paraters ``yield_stress``,
-        ``ultimate_tensile_stress``, ``elastic_modulus`` and ``poissons_ratio``.
+        shank_diameter_ratio (float): The ratio between the shank diameter and the
+            bolt nominal diameter.
 
-    - ``shank_length`` : ``float`` [optional]
-        The length of the shank. If omitted, it defaults to 0.
+        stud (bool): True if this is a stud bolt, False if it is not.
 
-    - ``shank_diameter_ratio`` : ``float`` [optional]
-        The ratio between the shank diameter and the bolt nominal diameter.
-        If omitted, it defaults to 1, which means that the shank hs the
-        nominal diameter.
-
-    - ``stud`` : ``bool`` [optional]
-        True if this is a stud bolt, False if it is not.
-        If omitted, it defaults to False.
-
+    Returns:
+        bolt (MetricBolt): a MetricBolt instance with standard properties.
     '''
 
     geometry = _standard['bolts'][designation]
@@ -446,8 +471,6 @@ def StandardMetricBolt (designation, material_grade, shank_length=0.0, shank_dia
 
 
 
-
-
 class Washer:
     pass
 
@@ -455,23 +478,19 @@ class Washer:
 
 @dataclass
 class FlatWasher (Washer):
-    ''' Generates a generic flat washer.
+    ''' Generic flat washer.
 
-    - ``outer_diameter`` : ``float``
-        The outer diameter of the washer.
+    Args:
+        outer_diameter: The outer diameter of the washer.
 
-    - ``inner_diameter`` : ``float``
-        The hole diameter of the washer.
+        inner_diameter: The hole diameter of the washer.
 
-    - ``elastic_modulus`` : ``float`` [optional]
-        The Young's modulus of the washer material.
-        If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
-        that the chosen unit for distance is m and the chosen unit for forces is N. If
-        that's not the case, you should enter the proper value of this parameter.
+        elastic_modulus: The Young's modulus of the washer material.
+            If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
+            that the chosen unit for distance is m and the chosen unit for forces is N. If
+            that's not the case, you should enter the proper value of this parameter.
 
-    - ``poissons_ratio`` : ``float`` [optional]
-        The Poisson's ratio of the washer material.
-        If omitted, it defaults to 0.30.
+        poissons_ratio: The Poisson's ratio of the washer material.
 
     The parameters must be expressed in a consistent system of units. For example,
     if you chose to input distances in mm and forces in N, then stresses must be
@@ -507,10 +526,17 @@ class FlatWasher (Washer):
 
 
 def ISOFlatWasher (designation):
-    ''' Standard washer according to ISO 7089
+    ''' Generates a standard washer according to ISO 7089.
 
-    Returns a washer having the standard dimensions defined in ISO 7089,
-    given the corresponding metric bolt designation.
+    Args:
+        designation (str): The metric screw thread designation. The allowed values are:
+            'M4', 'M5', 'M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22',
+            'M24', 'M27', 'M30', 'M33', 'M36', 'M39', 'M42', 'M45', 'M48', 'M52', 'M56',
+            'M60', 'M64', 'M72', 'M80', 'M90', 'M100'.
+
+    Returns:
+        washer (FlatWasher): a FlatWasher instance  having the standard dimensions
+            defined in ISO 7089.
 
     For example, ``ISOFlatWasher("M16")`` will return a ``FlatWasher``
     instance with outer diameter 30 mm, hole diameter 17 mm and
@@ -525,41 +551,35 @@ def ISOFlatWasher (designation):
 
 
 
-
 class Nut:
     pass
 
 
+
 @dataclass
 class HexNut (Nut):
-    ''' Generates a generic flat washer.
+    ''' Generates a generic hexagonal nut.
 
-    - ``nominal_diameter`` : ``float``
-        The nominal diameter of the inner thread.
+    Args:
+        nominal_diameter: The nominal diameter of the inner thread.
 
-    - ``thickness`` : ``float``
-        The height of the bolt.
+        thickness: The height of the bolt.
 
-    - ``inscribed_diameter`` : ``float``
-        The diameter of the circle inscribed in the hexagon.
-        Correponds to the distance between two opposite flats.
+        inscribed_diameter: The diameter of the circle inscribed in the hexagon.
+            Correponds to the distance between two opposite flats.
 
-    - ``circumscribed_diameter`` : ``float``
-        The diameter of the circle circumscribed in the hexagon.
-        Correponds to the distance between two opposite vertices..
+        circumscribed_diameter: The diameter of the circle circumscribed in the hexagon.
+            Correponds to the distance between two opposite vertices..
 
-    - ``bearing_diameter`` : ``gloat``
-        The outer diameter of the circular contatact surface between nut and washer.
+        bearing_diameter: The outer diameter of the circular contatact surface
+            between nut and washer.
 
-    - ``elastic_modulus`` : ``float`` [optional]
-        The Young's modulus of the nut material.
-        If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
-        that the chosen unit for distance is m and the chosen unit for forces is N. If
-        that's not the case, you should enter the proper value of this parameter.
+        elastic_modulus: The Young's modulus of the nut material. If omitted, it
+            defaults to 210e9 N/m². Notice that the default value assumes that the
+            chosen unit for distance is m and the chosen unit for forces is N. If
+            that's not the case, you should enter the proper value of this parameter.
 
-    - ``poissons_ratio`` : ``float`` [optional]
-        The Poisson's ratio of the nut material.
-        If omitted, it defaults to 0.30.
+        poissons_ratio: The Poisson's ratio of the nut material.
 
     The parameters must be expressed in a consistent system of units. For example,
     if you chose to input distances in mm and forces in N, then stresses must be
@@ -586,10 +606,16 @@ class HexNut (Nut):
 
 
 def ISOHexNut (designation):
-    ''' Standard Hex Nut
+    ''' Generates a standard Hex Nut.
 
-    Returns an ISO 4032 HexNut, given the metric designation. For example:
-    ``nut = ISOHexNut('M16')``
+    Args:
+        designation (str): The metric screw thread designation. The allowed values are:
+            'M4', 'M5', 'M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22',
+            'M24', 'M27', 'M30', 'M33', 'M36', 'M39', 'M42', 'M45', 'M48', 'M52', 'M56',
+            'M60', 'M64', 'M72', 'M80', 'M90', 'M100'.
+
+    Returns:
+        nut (HexNut): a HexNut instance with dimensions according to ISO 4032.
     '''
     params = _standard["hex_nuts"][designation]
     return HexNut(
@@ -602,10 +628,17 @@ def ISOHexNut (designation):
 
 
 def RoundNut (designation):
-    ''' Standard Hex Nut
+    ''' Generates a standard round nut.
 
-    Returns a Standard Flanged HexNut, given the metric designation. For example:
-    ``nut = RoundNut('M42')``
+
+    Args:
+        designation (str): The metric screw thread designation. The allowed values are:
+            'M4', 'M5', 'M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22',
+            'M24', 'M27', 'M30', 'M33', 'M36', 'M39', 'M42', 'M45', 'M48', 'M52', 'M56',
+            'M60', 'M64', 'M72', 'M80', 'M90', 'M100'.
+
+    Returns:
+        nut (HexNut): a standard flanged nut.
     '''
     params = _standard["round_nuts"][designation]
     return HexNut(

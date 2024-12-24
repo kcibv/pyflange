@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>fatigue - PyFlange Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "fatigue";
+        var mkdocs_page_input_path = "apis\\fatigue.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../..">
+          <img src="../../assets/KCI-logo.png" class="logo" alt="Logo"/>
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API's</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../bolts/">bolts</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gap/">gap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../flangesegments/">flangesegments</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">fatigue</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.fatigue.BoltFatigueCurve">BoltFatigueCurve</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.fatigue.DoubleSlopeFatigueCurve">DoubleSlopeFatigueCurve</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.fatigue.FatigueCurve">FatigueCurve</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.fatigue.FatigueCurve.DS">DS</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.fatigue.FatigueCurve.N">N</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.fatigue.FatigueCurve.cumulated_damage">cumulated_damage</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.fatigue.FatigueCurve.damage">damage</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.fatigue.MultiSlopeFatigueCurve">MultiSlopeFatigueCurve</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.fatigue.SingleSlopeFatigueCurve">SingleSlopeFatigueCurve</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.fatigue.markov_matrix_from_SGRE_format">markov_matrix_from_SGRE_format</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Examples</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/montecarlo/">Montecarlo Simulation</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">PyFlange Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">API's</li>
+      <li class="breadcrumb-item active">fatigue</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h1 id="pyflange.fatigue" class="doc doc-heading">
+            <code>pyflange.fatigue</code>
+
+
+</h1>
+
+    <div class="doc doc-contents first">
+
+        <p>Fatigue calculation tools.</p>
+<p>This module defines functions and classes to support structural fatigue
+calculations.</p>
+<p>In particular, the module contains the following functions ...</p>
+<ul>
+<li><code>markov_matrix_from_SGRE_format(pathFile , unitFactor [optional])</code> which reads
+  a .mkv file from SGRE as markov matrix and converts in into a pandas dataframe</li>
+</ul>
+<p>... and the following <code>FatigueCurve</code> classes:</p>
+<ul>
+<li><code>SingleSlopeFatigueCurve</code></li>
+<li><code>DoubleSlopeFatigueCurve</code></li>
+<li><code>SNCurve</code></li>
+</ul>
+<p>Each fatigue curve class exxposes the following methods:</p>
+<ul>
+<li><code>fatigue_curve.N(DS)</code> returns the number of cycles corresponding to the
+  given stress range DS</li>
+<li><code>fatigue_curve.DS(N)</code> returns the stress range corresponding to the
+  given number of cycles N</li>
+<li><code>fatigue_curve.damage(n, DS)</code> returns the fatigue damage cumulated by
+  a stress range DS repeated n times</li>
+</ul>
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.BoltFatigueCurve" class="doc doc-heading">
+            <code>BoltFatigueCurve</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="pyflange.fatigue.DoubleSlopeFatigueCurve" href="#pyflange.fatigue.DoubleSlopeFatigueCurve">DoubleSlopeFatigueCurve</a></code></p>
+
+
+        <p>Bolt Fatigue Curve according to IEC 61400-6 AMD1.</p>
+<p>Given a bolt diameter, creates a DoubleSlopeFatigueCurve having
+logaritmic slopes m1=3 and m2=5 and change-of-slope at 2 milion cycles
+and stress range depending on the bolt diameter as specified by
+IEC 61400-6 AMD1.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The bolt diameter in meters.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gamma_M</code></b>
+                  (<code>float</code>, default:
+                      <code>1.1</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The material factor.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>Thuis class inherits all the properties and methods of the
+<code>DoubleSlopeFatigueCurve</code> class.</p>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.DoubleSlopeFatigueCurve" class="doc doc-heading">
+            <code>DoubleSlopeFatigueCurve</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="pyflange.fatigue.MultiSlopeFatigueCurve" href="#pyflange.fatigue.MultiSlopeFatigueCurve">MultiSlopeFatigueCurve</a></code></p>
+
+
+        <p>Wöhler curve with double logarithmic slope.</p>
+<p>This class implements the FatigueCurve interface for a curve with two
+slopes m1 and m2.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>m1</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The logarithmic slope of the lower cycle values.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>m2</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The logarithmic slope of the higher cycle values.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>DS12</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The stress range where the two branches of the curve meet.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>N12</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The number of cycles to failure corresponding to DS12.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>All the constructor parameters are also available as instance attributes
+(i.e. <code>scn.m1</code>, <code>snc.m2</code>, <code>snc.DS12</code>, <code>snc.N12</code>).</p>
+<p>This class implements all the methods of FatigueCurve.</p>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.FatigueCurve" class="doc doc-heading">
+            <code>FatigueCurve</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+        <p>A Wöhler curve.</p>
+<p>This is a base class for creating Wohler curves. It is not supposed to be
+instantiated directly.</p>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.fatigue.FatigueCurve.DS" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">DS</span><span class="p">(</span><span class="n">N</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Stress range.</p>
+<p>Given a number of cycles, this function return the corresponding
+stress range that produce a fatigue failure.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.fatigue.FatigueCurve.N" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">N</span><span class="p">(</span><span class="n">DS</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Number of cycles.</p>
+<p>Given a stress range DS, this function return the corresponding
+number of cycles that produce a fatigue failure.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.fatigue.FatigueCurve.cumulated_damage" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">cumulated_damage</span><span class="p">(</span><span class="n">markov_matrix</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Cumulated damage according to the Miner's rule</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>markov_matrix</code></b>
+                  (<code><span title="pandas.DataFrame">DataFrame</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>This is the load history expressed as a
+Markov matrix, encoded in a pandas DataFrame having three columns:
+- <code>Cycles</code>: containing the number of cycles;
+- <code>Mean</code>: containing the mean stress in Pascal;
+- <code>Range</code>: containing the stress range in Pascal.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>damage</code></b>(                  <code>float</code>
+)              –
+              <div class="doc-md-description">
+                <p>the cumulated fatigue damage produced in the
+detail represented by this fatigue curev, by the load history
+represented by the passed Markov matrix.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.fatigue.FatigueCurve.damage" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">damage</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">DS</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Fatigue damage.</p>
+<p>Given a number of cycles n and a stress range DS, this function returns
+the dorresponding fatigue damage (D = n / N(DS)).</p>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.MultiSlopeFatigueCurve" class="doc doc-heading">
+            <code>MultiSlopeFatigueCurve</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="pyflange.fatigue.FatigueCurve" href="#pyflange.fatigue.FatigueCurve">FatigueCurve</a></code></p>
+
+
+        <p>Multi-Slope Fatigue Curve.</p>
+<p>This class is a FatigueCurve with multiple slopes.
+It takes any number of SingleSlopeFatigueCurve objects as arguments.</p>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.SingleSlopeFatigueCurve" class="doc doc-heading">
+            <code>SingleSlopeFatigueCurve</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="pyflange.fatigue.FatigueCurve" href="#pyflange.fatigue.FatigueCurve">FatigueCurve</a></code></p>
+
+
+        <p>Wöhler curve with single logarithmic slope.</p>
+<p>This class implements the FatigueCurve interface for a curve with single
+slope m.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>m</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The logarithmic slope of the fatigue curve.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>DS_ref</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Arbitrary reference stress range.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>N_ref</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The number of cycles that produce failure under the
+stress range D_ref.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>All the constructor parameters are also available as instance attributes
+(i.e. <code>scn.m</code>, <code>snc.DS_ref</code>, <code>snc.N_ref</code>).</p>
+<p>This class implements all the methods of FatigueCurve.</p>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.fatigue.markov_matrix_from_SGRE_format" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">markov_matrix_from_SGRE_format</span><span class="p">(</span><span class="n">pathFile</span><span class="p">,</span> <span class="n">unitFactor</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Reads a .mkv file into a pandas.DataFrame object.</p>
+<p>Reads a Markov matrix from a SGRE .mkv file and converts in into
+a padas dataframe having the collowing columns:</p>
+<ul>
+<li>'Cycles' : Number of cylces</li>
+<li>'Mean'   : mean bending moment</li>
+<li>'Range'  : range of the bending moment</li>
+</ul>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>pathFile</code></b>
+                  (<code>str</code>)
+              –
+              <div class="doc-md-description">
+                <p>The path of the .mkv file to be read</p>
+              </div>
+            </li>
+            <li>
+              <b><code>unitFactor</code></b>
+                  (<code>float</code>, default:
+                      <code>1000.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>A scalind factor to be applied to the moment values.
+Useful for unit conversion.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>markov_matrix</code></b>(                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>the pandas DataFrame representation
+of the Markov natrix contained in the .mkv file.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../flangesegments/" class="btn btn-neutral float-left" title="flangesegments"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../examples/montecarlo/" class="btn btn-neutral float-right" title="Montecarlo Simulation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../flangesegments/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../examples/montecarlo/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

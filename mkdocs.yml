@@ -1,0 +1,28 @@
+site_name: PyFlange Documentation
+docs_dir: docsrc
+site_dir: docs
+nav:
+    - Home: index.md
+    - API's:
+      - bolts: apis/bolts.md
+      - gap: apis/gap.md
+      - flangesegments: apis/flangesegments.md
+      - fatigue: apis/fatigue.md
+    - Examples:
+      - Montecarlo Simulation: examples/montecarlo.md
+theme:
+    name: readthedocs
+    logo: assets/KCI-logo.png
+    favicon: assets/KCI.ico
+
+plugins:
+- mkdocstrings:
+    default_handler: python
+    handlers:
+      python:
+        options:
+          show_root_heading: true
+          heading_level: 1
+          show_source: false
+          docstring_style: google
+

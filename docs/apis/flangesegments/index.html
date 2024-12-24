@@ -1,0 +1,2072 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>flangesegments - PyFlange Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "flangesegments";
+        var mkdocs_page_input_path = "apis\\flangesegments.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../..">
+          <img src="../../assets/KCI-logo.png" class="logo" alt="Logo"/>
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API's</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../bolts/">bolts</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gap/">gap</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">flangesegments</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.FlangeSegment">FlangeSegment</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.PolynomialFlangeSegment">PolynomialFlangeSegment</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialFlangeSegment.bolt_axial_force">bolt_axial_force</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialFlangeSegment.bolt_bending_moment">bolt_bending_moment</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment">PolynomialLFlangeSegment</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_rest">bolt_force_at_rest</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_small_displacement">bolt_force_at_small_displacement</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_tensile_ULS">bolt_force_at_tensile_ULS</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_moment_at_rest">bolt_moment_at_rest</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_moment_at_small_displacement">bolt_moment_at_small_displacement</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_moment_at_tensile_ULS">bolt_moment_at_tensile_ULS</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_closed_gap">shell_force_at_closed_gap</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_rest">shell_force_at_rest</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_small_displacement">shell_force_at_small_displacement</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_tensile_ULS">shell_force_at_tensile_ULS</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.failure_mode">failure_mode</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.validate">validate</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment">PolynomialTFlangeSegment</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.bolt_force_at_rest">bolt_force_at_rest</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.bolt_force_at_small_displacement">bolt_force_at_small_displacement</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.bolt_force_at_tensile_ULS">bolt_force_at_tensile_ULS</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.bolt_moment_at_rest">bolt_moment_at_rest</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.bolt_moment_at_small_displacement">bolt_moment_at_small_displacement</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.bolt_moment_at_tensile_ULS">bolt_moment_at_tensile_ULS</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.shell_force_at_closed_gap">shell_force_at_closed_gap</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.shell_force_at_rest">shell_force_at_rest</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.shell_force_at_small_displacement">shell_force_at_small_displacement</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.shell_force_at_tensile_ULS">shell_force_at_tensile_ULS</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.failure_mode">failure_mode</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment.validate">validate</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.bolt_markov_matrix">bolt_markov_matrix</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.shell_stiffness">shell_stiffness</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fatigue/">fatigue</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Examples</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/montecarlo/">Montecarlo Simulation</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">PyFlange Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">API's</li>
+      <li class="breadcrumb-item active">flangesegments</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h1 id="pyflange.flangesegments" class="doc doc-heading">
+            <code>pyflange.flangesegments</code>
+
+
+</h1>
+
+    <div class="doc doc-contents first">
+
+        <p>This module contains <code>FlangeSegment</code> classes, which model the mechanical
+behavior of a flange sector containig one bolt only.</p>
+<p>Currently, the only two type of FlangeSegment available are an L-Flange segment
+and a T-Flange segment, implementing a polinomial relation between shell pull
+force and bolt force / bolt moment. Nonetheless, this module has been structured
+to be easily extensible with other types of FlangeSegment model, such as
+Multilinear (Petersen) L-Flanges, Multilinear T-Flanges, etc.</p>
+<p>The models implemented in this module are based on the following references:</p>
+<p>[1]:  Marc Seidel, SGRE TE TF PST: IEC 61400-6 AMD1 Background Document
+      Fatigue design for ring flange connsections in wind turbine support structures.</p>
+<p>[2]:  IEC 61400-6:2020/AMD1 - wIND ENERGY GENERATION SYSTEMS - Part 6: Tower and foundation
+      design requirements - AMENDMENT 1
+      Draft version 2024-10-01</p>
+<p>[3]:  Petersen, C.: Nachweis der Betriebsfestigkeit exzentrisch beanspruchter Ringflansch-verbindungen
+      (Fatigue assessment of eccentrically loaded ring flange connections).
+      Stahlbau 67 (1998), S. 191-203. https://onlinelibrary.wiley.com/doi/abs/10.1002/stab.199800690</p>
+<p>[4]:  Petersen, C.: Stahlbau (Steel construction), 4. Auflage Braunschweig: Wiesbaden: Springer Vieweg 2012.
+      https://link.springer.com/book/10.1007%2F978-3-8348-8610-1</p>
+<p>[9]:  Tobinaga, I.; Ishihara, T.: A study of action point correction factor for L‐type flanges of wind turbine towers.
+      Wind Energy 21 (2018), p. 801-806. https://doi.org/10.1002/we.2193</p>
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.flangesegments.FlangeSegment" class="doc doc-heading">
+            <code>FlangeSegment</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="abc.ABC">ABC</span></code></p>
+
+
+        <p>Abstract FlangeSegment class.</p>
+<p>This class is meant to be extended and not to be instatiated directly.</p>
+<p>Each FlangeSegment child class must implement the two transfer-function
+methods:</p>
+<ul>
+<li><code>.bolt_axial_force(Z)</code>, returning the bolt axial force generated by a shell
+  pull force Z</li>
+<li><code>.bolt_bending_moment(Z)</code>, returning the bolt bending moment generted by
+  a shekk pull force Z</li>
+</ul>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.flangesegments.PolynomialFlangeSegment" class="doc doc-heading">
+            <code>PolynomialFlangeSegment</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="pyflange.flangesegments.FlangeSegment" href="#pyflange.flangesegments.FlangeSegment">FlangeSegment</a></code></p>
+
+
+        <p>Generic FlangeSegment implementing polynomial transfer functions.</p>
+<p>This is a generic FlangeSegment that implements a polynomial relation between
+shell pull Z and bolt axial force Fs or bolt bending moment Ms.</p>
+<p>It is not meant to be instantiated directly, but to be subclassed instead.</p>
+<p>The polynomial transfer functions <code>.bolt_axial_force(Z)</code> and
+<code>.bolt_bending_moment(Z)</code> are defined based on 4 points, through which the
+polynomials pass. Those points are implementation specific.</p>
+<p>The 4 reference points for the Fs(Z) polynomial are:</p>
+<ul>
+<li>
+<p><code>P1 = (Z1, Fs1)</code> representing the flange segment state at rest (no
+  loads applied, other than the self-weight). Each implementatio of
+  this class should define Z1 as <code>shell_force_at_rest</code> property and
+  Fs1 as <code>bolt_force_at_rest</code> property.</p>
+</li>
+<li>
+<p><code>P2 = (Z2, Fs2)</code> representing the flange segment ultimate tensile
+  limit state (failure state B). Each implementatio of this class should
+  define Z2 as <code>shell_force_at_tensile_ULS</code> property and Fs2 as
+  <code>bolt_force_at_ultimate_ULS</code> property.</p>
+</li>
+<li>
+<p><code>P3 = (Z3, Fs3)</code> representing the flange segment in small tensile
+  deformation condition. This point is meant to define the initial slope
+  of the polynomial. Each implementatio of this class should
+  define Z3 as <code>shell_force_at_small_displacement</code> property and Fs3 as
+  <code>bolt_force_at_small_displacement</code> property.</p>
+</li>
+<li>
+<p><code>P4 = (Z4, Fs4)</code> representing the gap closure state. Each implementatio
+  of this class should define Z4 as <code>shell_force_at_closed_gap</code> property,
+  while Fs4 is automatically defined.</p>
+</li>
+</ul>
+<p>The 4 reference points for the Ms(Z) polynomial are:</p>
+<ul>
+<li>
+<p><code>Q1 = (Z1, Ms1)</code> corresponding to P1 as defined above. Each implementation
+  of this class should define Ms1 as <code>bolt_moment_at_rest</code> property.</p>
+</li>
+<li>
+<p><code>Q2 = (Z2, Ms2)</code> corresponding to P2 as defined above. Each implementation
+  of this class should define Ms2 as <code>bolt_moment_at_tensile_ULS</code> property.</p>
+</li>
+<li>
+<p><code>Q3 = (Z3, Ms3)</code> corresponding to P3 as defined above. Each implementation
+  of this class should define Ms3 as <code>bolt_moment_at_small_displacement</code> property.</p>
+</li>
+<li>
+<p><code>Q4 = (Z4, Ms4)</code> corresponding to P4 as defined above. Each implementatio
+  of this class should define Z4 as <code>shell_force_at_closed_gap</code> property,
+  while Ms4 is automatically defined.</p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.flangesegments.PolynomialFlangeSegment.bolt_axial_force" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_axial_force</span><span class="p">(</span><span class="n">shell_pull</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt axial force due to a given shell pull force Z.</p>
+<p>The relation between shell pull force Z and bolt axial force Fs,
+is a polynomial function, as defined in ref.[1], section 8.2 and in
+ref.[2], section G.4.2.</p>
+<p>The passed shell_pull parameter must be either a real number or
+a numpy.array. If a numpy.array is passed, then the corresponding
+array of Fs values will be returned.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.flangesegments.PolynomialFlangeSegment.bolt_bending_moment" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_bending_moment</span><span class="p">(</span><span class="n">shell_pull</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt bending moment due to a given shell pull force Z.</p>
+<p>The relation between shell pull force Z and bolt bending moment Ms,
+is a polynomial function, as defined in ref.[1], section 8.3 and in
+Ref.[2], section G.4.2.</p>
+<p>The passed shell_pull parameter must be either a real number or
+a numpy.array. If a numpy.array is passed, then the corresponding
+array of Ms values will be returned.</p>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.flangesegments.PolynomialLFlangeSegment" class="doc doc-heading">
+            <code>PolynomialLFlangeSegment</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="pyflange.flangesegments.PolynomialFlangeSegment" href="#pyflange.flangesegments.PolynomialFlangeSegment">PolynomialFlangeSegment</a></code></p>
+
+
+        <p>A <code>PolynomialFlangeSegment</code> implementation for L-Flanges.</p>
+<p>The ploynomial model implemented in this class is based on ref. [1] and
+ref. [2].</p>
+<p>For this particular case of flange, this class defines the polynomial
+reference points <code>P1</code>, <code>P2</code>, <code>P3</code>, <code>P4</code>, <code>Q1</code>, <code>Q2</code>, <code>Q3</code>, <code>Q4</code> and
+inherits the polynomial functions <code>.bolt_axial_force(Z)</code> and
+<code>.bolt_bending_moment(Z)</code> from the parent class.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>a</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Distance between inner face of the flange and center of the bolt hole.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>b</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Distance between center of the bolt hole and center-line of the shell.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>s</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Shell thickness.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>t</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Flange thickness.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>R</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Shell outer curvature radius.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>central_angle</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Angle subtended by the flange segment arc.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>Zg</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Load applied to the flange segment shell at rest (normally dead weight
+of tower + RNA, divided by the number of bolts). Negative if compression.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bolt</code></b>
+                  (<code><span title="pyflange.bolts.Bolt">Bolt</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Bolt object representing the flange segment bolt.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>Fv</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Applied bolt preload, after preload losses.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>Do</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Bolt hole diameter.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>washer</code></b>
+                  (<code><span title="pyflange.bolts.Washer">Washer</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Washer object representing the fastener wahsers. If this parameter
+is <code>None</code>, then no washer is considered to be present.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>nut</code></b>
+                  (<code><span title="pyflange.bolts.Nut">Nut</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Nut object representing the fastenrr nut.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gap_height</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Maximum longitudinal gap height.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gap_angle</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Angle subtended by the gap arc from the flange center.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gap_shape_factor</code></b>
+                  (<code>float</code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>A correction factor that applies to <code>Fs2-Fs1</code> and to
+<code>Fs3-Fs1</code> to account for gap shape different that the default sinusoidal
+shape. If omitted, it defaults to 1.0 (sinusoida shape).</p>
+              </div>
+            </li>
+            <li>
+              <b><code>tilt_angle</code></b>
+                  (<code>float</code>, default:
+                      <code>0.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Flange tilt angle, in radians.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>E</code></b>
+                  (<code>float</code>, default:
+                      <code>210000000000.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Young modulus of the flange. If omitted, it will be taken equal to 210 GPa.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>G</code></b>
+                  (<code>float</code>, default:
+                      <code>80770000000.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Shear modulus of the flange. If omitted, it will be taken equal to 80.77 GPa.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>s_ratio</code></b>
+                  (<code>float</code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Ratio of bottom shell thickness over s. If omitted, it will be taken
+equal to 1.0, threfore, by default, s_botom = s.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>r</code></b>
+                  (<code>float</code>, default:
+                      <code>0.01</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Radius of the rouding between the shell and the flange.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>k_shell</code></b>
+                  (<code>float</code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Optional individual initial shell stiffness value. This value can be
+calculated in a separate FE analysis. The unit must be [N/m/m]. If omitted,
+the interpolated formula from [1] will be used.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>The given parameters are also available as attributes (e.g. <code>fseg.a</code>, <code>fseg.Fv</code>, etc.).</p>
+<p>This class is designed to be immutable, therefore modifying the attributes after
+instantiation is not a good idea. If you need a segment with different attributes, just
+create a new one.</p>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_rest" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_force_at_rest</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt axial force when no external loads are applied.</p>
+<p>The bolt force at rest is just the bolt pretension.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_small_displacement" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_force_at_small_displacement</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Intermediate bolt pull, between rest and tensile failuse.</p>
+<p>This is an auxiliary point that gives the polynomial the right
+value of initial slope. It is evaluated according to ref. [1],
+sec.8.2.2.3 and to ref. [2], section G.4.2.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.bolt_force_at_tensile_ULS" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_force_at_tensile_ULS</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt axial force at tensile failure.</p>
+<p>This is the bolt tensile force corresponding to the ultimate
+shell pull (<code>.shell_force_at_rensile_ULS</code>).</p>
+<p>Assuming the failure mode B, in the ULS, the bolt is subjected
+to its maximum tensile capacity.</p>
+<p>In refs. [1] and [2], this value is colled Fs2.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.bolt_moment_at_rest" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_moment_at_rest</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt bending moment when no external loads are applied.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.bolt_moment_at_small_displacement" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_moment_at_small_displacement</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Intermediate bolt moment, between rest and tensile failuse.</p>
+<p>This is the bolt bending moment corresponding to the shell pull
+Z3 (<code>.shell_force_at_small_displacement</code>).</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.bolt_moment_at_tensile_ULS" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_moment_at_tensile_ULS</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt bending moment at tensile failure.</p>
+<p>This is the bolt bending moment corresponding to the ultimate
+shell pull (<code>.shell_force_at_rensile_ULS</code>).</p>
+<p>In refs. [1] and [2], this value is colled Ms2.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_closed_gap" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shell_force_at_closed_gap</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Shell force necessary to completely close the imperfection gap.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_rest" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shell_force_at_rest</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Shell force when no external loads are applied</p>
+<p>The shell loads at rest are normally the self-weights of
+the structure supported by the flange.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_small_displacement" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shell_force_at_small_displacement</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Intermediate shell pull, between rest and tensile failure.</p>
+<p>This is an auxiliary point that gives the polynomial the right
+value of initial slope. It is evaluated according to ref. [1],
+sec.8.2.2.3 and to ref. [2], section G.4.2.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.shell_force_at_tensile_ULS" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shell_force_at_tensile_ULS</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Ultimate Limit State shell pull.</p>
+<p>This is shell pull that brings the flange segment system in
+its tensile ultimate limit state. It is evaluated according
+to ref. [1], sec.8.2.2.2 and to ref. [2], section G.4.2, where
+it is referred to as Z2.</p>
+    </div>
+
+</div>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.failure_mode" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">failure_mode</span><span class="p">(</span><span class="n">fy_sh</span><span class="p">,</span> <span class="n">fy_fl</span><span class="p">,</span> <span class="n">gamma_0</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Determine the failure mode of this flange.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>fy_sh</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Yield stress of the shell material.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>fy_fl</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Yield stress of the flange material.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gamma_0</code></b>
+                  (<code>float</code>, default:
+                      <code>1.1</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Material factor.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>mode</code></b>(                  <code>str</code>
+)              –
+              <div class="doc-md-description">
+                <p>failure mode string (eiter "A", "B", "D" or "E").</p>
+              </div>
+            </li>
+            <li>
+<b><code>limits</code></b>(                  <code>list</code>
+)              –
+              <div class="doc-md-description">
+                <p>The list [Zu_A, Zu_B, Zu_D, Zu_E] of the shell pull values
+at which each failure mode occurs.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.validate" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">validate</span><span class="p">(</span><span class="n">fy_sh</span><span class="p">,</span> <span class="n">fy_fl</span><span class="p">,</span> <span class="n">gamma_0</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Verifies the applicability of the polynomial model.</p>
+<p>Check if this L-Flange Segment matches the polynomial model assumptions,
+that is, if it fails according to failure mode B. If not, it will throw
+an exceptions.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>fy_sh</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Yield stress of the shell material.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>fy_fl</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Yield stress of the flange material.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gamma_0</code></b>
+                  (<code>float</code>, default:
+                      <code>1.1</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Material factor.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code>None</code>
+              –
+              <div class="doc-md-description">
+                <p>If successfull.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code>ValueError</code>
+              –
+              <div class="doc-md-description">
+                <p>if the failure mode is not B.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.flangesegments.PolynomialTFlangeSegment" class="doc doc-heading">
+            <code>PolynomialTFlangeSegment</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="pyflange.flangesegments.PolynomialFlangeSegment" href="#pyflange.flangesegments.PolynomialFlangeSegment">PolynomialFlangeSegment</a></code></p>
+
+
+        <p>A <code>PolynomialFlangeSegment</code> implementation for T-Flanges.</p>
+<p>The ploynomial model implemented in this class is based on ref. [1] and
+ref. [2].</p>
+<p>For this particular case of flange, this class defines the polynomial
+reference points <code>P1</code>, <code>P2</code>, <code>P3</code>, <code>P4</code>, <code>Q1</code>, <code>Q2</code>, <code>Q3</code>, <code>Q4</code> and
+inherits the polynomial functions <code>.bolt_axial_force(Z)</code> and
+<code>.bolt_bending_moment(Z)</code> from the parent class.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>a</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Distance between inner face of the flange and center of the bolt hole.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>b</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Distance between center of the bolt hole and center-line of the shell.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>s</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Shell thickness.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>t</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Flange thickness.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>R</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Shell outer curvature radius.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>central_angle</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Angle subtended by the flange segment arc.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>Zg</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Load applied to the flange segment shell at rest (normally dead weight
+of tower + RNA, divided by the number of bolts). Negative if compression.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bolt</code></b>
+                  (<code><span title="pyflange.bolts.Bolt">Bolt</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Bolt object representing the flange segment bolt.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>Fv</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Applied bolt preload, after preload losses.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>Do</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Bolt hole diameter.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>washer</code></b>
+                  (<code><span title="pyflange.bolts.Washer">Washer</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Washer object representing the fastener wahsers. If this parameter
+is <code>None</code>, then no washer is considered to be present.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>nut</code></b>
+                  (<code><span title="pyflange.bolts.Nut">Nut</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Nut object representing the fastenrr nut.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gap_height</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Maximum longitudinal gap height.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gap_angle</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Angle subtended by the gap arc from the flange center.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gap_shape_factor</code></b>
+                  (<code>float</code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>A correction factor that applies to <code>Fs2-Fs1</code> and to
+<code>Fs3-Fs1</code> to account for gap shape different that the default sinusoidal
+shape. If omitted, it defaults to 1.0 (sinusoida shape).</p>
+              </div>
+            </li>
+            <li>
+              <b><code>tilt_angle</code></b>
+                  (<code>float</code>, default:
+                      <code>0.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Flange tilt angle, in radians.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>E</code></b>
+                  (<code>float</code>, default:
+                      <code>210000000000.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Young modulus of the flange. If omitted, it will be taken equal to 210 GPa.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>G</code></b>
+                  (<code>float</code>, default:
+                      <code>80770000000.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Shear modulus of the flange. If omitted, it will be taken equal to 80.77 GPa.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>s_ratio</code></b>
+                  (<code>float</code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Ratio of bottom shell thickness over s. If omitted, it will be taken
+equal to 1.0, threfore, by default, s_botom = s.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>r</code></b>
+                  (<code>float</code>, default:
+                      <code>0.01</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Radius of the rouding between the shell and the flange.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>k_shell</code></b>
+                  (<code>float</code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Optional individual initial shell stiffness value. This value can be
+calculated in a separate FE analysis. The unit must be [N/m/m]. If omitted,
+the interpolated formula from [1] will be used.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>The given parameters are also available as attributes (e.g. <code>fseg.a</code>, <code>fseg.Fv</code>, etc.).</p>
+<p>This class is designed to be immutable, therefore modifying the attributes after
+instantiation is not a good idea. If you need a segment with different attributes, just
+create a new one.</p>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialTFlangeSegment.bolt_force_at_rest" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_force_at_rest</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt axial force when no external loads are applied.</p>
+<p>The bolt force at rest is just the bolt pretension.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialTFlangeSegment.bolt_force_at_small_displacement" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_force_at_small_displacement</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Intermediate bolt pull, between rest and tensile failuse.</p>
+<p>This is an auxiliary point that gives the polynomial the right
+value of initial slope. It is evaluated according to ref. [1],
+sec.8.2.2.3 and to ref. [2], section G.4.2.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialTFlangeSegment.bolt_force_at_tensile_ULS" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_force_at_tensile_ULS</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt axial force at tensile failure.</p>
+<p>This is the bolt tensile force corresponding to the ultimate
+shell pull (<code>.shell_force_at_rensile_ULS</code>).</p>
+<p>Assuming the failure mode B, in the ULS, the bolt is subjected
+to its maximum tensile capacity.</p>
+<p>In refs. [1] and [2], this value is colled Fs2.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialTFlangeSegment.bolt_moment_at_rest" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_moment_at_rest</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt bending moment when no external loads are applied.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialTFlangeSegment.bolt_moment_at_small_displacement" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_moment_at_small_displacement</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Intermediate bolt moment, between rest and tensile failuse.</p>
+<p>This is the bolt bending moment corresponding to the shell pull
+Z3 (<code>.shell_force_at_small_displacement</code>).</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialTFlangeSegment.bolt_moment_at_tensile_ULS" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_moment_at_tensile_ULS</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt bending moment at tensile failure.</p>
+<p>This is the bolt bending moment corresponding to the ultimate
+shell pull (<code>.shell_force_at_rensile_ULS</code>).</p>
+<p>In refs. [1] and [2], this value is colled Ms2.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialTFlangeSegment.shell_force_at_closed_gap" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shell_force_at_closed_gap</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Shell force necessary to completely close the imperfection gap.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialTFlangeSegment.shell_force_at_rest" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shell_force_at_rest</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Shell force when no external loads are applied.</p>
+<p>The shell loads at rest are normally the self-weights of the structure
+supported by the flange.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialTFlangeSegment.shell_force_at_small_displacement" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shell_force_at_small_displacement</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Intermediate shell pull, between rest and tensile failure.</p>
+<p>This is an auxiliary point that gives the polynomial the right
+value of initial slope. It is evaluated according to ref. [1],
+sec.8.2.2.3 and to ref. [2], section G.4.2.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialTFlangeSegment.shell_force_at_tensile_ULS" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shell_force_at_tensile_ULS</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Ultimate Limit State shell pull.</p>
+<p>This is shell pull that brings the flange segment system in
+its tensile ultimate limit state. It is evaluated according
+to ref. [1], sec.8.2.2.2 and to ref. [2], section G.4.2, where
+it is referred to as Z2.</p>
+    </div>
+
+</div>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.flangesegments.PolynomialTFlangeSegment.failure_mode" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">failure_mode</span><span class="p">(</span><span class="n">fy_sh</span><span class="p">,</span> <span class="n">fy_fl</span><span class="p">,</span> <span class="n">gamma_0</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Determine the failure mode of this flange.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>fy_sh</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Yield stress of the shell material.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>fy_fl</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Yield stress of the flange material.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gamma_0</code></b>
+                  (<code>float</code>, default:
+                      <code>1.1</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Material factor.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>mode</code></b>(                  <code>str</code>
+)              –
+              <div class="doc-md-description">
+                <p>failure mode string (eiter "A", "B", "D" or "E").</p>
+              </div>
+            </li>
+            <li>
+<b><code>limits</code></b>(                  <code>list</code>
+)              –
+              <div class="doc-md-description">
+                <p>The list [Zu_A, Zu_B, Zu_D, Zu_E] of the shell pull values
+at which each failure mode occurs.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.flangesegments.PolynomialTFlangeSegment.validate" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">validate</span><span class="p">(</span><span class="n">fy_sh</span><span class="p">,</span> <span class="n">fy_fl</span><span class="p">,</span> <span class="n">gamma_0</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Verifies the applicability of the polynomial model.</p>
+<p>Check if this L-Flange Segment matches the polynomial model assumptions,
+that is, if it fails according to failure mode B. If not, it will throw
+an exceptions.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>fy_sh</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Yield stress of the shell material.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>fy_fl</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Yield stress of the flange material.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gamma_0</code></b>
+                  (<code>float</code>, default:
+                      <code>1.1</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Material factor.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code>None</code>
+              –
+              <div class="doc-md-description">
+                <p>If successfull.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code>ValueError</code>
+              –
+              <div class="doc-md-description">
+                <p>if the failure mode is not B.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.flangesegments.bolt_markov_matrix" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_markov_matrix</span><span class="p">(</span><span class="n">fseg</span><span class="p">,</span> <span class="n">flange_markov_matrix</span><span class="p">,</span> <span class="n">bending_factor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">macro_geometric_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mean_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">range_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Evaluates the bolt Markov matrix, given the shell Markov matix.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>fseg</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="pyflange.flangesegments.PolynomialFlangeSegment" href="#pyflange.flangesegments.PolynomialFlangeSegment">PolynomialFlangeSegment</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>The flange segment
+object that contains the force and moment transfer function that
+convert shell forces to bolt forces.</p>
+<p><strong>WARNING:</strong> Notice that currently this function works only with
+PolynomialFlangeSegments, while it should be extended to work with any
+FlangeSegment object.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>flange_markov_matrix</code></b>
+                  (<code><span title="pandas.DataFrame">DataFrame</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The flanges bending moments markov
+matrix, containg the colums 'Cycles', 'Range', 'Mean'.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bending_factor</code></b>
+                  (<code>float</code>, default:
+                      <code>0.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The factor that considers the bending portion of the
+total stress range.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>macro_geometric_factor</code></b>
+                  (<code>float</code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The factor that considers macro geometric
+influences. The factor affects the deadweigt of the tower, the mean
+values of the markov matrix and the range values of the markov matrix.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>mean_factor</code></b>
+                  (<code>float</code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The factor that multiplies the mean values of the
+bending moments of the tower.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>range_factor</code></b>
+                  (<code>float</code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The factor that multiplies the range of the bending
+moments of the tower.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>bolt_markov_matrix</code></b>(                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>The bolt markov matrix representing
+the stress history in the bolt due to the applied flange markov matrix.
+The returned pandas DataFrame contains the columns 'Cycles', 'Range'
+and 'Mean'.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.flangesegments.shell_stiffness" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shell_stiffness</span><span class="p">(</span><span class="n">shell_radius</span><span class="p">,</span> <span class="n">shell_thickness</span><span class="p">,</span> <span class="n">gap_angle</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Axial stiffness of a flange-segment shell.</p>
+<p>This function will return the linear interpolation of the flange stiffnesses
+measured in 2160 different FEA analyses with several values of shell radius,
+shell thickness and gap angle.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>shell_radius</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>outer radius of the shell.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>shell_thickness</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>thickness of the shell.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gap_angle</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>angular length of the flange gap.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>K_sh</code></b>(                  <code>float</code>
+)              –
+              <div class="doc-md-description">
+                <p>shell stiffness.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../gap/" class="btn btn-neutral float-left" title="gap"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../fatigue/" class="btn btn-neutral float-right" title="fatigue">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../gap/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../fatigue/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

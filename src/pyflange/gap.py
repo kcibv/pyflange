@@ -30,39 +30,34 @@ in ref. [1], section 6.7.5.2.
 
 
 def gap_height_distribution (flange_diameter, flange_flatness_tolerance, gap_length):
-    ''' Returns the gap heigh probability distribution according to ref. [1]
+    ''' Evaluate the gap heigh probability distribution according to ref. [1].
 
-    Given the following parameters ...
+    Args:
+        flange_diameter (float): The outer diameter of the flange, expressed in meters.
 
-    - ``flange_diameter`` : ``float``
-      The outer diameter of the flange, expressed in meters.
+        flange_flatness_tolerance (float): The flatness tolerance, as defined in ref. [1],
+            expressed in mm/mm (non-dimensional).
 
-    - ``flange_flatness_tolerance`` : ``float``
-      The flatness tolerance, as defined in ref. [1], expressed in mm/mm (non-dimensional).
+        gap_length (float): The length of the gap, espressed in meters and measured at
+            the outer edge of the flange.
 
-    - ``gap_length`` : ``float``
-      The length of the gap, espressed in meters and measured at the outer edge of the flange.
+    Returns:
+        dist (scipy.stats.lognorm): a [scipy log-normal variable](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html),
+            representing the gap height stocastic variable.
 
-    ... this function returns a `scipy.stats.lognorm <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html>`_
-    object, representing the gap height stocastic variable.
+    The following example, creates a gap distribution and the calculates the 95% quantile
+    of the gap height
 
+    ```python
+    from pyflange.gap import gap_height_distribution
 
-    **Example**
+    D = 7.50      # Flange diameter in meters
+    u = 0.0014    # Flatness tolerance (non-dimensional)
+    L = 1.22      # Gap length
+    gap_dist = gap_height_distribution(D, u, L)     # a lognorm distribution object
 
-    The following example, creates a gap distribution and the calculates
-    the 95% quantile of the gap height
-
-    .. code-block:: python
-
-        from pyflange.gap import gap_height_distribution
-
-        D = 7.50      # Flange diameter in meters
-        u = 0.0014    # Flatness tolerance (non-dimensional)
-        L = 1.22      # Gap length
-        gap_dist = gap_height_distribution(D, u, L)     # a lognorm distribution object
-
-        u95 = gap_dist.ppf(0.95)    # PPF is the inverse of CDF. See scipy.stats.lognorm documentation.
-
+    u95 = gap_dist.ppf(0.95)    # PPF is the inverse of CDF. See scipy.stats.lognorm documentation.
+    ```
     '''
 
     from math import pi, log, exp, sqrt

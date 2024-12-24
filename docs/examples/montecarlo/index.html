@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Montecarlo Simulation - PyFlange Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Montecarlo Simulation";
+        var mkdocs_page_input_path = "examples\\montecarlo.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../..">
+          <img src="../../assets/KCI-logo.png" class="logo" alt="Logo"/>
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API's</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../apis/bolts/">bolts</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../apis/gap/">gap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../apis/flangesegments/">flangesegments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../apis/fatigue/">fatigue</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Examples</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Montecarlo Simulation</a>
+    <ul class="current">
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">PyFlange Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Examples</li>
+      <li class="breadcrumb-item active">Montecarlo Simulation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="example-montecarlo-simulation">Example: Montecarlo Simulation</h1>
+<p>This example shows how the Polynomial L-Flange Segment model implementation
+can be used to predict a random serie of actualizations of bolt force and
+bolt moment, based on the random imput of the following parameters.</p>
+<ul>
+<li>Gap Length, assumed normally distributed with mean value <code>30°</code> and COV <code>10%</code></li>
+<li>Gap Height, assumed log-normally distributed according to IEC 61400-6 AMD1, section 6.7.5.2</li>
+<li>Bolt preload, assumed normally distributed with mean value <code>2876 kN</code> and COV <code>10%</code></li>
+</ul>
+<p>All the other parameters are assumed to be deterministically known, and defined as 
+follows:</p>
+<ul>
+<li>Bolt <code>M80</code> with meterial grade <code>10.9</code></li>
+<li>Distance between inner face of the flange and center of the bolt hole: <code>a = 232.5 mm</code></li>
+<li>Distance between center of the bolt hole and center-line of the shell: <code>b = 166.5 mm</code></li>
+<li>Shell thickness: <code>s = 72 mm</code></li>
+<li>Flange thickness: <code>t = 200 mm</code></li>
+<li>Flange outer diameter: <code>D = 7.5 m</code></li>
+<li>Bolt hole diameter: <code>Do = 86 mm</code></li>
+<li>Washer outer diameter: <code>Dw = 140 mm</code></li>
+</ul>
+<p>Let's first define a function that, given an actualization of gap length, gap height and
+bolt preload generates the corresponding FlangeSegment object.</p>
+<pre><code class="language-python"># Imports
+from math import pi
+from pyflange.bolts import StandardMetricBolt, ISOFlatWasher, ISOHexNut
+from pyflange.flangesegments import PolynomialLFlangeSegment
+
+# Define some units for the sake of readability
+m = 1
+mm = 0.001*m
+N = 1
+kN = 1000*N
+
+# Create the fastener parts
+M80_bolt = StandardMetricBolt(&quot;M80&quot;, &quot;10.9&quot;, shank_length=270*mm stud=True)
+M80_washer = ISOFlatWasher(&quot;M80&quot;)
+M80_nut    = ISOHexNut(&quot;M80&quot;)
+Nb = 120   # Number of bolts
+
+# Flange Segment Constructor
+def create_flange_segment (gap_angle, gap_height, bolt_preload):
+    return PolynomialLFlangeSegment(
+        a = 232.5*mm,              # distance between inner face of the flange and center of the bolt hole
+        b = 166.5*mm,              # distance between center of the bolt hole and center-line of the shell
+        s = 72*mm,                 # shell thickness
+        t = 200.0*mm,              # flange thickness
+        R = 7.5*m / 2,             # shell outer curvature radius
+        central_angle = 2*pi/Nb,   # angle subtented by the flange segment arc
+
+        Zg = -15000*kN / Nb,    # load applied to the flange segment shell at rest
+
+        bolt = M80_bolt,        # bolt object created above
+        Fv = bolt_preload,      # applied bolt preload
+
+        Do = 86*mm,             # bolt hole diameter
+        washer = M80_washer,    # washer object created above
+        nut = M80_nut,          # nut object created above
+
+        gap_height = gap_height,   # maximum longitudinal gap height
+        gap_angle = gap_angle      # longitudinal gap length
+    )
+</code></pre>
+<p>Next, we define the stochastic variables <code>gap_angle</code>, <code>gap_height</code> and <code>bolt_pretension</code>:</p>
+<pre><code class="language-python"># Gap Height Log-Normal Distribution
+from pyflange.gap import gap_height_distribution
+D = 7.5*m
+gap_length = pi/6 * D/2
+gap_height_dist = gap_height_distribution(7.5*m, 1.4*mm/m, gap_length)
+
+# Gap angle distribution
+from scipy.stats import normal
+mean = pi/6
+std = 0.10 * mean
+gap_angle_dist = norm(loc=mean, scale=std)
+
+# Bolt pretension distribution
+mean = 2876*kN
+std = 0.10 * mean
+bolt_preload_dist = norm(loc=mean, scale=std)
+</code></pre>
+<p>Next we generate random actualizations of the stochastic parameters and evaluate the
+corresponding values of Fs(Z) and Ms(Z), in discrete form.</p>
+<pre><code class="language-python"># Let's define the discrete domain Z of the Fs(Z) and Ms(Z) functions we
+# want to determine. We define Z as an array of 1000 items, linearly
+# spaced between -1500 kN and 2100 kN.
+import numpy as np 
+Z = np.linspace(-1500*kN, 2100*kN, 1000)
+
+# Let's generating 25000 actualizations of Fs(Z) and Ms(Z) and store them in
+# two 1000x25000 matrices, where each row is an actualization of the discrete
+# image of Z through Fs and Ms.
+
+Fs = np.array([])    # Initialize Fs with an empty matrix
+Ms = np.arrat([])    # Initialize Ms with an empty matrix
+
+for i in range(25000):
+
+    # Generate a random gap height
+    gap_height = gap_height_dist.rvs()
+
+    # Generate a random gap angle
+    gap_angle = gap_angle_dist.rvs()
+
+    # Generate a random bolt pretension
+    bolt_preload = bolt_preload_dist.rvs()
+
+    # Generate the corresponding random FlangeSegment actualization, using the
+    # factory function defined above
+    fseg = create_flange_segment(gap_angle, gap_height, bolt_preload)
+
+    # Generate the Fs image of Z and store it in the Fs matrix
+    Fs.append( fseg.bolt_axial_force(Z) ) 
+
+    # Generate the Ms image of Z and store it in the Ms matrix
+    Ms.append( fseg.bolt_bending_moment(Z) ) 
+</code></pre>
+<p>The generated data in <code>Fs</code> and <code>Ms</code> can be then used to fit a distribution to
+the data.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../apis/fatigue/" class="btn btn-neutral float-left" title="fatigue"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../apis/fatigue/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

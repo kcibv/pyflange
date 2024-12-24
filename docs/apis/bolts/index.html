@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>bolts - PyFlange Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "bolts";
+        var mkdocs_page_input_path = "apis\\bolts.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../..">
+          <img src="../../assets/KCI-logo.png" class="logo" alt="Logo"/>
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API's</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">bolts</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.BoltCrossSection">BoltCrossSection</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.BoltCrossSection.area">area</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.BoltCrossSection.elastic_section_modulus">elastic_section_modulus</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.BoltCrossSection.second_moment_of_area">second_moment_of_area</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.FlatWasher">FlatWasher</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.FlatWasher.area">area</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.FlatWasher.axial_stiffness">axial_stiffness</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.HexNut">HexNut</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.MetricBolt">MetricBolt</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.designation">designation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.nominal_cross_section">nominal_cross_section</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.nominal_cross_section_area">nominal_cross_section_area</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.shank_cross_section">shank_cross_section</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.shank_cross_section_area">shank_cross_section_area</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.shank_diameter">shank_diameter</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.shear_modulus">shear_modulus</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.tensile_cross_section_area">tensile_cross_section_area</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.tensile_moment_of_resistance">tensile_moment_of_resistance</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.thread_basic_minor_diameter">thread_basic_minor_diameter</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.thread_basic_pitch_diameter">thread_basic_pitch_diameter</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.thread_cross_section">thread_cross_section</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.thread_height">thread_height</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.thread_minor_diameter">thread_minor_diameter</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.axial_stiffness">axial_stiffness</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.bending_stiffness">bending_stiffness</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.bolts.MetricBolt.ultimate_tensile_capacity">ultimate_tensile_capacity</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.ISOFlatWasher">ISOFlatWasher</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.ISOHexNut">ISOHexNut</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.RoundNut">RoundNut</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.StandardMetricBolt">StandardMetricBolt</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../gap/">gap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../flangesegments/">flangesegments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fatigue/">fatigue</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Examples</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/montecarlo/">Montecarlo Simulation</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">PyFlange Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">API's</li>
+      <li class="breadcrumb-item active">bolts</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h1 id="pyflange.bolts" class="doc doc-heading">
+            <code>pyflange.bolts</code>
+
+
+</h1>
+
+    <div class="doc doc-contents first">
+
+        <p>The <code>bolts</code> module contains objects representing the bolt, washer and nut
+fastener components. In particular it contains</p>
+<ul>
+<li>A <code>MetricBolt</code> class that generates generic bolts with metric screw thread and a
+  <code>StandardMetricBolt</code> function that generates MetricBolt objects with standard properties.</li>
+<li>A <code>FlatWasher</code> class that generates generic flat washer and a <code>ISOFlatWasher</code> frunction
+  that returns a <code>FlatWasher</code> with standard dimensions.</li>
+<li>A <code>HexNut</code> class that generates a generic hexagonal nut, a <code>ISOHExNut</code> function that
+  generates a <code>HexNut</code> with ISO 4032 dimensions<code>and a</code>RoundNut<code>function that generates
+  a standard flanged</code>HexNut``.</li>
+</ul>
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.bolts.BoltCrossSection" class="doc doc-heading">
+            <code>BoltCrossSection</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+        <p>Bolt circular cross-section.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>cross-section diameter</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Attributes:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>cross-section diameter</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.BoltCrossSection.area" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">area</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>The cross-section area.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.BoltCrossSection.elastic_section_modulus" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">elastic_section_modulus</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>The elastic section modulus of the cross-section.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.BoltCrossSection.second_moment_of_area" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">second_moment_of_area</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>The second moment of area of the cross-section.</p>
+    </div>
+
+</div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.bolts.FlatWasher" class="doc doc-heading">
+            <code>FlatWasher</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pyflange.bolts.Washer">Washer</span></code></p>
+
+
+        <p>Generic flat washer.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>outer_diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The outer diameter of the washer.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>inner_diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The hole diameter of the washer.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>elastic_modulus</code></b>
+                  (<code>float</code>, default:
+                      <code>210 * <span title="pyflange.bolts.GPa">GPa</span></code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The Young's modulus of the washer material.
+If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
+that the chosen unit for distance is m and the chosen unit for forces is N. If
+that's not the case, you should enter the proper value of this parameter.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>poissons_ratio</code></b>
+                  (<code>float</code>, default:
+                      <code>0.3</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The Poisson's ratio of the washer material.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>The parameters must be expressed in a consistent system of units. For example,
+if you chose to input distances in mm and forces in N, then stresses must be
+expressed in N/mm². All the bolt attributes and methods will return values
+consistently with the input units of measurement.</p>
+<p>All the input parameters are also available as attributes of the generated
+object (e.g. <code>washer.thickness</code>, <code>washer.poissons_ratio</code>, etc.).</p>
+<p>This instances of this calss are designed to be immutable, which means than
+changing an attribute after creating an object is not a good idea. If you
+need a different washer with different attributes, create a new one.</p>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.FlatWasher.area" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">area</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Area of the washer flat surface</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.FlatWasher.axial_stiffness" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">axial_stiffness</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>The compressive stiffness of the washer: t / EA</p>
+    </div>
+
+</div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.bolts.HexNut" class="doc doc-heading">
+            <code>HexNut</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pyflange.bolts.Nut">Nut</span></code></p>
+
+
+        <p>Generates a generic hexagonal nut.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>nominal_diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The nominal diameter of the inner thread.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>thickness</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The height of the bolt.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>inscribed_diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The diameter of the circle inscribed in the hexagon.
+Correponds to the distance between two opposite flats.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>circumscribed_diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The diameter of the circle circumscribed in the hexagon.
+Correponds to the distance between two opposite vertices..</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bearing_diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The outer diameter of the circular contatact surface
+between nut and washer.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>elastic_modulus</code></b>
+                  (<code>float</code>, default:
+                      <code>210 * <span title="pyflange.bolts.GPa">GPa</span></code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The Young's modulus of the nut material. If omitted, it
+defaults to 210e9 N/m². Notice that the default value assumes that the
+chosen unit for distance is m and the chosen unit for forces is N. If
+that's not the case, you should enter the proper value of this parameter.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>poissons_ratio</code></b>
+                  (<code>float</code>, default:
+                      <code>0.3</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The Poisson's ratio of the nut material.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>The parameters must be expressed in a consistent system of units. For example,
+if you chose to input distances in mm and forces in N, then stresses must be
+expressed in N/mm². All the bolt attributes and methods will return values
+consistently with the input units of measurement.</p>
+<p>All the input parameters are also available as attributes of the generated
+object (e.g. <code>washer.thickness</code>, <code>washer.poissons_ratio</code>, etc.).</p>
+<p>This instances of this calss are designed to be immutable, which means than
+changing an attribute after creating an object is not a good idea. If you
+need a different nut with different attributes, create a new one.</p>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.bolts.MetricBolt" class="doc doc-heading">
+            <code>MetricBolt</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pyflange.bolts.Bolt">Bolt</span></code></p>
+
+
+        <p>Generic bolt with ISO 68-1 metric screw thread</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>nominal_diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The outermost diameter of the screw thread.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>thread_pitch</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The pitch of the metric thread.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>yield_stress</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Nominal yield stress (0.2% strain limit) of the bolt material.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ultimate_tensile_stress</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Nominal ultimate tensile stress of the bolt material.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>elastic_modulus</code></b>
+                  (<code>float</code>, default:
+                      <code>210 * <span title="pyflange.bolts.GPa">GPa</span></code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The Young's modulus of the bolt material.
+If omitted, it defaults to 210e9 N/m². Notice that the default value assumes
+that the chosen unit for distance is m and the chosen unit for forces is N. If
+that's not the case, you should enter the proper value of this parameter.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>poissons_ratio</code></b>
+                  (<code>float</code>, default:
+                      <code>0.3</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The Poisson's ratio of the bolt material.
+If omitted, it defaults to 0.30.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>shank_length</code></b>
+                  (<code>float</code>, default:
+                      <code>0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The length of the shank. If omitted, it defaults to 0.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>shank_diameter_ratio</code></b>
+                  (<code>float</code>, default:
+                      <code>1</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The ratio between the shank diameter and the bolt
+nominal diameter. If omitted, it defaults to 1, which means that the
+shank has the nominal diameter.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>stud</code></b>
+                  (<code>bool</code>, default:
+                      <code>False</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>True if this is a stud bolt, False if it is not. If omitted, it defaults to False.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>The parameters must be expressed in a consistent system of units. For example,
+if you chose to input distances in mm and forces in N, then stresses must be
+expressed in N/mm². All the bolt attributes and methods will return values
+consistently with the input units of measurement.</p>
+<p>All the input parameters are also available as attributes of the generated
+object (e.g. <code>bolt.shank_length</code>, <code>bolt.yield_stress</code>, etc.).</p>
+<p>This instances of this calss are designed to be immutable, which means than
+changing an attribute after creating an object is not a good idea. If you
+need a different bolt with different attributes, create a new one.</p>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.designation" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">designation</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt designation string.</p>
+<p>For example, <code>"M16"</code> is the designation of a bolt with nominal
+diameter 16 mm.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.nominal_cross_section" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">nominal_cross_section</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt cross-section with nominal diameter.</p>
+<p>Instance of <code>BoltCrossSection</code> class.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.nominal_cross_section_area" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">nominal_cross_section_area</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Area of a circle with nominal diameter.</p>
+<p><strong>DEPRECATED</strong>: use <code>bolt.nominal_cross_section.area</code> instead</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.shank_cross_section" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shank_cross_section</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt shank cross-section.</p>
+<p>Instance of <code>BoltCrossSection</code> class.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.shank_cross_section_area" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shank_cross_section_area</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Area of the shank transversal cross-section.</p>
+<p><strong>DEPRECATED</strong>: use <code>bolt.shank_cross_section.area</code> instead.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.shank_diameter" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shank_diameter</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Diameter of the shank.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.shear_modulus" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">shear_modulus</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Shear modulus G.</p>
+<p>Calculated from the Young's modulus and Poisson's ratio, under the
+assumption of isotropic and elastic bolt material.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.tensile_cross_section_area" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">tensile_cross_section_area</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Tensile stress area, according to ISO 891-1:2013, section 9.1.6.1.</p>
+<p><strong>DEPRECATED</strong>: use <code>bolt.thread_cross_section.area</code> instead</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.tensile_moment_of_resistance" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">tensile_moment_of_resistance</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Tensile moment of resistance, according to ISO 891-1:2013, section 9.1.6.1.</p>
+<p><strong>DEPRECATED</strong>: use <code>bolt.thread_cross_section.elastic_section_modulus</code> instead</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.thread_basic_minor_diameter" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">thread_basic_minor_diameter</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Basic minor diameter (d1).</p>
+<p>As defined in ISO 68-1:1998.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.thread_basic_pitch_diameter" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">thread_basic_pitch_diameter</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Basic minor diameter (d2).</p>
+<p>As defined in ISO 68-1:1998.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.thread_cross_section" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">thread_cross_section</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt cross-section used for tensile calculations.</p>
+<p>Instance of <code>BoltCrossSection</code> class.
+Ref. ISO 891-1:2013, section 9.1.6.1</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.thread_height" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">thread_height</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Height of the metric thread fundamental triangle (H).</p>
+<p>As defined in ISO 68-1:1998.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.bolts.MetricBolt.thread_minor_diameter" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">thread_minor_diameter</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Minor diameter (d3).</p>
+<p>As defined in ISO 898-1:2013.</p>
+    </div>
+
+</div>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.bolts.MetricBolt.axial_stiffness" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">axial_stiffness</span><span class="p">(</span><span class="n">length</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Evaluate the axial stiffness of the bolt.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>length</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>clamped length.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>Ka</code></b>(                  <code>float</code>
+)              –
+              <div class="doc-md-description">
+                <p>axial stiffness of the bolt, according to VDI 2230,
+Part 1, Section 5.1.1.1.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.bolts.MetricBolt.bending_stiffness" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bending_stiffness</span><span class="p">(</span><span class="n">length</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Evaluates the bending stiffness of the bolt.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>length</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>clamped length.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>Kb</code></b>(                  <code>float</code>
+)              –
+              <div class="doc-md-description">
+                <p>bending stiffness of the bolt, according to VDI 2230,
+Part 1, Section 5.1.1.2.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.bolts.MetricBolt.ultimate_tensile_capacity" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ultimate_tensile_capacity</span><span class="p">(</span><span class="n">standard</span><span class="o">=</span><span class="s1">&#39;Eurocode&#39;</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Evaluate the ultimate tensile force that the bolt can take.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>standard</code></b>
+                  (<code>str</code>, default:
+                      <code>&#39;Eurocode&#39;</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Standard according to which the ultimate tensile force
+should be calculated. Currently the only supported standard
+is <em>"Eurocode"</em> (EN 1993-1-8:2005).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>FRu</code></b>(                  <code>float</code>
+)              –
+              <div class="doc-md-description">
+                <p>The bolt ultimate tensile force according to the specified
+standard.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code>ValueError</code>
+              –
+              <div class="doc-md-description">
+                <p>if the requested standard is not supported.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.bolts.ISOFlatWasher" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ISOFlatWasher</span><span class="p">(</span><span class="n">designation</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Generates a standard washer according to ISO 7089.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>designation</code></b>
+                  (<code>str</code>)
+              –
+              <div class="doc-md-description">
+                <p>The metric screw thread designation. The allowed values are:
+'M4', 'M5', 'M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22',
+'M24', 'M27', 'M30', 'M33', 'M36', 'M39', 'M42', 'M45', 'M48', 'M52', 'M56',
+'M60', 'M64', 'M72', 'M80', 'M90', 'M100'.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>washer</code></b>(                  <code><a class="autorefs autorefs-internal" title="pyflange.bolts.FlatWasher" href="#pyflange.bolts.FlatWasher">FlatWasher</a></code>
+)              –
+              <div class="doc-md-description">
+                <p>a FlatWasher instance  having the standard dimensions
+defined in ISO 7089.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>For example, <code>ISOFlatWasher("M16")</code> will return a <code>FlatWasher</code>
+instance with outer diameter 30 mm, hole diameter 17 mm and
+thickness 3 mm.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.bolts.ISOHexNut" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ISOHexNut</span><span class="p">(</span><span class="n">designation</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Generates a standard Hex Nut.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>designation</code></b>
+                  (<code>str</code>)
+              –
+              <div class="doc-md-description">
+                <p>The metric screw thread designation. The allowed values are:
+'M4', 'M5', 'M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22',
+'M24', 'M27', 'M30', 'M33', 'M36', 'M39', 'M42', 'M45', 'M48', 'M52', 'M56',
+'M60', 'M64', 'M72', 'M80', 'M90', 'M100'.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>nut</code></b>(                  <code><a class="autorefs autorefs-internal" title="pyflange.bolts.HexNut" href="#pyflange.bolts.HexNut">HexNut</a></code>
+)              –
+              <div class="doc-md-description">
+                <p>a HexNut instance with dimensions according to ISO 4032.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.bolts.RoundNut" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">RoundNut</span><span class="p">(</span><span class="n">designation</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Generates a standard round nut.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>designation</code></b>
+                  (<code>str</code>)
+              –
+              <div class="doc-md-description">
+                <p>The metric screw thread designation. The allowed values are:
+'M4', 'M5', 'M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22',
+'M24', 'M27', 'M30', 'M33', 'M36', 'M39', 'M42', 'M45', 'M48', 'M52', 'M56',
+'M60', 'M64', 'M72', 'M80', 'M90', 'M100'.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>nut</code></b>(                  <code><a class="autorefs autorefs-internal" title="pyflange.bolts.HexNut" href="#pyflange.bolts.HexNut">HexNut</a></code>
+)              –
+              <div class="doc-md-description">
+                <p>a standard flanged nut.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.bolts.StandardMetricBolt" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">StandardMetricBolt</span><span class="p">(</span><span class="n">designation</span><span class="p">,</span> <span class="n">material_grade</span><span class="p">,</span> <span class="n">shank_length</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">shank_diameter_ratio</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">stud</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create a metric bolt with standard dimensions.</p>
+<p>This function provides a convenient way for creating <code>MetricBolt</code> object,
+given the standard geometry designation (e.g. "M20") and the standard material
+grade designation (e.g. "8.8").</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>designation</code></b>
+                  (<code>str</code>)
+              –
+              <div class="doc-md-description">
+                <p>The metric screw thread designation. The allowed values are:
+'M4', 'M5', 'M6', 'M8', 'M10', 'M12', 'M14', 'M16', 'M18', 'M20', 'M22',
+'M24', 'M27', 'M30', 'M33', 'M36', 'M39', 'M42', 'M45', 'M48', 'M52', 'M56',
+'M60', 'M64', 'M72', 'M80', 'M90', 'M100'.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>material_grade</code></b>
+                  (<code>str</code>)
+              –
+              <div class="doc-md-description">
+                <p>The material grade designation. The allowed values are:
+'4.6', '4.8', '5.6', '5.8', '6.8', '8.8', '9.8', '10.9' and '12.9' for
+carbon-steel bolts; 'A50', 'A70', 'A80' and 'A100' for austenitic bolts;
+'D70', 'D80' and 'D100' for duplex bolts; 'C50', 'C70', 'C80' and 'C110' for
+martensitic bolts; 'F45' and 'F60' for ferritic bolts.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>shank_length</code></b>
+                  (<code>float</code>, default:
+                      <code>0.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The length of the shank.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>shank_diameter_ratio</code></b>
+                  (<code>float</code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The ratio between the shank diameter and the
+bolt nominal diameter.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>stud</code></b>
+                  (<code>bool</code>, default:
+                      <code>False</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>True if this is a stud bolt, False if it is not.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>bolt</code></b>(                  <code><a class="autorefs autorefs-internal" title="pyflange.bolts.MetricBolt" href="#pyflange.bolts.MetricBolt">MetricBolt</a></code>
+)              –
+              <div class="doc-md-description">
+                <p>a MetricBolt instance with standard properties.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../.." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../gap/" class="btn btn-neutral float-right" title="gap">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../.." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../gap/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
