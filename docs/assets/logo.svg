@@ -1,0 +1,17 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Draw the outer circle of the flange -->
+    <circle cx="100" cy="100" r="90" stroke="black" stroke-width="1" fill="#222222"/>
+
+    <!-- Draw the inner circle of the flange -->
+    <circle cx="100" cy="100" r="60" stroke="black" stroke-width="1" fill="#AAAAAA"/>
+
+    <!-- Draw the 6 bolt holes between the two circles -->
+    <circle cx="100" cy="25" r="8" stroke="black" stroke-width="1" fill="#FFA000"/>
+    <circle cx="153" cy="47" r="8" stroke="black" stroke-width="1" fill="#FFA000"/>
+    <circle cx="175" cy="100" r="8" stroke="black" stroke-width="1" fill="#FFA000"/>
+    <circle cx="153" cy="153" r="8" stroke="black" stroke-width="1" fill="#FFA000"/>
+    <circle cx="100" cy="175" r="8" stroke="black" stroke-width="1" fill="#FFA000"/>
+    <circle cx="47" cy="153" r="8" stroke="black" stroke-width="1" fill="#FFA000"/>
+    <circle cx="25" cy="100" r="8" stroke="black" stroke-width="1" fill="#FFA000"/>
+    <circle cx="47" cy="47" r="8" stroke="black" stroke-width="1" fill="#FFA000"/>
+</svg>
