@@ -31,12 +31,13 @@ wheel package after downloading it from GitHub.
 
 ```
 cd <path/to/whl/package>
-pip install pyflange-0.1.0-py3-none-any.whl
+pip install pyflange-0.6.0-py3-none-any.whl
 ```
 
-> Package version (0.1.0 in the example above) to be adjusted to the latest.
+> The latest wheel package can be found in the 'dist' folder of the
+> source code repository.
 
-After installing the package, you can import it in your python code as start
+After installing the package, you can import it in your python code and start
 using it. First of all, you need to create a `FlangeSegment` object as shown
 below.
 
@@ -127,6 +128,18 @@ cd <path-to-package>
 py -m pytest
 ```
 
+
+Contributing
+-------------------------------------------------------------------------
+You can contribute to this project by reporting a bug, highlighting a
+necessary improvement, submitting a code improvement or by asking a
+question. For instructions about how to do all these things, please
+see our [contribution guidelines](CONTRIBUTING.md).
+
+> Since the typical PyFlange user  is expected not to be a professional
+> programmer and probably not familiar with Git, we have created a
+> [Git tutorial for non-programmers](https://kcibv.github.io/git-tutorial/) 
+> to make contributing a less intimidating process.
 
 
 License
