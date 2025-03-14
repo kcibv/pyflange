@@ -50,3 +50,13 @@ a issue (see [Requesting improvements](#requesting-improvements)).
 
 See also [this article](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) about contributing to a project and submitting pull requests.
 
+
+
+Asking a question
+--------------------------------------------------------------------------------
+Asking a question is also a form of contribution, equivalent to submitting a
+bug about the project documentation, which is not complete or not clear. Of
+course, before submitting a question, make sure you have read the documentation
+and all the questions submitted by other contributors.
+
+A question can be asked by [opening a GitHub issue](https://docs.github.com/en/issues).
