@@ -12,8 +12,8 @@ nav:
       - Montecarlo Simulation: examples/montecarlo.md
 theme:
     name: readthedocs
-    logo: assets/KCI-logo.png
-    favicon: assets/KCI.ico
+    logo: assets/logo.svg
+    favicon: assets/logo.ico
 
 plugins:
 - mkdocstrings:
