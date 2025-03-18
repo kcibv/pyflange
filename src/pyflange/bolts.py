@@ -30,7 +30,7 @@ fastener components. In particular it contains
 '''
 
 from dataclasses import dataclass
-from functools import cached_property
+from functools import cached_property, cache
 
 from .logger import Logger, log_data
 logger = Logger(__name__)
@@ -455,12 +455,12 @@ def StandardMetricBolt (designation, material_grade, shank_length=0.0, shank_dia
         bolt (MetricBolt): a MetricBolt instance with standard properties.
     '''
 
-    geometry = _standard['bolts'][designation]
+    geometry = _load_database('bolts.metric_screws')
     material = _standard['materials'][material_grade]
 
     return MetricBolt(
-        nominal_diameter = geometry['D'],
-        thread_pitch = geometry['Pc'],
+        nominal_diameter = geometry['nominal_diameter'][designation],
+        thread_pitch = geometry['course_pitch'][designation],
         yield_stress = material['fy'],
         ultimate_tensile_stress = material['fu'],
         elastic_modulus = material['E'],
@@ -650,44 +650,16 @@ def RoundNut (designation):
     )
 
 
+@cache
+def _load_database (db_name):
+    import os
+    import pandas as pd
+    db_path = os.path.join(os.path.dirname(__file__), f"data/{db_name}.csv")
+    return pd.read_csv(db_path, index_col="id")
+
+
 
 _standard = {
-
-
-    "bolts": {
-
-        "M4"  : {"D"    : 4.00*mm,      # nominal diameter
-                 "Pc"   : 0.70*mm,      # coarse screw thead pitch
-                 "Pf"   : None },       # fine screaw thead pitch
-
-        "M5"  : {"D": 5*mm, "Pc":0.80*mm, "Pf":None},
-        "M6"  : {"D": 6*mm, "Pc":1.00*mm, "Pf":None},
-        "M8"  : {"D": 8*mm, "Pc":1.25*mm, "Pf":1.00},
-        "M10" : {"D":10*mm, "Pc":1.50*mm, "Pf":1.25},
-        "M12" : {"D":12*mm, "Pc":1.75*mm, "Pf":1.50},
-        "M14" : {"D":14*mm, "Pc":2.00*mm, "Pf":1.50},  # 2nd choice
-        "M16" : {"D":16*mm, "Pc":2.00*mm, "Pf":1.50},
-        "M18" : {"D":18*mm, "Pc":2.50*mm, "Pf":2.00},  # 2nd choice
-        "M20" : {"D":20*mm, "Pc":2.50*mm, "Pf":2.00},
-        "M22" : {"D":22*mm, "Pc":2.50*mm, "Pf":2.00},  # 2nd choice
-        "M24" : {"D":24*mm, "Pc":3.00*mm, "Pf":2.00},
-        "M27" : {"D":27*mm, "Pc":3.00*mm, "Pf":2.00},  # 2nd choice
-        "M30" : {"D":30*mm, "Pc":3.50*mm, "Pf":2.00},
-        "M33" : {"D":33*mm, "Pc":3.50*mm, "Pf":2.00},  # 2nd choice
-        "M36" : {"D":36*mm, "Pc":4.00*mm, "Pf":3.00},
-        "M39" : {"D":39*mm, "Pc":4.00*mm, "Pf":3.00},  # 2nd choice
-        "M42" : {"D":42*mm, "Pc":4.50*mm, "Pf":3.00},
-        "M45" : {"D":45*mm, "Pc":4.50*mm, "Pf":3.00},  # 2nd choice
-        "M48" : {"D":48*mm, "Pc":5.00*mm, "Pf":3.00},
-        "M52" : {"D":52*mm, "Pc":5.00*mm, "Pf":4.00},  # 2nd choice
-        "M56" : {"D":56*mm, "Pc":5.50*mm, "Pf":4.00},
-        "M60" : {"D":60*mm, "Pc":5.50*mm, "Pf":4.00},  # 2nd choice
-        "M64" : {"D":64*mm, "Pc":6.00*mm, "Pf":4.00},
-        "M72" : {"D":72*mm, "Pc":6.00*mm, "Pf":4.00},
-        "M80" : {"D":80*mm, "Pc":6.00*mm, "Pf":4.00},
-        "M90" : {"D":90*mm, "Pc":6.00*mm, "Pf":4.00},
-        "M100": {"D":100*mm,"Pc":6.00*mm, "Pf":4.00}
-    },
 
     "flat_washers": {
 
