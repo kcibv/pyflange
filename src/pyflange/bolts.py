@@ -617,7 +617,6 @@ def ISOHexNut (designation):
     Returns:
         nut (HexNut): a HexNut instance with dimensions according to ISO 4032.
     '''
-    # params = _standard["hex_nuts"][designation]
     params = _load_database("bolts.hex_nuts")
     return HexNut(
         nominal_diameter = params["nominal_diameter"][designation],
@@ -641,13 +640,14 @@ def RoundNut (designation):
     Returns:
         nut (HexNut): a standard flanged nut.
     '''
-    params = _standard["round_nuts"][designation]
+    # params = _standard["round_nuts"][designation]
+    params = _load_database("bolts.round_nuts")
     return HexNut(
-        nominal_diameter = params["D_nom"],
-        thickness = params["t"],
-        inscribed_diameter = params["D_ins"],
-        circumscribed_diameter = params["D_cir"],
-        bearing_diameter = params["D_brg"]
+        nominal_diameter = params["nominal_diameter"][designation],
+        thickness = params["thickness"][designation],
+        inscribed_diameter = params["inscribed_diameter"][designation],
+        circumscribed_diameter = params["circumscribed_diameter"][designation],
+        bearing_diameter = params["bearing_diameter"][designation]
     )
 
 
@@ -660,22 +660,3 @@ def _load_database (db_name):
 
 
 
-_standard = {
-
-
-    "round_nuts": {
-
-        "M36" : {"D_nom": 36*mm,     # nominal diameter
-                 "t"    : 36*mm,     # nut thickness
-                 "D_cir": 60.79*mm,     # nut circumscribed circle diameter
-                 "D_ins": 55*mm,
-                 "D_brg": 66*mm},    # nut inscribed circle diameter
-
-        "M42" : {"D_nom":42*mm, "t":42.0*mm, "D_cir": 71.30*mm, "D_ins": 65*mm, "D_brg": 78*mm},
-        "M48" : {"D_nom":48*mm, "t":48.0*mm, "D_cir": 82.60*mm, "D_ins": 75*mm, "D_brg": 92*mm},
-        "M56" : {"D_nom":56*mm, "t":56.0*mm, "D_cir": 93.56*mm, "D_ins": 85*mm, "D_brg":105*mm},
-        "M64" : {"D_nom":64*mm, "t":64.0*mm, "D_cir":104.86*mm, "D_ins": 95*mm, "D_brg":115*mm},
-        "M72" : {"D_nom":72*mm, "t":72.0*mm, "D_cir":116.16*mm, "D_ins":105*mm, "D_brg":125*mm},
-        "M80" : {"D_nom":80*mm, "t":80.0*mm, "D_cir":127.46*mm, "D_ins":115*mm, "D_brg":140*mm}
-    }
-}
