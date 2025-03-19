@@ -543,11 +543,11 @@ def ISOFlatWasher (designation):
     thickness 3 mm.
     '''
 
-    params = _standard["flat_washers"][designation]
+    params = _load_database("bolts.flat_washers")
     return FlatWasher(
-        outer_diameter = params['D'],
-        inner_diameter = params['d'],
-        thickness = params['t'])
+        outer_diameter = params['outer_diameter'][designation],
+        inner_diameter = params['hole_diameter'][designation],
+        thickness = params['thickness'][designation])
 
 
 
@@ -660,41 +660,6 @@ def _load_database (db_name):
 
 
 _standard = {
-
-    "flat_washers": {
-
-        "M4"  : {"D" : 9.00*mm,     # nominal diameter
-                 "d" : 4.30*mm,     # washer hole diameter ISO 7089
-                 "t" : 0.80*mm},    # washer thickness ISO 7089
-
-        "M5"  : {"d":  5.3*mm, "D": 10*mm, "t": 1.0*mm},
-        "M6"  : {"d":  6.4*mm, "D": 12*mm, "t": 1.6*mm},
-        "M8"  : {"d":  8.4*mm, "D": 16*mm, "t": 1.6*mm},
-        "M10" : {"d": 10.5*mm, "D": 20*mm, "t": 2.0*mm},
-        "M12" : {"d": 13.0*mm, "D": 24*mm, "t": 2.5*mm},
-        "M14" : {"d": 15.0*mm, "D": 28*mm, "t": 2.5*mm},  # 2nd choice
-        "M16" : {"d": 17.0*mm, "D": 30*mm, "t": 3.0*mm},
-        "M18" : {"d": 19.0*mm, "D": 34*mm, "t": 3.0*mm},  # 2nd choice
-        "M20" : {"d": 21.0*mm, "D": 37*mm, "t": 3.0*mm},
-        "M22" : {"d": 23.0*mm, "D": 39*mm, "t": 3.0*mm},  # 2nd choice
-        "M24" : {"d": 25.0*mm, "D": 44*mm, "t": 4.0*mm},
-        "M27" : {"d": 28.0*mm, "D": 50*mm, "t": 4.0*mm},  # 2nd choice
-        "M30" : {"d": 31.0*mm, "D": 56*mm, "t": 4.0*mm},
-        "M33" : {"d": 34.0*mm, "D": 60*mm, "t": 5.0*mm},  # 2nd choice
-        "M36" : {"d": 37.0*mm, "D": 66*mm, "t": 5.0*mm},
-        "M39" : {"d": 40.0*mm, "D": 72*mm, "t": 6.0*mm},  # 2nd choice
-        "M42" : {"d": 43.0*mm, "D": 78*mm, "t": 7.0*mm},
-        "M45" : {"d": 46.0*mm, "D": 85*mm, "t": 7.0*mm},  # 2nd choice
-        "M48" : {"d": 50.0*mm, "D": 92*mm, "t": 8.0*mm},
-        "M52" : {"d": 54.0*mm, "D": 98*mm, "t": 8.0*mm},  # 2nd choice
-        "M56" : {"d": 58.0*mm, "D":105*mm, "t": 9.0*mm},
-        "M60" : {"d": 62.0*mm, "D":110*mm, "t": 9.0*mm},  # 2nd choice
-        "M64" : {"d": 66.0*mm, "D":115*mm, "t": 9.0*mm},
-        "M72" : {"d": 74.0*mm, "D":125*mm, "t":10.0*mm},
-        "M80" : {"d": 82.0*mm, "D":140*mm, "t":12.0*mm},
-        "M90" : {"d": 93.0*mm, "D":160*mm, "t":12.0*mm},
-        "M100": {"d":104.0*mm, "D":175*mm, "t":14.0*mm}
-    },
 
     "hex_nuts": {
 
