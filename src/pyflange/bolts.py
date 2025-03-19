@@ -456,15 +456,15 @@ def StandardMetricBolt (designation, material_grade, shank_length=0.0, shank_dia
     '''
 
     geometry = _load_database('bolts.metric_screws')
-    material = _standard['materials'][material_grade]
+    material = _load_database('bolts.materials')
 
     return MetricBolt(
         nominal_diameter = geometry['nominal_diameter'][designation],
         thread_pitch = geometry['course_pitch'][designation],
-        yield_stress = material['fy'],
-        ultimate_tensile_stress = material['fu'],
-        elastic_modulus = material['E'],
-        poissons_ratio = material['nu'],
+        yield_stress = material['yield_stress'][material_grade],
+        ultimate_tensile_stress = material['ultimate_tensile_stress'][material_grade],
+        elastic_modulus = material['youngs_modulus'][material_grade],
+        poissons_ratio = material['poissons_ratio'][material_grade],
         shank_length = shank_length,
         shank_diameter_ratio = shank_diameter_ratio,
         stud = stud)
@@ -712,51 +712,5 @@ _standard = {
         "M64" : {"D_nom":64*mm, "t":64.0*mm, "D_cir":104.86*mm, "D_ins": 95*mm, "D_brg":115*mm},
         "M72" : {"D_nom":72*mm, "t":72.0*mm, "D_cir":116.16*mm, "D_ins":105*mm, "D_brg":125*mm},
         "M80" : {"D_nom":80*mm, "t":80.0*mm, "D_cir":127.46*mm, "D_ins":115*mm, "D_brg":140*mm}
-    },
-
-    "materials": {
-
-        # Carbon-steel and alloy steel bolts,
-        # according to ISO 898-1
-
-        "4.6": {
-            "fy": 240*MPa,    # yield stress (stress at 0.2% non-proportional elongation)
-            "fu": 400*MPa,    # ultimate tensile stress
-            "E" : 210*GPa,    # elastic modulus
-            "nu": 0.3         # poissons ratio
-        },
-
-        "4.8"   : {"fy": 320*MPa, "fu": 400*MPa, "E":210*GPa, "nu":0.3},
-        "5.6"   : {"fy": 300*MPa, "fu": 500*MPa, "E":210*GPa, "nu":0.3},
-        "5.8"   : {"fy": 400*MPa, "fu": 500*MPa, "E":210*GPa, "nu":0.3},
-        "6.8"   : {"fy": 480*MPa, "fu": 600*MPa, "E":210*GPa, "nu":0.3},
-        "8.8"   : {"fy": 640*MPa, "fu": 800*MPa, "E":210*GPa, "nu":0.3},
-        "9.8"   : {"fy": 720*MPa, "fu": 900*MPa, "E":210*GPa, "nu":0.3},
-        "10.9"  : {"fy": 900*MPa, "fu":1000*MPa, "E":210*GPa, "nu":0.3},
-        "12.9"  : {"fy":1080*MPa, "fu":1200*MPa, "E":210*GPa, "nu":0.3},
-
-        # Stainless-steel bolts,
-        # according to ISO 3506-1
-
-        # ISO 3506-1 Austenitic
-        "A50" : {"fy": 210*MPa, "fu": 500*MPa, "E":210*GPa, "nu":0.3},
-        "A70" : {"fy": 450*MPa, "fu": 700*MPa, "E":210*GPa, "nu":0.3},
-        "A80" : {"fy": 600*MPa, "fu": 800*MPa, "E":210*GPa, "nu":0.3},
-        "A100": {"fy": 800*MPa, "fu":1000*MPa, "E":210*GPa, "nu":0.3},
-
-        # ISO 3506-1 Duplex
-        "D70" : {"fy": 450*MPa, "fu": 700*MPa, "E":210*GPa, "nu":0.3},
-        "D80" : {"fy": 600*MPa, "fu": 800*MPa, "E":210*GPa, "nu":0.3},
-        "D100": {"fy": 800*MPa, "fu":1000*MPa, "E":210*GPa, "nu":0.3},
-
-        # ISO 3506-1 Martensitic
-        "C50" : {"fy": 250*MPa, "fu": 500*MPa, "E":210*GPa, "nu":0.3},
-        "C70" : {"fy": 410*MPa, "fu": 700*MPa, "E":210*GPa, "nu":0.3},
-        "C80" : {"fy": 640*MPa, "fu": 800*MPa, "E":210*GPa, "nu":0.3},
-        "C110": {"fy": 820*MPa, "fu":1100*MPa, "E":210*GPa, "nu":0.3},
-
-        # ISO 3506-1 Ferritic
-        "F45" : {"fy": 250*MPa, "fu": 450*MPa, "E":210*GPa, "nu":0.3},
-        "F60" : {"fy": 410*MPa, "fu": 600*MPa, "E":210*GPa, "nu":0.3}
     }
 }
