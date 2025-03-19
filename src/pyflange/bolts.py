@@ -617,13 +617,14 @@ def ISOHexNut (designation):
     Returns:
         nut (HexNut): a HexNut instance with dimensions according to ISO 4032.
     '''
-    params = _standard["hex_nuts"][designation]
+    # params = _standard["hex_nuts"][designation]
+    params = _load_database("bolts.hex_nuts")
     return HexNut(
-        nominal_diameter = params["D_nom"],
-        thickness = params["t"],
-        inscribed_diameter = params["D_ins"],
-        circumscribed_diameter = params["D_cir"],
-        bearing_diameter = params["D_brg"]
+        nominal_diameter = params["nominal_diameter"][designation],
+        thickness = params["thickness"][designation],
+        inscribed_diameter = params["inscribed_diameter"][designation],
+        circumscribed_diameter = params["circumscribed_diameter"][designation],
+        bearing_diameter = params["bearing_diameter"][designation]
     )
 
 
@@ -661,42 +662,6 @@ def _load_database (db_name):
 
 _standard = {
 
-    "hex_nuts": {
-
-        "M4"  : {"D_nom": 4.00*mm,     # nominal diameter
-                 "t"    : 3.20*mm,     # nut thickness
-                 "D_cir": 7.66*mm,     # nut circumscribed circle diameter
-                 "D_ins": 7.00*mm,
-                 "D_brg": 5.90*mm},    # nut inscribed circle diameter
-
-        "M5"  : {"D_nom": 5*mm, "t": 4.7*mm, "D_cir":  8.79*mm, "D_ins":  8*mm, "D_brg":  6.9*mm},
-        "M6"  : {"D_nom": 6*mm, "t": 5.2*mm, "D_cir": 11.05*mm, "D_ins": 10*mm, "D_brg":  8.9*mm},
-        "M8"  : {"D_nom": 8*mm, "t": 6.8*mm, "D_cir": 14.38*mm, "D_ins": 13*mm, "D_brg": 11.6*mm},
-        "M10" : {"D_nom":10*mm, "t": 8.4*mm, "D_cir": 18.90*mm, "D_ins": 17*mm, "D_brg": 14.6*mm},
-        "M12" : {"D_nom":12*mm, "t":10.8*mm, "D_cir": 21.10*mm, "D_ins": 19*mm, "D_brg": 16.6*mm},
-        "M14" : {"D_nom":14*mm, "t":12.8*mm, "D_cir": 24.49*mm, "D_ins": 22*mm, "D_brg": 19.6*mm},  # 2nd choice
-        "M16" : {"D_nom":16*mm, "t":14.8*mm, "D_cir": 26.75*mm, "D_ins": 24*mm, "D_brg": 22.5*mm},
-        "M18" : {"D_nom":18*mm, "t":15.8*mm, "D_cir": 30.14*mm, "D_ins": 27*mm, "D_brg": 24.9*mm},  # 2nd choice
-        "M20" : {"D_nom":20*mm, "t":18.0*mm, "D_cir": 33.53*mm, "D_ins": 30*mm, "D_brg": 27.7*mm},
-        "M22" : {"D_nom":22*mm, "t":19.4*mm, "D_cir": 35.72*mm, "D_ins": 32*mm, "D_brg": 31.4*mm},  # 2nd choice
-        "M24" : {"D_nom":24*mm, "t":21.5*mm, "D_cir": 39.98*mm, "D_ins": 36*mm, "D_brg": 33.3*mm},
-        "M27" : {"D_nom":27*mm, "t":23.8*mm, "D_cir": 45.20*mm, "D_ins": 41*mm, "D_brg": 38.0*mm},  # 2nd choice
-        "M30" : {"D_nom":30*mm, "t":25.6*mm, "D_cir": 50.85*mm, "D_ins": 46*mm, "D_brg": 42.8*mm},
-        "M33" : {"D_nom":33*mm, "t":28.7*mm, "D_cir": 55.37*mm, "D_ins": 50*mm, "D_brg": 46.6*mm},  # 2nd choice
-        "M36" : {"D_nom":36*mm, "t":31.0*mm, "D_cir": 60.79*mm, "D_ins": 55*mm, "D_brg": 51.1*mm},
-        "M39" : {"D_nom":39*mm, "t":33.4*mm, "D_cir": 66.44*mm, "D_ins": 60*mm, "D_brg": 55.9*mm},  # 2nd choice
-        "M42" : {"D_nom":42*mm, "t":34.0*mm, "D_cir": 71.30*mm, "D_ins": 65*mm, "D_brg": 60.0*mm},
-        "M45" : {"D_nom":45*mm, "t":36.0*mm, "D_cir": 76.95*mm, "D_ins": 70*mm, "D_brg": 64.7*mm},  # 2nd choice
-        "M48" : {"D_nom":48*mm, "t":38.0*mm, "D_cir": 82.60*mm, "D_ins": 75*mm, "D_brg": 69.5*mm},
-        "M52" : {"D_nom":52*mm, "t":42.0*mm, "D_cir": 88.25*mm, "D_ins": 80*mm, "D_brg": 74.2*mm},  # 2nd choice
-        "M56" : {"D_nom":56*mm, "t":45.0*mm, "D_cir": 93.56*mm, "D_ins": 85*mm, "D_brg": 78.7*mm},
-        "M60" : {"D_nom":60*mm, "t":48.0*mm, "D_cir": 99.21*mm, "D_ins": 90*mm, "D_brg": 83.4*mm},  # 2nd choice
-        "M64" : {"D_nom":64*mm, "t":51.0*mm, "D_cir":104.86*mm, "D_ins": 95*mm, "D_brg": 88.2*mm},
-        "M72" : {"D_nom":72*mm, "t":58.0*mm, "D_cir":116.20*mm, "D_ins":105*mm, "D_brg": 97.7*mm},
-        "M80" : {"D_nom":80*mm, "t":64.0*mm, "D_cir":127.50*mm, "D_ins":115*mm, "D_brg":107.2*mm},
-        "M90" : {"D_nom":90*mm, "t":72.0*mm, "D_cir":144.10*mm, "D_ins":130*mm, "D_brg":121.1*mm},
-        "M100": {"D_nom":100*mm,"t":80.0*mm, "D_cir":161.02*mm, "D_ins":145*mm, "D_brg":135.4*mm}
-    },
 
     "round_nuts": {
 
