@@ -30,10 +30,13 @@ fastener components. In particular it contains
 '''
 
 from dataclasses import dataclass
-from functools import cached_property, cache
+from functools import cached_property
 
-from .logger import Logger, log_data
+from .utils import Logger, log_data
 logger = Logger(__name__)
+
+from .utils import load_csv_database
+
 
 # UNITS OF MEASUREMENT
 # Distance
@@ -371,7 +374,7 @@ class MetricBolt (Bolt):
         **DEPRECATED**: use `bolt.shank_cross_section.area` instead.
         '''
 
-        from .logger import Logger
+        from .utils import Logger
         logger = Logger(__name__)
         logger.warning("MetricBolt.shank_cross_section_area is deprecated; use MetricBolt.shank_cross_section.area instead.")
 
@@ -386,7 +389,7 @@ class MetricBolt (Bolt):
         **DEPRECATED**: use `bolt.nominal_cross_section.area` instead
         '''
 
-        from .logger import Logger
+        from .utils import Logger
         logger = Logger(__name__)
         logger.warning("MetricBolt.nominal_cross_section_area is deprecated; use MetricBolt.nominal_cross_section.area instead.")
 
@@ -401,7 +404,7 @@ class MetricBolt (Bolt):
         **DEPRECATED**: use `bolt.thread_cross_section.area` instead
         '''
 
-        from .logger import Logger
+        from .utils import Logger
         logger = Logger(__name__)
         logger.warning("MetricBolt.tensile_cross_section_area is deprecated; use MetricBolt.thread_cross_section.area instead.")
 
@@ -416,7 +419,7 @@ class MetricBolt (Bolt):
         **DEPRECATED**: use `bolt.thread_cross_section.elastic_section_modulus` instead
         '''
 
-        from .logger import Logger
+        from .utils import Logger
         logger = Logger(__name__)
         logger.warning("MetricBolt.tensile_moment_of_resistance is deprecated; use MetricBolt.thread_cross_section.elastic_section_modulus instead.")
 
@@ -455,8 +458,8 @@ def StandardMetricBolt (designation, material_grade, shank_length=0.0, shank_dia
         bolt (MetricBolt): a MetricBolt instance with standard properties.
     '''
 
-    geometry = _load_database('bolts.metric_screws')
-    material = _load_database('bolts.materials')
+    geometry = load_csv_database('bolts.metric_screws')
+    material = load_csv_database('bolts.materials')
 
     return MetricBolt(
         nominal_diameter = geometry['nominal_diameter'][designation],
@@ -543,7 +546,7 @@ def ISOFlatWasher (designation):
     thickness 3 mm.
     '''
 
-    params = _load_database("bolts.flat_washers")
+    params = load_csv_database("bolts.flat_washers")
     return FlatWasher(
         outer_diameter = params['outer_diameter'][designation],
         inner_diameter = params['hole_diameter'][designation],
@@ -617,7 +620,7 @@ def ISOHexNut (designation):
     Returns:
         nut (HexNut): a HexNut instance with dimensions according to ISO 4032.
     '''
-    params = _load_database("bolts.hex_nuts")
+    params = load_csv_database("bolts.hex_nuts")
     return HexNut(
         nominal_diameter = params["nominal_diameter"][designation],
         thickness = params["thickness"][designation],
@@ -640,8 +643,7 @@ def RoundNut (designation):
     Returns:
         nut (HexNut): a standard flanged nut.
     '''
-    # params = _standard["round_nuts"][designation]
-    params = _load_database("bolts.round_nuts")
+    params = load_csv_database("bolts.round_nuts")
     return HexNut(
         nominal_diameter = params["nominal_diameter"][designation],
         thickness = params["thickness"][designation],
@@ -649,14 +651,3 @@ def RoundNut (designation):
         circumscribed_diameter = params["circumscribed_diameter"][designation],
         bearing_diameter = params["bearing_diameter"][designation]
     )
-
-
-@cache
-def _load_database (db_name):
-    import os
-    import pandas as pd
-    db_path = os.path.join(os.path.dirname(__file__), f"data/{db_name}.csv")
-    return pd.read_csv(db_path, index_col="id")
-
-
-
