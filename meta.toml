@@ -1,0 +1,13 @@
+[document]
+name = "pyflange"
+description = "Python library for flange calculation"
+
+[project]
+number = "SP2200052"
+description = "Bolt and Beautiful"
+
+[client]
+name = "GROW "
+
+[repository]
+path = "Z:/Internal/1. General/1.6 In-house Software/sources/pyflange"

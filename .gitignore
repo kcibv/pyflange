@@ -161,3 +161,4 @@ cython_debug/
 
 # Hand-made versioning
 __void__/
+**/.versions/
