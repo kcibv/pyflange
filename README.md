@@ -51,6 +51,7 @@ M80_nut    = ISOHexNut("M80")
 
 # Define the gap parameters
 from pyflange.gap import gap_height_distribution
+from math import pi
 D = 7.50                        # meters, flange outer diameter
 gap_angle = pi/6                # 30 deg gap angle
 gap_length = gap_angle * D/2    # outer length of the gap
