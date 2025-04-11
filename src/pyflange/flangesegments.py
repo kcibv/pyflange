@@ -54,7 +54,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cache, cached_property
 
-from .logger import Logger, log_data
+from .utils import Logger, log_data
 logger = Logger(__name__)
 
 import numpy as np
@@ -1709,16 +1709,14 @@ def shell_stiffness (shell_radius, shell_thickness, gap_angle):
     Returns:
         K_sh (float): shell stiffness.
     '''
-    import os
-    file_path = os.path.join(os.path.dirname(__file__), "data/flangesegments.shell_stiffness.csv")
-    interpolate_shell_stiffness = _load_shell_stiffness_interpolator_from_csv(file_path)
+    interpolate_shell_stiffness = _load_shell_stiffness_interpolator()
     return interpolate_shell_stiffness(shell_radius, shell_thickness, gap_angle)
 
 
 @cache
-def _load_shell_stiffness_interpolator_from_csv (file_path):
-    import pandas as pd
+def _load_shell_stiffness_interpolator ():
     from math import pi
+    from .utils import load_csv_database
     from scipy.interpolate import LinearNDInterpolator
-    ssdf = pd.read_csv(file_path)
+    ssdf = load_csv_database("flangesegments.shell_stiffness", index_col=None)
     return LinearNDInterpolator(list(zip(ssdf['shell_radius'], ssdf['shell_thickness'], ssdf['gap_angle']/180*pi)), ssdf['shell_stiffness'])

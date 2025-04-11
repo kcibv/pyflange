@@ -32,8 +32,11 @@ fastener components. In particular it contains
 from dataclasses import dataclass
 from functools import cached_property
 
-from .logger import Logger, log_data
+from .utils import Logger, log_data
 logger = Logger(__name__)
+
+from .utils import load_csv_database
+
 
 # UNITS OF MEASUREMENT
 # Distance
@@ -371,7 +374,7 @@ class MetricBolt (Bolt):
         **DEPRECATED**: use `bolt.shank_cross_section.area` instead.
         '''
 
-        from .logger import Logger
+        from .utils import Logger
         logger = Logger(__name__)
         logger.warning("MetricBolt.shank_cross_section_area is deprecated; use MetricBolt.shank_cross_section.area instead.")
 
@@ -386,7 +389,7 @@ class MetricBolt (Bolt):
         **DEPRECATED**: use `bolt.nominal_cross_section.area` instead
         '''
 
-        from .logger import Logger
+        from .utils import Logger
         logger = Logger(__name__)
         logger.warning("MetricBolt.nominal_cross_section_area is deprecated; use MetricBolt.nominal_cross_section.area instead.")
 
@@ -401,7 +404,7 @@ class MetricBolt (Bolt):
         **DEPRECATED**: use `bolt.thread_cross_section.area` instead
         '''
 
-        from .logger import Logger
+        from .utils import Logger
         logger = Logger(__name__)
         logger.warning("MetricBolt.tensile_cross_section_area is deprecated; use MetricBolt.thread_cross_section.area instead.")
 
@@ -416,7 +419,7 @@ class MetricBolt (Bolt):
         **DEPRECATED**: use `bolt.thread_cross_section.elastic_section_modulus` instead
         '''
 
-        from .logger import Logger
+        from .utils import Logger
         logger = Logger(__name__)
         logger.warning("MetricBolt.tensile_moment_of_resistance is deprecated; use MetricBolt.thread_cross_section.elastic_section_modulus instead.")
 
@@ -455,16 +458,16 @@ def StandardMetricBolt (designation, material_grade, shank_length=0.0, shank_dia
         bolt (MetricBolt): a MetricBolt instance with standard properties.
     '''
 
-    geometry = _standard['bolts'][designation]
-    material = _standard['materials'][material_grade]
+    geometry = load_csv_database('bolts.metric_screws')
+    material = load_csv_database('bolts.materials')
 
     return MetricBolt(
-        nominal_diameter = geometry['D'],
-        thread_pitch = geometry['Pc'],
-        yield_stress = material['fy'],
-        ultimate_tensile_stress = material['fu'],
-        elastic_modulus = material['E'],
-        poissons_ratio = material['nu'],
+        nominal_diameter = geometry['nominal_diameter'][designation],
+        thread_pitch = geometry['course_pitch'][designation],
+        yield_stress = material['yield_stress'][material_grade],
+        ultimate_tensile_stress = material['ultimate_tensile_stress'][material_grade],
+        elastic_modulus = material['youngs_modulus'][material_grade],
+        poissons_ratio = material['poissons_ratio'][material_grade],
         shank_length = shank_length,
         shank_diameter_ratio = shank_diameter_ratio,
         stud = stud)
@@ -543,11 +546,11 @@ def ISOFlatWasher (designation):
     thickness 3 mm.
     '''
 
-    params = _standard["flat_washers"][designation]
+    params = load_csv_database("bolts.flat_washers")
     return FlatWasher(
-        outer_diameter = params['D'],
-        inner_diameter = params['d'],
-        thickness = params['t'])
+        outer_diameter = params['outer_diameter'][designation],
+        inner_diameter = params['hole_diameter'][designation],
+        thickness = params['thickness'][designation])
 
 
 
@@ -617,13 +620,13 @@ def ISOHexNut (designation):
     Returns:
         nut (HexNut): a HexNut instance with dimensions according to ISO 4032.
     '''
-    params = _standard["hex_nuts"][designation]
+    params = load_csv_database("bolts.hex_nuts")
     return HexNut(
-        nominal_diameter = params["D_nom"],
-        thickness = params["t"],
-        inscribed_diameter = params["D_ins"],
-        circumscribed_diameter = params["D_cir"],
-        bearing_diameter = params["D_brg"]
+        nominal_diameter = params["nominal_diameter"][designation],
+        thickness = params["thickness"][designation],
+        inscribed_diameter = params["inscribed_diameter"][designation],
+        circumscribed_diameter = params["circumscribed_diameter"][designation],
+        bearing_diameter = params["bearing_diameter"][designation]
     )
 
 
@@ -640,186 +643,11 @@ def RoundNut (designation):
     Returns:
         nut (HexNut): a standard flanged nut.
     '''
-    params = _standard["round_nuts"][designation]
+    params = load_csv_database("bolts.round_nuts")
     return HexNut(
-        nominal_diameter = params["D_nom"],
-        thickness = params["t"],
-        inscribed_diameter = params["D_ins"],
-        circumscribed_diameter = params["D_cir"],
-        bearing_diameter = params["D_brg"]
+        nominal_diameter = params["nominal_diameter"][designation],
+        thickness = params["thickness"][designation],
+        inscribed_diameter = params["inscribed_diameter"][designation],
+        circumscribed_diameter = params["circumscribed_diameter"][designation],
+        bearing_diameter = params["bearing_diameter"][designation]
     )
-
-
-
-_standard = {
-
-
-    "bolts": {
-
-        "M4"  : {"D"    : 4.00*mm,      # nominal diameter
-                 "Pc"   : 0.70*mm,      # coarse screw thead pitch
-                 "Pf"   : None },       # fine screaw thead pitch
-
-        "M5"  : {"D": 5*mm, "Pc":0.80*mm, "Pf":None},
-        "M6"  : {"D": 6*mm, "Pc":1.00*mm, "Pf":None},
-        "M8"  : {"D": 8*mm, "Pc":1.25*mm, "Pf":1.00},
-        "M10" : {"D":10*mm, "Pc":1.50*mm, "Pf":1.25},
-        "M12" : {"D":12*mm, "Pc":1.75*mm, "Pf":1.50},
-        "M14" : {"D":14*mm, "Pc":2.00*mm, "Pf":1.50},  # 2nd choice
-        "M16" : {"D":16*mm, "Pc":2.00*mm, "Pf":1.50},
-        "M18" : {"D":18*mm, "Pc":2.50*mm, "Pf":2.00},  # 2nd choice
-        "M20" : {"D":20*mm, "Pc":2.50*mm, "Pf":2.00},
-        "M22" : {"D":22*mm, "Pc":2.50*mm, "Pf":2.00},  # 2nd choice
-        "M24" : {"D":24*mm, "Pc":3.00*mm, "Pf":2.00},
-        "M27" : {"D":27*mm, "Pc":3.00*mm, "Pf":2.00},  # 2nd choice
-        "M30" : {"D":30*mm, "Pc":3.50*mm, "Pf":2.00},
-        "M33" : {"D":33*mm, "Pc":3.50*mm, "Pf":2.00},  # 2nd choice
-        "M36" : {"D":36*mm, "Pc":4.00*mm, "Pf":3.00},
-        "M39" : {"D":39*mm, "Pc":4.00*mm, "Pf":3.00},  # 2nd choice
-        "M42" : {"D":42*mm, "Pc":4.50*mm, "Pf":3.00},
-        "M45" : {"D":45*mm, "Pc":4.50*mm, "Pf":3.00},  # 2nd choice
-        "M48" : {"D":48*mm, "Pc":5.00*mm, "Pf":3.00},
-        "M52" : {"D":52*mm, "Pc":5.00*mm, "Pf":4.00},  # 2nd choice
-        "M56" : {"D":56*mm, "Pc":5.50*mm, "Pf":4.00},
-        "M60" : {"D":60*mm, "Pc":5.50*mm, "Pf":4.00},  # 2nd choice
-        "M64" : {"D":64*mm, "Pc":6.00*mm, "Pf":4.00},
-        "M72" : {"D":72*mm, "Pc":6.00*mm, "Pf":4.00},
-        "M80" : {"D":80*mm, "Pc":6.00*mm, "Pf":4.00},
-        "M90" : {"D":90*mm, "Pc":6.00*mm, "Pf":4.00},
-        "M100": {"D":100*mm,"Pc":6.00*mm, "Pf":4.00}
-    },
-
-    "flat_washers": {
-
-        "M4"  : {"D" : 9.00*mm,     # nominal diameter
-                 "d" : 4.30*mm,     # washer hole diameter ISO 7089
-                 "t" : 0.80*mm},    # washer thickness ISO 7089
-
-        "M5"  : {"d":  5.3*mm, "D": 10*mm, "t": 1.0*mm},
-        "M6"  : {"d":  6.4*mm, "D": 12*mm, "t": 1.6*mm},
-        "M8"  : {"d":  8.4*mm, "D": 16*mm, "t": 1.6*mm},
-        "M10" : {"d": 10.5*mm, "D": 20*mm, "t": 2.0*mm},
-        "M12" : {"d": 13.0*mm, "D": 24*mm, "t": 2.5*mm},
-        "M14" : {"d": 15.0*mm, "D": 28*mm, "t": 2.5*mm},  # 2nd choice
-        "M16" : {"d": 17.0*mm, "D": 30*mm, "t": 3.0*mm},
-        "M18" : {"d": 19.0*mm, "D": 34*mm, "t": 3.0*mm},  # 2nd choice
-        "M20" : {"d": 21.0*mm, "D": 37*mm, "t": 3.0*mm},
-        "M22" : {"d": 23.0*mm, "D": 39*mm, "t": 3.0*mm},  # 2nd choice
-        "M24" : {"d": 25.0*mm, "D": 44*mm, "t": 4.0*mm},
-        "M27" : {"d": 28.0*mm, "D": 50*mm, "t": 4.0*mm},  # 2nd choice
-        "M30" : {"d": 31.0*mm, "D": 56*mm, "t": 4.0*mm},
-        "M33" : {"d": 34.0*mm, "D": 60*mm, "t": 5.0*mm},  # 2nd choice
-        "M36" : {"d": 37.0*mm, "D": 66*mm, "t": 5.0*mm},
-        "M39" : {"d": 40.0*mm, "D": 72*mm, "t": 6.0*mm},  # 2nd choice
-        "M42" : {"d": 43.0*mm, "D": 78*mm, "t": 7.0*mm},
-        "M45" : {"d": 46.0*mm, "D": 85*mm, "t": 7.0*mm},  # 2nd choice
-        "M48" : {"d": 50.0*mm, "D": 92*mm, "t": 8.0*mm},
-        "M52" : {"d": 54.0*mm, "D": 98*mm, "t": 8.0*mm},  # 2nd choice
-        "M56" : {"d": 58.0*mm, "D":105*mm, "t": 9.0*mm},
-        "M60" : {"d": 62.0*mm, "D":110*mm, "t": 9.0*mm},  # 2nd choice
-        "M64" : {"d": 66.0*mm, "D":115*mm, "t": 9.0*mm},
-        "M72" : {"d": 74.0*mm, "D":125*mm, "t":10.0*mm},
-        "M80" : {"d": 82.0*mm, "D":140*mm, "t":12.0*mm},
-        "M90" : {"d": 93.0*mm, "D":160*mm, "t":12.0*mm},
-        "M100": {"d":104.0*mm, "D":175*mm, "t":14.0*mm}
-    },
-
-    "hex_nuts": {
-
-        "M4"  : {"D_nom": 4.00*mm,     # nominal diameter
-                 "t"    : 3.20*mm,     # nut thickness
-                 "D_cir": 7.66*mm,     # nut circumscribed circle diameter
-                 "D_ins": 7.00*mm,
-                 "D_brg": 5.90*mm},    # nut inscribed circle diameter
-
-        "M5"  : {"D_nom": 5*mm, "t": 4.7*mm, "D_cir":  8.79*mm, "D_ins":  8*mm, "D_brg":  6.9*mm},
-        "M6"  : {"D_nom": 6*mm, "t": 5.2*mm, "D_cir": 11.05*mm, "D_ins": 10*mm, "D_brg":  8.9*mm},
-        "M8"  : {"D_nom": 8*mm, "t": 6.8*mm, "D_cir": 14.38*mm, "D_ins": 13*mm, "D_brg": 11.6*mm},
-        "M10" : {"D_nom":10*mm, "t": 8.4*mm, "D_cir": 18.90*mm, "D_ins": 17*mm, "D_brg": 14.6*mm},
-        "M12" : {"D_nom":12*mm, "t":10.8*mm, "D_cir": 21.10*mm, "D_ins": 19*mm, "D_brg": 16.6*mm},
-        "M14" : {"D_nom":14*mm, "t":12.8*mm, "D_cir": 24.49*mm, "D_ins": 22*mm, "D_brg": 19.6*mm},  # 2nd choice
-        "M16" : {"D_nom":16*mm, "t":14.8*mm, "D_cir": 26.75*mm, "D_ins": 24*mm, "D_brg": 22.5*mm},
-        "M18" : {"D_nom":18*mm, "t":15.8*mm, "D_cir": 30.14*mm, "D_ins": 27*mm, "D_brg": 24.9*mm},  # 2nd choice
-        "M20" : {"D_nom":20*mm, "t":18.0*mm, "D_cir": 33.53*mm, "D_ins": 30*mm, "D_brg": 27.7*mm},
-        "M22" : {"D_nom":22*mm, "t":19.4*mm, "D_cir": 35.72*mm, "D_ins": 32*mm, "D_brg": 31.4*mm},  # 2nd choice
-        "M24" : {"D_nom":24*mm, "t":21.5*mm, "D_cir": 39.98*mm, "D_ins": 36*mm, "D_brg": 33.3*mm},
-        "M27" : {"D_nom":27*mm, "t":23.8*mm, "D_cir": 45.20*mm, "D_ins": 41*mm, "D_brg": 38.0*mm},  # 2nd choice
-        "M30" : {"D_nom":30*mm, "t":25.6*mm, "D_cir": 50.85*mm, "D_ins": 46*mm, "D_brg": 42.8*mm},
-        "M33" : {"D_nom":33*mm, "t":28.7*mm, "D_cir": 55.37*mm, "D_ins": 50*mm, "D_brg": 46.6*mm},  # 2nd choice
-        "M36" : {"D_nom":36*mm, "t":31.0*mm, "D_cir": 60.79*mm, "D_ins": 55*mm, "D_brg": 51.1*mm},
-        "M39" : {"D_nom":39*mm, "t":33.4*mm, "D_cir": 66.44*mm, "D_ins": 60*mm, "D_brg": 55.9*mm},  # 2nd choice
-        "M42" : {"D_nom":42*mm, "t":34.0*mm, "D_cir": 71.30*mm, "D_ins": 65*mm, "D_brg": 60.0*mm},
-        "M45" : {"D_nom":45*mm, "t":36.0*mm, "D_cir": 76.95*mm, "D_ins": 70*mm, "D_brg": 64.7*mm},  # 2nd choice
-        "M48" : {"D_nom":48*mm, "t":38.0*mm, "D_cir": 82.60*mm, "D_ins": 75*mm, "D_brg": 69.5*mm},
-        "M52" : {"D_nom":52*mm, "t":42.0*mm, "D_cir": 88.25*mm, "D_ins": 80*mm, "D_brg": 74.2*mm},  # 2nd choice
-        "M56" : {"D_nom":56*mm, "t":45.0*mm, "D_cir": 93.56*mm, "D_ins": 85*mm, "D_brg": 78.7*mm},
-        "M60" : {"D_nom":60*mm, "t":48.0*mm, "D_cir": 99.21*mm, "D_ins": 90*mm, "D_brg": 83.4*mm},  # 2nd choice
-        "M64" : {"D_nom":64*mm, "t":51.0*mm, "D_cir":104.86*mm, "D_ins": 95*mm, "D_brg": 88.2*mm},
-        "M72" : {"D_nom":72*mm, "t":58.0*mm, "D_cir":116.20*mm, "D_ins":105*mm, "D_brg": 97.7*mm},
-        "M80" : {"D_nom":80*mm, "t":64.0*mm, "D_cir":127.50*mm, "D_ins":115*mm, "D_brg":107.2*mm},
-        "M90" : {"D_nom":90*mm, "t":72.0*mm, "D_cir":144.10*mm, "D_ins":130*mm, "D_brg":121.1*mm},
-        "M100": {"D_nom":100*mm,"t":80.0*mm, "D_cir":161.02*mm, "D_ins":145*mm, "D_brg":135.4*mm}
-    },
-
-    "round_nuts": {
-
-        "M36" : {"D_nom": 36*mm,     # nominal diameter
-                 "t"    : 36*mm,     # nut thickness
-                 "D_cir": 60.79*mm,     # nut circumscribed circle diameter
-                 "D_ins": 55*mm,
-                 "D_brg": 66*mm},    # nut inscribed circle diameter
-
-        "M42" : {"D_nom":42*mm, "t":42.0*mm, "D_cir": 71.30*mm, "D_ins": 65*mm, "D_brg": 78*mm},
-        "M48" : {"D_nom":48*mm, "t":48.0*mm, "D_cir": 82.60*mm, "D_ins": 75*mm, "D_brg": 92*mm},
-        "M56" : {"D_nom":56*mm, "t":56.0*mm, "D_cir": 93.56*mm, "D_ins": 85*mm, "D_brg":105*mm},
-        "M64" : {"D_nom":64*mm, "t":64.0*mm, "D_cir":104.86*mm, "D_ins": 95*mm, "D_brg":115*mm},
-        "M72" : {"D_nom":72*mm, "t":72.0*mm, "D_cir":116.16*mm, "D_ins":105*mm, "D_brg":125*mm},
-        "M80" : {"D_nom":80*mm, "t":80.0*mm, "D_cir":127.46*mm, "D_ins":115*mm, "D_brg":140*mm}
-    },
-
-    "materials": {
-
-        # Carbon-steel and alloy steel bolts,
-        # according to ISO 898-1
-
-        "4.6": {
-            "fy": 240*MPa,    # yield stress (stress at 0.2% non-proportional elongation)
-            "fu": 400*MPa,    # ultimate tensile stress
-            "E" : 210*GPa,    # elastic modulus
-            "nu": 0.3         # poissons ratio
-        },
-
-        "4.8"   : {"fy": 320*MPa, "fu": 400*MPa, "E":210*GPa, "nu":0.3},
-        "5.6"   : {"fy": 300*MPa, "fu": 500*MPa, "E":210*GPa, "nu":0.3},
-        "5.8"   : {"fy": 400*MPa, "fu": 500*MPa, "E":210*GPa, "nu":0.3},
-        "6.8"   : {"fy": 480*MPa, "fu": 600*MPa, "E":210*GPa, "nu":0.3},
-        "8.8"   : {"fy": 640*MPa, "fu": 800*MPa, "E":210*GPa, "nu":0.3},
-        "9.8"   : {"fy": 720*MPa, "fu": 900*MPa, "E":210*GPa, "nu":0.3},
-        "10.9"  : {"fy": 900*MPa, "fu":1000*MPa, "E":210*GPa, "nu":0.3},
-        "12.9"  : {"fy":1080*MPa, "fu":1200*MPa, "E":210*GPa, "nu":0.3},
-
-        # Stainless-steel bolts,
-        # according to ISO 3506-1
-
-        # ISO 3506-1 Austenitic
-        "A50" : {"fy": 210*MPa, "fu": 500*MPa, "E":210*GPa, "nu":0.3},
-        "A70" : {"fy": 450*MPa, "fu": 700*MPa, "E":210*GPa, "nu":0.3},
-        "A80" : {"fy": 600*MPa, "fu": 800*MPa, "E":210*GPa, "nu":0.3},
-        "A100": {"fy": 800*MPa, "fu":1000*MPa, "E":210*GPa, "nu":0.3},
-
-        # ISO 3506-1 Duplex
-        "D70" : {"fy": 450*MPa, "fu": 700*MPa, "E":210*GPa, "nu":0.3},
-        "D80" : {"fy": 600*MPa, "fu": 800*MPa, "E":210*GPa, "nu":0.3},
-        "D100": {"fy": 800*MPa, "fu":1000*MPa, "E":210*GPa, "nu":0.3},
-
-        # ISO 3506-1 Martensitic
-        "C50" : {"fy": 250*MPa, "fu": 500*MPa, "E":210*GPa, "nu":0.3},
-        "C70" : {"fy": 410*MPa, "fu": 700*MPa, "E":210*GPa, "nu":0.3},
-        "C80" : {"fy": 640*MPa, "fu": 800*MPa, "E":210*GPa, "nu":0.3},
-        "C110": {"fy": 820*MPa, "fu":1100*MPa, "E":210*GPa, "nu":0.3},
-
-        # ISO 3506-1 Ferritic
-        "F45" : {"fy": 250*MPa, "fu": 450*MPa, "E":210*GPa, "nu":0.3},
-        "F60" : {"fy": 410*MPa, "fu": 600*MPa, "E":210*GPa, "nu":0.3}
-    }
-}
