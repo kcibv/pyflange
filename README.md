@@ -1,3 +1,7 @@
+> This software is part of the Bolt and Beautiful project funded with subsidy 
+> from the Top Sector Energy of the Dutch Ministry of Economic Affairs.
+
+
 PyFlange Python Package
 =========================================================================
 
@@ -7,7 +11,8 @@ offshore wind for connecting the turbine tower to the foundation.
 
 Far from achieving its goal, this package currently contains only an
 implementation of Marc Seidel's polynomial model for predicting bolt
-forces and moments due to shell pull.
+forces and moments due to shell pull, (soon to be) published in the
+the standard IEC 61400-6-AMD1.
 
 This package has beend developed within the Bolt and Beoutiful GROW
 project by KCI, Siemens Gamesa and TNO.
@@ -18,24 +23,11 @@ find extra documentation.
 
 Getting Started
 -------------------------------------------------------------------------
-Once the Bolt and Beautiful project gets closed, this package will be
-released to the public with GPLv3 license and will be installable via
+You can install PyFlange via pip as follows:
 
 ```
 pip install pyflange
 ```
-
-Until then, the source needs to stay closed and accessible to a limited
-number of people such as yourself. Therefore you need to install the
-wheel package after downloading it from GitHub.
-
-```
-cd <path/to/whl/package>
-pip install pyflange-0.6.0-py3-none-any.whl
-```
-
-> The latest wheel package can be found in the 'dist' folder of the
-> source code repository.
 
 After installing the package, you can import it in your python code and start
 using it. First of all, you need to create a `FlangeSegment` object as shown

@@ -1,4 +1,6 @@
 
+> This software is part of the Bolt and Beautiful project funded with subsidy 
+> from the Top Sector Energy of the Dutch Ministry of Economic Affairs.
 
 PyFlange API documentation
 ==========================
@@ -19,20 +21,11 @@ find extra documentation.
 
 Installation
 ------------
-Once the Bolt and Beautiful project gets closed, this package will be
-released to the public with GPLv3 license and will be installable via
+PyFlange can be installed via pip as follows:
+PyFlange can be installed via pip as follows:
 
 ```bash
 pip install pyflange
-```
-
-Until then, the source needs to stay closed and accessible to a limited
-number of people such as yourself. Therefore you need to install the
-wheel package after downloading it from GitHub.
-
-```bash
-cd <path/to/whl/package>
-pip install pyflange-0.1.0-py3-none-any.whl
 ```
 
 
