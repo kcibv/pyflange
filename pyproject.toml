@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyflange"
-version = "0.6.0"
+version = "0.7.0"
 authors = [
   { name="Marcello Del Buono", email="m.buono@kci.nl" },
 ]
