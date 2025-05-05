@@ -10,7 +10,7 @@ offshore wind for connecting the turbine tower to the foundation.
 
 Far from achieving its goal, this package currently contains only an
 implementation of Marc Seidel's polynomial model for predicting bolt
-forces and moments due to shell pull.
+forces and moments due to the tower shell force.
 
 This package has beend developed within the Bolt and Beoutiful GROW
 project by KCI, Siemens Gamesa and TNO.
@@ -87,8 +87,8 @@ apply them consistently.
 Once you have your `fseg` object, you can obtain the bolt forces and moments as follows:
 
 ```python
-Fs = fseg.bolt_axial_force(3500)    # bolt force corresponding to shell pull Z = 3500 N
-Ms = fseg.bolt_bending_moment(2000) # bolt bending moment corresponding to shell pull Z = 2000 N
+Fs = fseg.bolt_axial_force(3500)    # bolt force corresponding to the tower shell force Z = 3500 N
+Ms = fseg.bolt_bending_moment(2000) # bolt bending moment corresponding to the tower shell force Z = 2000 N
 ```
 
 The argumment `Z`, passed to `bolt_axial_force` and `bolt_bending_moment` can also be a

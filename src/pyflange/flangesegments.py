@@ -21,7 +21,7 @@ This module contains ``FlangeSegment`` classes, which model the mechanical
 behavior of a flange sector containig one bolt only.
 
 Currently, the only two type of FlangeSegment available are an L-Flange segment
-and a T-Flange segment, implementing a polinomial relation between shell pull
+and a T-Flange segment, implementing a polinomial relation between tower shell force
 force and bolt force / bolt moment. Nonetheless, this module has been structured
 to be easily extensible with other types of FlangeSegment model, such as
 Multilinear (Petersen) L-Flanges, Multilinear T-Flanges, etc.
@@ -96,7 +96,7 @@ class PolynomialFlangeSegment (FlangeSegment):
     ''' Generic FlangeSegment implementing polynomial transfer functions.
 
     This is a generic FlangeSegment that implements a polynomial relation between
-    shell pull Z and bolt axial force Fs or bolt bending moment Ms.
+    tower shell force Z and bolt axial force Fs or bolt bending moment Ms.
 
     It is not meant to be instantiated directly, but to be subclassed instead.
 
@@ -143,9 +143,9 @@ class PolynomialFlangeSegment (FlangeSegment):
     '''
 
     def bolt_axial_force (self, shell_pull):
-        ''' Bolt axial force due to a given shell pull force Z.
+        ''' Bolt axial force due to a given tower shell force force Z.
 
-        The relation between shell pull force Z and bolt axial force Fs,
+        The relation between tower shell force Z and bolt axial force Fs,
         is a polynomial function, as defined in ref.[1], section 8.2 and in
         ref.[2], section G.4.2.
 
@@ -186,9 +186,9 @@ class PolynomialFlangeSegment (FlangeSegment):
 
 
     def bolt_bending_moment (self, shell_pull):
-        ''' Bolt bending moment due to a given shell pull force Z.
+        ''' Bolt bending moment due to a given tower shell force force Z.
 
-        The relation between shell pull force Z and bolt bending moment Ms,
+        The relation between tower shell force force Z and bolt bending moment Ms,
         is a polynomial function, as defined in ref.[1], section 8.3 and in
         Ref.[2], section G.4.2.
 
@@ -559,7 +559,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         Returns:
             mode (str): failure mode string (eiter "A", "B", "D" or "E").
-            limits (list): The list [Zu_A, Zu_B, Zu_D, Zu_E] of the shell pull values
+            limits (list): The list [Zu_A, Zu_B, Zu_D, Zu_E] of the tower shell force values
                 at which each failure mode occurs.
         '''
 
@@ -579,7 +579,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         # Failure mode A
         F_tRd = self.bolt.ultimate_tensile_capacity()   # Bolt ultimate tensile capacity
-        Zu_A = F_tRd                                    # Ultimate shell pull for failure mode A
+        Zu_A = F_tRd                                    # Ultimate tower shell force for failure mode A
 
         # Shell cross-section ultimate capacities
         Nu_sh = fd_sh * c_shell * self.s                 # Pure axial ultimate capacity
@@ -718,7 +718,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_small_displacement (self):
-        ''' Intermediate shell pull, between rest and tensile failure.
+        ''' Intermediate tower shell force, between rest and tensile failure.
 
         This is an auxiliary point that gives the polynomial the right
         value of initial slope. It is evaluated according to ref. [1],
@@ -750,7 +750,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     def bolt_moment_at_small_displacement (self):
         ''' Intermediate bolt moment, between rest and tensile failuse.
 
-        This is the bolt bending moment corresponding to the shell pull
+        This is the bolt bending moment corresponding to the tower shell force
         Z3 (`.shell_force_at_small_displacement`).
         '''
 
@@ -761,9 +761,9 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_tensile_ULS (self):
-        ''' Ultimate Limit State shell pull.
+        ''' Ultimate Limit State tower shell force.
 
-        This is shell pull that brings the flange segment system in
+        This is tower shell force that brings the flange segment system in
         its tensile ultimate limit state. It is evaluated according
         to ref. [1], sec.8.2.2.2 and to ref. [2], section G.4.2, where
         it is referred to as Z2.
@@ -781,7 +781,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         ''' Bolt axial force at tensile failure.
 
         This is the bolt tensile force corresponding to the ultimate
-        shell pull (`.shell_force_at_rensile_ULS`).
+        tower shell force (`.shell_force_at_rensile_ULS`).
 
         Assuming the failure mode B, in the ULS, the bolt is subjected
         to its maximum tensile capacity.
@@ -802,7 +802,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         ''' Bolt bending moment at tensile failure.
 
         This is the bolt bending moment corresponding to the ultimate
-        shell pull (`.shell_force_at_rensile_ULS`).
+        tower shell force (`.shell_force_at_rensile_ULS`).
 
         In refs. [1] and [2], this value is colled Ms2.
         '''
@@ -891,7 +891,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # we can therefore determine M from it as d2/h2:
         M = d2 / H[1]
 
-        # Return the shell pull force corresponding to M
+        # Return the tower shell force force corresponding to M
         c = self.central_angle * R_sh
         b_mean = self.b + self.s/2 - s_mean/2
         return -c * M / (s_mean/2 + b_mean)
@@ -909,9 +909,9 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def _ideal_shell_force_at_tensile_ULS (self):
-        ''' Shell pull force at the theoretical state of full prying
+        ''' Tower shell force force at the theoretical state of full prying
 
-        This property represents the shell pull forces when the flange segment
+        This property represents the tower shell force forces when the flange segment
         is in tensile ULS and in the ideal situation of no gap.
 
         This variable is indicated as Z0 in refs. [1] and [2].
@@ -1161,7 +1161,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         Returns:
             mode (str): failure mode string (eiter "A", "B", "D" or "E").
-            limits (list): The list [Zu_A, Zu_B, Zu_D, Zu_E] of the shell pull values
+            limits (list): The list [Zu_A, Zu_B, Zu_D, Zu_E] of the tower shell force values
                 at which each failure mode occurs.
         '''
 
@@ -1179,7 +1179,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         # Failure mode A
         F_tRd = self.bolt.ultimate_tensile_capacity()   # Bolt ultimate tensile capacity
-        Zu_A = 2*F_tRd                                    # Ultimate shell pull for failure mode A
+        Zu_A = 2*F_tRd                                    # Ultimate tower shell force for failure mode A
 
         # Flange cross-section ultimate capacity (at hole)
         Vu_fl = fd_fl * c_washer * self.t / 3**0.5                # Pure shear ultimate capacity
@@ -1315,7 +1315,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_small_displacement (self):
-        ''' Intermediate shell pull, between rest and tensile failure.
+        ''' Intermediate tower shell force, between rest and tensile failure.
 
         This is an auxiliary point that gives the polynomial the right
         value of initial slope. It is evaluated according to ref. [1],
@@ -1349,7 +1349,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     def bolt_moment_at_small_displacement (self):
         ''' Intermediate bolt moment, between rest and tensile failuse.
 
-        This is the bolt bending moment corresponding to the shell pull
+        This is the bolt bending moment corresponding to the tower shell force
         Z3 (`.shell_force_at_small_displacement`).
         '''
 
@@ -1359,9 +1359,9 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_tensile_ULS (self):
-        ''' Ultimate Limit State shell pull.
+        ''' Ultimate Limit State tower shell force.
 
-        This is shell pull that brings the flange segment system in
+        This is the tower shell force that brings the flange segment system in
         its tensile ultimate limit state. It is evaluated according
         to ref. [1], sec.8.2.2.2 and to ref. [2], section G.4.2, where
         it is referred to as Z2.
@@ -1378,7 +1378,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         ''' Bolt axial force at tensile failure.
 
         This is the bolt tensile force corresponding to the ultimate
-        shell pull (`.shell_force_at_rensile_ULS`).
+        tower shell force (`.shell_force_at_rensile_ULS`).
 
         Assuming the failure mode B, in the ULS, the bolt is subjected
         to its maximum tensile capacity.
@@ -1398,7 +1398,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         ''' Bolt bending moment at tensile failure.
 
         This is the bolt bending moment corresponding to the ultimate
-        shell pull (`.shell_force_at_rensile_ULS`).
+        tower shell force (`.shell_force_at_rensile_ULS`).
 
         In refs. [1] and [2], this value is colled Ms2.
         '''
