@@ -96,7 +96,7 @@ need for the design of large bolted flanges such as the flanges used in
 offshore wind for connecting the turbine tower to the foundation.</p>
 <p>Far from achieving its goal, this package currently contains only an
 implementation of Marc Seidel's polynomial model for predicting bolt
-forces and moments due to shell pull.</p>
+forces and moments due to the tower shell force.</p>
 <p>This package has beend developed within the Bolt and Beoutiful GROW
 project by KCI, Siemens Gamesa and TNO.</p>
 <p>The rest of this documentation will show how to get started and where to
@@ -157,8 +157,8 @@ meter for distances, radians for angles and newton for forces. It is not require
 always use these units (meter, newton), but you should choose your units and always
 apply them consistently.</p>
 <p>Once you have your <code>fseg</code> object, you can obtain the bolt forces and moments as follows:</p>
-<pre><code class="language-python">Fs = fseg.bolt_axial_force(3500)    # bolt force corresponding to shell pull Z = 3500 N
-Ms = fseg.bolt_bending_moment(2000) # bolt bending moment corresponding to shell pull Z = 2000 N
+<pre><code class="language-python">Fs = fseg.bolt_axial_force(3500)    # bolt force corresponding to the tower shell force Z = 3500 N
+Ms = fseg.bolt_bending_moment(2000) # bolt bending moment corresponding to the tower shell force Z = 2000 N
 </code></pre>
 <p>The argumment <code>Z</code>, passed to <code>bolt_axial_force</code> and <code>bolt_bending_moment</code> can also be a
 numpy array. In that case an array of Fs and Ms value will be returned.</p>
@@ -214,5 +214,5 @@ Ms = fseg.bolt_bending_moment(Z)    # return the numpy array (Ms(2000), Ms(2500)
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-04-30 08:51:41.484189+00:00
+Build Date UTC : 2025-05-25 08:46:12.373897+00:00
 -->

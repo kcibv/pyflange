@@ -106,7 +106,7 @@ Ms = fseg.bolt_bending_moment(Z)    # return the numpy array (Ms(2000), Ms(2500)
 Learn More
 -------------------------------------------------------------------------
 
-For more details, read the [pyflage API documentation](https://kcibv.github.io/pyflange-docs/). 
+For more details, read the [pyflage API documentation](https://kcibv.github.io/pyflange/). 
 
 
 
