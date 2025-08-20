@@ -1235,8 +1235,8 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         failure_mode,failure_shellforces = self.failure_mode(fy_sh, fy_fl,gamma_0=gamma_0)
 
-        if failure_mode != "B":
-            raise ValueError(f"Failure mode {failure_mode} detected, while only failure mode B is supported.")
+        if failure_mode != "A":
+            raise ValueError(f"Failure mode {failure_mode} detected, while only failure mode A is supported.")
 
 
     @cached_property
