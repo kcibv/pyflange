@@ -570,7 +570,6 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         
         Dw = self.washer.outer_diameter if self.washer else self.nut.bearing_diameter
         a_red = self.b / (self._prying_lever_ratio - 1) #Tobinaga reduction
-        b_E = self.b-(self.Do+Dw)/4
         b_red = self.b-self.s/2-0.8*self.r
 
         c_shell = self.central_angle * (self.R - self.s/2)
@@ -591,22 +590,33 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         Mu_fl = fd_fl * c_washer * self.t**2 / 4                  # Pure bending ultimate capacity
         MVu_fl = lambda V: Mu_fl * (1 - (V / Vu_fl)**2)**0.5 if V < Vu_fl else 0    # Bending ultimate capacity, concurrent with shear
 
+        # Iterative calculation of the ultimate shell force, given the two functions:
+        # - Zu_sh(Mu_pl3), returning the shell force at shell axial ULS, for a given value of Mu_pl3
+        # - Zu_fl(Mu_pl3), returning the shell force at slange shear ULS, for a given value of Mu_pl3
+        # Ref. [2], eq. G.11.
+        def find_Zu (Zu_sh, Zu_fl):
+            target_Zu_sh = fsolve(lambda Z: Zu_sh(MNu_sh(Z)) - Z, Zu_sh(Mu_sh))[0]
+            target_Zu_fl = fsolve(lambda Z: Zu_fl(MVu_fl(Z)) - Z, Zu_fl(Mu_fl))[0]
+            return min(target_Zu_sh, target_Zu_fl)
+
         # Failure mode B
-        ZB_sh = lambda Mu: (F_tRd * a_red + Mu) / (a_red + self.b)
-        ZB_fl = lambda Mu: (F_tRd * a_red + Mu) / (a_red + b_red)
-        Zu_B_sh = fsolve(lambda Z: ZB_sh(MNu_sh(Z)) - Z, ZB_sh(Mu_sh))[0]
-        Zu_B_fl = fsolve(lambda Z: ZB_fl(MVu_fl(Z)) - Z, ZB_fl(Mu_fl))[0]
-        Zu_B = min(Zu_B_sh, Zu_B_fl)
+        Zu_sh_B = lambda Mu_pl3: (F_tRd * a_red + Mu_pl3) / (a_red + self.b)
+        Zu_fl_B = lambda Mu_pl3: (F_tRd * a_red + Mu_pl3) / (a_red + b_red)
+        Zu_B = find_Zu(Zu_sh_B, Zu_fl_B) 
 
         # Failure mode D
-        b_D = self.b if Zu_B == Zu_B_sh else b_red
         Mu_pl2 = fd_fl * c_hole * self.t**2 / 4
         DMu_pl2 = F_tRd/2 * (self.Do/2 + Dw/2)/2
-        Mu_pl3 = min(MNu_sh(Zu_B_sh), MVu_fl(Zu_B_fl))
-        Zu_D = (Mu_pl2 + DMu_pl2 + Mu_pl3) / b_D
+        Zu_sh_D = lambda Mu_pl3: (Mu_pl2 + DMu_pl2 + Mu_pl3) / self.b
+        Zu_fl_D = lambda Mu_pl3: (Mu_pl2 + DMu_pl2 + Mu_pl3) / b_red
+        Zu_D = find_Zu(Zu_sh_D, Zu_fl_D) 
 
         # Failure mode E
-        Zu_E = (Mu_fl + Mu_pl3) / b_E
+        b_E = self.b - (self.Do+Dw)/4
+        b_E_red = b_E - self.s/2 - 0.8*self.r
+        Zu_sh_E = lambda Mu_pl3: (Mu_fl + Mu_pl3) / b_E
+        Zu_fl_E = lambda Mu_pl3: (Mu_fl + Mu_pl3) / b_E_red
+        Zu_E = find_Zu(Zu_sh_E, Zu_fl_E) 
 
         # Determine the governing failure mode
         Zu_min = min(Zu_A, Zu_B, Zu_D, Zu_E)
@@ -1187,18 +1197,18 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         MVu_fl = lambda V: Mu_fl * (1 - (V / Vu_fl)**2)**0.5 if V < Vu_fl else 0    # Bending ultimate capacity, concurrent with shear
 
         # Failure mode B
-        ZB_fl = lambda Mu: (F_tRd * a_red + Mu) / (a_red + b_red)
-        Zu_B_fl = fsolve(lambda Z: ZB_fl(MVu_fl(Z)) - Z, ZB_fl(Mu_fl))[0]
-        Zu_B = 2*Zu_B_fl
+        Zu_fl_B = lambda Mu_pl3: (F_tRd * a_red + Mu_pl3) / (a_red + b_red)
+        Zu_B = 2 * fsolve(lambda Z: Zu_fl_B(MVu_fl(Z)) - Z, Zu_fl_B(Mu_fl))[0]
 
         # Failure mode D
         Mu_pl2 = fd_fl * c_hole * self.t**2 / 4
         DMu_pl2 = F_tRd/2 * (self.Do/2 + Dw/2)/2
-        Mu_pl3 = MVu_fl(Zu_B_fl)
-        Zu_D = 2*(Mu_pl2 + DMu_pl2 + Mu_pl3) / b_red
+        Zu_fl_D = lambda Mu_pl3: 2*(Mu_pl2 + DMu_pl2 + Mu_pl3) / b_red
+        Zu_D = 2 * fsolve(lambda Z: Zu_fl_D(MVu_fl(Z)) - Z, Zu_fl_D(Mu_fl))[0]
 
         # Failure mode E
-        Zu_E = 2*(Mu_fl + Mu_pl3) / b_E
+        Zu_fl_E = lambda Mu_pl3: 2*(Mu_fl + Mu_pl3) / b_E
+        Zu_E = 2 * fsolve(lambda Z: Zu_fl_E(MVu_fl(Z)) - Z, Zu_fl_E(Mu_fl))[0]
 
         # Determine the governing failure mode
         Zu_min = min(Zu_A, Zu_B, Zu_D, Zu_E)
