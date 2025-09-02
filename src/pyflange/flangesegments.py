@@ -1082,7 +1082,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         bolt: Bolt object representing the flange segment bolt.
 
-        Fv: Applied bolt preload, after preload losses.
+        Fv: Design value of the preload, calculated as per ref. [2], eq. 23 or 25
 
         Do: Bolt hole diameter.
 
