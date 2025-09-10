@@ -477,7 +477,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         bolt: Bolt object representing the flange segment bolt.
 
-        Fv: Applied bolt preload, after preload losses.
+        Fv: Design value of the preload, calculated as per ref. [2], eq. 23 or 25
 
         Do: Bolt hole diameter.
 
@@ -1043,7 +1043,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         ''' Initial slope of the polynomial Fs(Z).
 
         This slope is calculated according to ref. [1], section 8.2.2.3
-        and ref. [2], eq.G.55.
+        and ref. [2], eq.G.53.
         '''
 
         # Load factor of the tension spring
@@ -1052,10 +1052,13 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         p = Ks / (Ks + Kp)
 
         # Initial slope correction factor
-        scf = min(1.0 , (-self._total_gap_neutralization_shell_force / (0.5 * self.Fv)))
+        scf = -self._total_gap_neutralization_shell_force / (0.5 * self.Fv)
+
+        # Maximum allowable value of p
+        p_max = (self.bolt_force_at_tensile_ULS - self.bolt_force_at_rest) / (self.shell_force_at_tensile_ULS - self.shell_force_at_rest)
 
         # Initial slope
-        return scf * p * self.gap_shape_factor
+        return min(scf*p, p_max) * self.gap_shape_factor
 
 
 
@@ -1089,7 +1092,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         bolt: Bolt object representing the flange segment bolt.
 
-        Fv: Applied bolt preload, after preload losses.
+        Fv: Design value of the preload, calculated as per ref. [2], eq. 23 or 25
 
         Do: Bolt hole diameter.
 
