@@ -308,7 +308,6 @@ class TestPolynomialLFlangeSegment:
 
 
 
-
 class TestPolynomialTFlangeSegment:
 
     def fseg (self, gap_angle=30*deg, gap_shape_factor=1.0, tilt_angle=0.0):
@@ -617,9 +616,9 @@ class TestPolynomialTFlangeSegment:
 
 
 
-
-
 def test_shell_stiffness ():
     pass
     assert shell_stiffness(1.5, 0.01, 135*deg) == 83000000
+
+
 

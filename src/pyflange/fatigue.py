@@ -50,34 +50,70 @@ from dataclasses import dataclass
 import functools
 
 
-def markov_matrix_from_SGRE_format (pathFile, unitFactor=1e3):
-    ''' Reads a .mkv file into a pandas.DataFrame object.
+
+@dataclass
+class MarkovMatrix:
+    ''' A Markov Matrix
+
+    This class represents a load history in the form of a Markov Matrix.
+    The 'load' can be expressed in terms of moments, forces, stresses, etc.
+    
+    This is a dataclass, therefore the following constructor parameters
+    are also reflected as attributes:
+
+    - range  : np.ndarray       
+      Array of stress ranges (or load ranges in general)
+    
+    - mean   : np.ndarray       
+      Array of mean stress values (or load values in general)
+    
+    - cycles : np.ndarray       
+      Array of cycles corresponding to each load value
+    
+    - duration: float        
+      Duration of the load history. If omitted, it defaults to 1.
+    '''
+
+    range    : np.ndarray       # array of stress ranges (or load ranges in general)
+    mean     : np.ndarray       # array of mean stress values (or load values in general)
+    cycles   : np.ndarray       # array of cycles corresponding to each load value
+    duration : float = 1        # duration of the load history
+
+
+
+def markov_matrix_from_SGRE_format (pathFile, unitFactor=1e3, duration=1):
+    ''' **Reads a .mkv file into a pandas.DataFrame object.**
 
     Reads a Markov matrix from a SGRE .mkv file and converts in into
-    a padas dataframe having the collowing columns:
+    a MarkvoMatrix object.
 
-    - 'Cycles' : Number of cylces
-    - 'Mean'   : mean bending moment
-    - 'Range'  : range of the bending moment
+    **Arguments:**
 
-    Args:
-        pathFile (str): The path of the .mkv file to be read
+    - `pathFile : str` 
+      The path of the .mkv file to be read
 
-        unitFactor (float): A scalind factor to be applied to the moment values.
-            Useful for unit conversion.
+    - `unitFactor : float` 
+      A scalind factor to be applied to the moment values. Useful for unit 
+      conversion.
 
-    Returns:
-        markov_matrix (pandas.DataFrame): the pandas DataFrame representation
-            of the Markov natrix contained in the .mkv file.
+    - `duration : float`
+      The duration of the loads contained in the .mkv file. If omitted, it
+      defaults to 1.
+
+    **Returns:**
+
+    - `markov_matrix : MarkovMatrix`
+      The MarkvoMatrix instance representing the loads contained in the
+      .mkv file.
     '''
 
     with open(pathFile) as mkv_file:
         MM = mkv_file.readlines()
 
-    mm_dict={'Cycles':[],
-             'Mean':[],
-             'Range':[]
-             }
+    # Initialize the markov matrix columns with empty values
+    mkv_cycles = []
+    mkv_mean = []
+    mkv_range = []
     
     rowMeans = False
     rowRanges = False
@@ -109,11 +145,12 @@ def markov_matrix_from_SGRE_format (pathFile, unitFactor=1e3):
             for i in range(1,len(rowValues)):
                 if float(rowValues[i]) == 0.0: continue
                 #moment
-                mm_dict['Cycles'].append(float(rowValues[i]))
-                mm_dict['Mean'].append(float(meanValues[i])*unitFactor)
-                mm_dict['Range'].append(float(rangeValue)*unitFactor)
+                mkv_cycles.append(float(rowValues[i]))
+                mkv_mean.append(float(meanValues[i])*unitFactor)
+                mkv_range.append(float(rangeValue)*unitFactor)
         
-    return pd.DataFrame(mm_dict) 
+    return MarkovMatrix(np.array(mkv_range), np.array(mkv_mean), 
+                        np.array(mkv_cycles), float(duration))
 
 
 
@@ -149,25 +186,25 @@ class FatigueCurve:
         return n / self.N(DS)
 
     def cumulated_damage (self, markov_matrix):
-        ''' Cumulated damage according to the Miner's rule
+        ''' **Cumulated damage according to the Miner's rule**
 
-        Args:
-            markov_matrix (pandas.DataFrame): This is the load history expressed as a
-                Markov matrix, encoded in a pandas DataFrame having three columns:
-                - `Cycles`: containing the number of cycles;
-                - `Mean`: containing the mean stress in Pascal;
-                - `Range`: containing the stress range in Pascal.
+        **Args:**
+            
+        - `markov_matrix : MarkvMatrix`
+          This is the load history expressed as a MarkovMatrix object.
 
-        Returns:
-            damage (float): the cumulated fatigue damage produced in the
-                detail represented by this fatigue curev, by the load history
-                represented by the passed Markov matrix.
+        **Returns:**
+
+        - `damage : float`
+          The cumulated fatigue damage produced in the detail represented by t
+          his fatigue curve, under the load history represented by the passed 
+          Markov matrix.
         '''
 
-        n = markov_matrix['Cycles'].to_numpy()  # array of number of cycles
-        DS = markov_matrix['Range'].to_numpy()     # array of stress ranges
-        D = self.damage(n, DS)                  # array of damages
-        return np.nansum(D)                     # total damage
+        n = markov_matrix.cycles    # array of number of cycles
+        DS = markov_matrix.range    # array of stress ranges
+        D = self.damage(n, DS)      # array of damages
+        return np.nansum(D)         # total damage
 
 
 

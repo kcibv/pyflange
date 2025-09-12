@@ -1643,39 +1643,42 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
 
 def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_geometric_factor=1.0, mean_factor=1.0, range_factor=1.0):
-    ''' Evaluates the bolt Markov matrix, given the shell Markov matix.
+    ''' **Evaluates the bolt Markov matrix, given the shell Markov matix.**
 
-    Args:
-        fseg (pyflange.flangesegments.PolynomialFlangeSegment): The flange segment
-            object that contains the force and moment transfer function that
-            convert shell forces to bolt forces.
+    **Args:**
 
-            **WARNING:** Notice that currently this function works only with
-            PolynomialFlangeSegments, while it should be extended to work with any
-            FlangeSegment object.
+    - `fseg : pyflange.flangesegments.PolynomialFlangeSegment` 
+      The flange segment object that contains the force and moment transfer 
+      function that convert shell forces to bolt forces.
 
-        flange_markov_matrix (pandas.DataFrame): The flanges bending moments markov
-            matrix, containg the colums 'Cycles', 'Range', 'Mean'.
+      **WARNING:** Notice that currently this function works only with
+      PolynomialFlangeSegments, while it should be extended to work with any
+      FlangeSegment object.
 
-        bending_factor (float): The factor that considers the bending portion of the
-            total stress range.
+    - `flange_markov_matrix : pyflange.fatigue.MarkovMatrix`
+      The Markov matrix of the bending moments transferred to the flange.
 
-        macro_geometric_factor (float): The factor that considers macro geometric
-            influences. The factor affects the deadweigt of the tower, the mean
-            values of the markov matrix and the range values of the markov matrix.
+    - `bending_factor : float` 
+      The factor that considers the bending portion of the total stress range.
 
-        mean_factor (float): The factor that multiplies the mean values of the
-            bending moments of the tower.
+    - `macro_geometric_factor : float`
+      The factor that considers macro geometric influences. The factor affects 
+      the dead-weigt of the tower, the mean values of the markov matrix and the 
+      range values of the markov matrix.
 
-        range_factor (float): The factor that multiplies the range of the bending
-            moments of the tower.
+    - `mean_factor : float` 
+      The factor that multiplies the mean values of the bending moments of the tower.
 
-    Returns:
-        bolt_markov_matrix (pandas.DataFrame): The bolt markov matrix representing
-            the stress history in the bolt due to the applied flange markov matrix.
-            The returned pandas DataFrame contains the columns 'Cycles', 'Range'
-            and 'Mean'.
+    - `range_factor : float` 
+      The factor that multiplies the range of the bending moments of the tower.
+
+    **Returns:**
+
+    - `bolt_markov_matrix : pythagoras.fatigue.MarkovMatrix`
+      The bolt markov matrix representing the stress history in the bolt due to 
+      the applied flange markov matrix.
     '''
+    from .fatigue import MarkovMatrix
 
     #Flange Geometry
     Rm = fseg.R - fseg.s/2
@@ -1687,21 +1690,19 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
     bolt_W = fseg.bolt.thread_cross_section.elastic_section_modulus
 
     # Shell Markov Matrix
-    Z_cycles = flange_markov_matrix['Cycles'].to_numpy()
-    Z_mean   = flange_markov_matrix['Mean'].to_numpy() / flange_W * shell_A * mean_factor * macro_geometric_factor
-    Z_ranges = flange_markov_matrix['Range'].to_numpy() / flange_W * shell_A * range_factor * macro_geometric_factor
+    Z_cycles = flange_markov_matrix.cycles
+    Z_mean   = flange_markov_matrix.mean / flange_W * shell_A * mean_factor * macro_geometric_factor
+    Z_ranges = flange_markov_matrix.range / flange_W * shell_A * range_factor * macro_geometric_factor
     Z_min = Z_mean - Z_ranges/2 + fseg.Zg * macro_geometric_factor
     Z_max = Z_mean + Z_ranges/2 + fseg.Zg * macro_geometric_factor
 
     # Bolt ess Markov Matrix
     S_min = fseg.bolt_axial_force(Z_min)/bolt_A + bending_factor * fseg.bolt_bending_moment(Z_min)/bolt_W
     S_max = fseg.bolt_axial_force(Z_max)/bolt_A + bending_factor * fseg.bolt_bending_moment(Z_max)/bolt_W
-    return pd.DataFrame({
-        'Cycles': Z_cycles,
-        'Mean'  : (S_min + S_max) / 2,
-        'Range' : np.abs(S_max - S_min)
-    })
-
+    return MarkovMatrix(range = np.abs(S_max - S_min),
+                        mean = (S_min + S_max) / 2,
+                        cycles = Z_cycles,
+                        duration = flange_markov_matrix.duration)
 
 
 
