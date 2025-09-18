@@ -573,7 +573,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         b_red = self.b-self.s/2-0.8*self.r
 
         c_shell = self.central_angle * (self.R - self.s/2)
-        c_hole = self.central_angle * (self.R - self.s/2 - self.b)
+        c_hole = self.central_angle * (self.R - self.s/2 - self.b) - self.bolt.nominal_diameter
         c_washer = self.central_angle * (self.R - self.s/2 - self.b + (self.Do/2 + Dw/2)/2)
 
         # Failure mode A
@@ -1187,7 +1187,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         b_E = self.b-(self.Do+Dw)/4
         b_red = self.b-self.s/2-0.8*self.r
         
-        c_hole = self.central_angle * (self.R - self.s/2 - self.b)
+        c_hole = self.central_angle * (self.R - self.s/2 - self.b) - self.bolt.nominal_diameter
         c_washer = self.central_angle * (self.R - self.s/2 - self.b + (self.Do/2 + Dw/2)/2)
 
         # Failure mode A
