@@ -1818,117 +1818,47 @@ an exceptions.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Evaluates the bolt Markov matrix, given the shell Markov matix.</p>
-
-
-<table class="field-list">
-  <colgroup>
-    <col class="field-name" />
-    <col class="field-body" />
-  </colgroup>
-  <tbody valign="top">
-    <tr class="field">
-      <th class="field-name">Parameters:</th>
-      <td class="field-body">
-        <ul class="first simple">
-            <li>
-              <b><code>fseg</code></b>
-                  (<code><a class="autorefs autorefs-internal" title="pyflange.flangesegments.PolynomialFlangeSegment" href="#pyflange.flangesegments.PolynomialFlangeSegment">PolynomialFlangeSegment</a></code>)
-              –
-              <div class="doc-md-description">
-                <p>The flange segment
-object that contains the force and moment transfer function that
-convert shell forces to bolt forces.</p>
+        <p><strong>Evaluates the bolt Markov matrix, given the shell Markov matix.</strong></p>
+<p><strong>Args:</strong></p>
+<ul>
+<li><code>fseg : pyflange.flangesegments.PolynomialFlangeSegment</code> 
+  The flange segment object that contains the force and moment transfer 
+  function that convert shell forces to bolt forces.</li>
+</ul>
 <p><strong>WARNING:</strong> Notice that currently this function works only with
-PolynomialFlangeSegments, while it should be extended to work with any
-FlangeSegment object.</p>
-              </div>
-            </li>
-            <li>
-              <b><code>flange_markov_matrix</code></b>
-                  (<code><span title="pandas.DataFrame">DataFrame</span></code>)
-              –
-              <div class="doc-md-description">
-                <p>The flanges bending moments markov
-matrix, containg the colums 'Cycles', 'Range', 'Mean'.</p>
-              </div>
-            </li>
-            <li>
-              <b><code>bending_factor</code></b>
-                  (<code>float</code>, default:
-                      <code>0.0</code>
-)
-              –
-              <div class="doc-md-description">
-                <p>The factor that considers the bending portion of the
-total stress range.</p>
-              </div>
-            </li>
-            <li>
-              <b><code>macro_geometric_factor</code></b>
-                  (<code>float</code>, default:
-                      <code>1.0</code>
-)
-              –
-              <div class="doc-md-description">
-                <p>The factor that considers macro geometric
-influences. The factor affects the deadweigt of the tower, the mean
-values of the markov matrix and the range values of the markov matrix.</p>
-              </div>
-            </li>
-            <li>
-              <b><code>mean_factor</code></b>
-                  (<code>float</code>, default:
-                      <code>1.0</code>
-)
-              –
-              <div class="doc-md-description">
-                <p>The factor that multiplies the mean values of the
-bending moments of the tower.</p>
-              </div>
-            </li>
-            <li>
-              <b><code>range_factor</code></b>
-                  (<code>float</code>, default:
-                      <code>1.0</code>
-)
-              –
-              <div class="doc-md-description">
-                <p>The factor that multiplies the range of the bending
-moments of the tower.</p>
-              </div>
-            </li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
+  PolynomialFlangeSegments, while it should be extended to work with any
+  FlangeSegment object.</p>
+<ul>
+<li>
+<p><code>flange_markov_matrix : pyflange.fatigue.MarkovMatrix</code>
+  The Markov matrix of the bending moments transferred to the flange.</p>
+</li>
+<li>
+<p><code>bending_factor : float</code> 
+  The factor that considers the bending portion of the total stress range.</p>
+</li>
+<li>
+<p><code>macro_geometric_factor : float</code>
+  The factor that considers macro geometric influences. The factor affects 
+  the dead-weigt of the tower, the mean values of the markov matrix and the 
+  range values of the markov matrix.</p>
+</li>
+<li>
+<p><code>mean_factor : float</code> 
+  The factor that multiplies the mean values of the bending moments of the tower.</p>
+</li>
+<li>
+<p><code>range_factor : float</code> 
+  The factor that multiplies the range of the bending moments of the tower.</p>
+</li>
+</ul>
+<p><strong>Returns:</strong></p>
+<ul>
+<li><code>bolt_markov_matrix : pythagoras.fatigue.MarkovMatrix</code>
+  The bolt markov matrix representing the stress history in the bolt due to 
+  the applied flange markov matrix.</li>
+</ul>
 
-<table class="field-list">
-  <colgroup>
-    <col class="field-name" />
-    <col class="field-body" />
-  </colgroup>
-  <tbody valign="top">
-    <tr class="field">
-      <th class="field-name">Returns:</th>
-      <td class="field-body">
-        <ul class="first simple">
-            <li>
-<b><code>bolt_markov_matrix</code></b>(                  <code><span title="pandas.DataFrame">DataFrame</span></code>
-)              –
-              <div class="doc-md-description">
-                <p>The bolt markov matrix representing
-the stress history in the bolt due to the applied flange markov matrix.
-The returned pandas DataFrame contains the columns 'Cycles', 'Range'
-and 'Mean'.</p>
-              </div>
-            </li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
     </div>
 
 </div>

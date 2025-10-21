@@ -67,6 +67,8 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.fatigue.MarkovMatrix">MarkovMatrix</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.fatigue.MultiSlopeFatigueCurve">MultiSlopeFatigueCurve</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.fatigue.SingleSlopeFatigueCurve">SingleSlopeFatigueCurve</a>
@@ -423,61 +425,20 @@ number of cycles that produce a fatigue failure.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Cumulated damage according to the Miner's rule</p>
+        <p><strong>Cumulated damage according to the Miner's rule</strong></p>
+<p><strong>Args:</strong></p>
+<ul>
+<li><code>markov_matrix : MarkvMatrix</code>
+  This is the load history expressed as a MarkovMatrix object.</li>
+</ul>
+<p><strong>Returns:</strong></p>
+<ul>
+<li><code>damage : float</code>
+  The cumulated fatigue damage produced in the detail represented by t
+  his fatigue curve, under the load history represented by the passed 
+  Markov matrix.</li>
+</ul>
 
-
-<table class="field-list">
-  <colgroup>
-    <col class="field-name" />
-    <col class="field-body" />
-  </colgroup>
-  <tbody valign="top">
-    <tr class="field">
-      <th class="field-name">Parameters:</th>
-      <td class="field-body">
-        <ul class="first simple">
-            <li>
-              <b><code>markov_matrix</code></b>
-                  (<code><span title="pandas.DataFrame">DataFrame</span></code>)
-              –
-              <div class="doc-md-description">
-                <p>This is the load history expressed as a
-Markov matrix, encoded in a pandas DataFrame having three columns:
-- <code>Cycles</code>: containing the number of cycles;
-- <code>Mean</code>: containing the mean stress in Pascal;
-- <code>Range</code>: containing the stress range in Pascal.</p>
-              </div>
-            </li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-<table class="field-list">
-  <colgroup>
-    <col class="field-name" />
-    <col class="field-body" />
-  </colgroup>
-  <tbody valign="top">
-    <tr class="field">
-      <th class="field-name">Returns:</th>
-      <td class="field-body">
-        <ul class="first simple">
-            <li>
-<b><code>damage</code></b>(                  <code>float</code>
-)              –
-              <div class="doc-md-description">
-                <p>the cumulated fatigue damage produced in the
-detail represented by this fatigue curev, by the load history
-represented by the passed Markov matrix.</p>
-              </div>
-            </li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
     </div>
 
 </div>
@@ -500,6 +461,74 @@ the dorresponding fatigue damage (D = n / N(DS)).</p>
     </div>
 
 </div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.MarkovMatrix" class="doc doc-heading">
+            <code>MarkovMatrix</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+        <p>A Markov Matrix</p>
+<p>This class represents a load history in the form of a Markov Matrix.
+The 'load' can be expressed in terms of moments, forces, stresses, etc.</p>
+<p>This is a dataclass, therefore the following constructor parameters
+are also reflected as attributes:</p>
+<ul>
+<li>
+<p>range  : np.ndarray     <br />
+  Array of stress ranges (or load ranges in general)</p>
+</li>
+<li>
+<p>mean   : np.ndarray     <br />
+  Array of mean stress values (or load values in general)</p>
+</li>
+<li>
+<p>cycles : np.ndarray     <br />
+  Array of cycles corresponding to each load value</p>
+</li>
+<li>
+<p>duration: float      <br />
+  Duration of the load history. If omitted, it defaults to 1.</p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
 
 
 
@@ -654,81 +683,40 @@ stress range D_ref.</p>
 
 
 <h2 id="pyflange.fatigue.markov_matrix_from_SGRE_format" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">markov_matrix_from_SGRE_format</span><span class="p">(</span><span class="n">pathFile</span><span class="p">,</span> <span class="n">unitFactor</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">markov_matrix_from_SGRE_format</span><span class="p">(</span><span class="n">pathFile</span><span class="p">,</span> <span class="n">unitFactor</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
 
 </h2>
 
 
     <div class="doc doc-contents ">
 
-        <p>Reads a .mkv file into a pandas.DataFrame object.</p>
+        <p><strong>Reads a .mkv file into a pandas.DataFrame object.</strong></p>
 <p>Reads a Markov matrix from a SGRE .mkv file and converts in into
-a padas dataframe having the collowing columns:</p>
+a MarkvoMatrix object.</p>
+<p><strong>Arguments:</strong></p>
 <ul>
-<li>'Cycles' : Number of cylces</li>
-<li>'Mean'   : mean bending moment</li>
-<li>'Range'  : range of the bending moment</li>
+<li>
+<p><code>pathFile : str</code> 
+  The path of the .mkv file to be read</p>
+</li>
+<li>
+<p><code>unitFactor : float</code> 
+  A scalind factor to be applied to the moment values. Useful for unit 
+  conversion.</p>
+</li>
+<li>
+<p><code>duration : float</code>
+  The duration of the loads contained in the .mkv file. If omitted, it
+  defaults to 1.</p>
+</li>
+</ul>
+<p><strong>Returns:</strong></p>
+<ul>
+<li><code>markov_matrix : MarkovMatrix</code>
+  The MarkvoMatrix instance representing the loads contained in the
+  .mkv file.</li>
 </ul>
 
-
-<table class="field-list">
-  <colgroup>
-    <col class="field-name" />
-    <col class="field-body" />
-  </colgroup>
-  <tbody valign="top">
-    <tr class="field">
-      <th class="field-name">Parameters:</th>
-      <td class="field-body">
-        <ul class="first simple">
-            <li>
-              <b><code>pathFile</code></b>
-                  (<code>str</code>)
-              –
-              <div class="doc-md-description">
-                <p>The path of the .mkv file to be read</p>
-              </div>
-            </li>
-            <li>
-              <b><code>unitFactor</code></b>
-                  (<code>float</code>, default:
-                      <code>1000.0</code>
-)
-              –
-              <div class="doc-md-description">
-                <p>A scalind factor to be applied to the moment values.
-Useful for unit conversion.</p>
-              </div>
-            </li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-<table class="field-list">
-  <colgroup>
-    <col class="field-name" />
-    <col class="field-body" />
-  </colgroup>
-  <tbody valign="top">
-    <tr class="field">
-      <th class="field-name">Returns:</th>
-      <td class="field-body">
-        <ul class="first simple">
-            <li>
-<b><code>markov_matrix</code></b>(                  <code><span title="pandas.DataFrame">DataFrame</span></code>
-)              –
-              <div class="doc-md-description">
-                <p>the pandas DataFrame representation
-of the Markov natrix contained in the .mkv file.</p>
-              </div>
-            </li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
     </div>
 
 </div>
