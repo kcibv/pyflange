@@ -27,8 +27,6 @@ rad = 1
 deg = (pi/180)*rad
 
 
-
-
 def open_workbook (file_path):
     full_path = os.path.join(os.path.dirname(__file__), file_path)
     return Book(full_path)

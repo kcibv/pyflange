@@ -5,9 +5,11 @@ nav:
     - Home: index.md
     - API's:
       - bolts: apis/bolts.md
-      - gap: apis/gap.md
       - flangesegments: apis/flangesegments.md
       - fatigue: apis/fatigue.md
+      - stats: apis/stats.md
+    - Deprecated API's:
+      - gap: apis/gap.md
     - Examples:
       - Montecarlo Simulation: examples/montecarlo.md
 theme:
