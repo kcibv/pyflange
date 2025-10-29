@@ -17,58 +17,10 @@
 # version 3 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 '''
-The ``gap`` module contains tools for modelling flange gaps.
+The ``gap`` module is a legacy module, kept for backwards compatibility.
 
-It corrently contains only one gap model, that is the sinusoidal gap, as defined
-in ref. [1], section 6.7.5.2.
-
-
-**REFERENCES**
-
-- **[1]** IEC 61400-6:2020/AMD1:2024 - Wind Energy Generation Systems - Part 6: Tower and foundation design requirements
+If you need to use the `gap_height_distribution` function, you should import
+it from the `stats` module instead.
 '''
 
-
-def gap_height_distribution (flange_diameter, flange_flatness_tolerance, gap_length):
-    ''' Evaluate the gap heigh probability distribution according to ref. [1].
-
-    Args:
-        flange_diameter (float): The outer diameter of the flange, expressed in meters.
-
-        flange_flatness_tolerance (float): The flatness tolerance, as defined in ref. [1],
-            expressed in mm/mm (non-dimensional).
-
-        gap_length (float): The length of the gap, espressed in meters and measured at
-            the outer edge of the flange.
-
-    Returns:
-        dist (scipy.stats.lognorm): a [scipy log-normal variable](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html),
-            representing the gap height stocastic variable.
-
-    The following example, creates a gap distribution and the calculates the 95% quantile
-    of the gap height
-
-    ```python
-    from pyflange.gap import gap_height_distribution
-
-    D = 7.50      # Flange diameter in meters
-    u = 0.0014    # Flatness tolerance (non-dimensional)
-    L = 1.22      # Gap length
-    gap_dist = gap_height_distribution(D, u, L)     # a lognorm distribution object
-
-    u95 = gap_dist.ppf(0.95)    # PPF is the inverse of CDF. See scipy.stats.lognorm documentation.
-    ```
-    '''
-
-    from math import pi, log, exp, sqrt
-    from scipy.stats import lognorm
-
-    k_mean = (6.5/flange_diameter * (flange_flatness_tolerance/0.0014) * (0.025*gap_length**2 + 0.12*gap_length)) / 1000
-    gap_angle_deg = (gap_length / (flange_diameter/2)) / pi*180
-    k_COV = 0.35 + 200 * gap_angle_deg**(-1.6)
-    k_std = k_mean * k_COV
-
-    shape = sqrt( log(k_COV**2 + 1) )
-    scale = exp(log(k_mean) - shape**2 / 2)
-
-    return lognorm(s=shape, loc=0, scale=scale)
+from .stats import gap_height_distribution

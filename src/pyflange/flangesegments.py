@@ -505,9 +505,12 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         r: Radius of the rouding between the shell and the flange.
     
-        k_shell: Optional individual initial shell stiffness value. This value can be
-            calculated in a separate FE analysis. The unit must be [N/m/m]. If omitted,
-            the interpolated formula from [1] will be used.
+        k_shell: Is either a stiffness value, a function or None:
+            - If it is a stiffness value (e.g. calculated by a spearate FE analysis,
+              it will be used as shell stiffness. The unit must be [N/m/m]. 
+            - If it is a function, the value `k_shell(self)` will be used as shell
+              stiffness.
+            - If None or omitted, the interpolated formula from [1] will be used.
 
     The given parameters are also available as attributes (e.g. `fseg.a`, `fseg.Fv`, etc.).
 
@@ -983,8 +986,11 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # Calculate the shell stiffness
         s_avg = (self.s + self.s_ratio * self.s) / 2    # Average shell thickness
         L_gap = self.R * self.gap_angle                 # Gap lenght at mid-line of shell with average thickness
-        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48
-        k_shell = self.k_shell or self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
+        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48A
+        try:
+            k_shell = float(self.k_shell)
+        except Exception:
+            k_shell = self.k_shell(self) if callable(self.k_shell) else self.E * s_avg / (k_fac * L_gap)
 
         # Calculate the flange stiffness
         w = self.a + self.b + self.s/2      # flange segment length
@@ -1734,3 +1740,5 @@ def _load_shell_stiffness_interpolator ():
     from scipy.interpolate import LinearNDInterpolator
     ssdf = load_csv_database("flangesegments.shell_stiffness", index_col=None)
     return LinearNDInterpolator(list(zip(ssdf['shell_radius'], ssdf['shell_thickness'], ssdf['gap_angle']/180*pi)), ssdf['shell_stiffness'])
+
+

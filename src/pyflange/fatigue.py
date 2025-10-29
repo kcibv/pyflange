@@ -40,6 +40,10 @@ Each fatigue curve class exxposes the following methods:
   given number of cycles N
 - `fatigue_curve.damage(n, DS)` returns the fatigue damage cumulated by
   a stress range DS repeated n times
+
+Finally, this module contains a `BoltFatigueAnalysis` class that brings
+it all together and calculates the fatigue damage and the fatigue life of 
+a bolt, given its FlangeSegment model, fatigue curve and allowable damage.
 '''
 
 import numpy as np
@@ -48,6 +52,8 @@ from math import sqrt, pi, tan, exp, log10
 
 from dataclasses import dataclass
 import functools
+
+from .flangesegments import FlangeSegment
 
 
 
@@ -303,24 +309,99 @@ class BoltFatigueCurve (DoubleSlopeFatigueCurve):
     Args:
         diameter (float): The bolt diameter in meters.
 
-        gamma_M (float): The material factor.
+        DS_ref (float): Reference stress range at 2e6 cyckes. Defaults to 50 MPa if omitted.
+
+        gamma_M (float): The material factor. Defaults to 1.1 if omitted
 
     Thuis class inherits all the properties and methods of the
     `DoubleSlopeFatigueCurve` class.
     '''
 
-    def __init__ (self, diameter, gamma_M=1.1):
+    def __init__ (self, diameter, DS_ref=50e6, gamma_M=1.1):
         N12 = 2.0e6    # knee point
         m1 = 3
         m2 = 5
         if diameter <= 0.030:
-            DSc = 50e6    # reference stress range, in Pa
+            DSc = DS_ref    # reference stress range, in Pa
         elif diameter <= 0.072:
-            DSc = 50e6 * (0.030/diameter)**0.1
+            DSc = DS_ref * (0.030/diameter)**0.1
         else:
-            DSc = 50e6 * (0.030/diameter)**0.1 * (0.072/diameter)**0.25
+            DSc = DS_ref * (0.030/diameter)**0.1 * (0.072/diameter)**0.25
 
         # Delegate the rest of the initialization to the parent class
         super().__init__(m1, m2, DSc/gamma_M, N12)
 
+
+
+@dataclass
+class BoltFatigueAnalysis:
+    ''' Fatigue analysis data for a flange bolt
+
+    Given a `FlangeSegment` instance and a `MarkovMatrix`, creates an
+    object containing the fatigue analysis results for the segment bolt,
+    under the given loading.
+
+    **Args:**
+
+    - `fseg` : `FlangeSegment`
+      The FlangeSegment object for which the fatigue analysis needs to 
+      be performed.
+
+    - `flange_mkvm` : `MarkovMatrix`
+      The Markov matrix representing the bending moments history on the
+      flange.
+
+    - `custom_fatigue_curve` : `FatigueCurve` [Optonal]
+      The fatigue curve applicable for the bolt. If omitted, a 
+      BoltFatigueCurve instance will be used, based on the flange segment
+      bolt diameter.
+
+    - `allowable_damage` : `float` [Optional]
+      The maximum allowable fatigue damage. If omitted, it defaults to 1.0.
+
+    **Attributes:**
+
+    All the passed arguments are also available as attributes. Plus the
+    following attributes are available.
+
+    - `.fatigue_curve` : `FatigueCurve`
+      It contains the BoltFatigueCurve instance based on the flange segment
+      bolt diameter. Unless `custom_fatigue_curve` is provided, in which
+      case it points to the latter.
+
+    - `.bolt_mkvm` : `MarkovMatrix`
+      The markov matrix of the axial+bending stress ranges acting in the
+      bolt due to the `.flange_mkvm` passed as parameter.
+
+    - `.damage` : `float`
+      The cumulated damage in the bolt due to the load in `.bolt_mkvm`.
+
+    - `.fatigue_life` : `float`
+      The fatigue life of the bolt, expressed in the same time units as
+      the `.flange_mkvm.duration` attribute.
+    '''
+
+    fseg: FlangeSegment
+    flange_mkvm: MarkovMatrix
+    custom_fatigue_curve: FatigueCurve = None
+    allowable_damage: float = 1.0
+
+    @functools.cached_property
+    def fatigue_curve (self):
+        return self.custom_fatigue_curve or BoltFatigueCurve(self.fseg.bolt.nominal_diameter)
+
+    @functools.cached_property
+    def bolt_mkvm (self):
+        from math import log
+        from .flangesegments import bolt_markov_matrix
+        bending_factor = max(0.5, 0.5 + 0.5*log(self.fseg.bolt.nominal_diameter/0.036) / log(150/36))
+        return bolt_markov_matrix(self.fseg, self.flange_mkvm, bending_factor)
+
+    @functools.cached_property
+    def damage (self):
+        return self.fatigue_curve.cumulated_damage(self.bolt_mkvm)
+
+    @functools.cached_property
+    def fatigue_life (self):
+        return self.allowable_damage / self.damage * self.flange_mkvm.duration
 
