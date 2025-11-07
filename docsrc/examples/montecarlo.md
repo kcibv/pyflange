@@ -2,130 +2,183 @@
 Example: Montecarlo Simulation
 ============================== 
 
-This example shows how the Polynomial L-Flange Segment model implementation
-can be used to predict a random serie of actualizations of bolt force and
-bolt moment, based on the random imput of the following parameters.
+This example shows how the pythagoras library can be used to generate a random 
+sample of bolt fatigue cases, which could be used, for example in a reliability 
+analysis.
 
-- Gap Length, assumed normally distributed with mean value `30°` and COV `10%`
-- Gap Height, assumed log-normally distributed according to IEC 61400-6 AMD1, section 6.7.5.2
-- Bolt preload, assumed normally distributed with mean value `2876 kN` and COV `10%`
+The first step would be to create certain 'sampler' objects, which are just
+[Python generator functions](https://realpython.com/ref/glossary/generator/)
+that yield random values. The samplers that we need to create are namely:
 
-All the other parameters are assumed to be deterministically known, and defined as 
-follows:
+- A flange segment sampler: a random generator of `pyflange.flangesegments.FlangeSegment` objects
+- A Markov matrix sampler: a random generator of flange load `pyflange.fatigue.MarkovMatrix` objects
+- A SN-curve sampler: a random generator of `pyflange.fatigue.BoltFatigueCurve` objects
+- An allowable damage sampler: a random generator of real numbers that represent the allowable damage
 
-- Bolt `M80` with meterial grade `10.9`
-- Distance between inner face of the flange and center of the bolt hole: `a = 232.5 mm`
-- Distance between center of the bolt hole and center-line of the shell: `b = 166.5 mm`
-- Shell thickness: `s = 72 mm`
-- Flange thickness: `t = 200 mm`
-- Flange outer diameter: `D = 7.5 m`
-- Bolt hole diameter: `Do = 86 mm`
-- Washer outer diameter: `Dw = 140 mm`
+Let's start with creating a **polynomial L-Flange segment sampler**. This can be done using the `pyflange.stats.standard_PolynomialLFlangeSegment_sampler` function, as shown in the following snippet.
 
-Let's first define a function that, given an actualization of gap length, gap height and
-bolt preload generates the corresponding FlangeSegment object.
 
-```python
-# Imports
+```py
+import pyflange.stats as stats
+
 from math import pi
-from pyflange.bolts import StandardMetricBolt, ISOFlatWasher, ISOHexNut
-from pyflange.flangesegments import PolynomialLFlangeSegment
+mm = 0.001
+kN = 1000
 
-# Define some units for the sake of readability
-m = 1
-mm = 0.001*m
-N = 1
-kN = 1000*N
+from pyflange.bolts import StandardMetricBolt, RoundNut
+N_BOLTS = 156
 
-# Create the fastener parts
-M80_bolt = StandardMetricBolt("M80", "10.9", shank_length=270*mm stud=True)
-M80_washer = ISOFlatWasher("M80")
-M80_nut    = ISOHexNut("M80")
-Nb = 120   # Number of bolts
+fseg_samp = stats.standard_PolynomialLFlangeSegment_sampler (
+        a = 150*mm,        # distance between inner face of the flange and center of the bolt hole
+        b = 122*mm,        # distance between center of the bolt hole and center-line of the shell
+        s =  54*mm,        # shell thickness
+        t = 172*mm,        # flange thickness
+        R = 4000*mm,       # shell outer curvature radius
+        central_angle = 2*pi / N_BOLTS,  # angle subtended by the flange segment
 
-# Flange Segment Constructor
-def create_flange_segment (gap_angle, gap_height, bolt_preload):
-    return PolynomialLFlangeSegment(
-        a = 232.5*mm,              # distance between inner face of the flange and center of the bolt hole
-        b = 166.5*mm,              # distance between center of the bolt hole and center-line of the shell
-        s = 72*mm,                 # shell thickness
-        t = 200.0*mm,              # flange thickness
-        R = 7.5*m / 2,             # shell outer curvature radius
-        central_angle = 2*pi/Nb,   # angle subtented by the flange segment arc
+        Zg = -18044*kN / N_BOLTS,      # load applied to the flange segment shell at rest
 
-        Zg = -15000*kN / Nb,    # load applied to the flange segment shell at rest
+        # Bolt object representing the flange segment bolt
+        bolt = StandardMetricBolt("M80", "10.9", shank_length=160*mm, 
+                shank_diameter_ratio=76.1/80, stud=True),
 
-        bolt = M80_bolt,        # bolt object created above
-        Fv = bolt_preload,      # applied bolt preload
+        bolt_preload_ratio = 0.750,     # Ratio between mean preload Fp and Fy = As*fy.
+        bolt_preload_cov = 0.03,        # Coefficient of variation of the bolt preload.
 
-        Do = 86*mm,             # bolt hole diameter
-        washer = M80_washer,    # washer object created above
-        nut = M80_nut,          # nut object created above
+        Do = 86*mm,               # Bolt hole diameter
+        washer = None,            # Bolt washer
+        nut = RoundNut("M80"),    # Bolt nut
 
-        gap_height = gap_height,   # maximum longitudinal gap height
-        gap_angle = gap_angle      # longitudinal gap length
+        flange_flatness_tolerance = 0.0014,   # 1.4 mm/m
+
+        s_ratio = 1.0       # Ratio of bottom shell thickness over s. Default s_botom = s.
     )
 ```
 
-Next, we define the stochastic variables `gap_angle`, `gap_height` and `bolt_pretension`:
+> The `fseg_samp` object (like any other sampler) could be used in a for-loop such 
+> as `for random_fseg in fseg_samp: ...` to generate an infinite (you need to break the
+> loop yourself) series of random flange-segments or with the `next` function 
+> (e.g. `random_fseg1 = next(fseg_samp)`, `random_fseg2 = next(fseg_samp)`, etc.) to
+> generate individual random flange-segment objects. 
 
-```python
-# Gap Height Log-Normal Distribution
-from pyflange.gap import gap_height_distribution
-D = 7.5*m
-gap_length = pi/6 * D/2
-gap_height_dist = gap_height_distribution(7.5*m, 1.4*mm/m, gap_length)
+The next sampler we need is a **MarkovMatrix sampler**, which we can create using the
+`pyflange.stats.standard_markov_matrix_sampler` fuctions, as shown in the snipped below.
 
-# Gap angle distribution
-from scipy.stats import normal
-mean = pi/6
-std = 0.10 * mean
-gap_angle_dist = norm(loc=mean, scale=std)
+```py
+import pyflange.stats as stats
+from pyflange.fatigue import MarkovMatrix
 
-# Bolt pretension distribution
-mean = 2876*kN
-std = 0.10 * mean
-bolt_preload_dist = norm(loc=mean, scale=std)
+# An "average" flange-load markov matrix is necessary as starting point. This could be 
+# created cexplicitly as shown before, but more likely it will be loaded from an external
+# csv or excel file. See the pyflange.fatigue module for more details.
+avg_markov_matrix = MarkovMatrix(
+        cycles = [ n0,  n1,  n2, ...],
+        mean   = [ M0,  M1,  M2, ...],
+        range  = [DM0, DM1, DM2, ...],
+        duration = 25 # years
+    )
+
+# Create a sampler that generates random markov matrices having the same number of
+# cycles and mean values that the average markov matrix, but random moment ranges from a
+# log-normal distribution with mean value the avg_markov_matrix range and CoV=0.12.
+markov_matrix_samp = stats.standard_markov_matrix_sampler(flange_mkv)
 ```
 
-Next we generate random actualizations of the stochastic parameters and evaluate the
-corresponding values of Fs(Z) and Ms(Z), in discrete form.
+> The "standard" markov matrix sampler (like any other standard sampler contained in
+> the `pyflange.stats` module) is just one of the possible MarkovMatrix samplers. If you
+> want you can create your own sampler and, as long as it yields MarkovMatrix objects,
+> it will still work with the following code.
 
-```python
-# Let's define the discrete domain Z of the Fs(Z) and Ms(Z) functions we
-# want to determine. We define Z as an array of 1000 items, linearly
-# spaced between -1500 kN and 2100 kN.
-import numpy as np 
-Z = np.linspace(-1500*kN, 2100*kN, 1000)
+The third sampler we need is a **BoltFatigueCurve sampler**, which we can generate 
+using the `pyflange.stats.standard_bolt_fatigue_curve_sampler` function, as shown in
+the snippet below.
 
-# Let's generating 25000 actualizations of Fs(Z) and Ms(Z) and store them in
-# two 1000x25000 matrices, where each row is an actualization of the discrete
-# image of Z through Fs and Ms.
+```py
+import pyflange.stats as stats
 
-Fs = np.array([])    # Initialize Fs with an empty matrix
-Ms = np.arrat([])    # Initialize Ms with an empty matrix
-
-for i in range(25000):
-
-    # Generate a random gap height
-    gap_height = gap_height_dist.rvs()
-
-    # Generate a random gap angle
-    gap_angle = gap_angle_dist.rvs()
-
-    # Generate a random bolt pretension
-    bolt_preload = bolt_preload_dist.rvs()
-
-    # Generate the corresponding random FlangeSegment actualization, using the
-    # factory function defined above
-    fseg = create_flange_segment(gap_angle, gap_height, bolt_preload)
-
-    # Generate the Fs image of Z and store it in the Fs matrix
-    Fs.append( fseg.bolt_axial_force(Z) ) 
-
-    # Generate the Ms image of Z and store it in the Ms matrix
-    Ms.append( fseg.bolt_bending_moment(Z) ) 
+Dn = 0.080 # Bolt nominal diameter: 80 mm
+fatigue_curve_sampler = stats.bolt_fatigue_curve_sampler(Dn)
 ```
 
-The generated data in `Fs` and `Ms` can be then used to fit a distribution to
-the data.
+The forth sampler we need to create is the **allowable damage sampler**, which is 
+necessay to take into account the uncertainties connected to the Miner's rule. We
+can assume a sampler with log-normal distribution with mean value 1 and CoV=0.3.
+
+```py
+import pyflange.stats as stats
+
+allowable_damage_samp = stats.lognorm_samp(1.0, 0.30)
+```
+
+The four samplers we created are actually needed to create a "master" sampler that
+uses them to create random realizations of fatigue cases. This is the sampler that
+we will use in the montecarlo simulation. It is created as shown in the following
+snippet.
+
+```py
+import pyflange.stats as stats
+
+fcase_samp = stats.fatigue_case_sampler(fseg_samp, 
+                                        markov_matrix_samp,
+                                        fatigue_curve_samp,
+                                        allowable_damage_samp)
+```
+
+Each fatogue case ralization (i.e. each `fcase = next(fcase_samp)` value) will return a 
+`pyflange.fatigue.BoltFatigueAnalysis` object that contains the following
+attributes (see BoltFatigueAnalysis API documentation for more details):
+
+- `fcase.fseg` : a random realization of flange segment
+- `fcase.flange_mkvm` : a random realization of a flange Markov matrix
+- `fcase.fatigue_curve` : a random BoltFatigueCurve realization
+- `fcase.allowable_damage` : a random realization of allowable damage
+- `fcase.damage` : the cumulated damage corresponding to the random attributes above
+- `fcase.fatigue_life` : the fatigue life corresponding to the random attributes above
+
+Finally, we can use the fatigue case sampler to create a sample of fatigue cases. In the
+following example, we will store a 100 000 items sample in a Pandas DataFrame.
+```py
+import pandas as pd
+SAMPLE_SIZE = int(100000)
+
+# Create an empty DataFrame
+samp_df = pd.DataFrame(dtype=float,                 # cells data type
+                       index=range(SAMPLE_SIZE),    # 100000 rows
+                       columns=[                    # Names of the data-frame columns
+                            "BoltPreload",
+                            "GapShapeFactor",
+                            "TiltAngle",
+                            "GapAngle",
+                            "GapHeight",
+                            "Damage",
+                            "AllowableDamage",
+                            "FatigueLife"
+                       ])
+
+# Fill the data-frame with fatigue cases, one for each row.
+for i in range(SAMPLE_SIZE):
+
+    # Generate the next random fatigue case
+    fcase = next(fcase_samp)
+
+    # Fill row number i of the data-frame with the values in fcase
+    samp_df.at[i, 'BoltPreload'    ] = fcase.fseg.Fv               # Bolt preload
+    samp_df.at[i, 'GapShapeFactor' ] = fcase.fseg.gap_shape_factor # Gap shape factor
+    samp_df.at[i, 'TiltAngle'      ] = fcase.fseg.tilt_angle       # Flange tilt angle
+    samp_df.at[i, 'GapAngle'       ] = fcase.fseg.gap_angle        # Gap angle
+    samp_df.at[i, 'GapHeight'      ] = fcase.fseg.gap_height       # Gap height
+    samp_df.at[i, 'Damage'         ] = fcase.damage                # Cumulate damage
+    samp_df.at[i, 'AllowableDamage'] = fcase.allowable_damage      # Allowable damage
+    samp_df.at[i, 'FatigueLife'    ] = fcase.fatigue_life          # Fatigue life
+
+    # This can take a while, so print a message every 1000 iteration
+    # to show the progress
+    if i % 1000 == 0:
+        print(f"Completed iteration number {i}")
+```
+
+
+The generate sample dataframe (the `samp_df` object) can be further processed with your
+favourite python statictical library or exported to a .csv file or .xlsx file for
+post-processing in Excel.
+
