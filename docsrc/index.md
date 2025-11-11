@@ -76,7 +76,7 @@ fseg = PolynomialLFlangeSegment(
 
 # Assert if the flange-segment fails with failure mode B.
 # If not, an exception will be raised. 
-fseg.validate(470e6, 450e6)
+fseg.validate(325e6, 295e6)
 ```
 
 Notice that a consistent set of units of measurements has been used for inputs, namely:
