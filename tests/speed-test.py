@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from pyflange.flangesegments import PolynomialLFlangeSegment
-from pyflange.bolts import MetricBolt
+from pyflange.bolts import StandardMetricBolt, ISOFlatWasher, ISOHexNut
 from pyflange.gap import gap_height_distribution
 
 from math import pi
@@ -34,13 +34,9 @@ def log (message):
     print("[{}] {}".format(timestamp, message))
 
 
-M80 = MetricBolt(
-    nominal_diameter = 80*mm,
-    thread_pitch = 6*mm,
+M80 = StandardMetricBolt("M80", "10.9", 
     shank_diameter_ratio = 76.1/80,
     shank_length = 270*mm,
-    yield_stress = 900*MPa,
-    ultimate_tensile_stress = 1000*MPa,
     stud = True)
 
 
@@ -61,7 +57,7 @@ def create_flange_segment (gap_angle):
         b = 166.5*mm,           # distance between center of the bolt hole and center-line of the shell
         s = t_sh,           # shell thickness
         t = 200.0*mm,           # flange thickness
-        c = 2*pi/n * (D - t_sh)/2,   # shell arc length
+        central_angle = 2*pi/n,   # shell arc angle
         R = D/2,          # shell outer curvature radius
 
         Zg = -14795*kN / n, # load applied to the flange segment shell at rest
@@ -71,7 +67,8 @@ def create_flange_segment (gap_angle):
         Fv = 2876*kN,                            # applied bolt preload
 
         Do = 86*mm,     # bolt hole diameter
-        Dw = 140*mm,    # washer diameter
+        washer = ISOFlatWasher("M80"),    # washer
+        nut = ISOHexNut("M80"), 
 
         gap_height = gap.ppf(0.95),   # maximum longitudinal gap height
         gap_angle = gap_angle,  # longitudinal gap length
