@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>stats - PyFlange Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "stats";
+        var mkdocs_page_input_path = "apis\\stats.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../..">
+          <img src="../../assets/logo.svg" class="logo" alt="Logo"/>
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API's</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../bolts/">bolts</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../flangesegments/">flangesegments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fatigue/">fatigue</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">stats</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.fatigue_case_sampler">fatigue_case_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.gap_height_distribution">gap_height_distribution</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.lognorm_sampler">lognorm_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.norm_sampler">norm_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.sampler">sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.standard_PolynomialLFlangeSegment_sampler">standard_PolynomialLFlangeSegment_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.standard_bolt_fatigue_curve_sampler">standard_bolt_fatigue_curve_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.standard_gap_size_sampler">standard_gap_size_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.standard_markov_matrix_sampler">standard_markov_matrix_sampler</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Deprecated API's</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../gap/">gap</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Examples</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/montecarlo/">Montecarlo Simulation</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">PyFlange Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">API's</li>
+      <li class="breadcrumb-item active">stats</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h1 id="pyflange.stats" class="doc doc-heading">
+            <code>pyflange.stats</code>
+
+
+</h1>
+
+    <div class="doc doc-contents first">
+
+        <p>This module contains tools for the probabilistic analysis of flanged connections.
+In particular, three categories of tools are provided:</p>
+<ul>
+<li>Probability distributions for some flange properties</li>
+<li>Samplers: random realization generators for flange properties</li>
+</ul>
+<p>The provided probability distributions are:</p>
+<ul>
+<li>gap_height_distribution</li>
+</ul>
+<p>The samplers are just <a href="https://realpython.com/ref/glossary/generator/">Python generator functions</a>
+that yield random values. Samplers can be used in a loop or to generate
+random values via the python <a href="https://realpython.com/ref/builtin-functions/next/">next</a> function.
+The following <em>general-purpose</em> samplers are available:</p>
+<ul>
+<li>sampler</li>
+<li>norm_sampler</li>
+<li>lognorm_sampler</li>
+<li>fatigue_case_sampler</li>
+</ul>
+<p>The following samplers are instead specific to IEC 61400-6:2020:</p>
+<ul>
+<li>standard_gap_size_sampler</li>
+<li>standard_PolynomialLFlangeSegment_sampler</li>
+<li>standard_markov_matrix_sampler</li>
+<li>standard_bolt_fatigue_curve_sampler</li>
+</ul>
+<p>An example of how to use the above generator to perform a Montecarlo
+simulation, is given in <a href="../../examples/montecarlo/">this example</a>.</p>
+<p>The following references are used through this documentation:</p>
+<ul>
+<li><code>[1]</code> IEC 61400-6 AMD1 Background document</li>
+<li><code>[2]</code> IEC 61400-6:2020</li>
+</ul>
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.fatigue_case_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fatigue_case_sampler</span><span class="p">(</span><span class="n">fseg_samp</span><span class="p">,</span> <span class="n">markov_matrix_samp</span><span class="p">,</span> <span class="n">fatigue_curve_samp</span><span class="p">,</span> <span class="n">allowable_damage_samp</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sampler that generates random fatigue cases</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>fseg_samp</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="pyflange.stats.sampler" href="#pyflange.stats.sampler">sampler</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>a <em>pyflange.flangesegments.FlangeSegment</em> sampler</p>
+              </div>
+            </li>
+            <li>
+              <b><code>markov_matrix_samp</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="pyflange.stats.sampler" href="#pyflange.stats.sampler">sampler</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>a <em>pyflange.fatigue.MarkovMatric</em> sampler</p>
+              </div>
+            </li>
+            <li>
+              <b><code>fatigue_curve_samp</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="pyflange.stats.sampler" href="#pyflange.stats.sampler">sampler</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>a <em>pyflange.fatigue.BoltFatigueCurve</em> sampler</p>
+              </div>
+            </li>
+            <li>
+              <b><code>allowable_damage_samp</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="pyflange.stats.sampler" href="#pyflange.stats.sampler">sampler</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>a <em>float</em> sampler that generates random allowable damages</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p><strong>Returns</strong> a sampler that yields random <em>pyflange.fatigue.BoltFatigueAnalysis</em> objects.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.gap_height_distribution" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">gap_height_distribution</span><span class="p">(</span><span class="n">flange_diameter</span><span class="p">,</span> <span class="n">flange_flatness_tolerance</span><span class="p">,</span> <span class="n">gap_length</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Evaluate the gap heigh probability distribution according to ref. [1].</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>flange_diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The outer diameter of the flange, expressed in meters.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>flange_flatness_tolerance</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The flatness tolerance, as defined in ref. [1],
+expressed in mm/mm (non-dimensional).</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gap_length</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>The length of the gap, espressed in meters and measured at
+the outer edge of the flange.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>dist</code></b>(                  <code><span title="scipy.stats.lognorm">lognorm</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>a <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html">scipy log-normal variable</a>,
+representing the gap height stocastic variable.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>The following example, creates a gap distribution and the calculates the 95% quantile
+of the gap height</p>
+<pre><code class="language-python">from pyflange.gap import gap_height_distribution
+
+D = 7.50      # Flange diameter in meters
+u = 0.0014    # Flatness tolerance (non-dimensional)
+L = 1.22      # Gap length
+gap_dist = gap_height_distribution(D, u, L)     # a lognorm distribution object
+
+u95 = gap_dist.ppf(0.95)    # PPF is the inverse of CDF. See scipy.stats.lognorm documentation.
+</code></pre>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.lognorm_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">lognorm_sampler</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">cv</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sampler based on a Log-Normal distribution.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>mean</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>mean value of the log-normal distribution</p>
+              </div>
+            </li>
+            <li>
+              <b><code>cv</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>coefficient of variation of the log-normal distribution</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p><strong>Returns</strong> a log-normal distribution sampler with given mean value and
+coefficient of variation.</p>
+<p>The following example creates a Log-Normal distribution sampler and 
+generates three realizations.</p>
+<pre><code class="language-py">samp = lognorm_sampler(12.0, 0.25)  # log-normal sampler sampler with 
+                                    # mean value 12.0 and CoV = 0.25.
+
+val1 = next(samp)   # A random value from the log-normal distribution
+val2 = next(samp)   # Another random value from the log-normal distribution
+val3 = next(samp)   # Yet another random value from the log-normal distribution
+</code></pre>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.norm_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">norm_sampler</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">cv</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sampler based on a Normal distribution.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>mean</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>mean value of the normal distribution</p>
+              </div>
+            </li>
+            <li>
+              <b><code>cv</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>coefficient of variation of the normal distribution</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p><strong>Returns</strong> a normal distribution sampler with given mean value and
+coefficient of variation.</p>
+<p>The following example creates a Normal distribution sampler and generates
+three realizations.</p>
+<pre><code class="language-py">samp = norm_sampler(12.0, 0.25)   # normal sampler sampler with mean 12.0
+                                  # and CoV = 0.25.
+
+val1 = next(samp)   # A random value from the normal distribution
+val2 = next(samp)   # Another random value from the normal distribution
+val3 = next(samp)   # Yet another random value from the normal distribution
+</code></pre>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">sampler</span><span class="p">(</span><span class="n">random_variable</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Generic distribution-based sampler.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>random_variable</code></b>
+                  (<code><span title="scipy.stats.rv_continuous">rv_continuous</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>any SciPy continuous
+random variable.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p><strong>Returns</strong> a generator that, at every <code>next</code> call returns a random realization 
+of the passed random variable.</p>
+<p>The following example creates a Normal distribution sampler and generates
+three realizations.</p>
+<pre><code class="language-py">from scipy.stats import norm
+ndist = norm(12.0, 2.0) # normal distribution with mean value 12 and standard deviation 2.
+
+samp = sampler(ndist)   # sampler based on the ndist distribution
+
+val1 = next(samp)       # A random value from ndist distribution
+val2 = next(samp)       # Another random value from ndist distribution
+val3 = next(samp)       # Yet another random value from ndist distribution
+</code></pre>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.standard_PolynomialLFlangeSegment_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">standard_PolynomialLFlangeSegment_sampler</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">central_angle</span><span class="p">,</span> <span class="n">Zg</span><span class="p">,</span> <span class="n">bolt</span><span class="p">,</span> <span class="n">bolt_preload_ratio</span><span class="p">,</span> <span class="n">bolt_preload_cov</span><span class="p">,</span> <span class="n">Do</span><span class="p">,</span> <span class="n">washer</span><span class="p">,</span> <span class="n">nut</span><span class="p">,</span> <span class="n">flange_flatness_tolerance</span><span class="p">,</span> <span class="n">E</span><span class="o">=</span><span class="mf">210000000000.0</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="mf">80770000000.0</span><span class="p">,</span> <span class="n">s_ratio</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">k_shell</span><span class="o">=</span><span class="s1">&#39;interp&#39;</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>A sampler that yields random pyflange PolynomialLFlangeSegment objects.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>a</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>distance between inner face of the flange and center of the 
+bolt hole</p>
+              </div>
+            </li>
+            <li>
+              <b><code>b</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>distance between center of the bolt hole and center-line of 
+the shell</p>
+              </div>
+            </li>
+            <li>
+              <b><code>s</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>shell thickness</p>
+              </div>
+            </li>
+            <li>
+              <b><code>t</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>flange thickness</p>
+              </div>
+            </li>
+            <li>
+              <b><code>R</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>shell outer curvature radius</p>
+              </div>
+            </li>
+            <li>
+              <b><code>central_angle</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>angle subtended by the flange segment</p>
+              </div>
+            </li>
+            <li>
+              <b><code>Zg</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>load applied to the flange segment shell at rest 
+(normally dead weight of tower + RNA, divided by the number of 
+bolts). Negative if compression.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bolt</code></b>
+                  (<code><span title="pyflange.bolts.Bolt">Bolt</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Bolt object representing the flange 
+segment bolt</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bolt_preload_ratio</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Ratio between mean preload Fp and bolt 
+yield capacity Fy = As*fy. According to ref. [1]-section 4:
+- for torque-tightened HV bolts approved for humidity: Fp/Fy = 0.77
+- for torque-tightened HV bolts not approved for humidity: Fp/Fy = 0.62
+- for tension-tightened HV bolts: 0.70 &lt; Fp/Fy &lt; 0.75</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bolt_preload_cov</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Coefficient of variation of the bolt preload.
+According to ref. [1]-section 4:
+- for torque-tightened HV bolts approved for humidity: CoV = 0.10
+- for torque-tightened HV bolts not approved for humidity: CoV = 0.15
+- for tension-tightened HV bolts: 0.03 &lt; CoV &lt; 0.05</p>
+              </div>
+            </li>
+            <li>
+              <b><code>Do</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>Bolt hole diameter</p>
+              </div>
+            </li>
+            <li>
+              <b><code>nut</code></b>
+                  (<code><span title="pyflange.bolts.Nut">Nut</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Bolt nut</p>
+              </div>
+            </li>
+            <li>
+              <b><code>flange_flatness_tolerance</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>flatness tolerance in mm/mm</p>
+              </div>
+            </li>
+            <li>
+              <b><code>E</code></b>
+                  (<code>float</code>, default:
+                      <code>210000000000.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Young modulus of the flange</p>
+              </div>
+            </li>
+            <li>
+              <b><code>G</code></b>
+                  (<code>float</code>, default:
+                      <code>80770000000.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Shear modulus of the flange</p>
+              </div>
+            </li>
+            <li>
+              <b><code>r</code></b>
+                  (<code>float</code>, default:
+                      <code>0.01</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Rounding between flange and shell</p>
+              </div>
+            </li>
+            <li>
+              <b><code>k_shell</code></b>
+                  (<code>str | float | None</code>, default:
+                      <code>&#39;interp&#39;</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Custom shell stiffness. If it equals the string
+'interp' (default), the shell stiffness will be interpolated using
+the funtion <em>pyflange.flangesemgments.shell_stiffness</em>; if it is a
+number, the shell stiffness will be taken equal to that number; if it
+is <em>None</em>, the shell stiffness will be calculated accordin to the
+simplified formula contained in ref [1].</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p><em>Returns</em> a sampler that yields random L-Flange segment objects, defined by
+the given deterministic parameters and the following random parameters
+which are generated according to ref. [1].</p>
+<ul>
+<li><code>preload</code> (<code>float</code>), sampled from a Normal distribution with mean value
+  given by the passed <em>bolt_preload_ratio</em> and CoV given by the passed
+  <em>bolt_preload_cov</em>.</li>
+<li><code>gap_angle</code> (<code>float</code>) and <code>gap_height</code> (<code>float</code>), given by the
+  <em>standard_gap_size_generator</em>, created with flange diameter 2R and
+  the given <em>flange_flatness_tolerance</em>.</li>
+<li><code>gap_shape_factor</code> (<code>float</code>) sampled from a Normal distribution with
+  mean value 1.0 and CoV=0.15</li>
+<li><code>tilt_angle</code> (<code>float</code>) sampled from a log-normal distribution with
+  mean value 0.1 deg and CoV=0.50.</li>
+</ul>
+<p>The following example creates a L-Flange segment sampler and generates
+three random flange segments.</p>
+<pre><code class="language-py">from math import pi
+mm = 0.001
+kN = 1000
+
+from pyflange.bolts import StandardMetricBolt, RoundNut
+N_BOLTS = 156
+
+fseg_samp = standard_PolynomialLFlangeSegment_sampler (
+        a = 150*mm,        # distance between inner face of the flange and center of the bolt hole
+        b = 122*mm,        # distance between center of the bolt hole and center-line of the shell
+        s =  54*mm,        # shell thickness
+        t = 172*mm,        # flange thickness
+        R = 4000*mm,       # shell outer curvature radius
+        central_angle = 2*pi / N_BOLTS,  # angle subtended by the flange segment
+
+        Zg = -18044*kN / N_BOLTS,      # load applied to the flange segment shell at rest
+
+        # Bolt object representing the flange segment bolt
+        bolt = StandardMetricBolt(&quot;M80&quot;, &quot;10.9&quot;, shank_length=160*mm, 
+                shank_diameter_ratio=76.1/80, stud=True),
+
+        bolt_preload_ratio = 0.750,     # Ratio between mean preload Fp and Fy = As*fy.
+        bolt_preload_cov = 0.03,        # Coefficient of variation of the bolt preload.
+
+        Do = 86*mm,               # Bolt hole diameter
+        washer = None,            # Bolt washer
+        nut = RoundNut(&quot;M80&quot;),    # Bolt nut
+
+        flange_flatness_tolerance = 0.0014,   # 1.4 mm/m
+
+        s_ratio = 1.0       # Ratio of bottom shell thickness over s. Default s_botom = s.
+    )
+
+fseg1 = next(fseg_samp)     # A random L-Flange segment object
+fseg2 = next(fseg_samp)     # Another random L-Flange segment object
+fseg3 = next(fseg_samp)     # Yet another random L-Flange segment object
+
+</code></pre>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.standard_bolt_fatigue_curve_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">standard_bolt_fatigue_curve_sampler</span><span class="p">(</span><span class="n">bolt_nominal_diameter</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sampler that generates random bolt SN curves, according to ref. [2].</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>bolt_nominal_diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>the nominal diameter of the bolt</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p><strong>Returns</strong> a sampler that yields <em>pyflange.fatigue.BoltFatigueCurve</em>
+objects, having a reference stress range randomly generated from a 
+normal distribution with mean value 62 MPa and CoV=0.10.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.standard_gap_size_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">standard_gap_size_sampler</span><span class="p">(</span><span class="n">flange_diameter</span><span class="p">,</span> <span class="n">flange_flatness_tolerance</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sampler that generates random flange gaps according to ref. [1]</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>flange_diameter</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>the diameter of the flange</p>
+              </div>
+            </li>
+            <li>
+              <b><code>flange_flatness_tolerance</code></b>
+                  (<code>float</code>)
+              –
+              <div class="doc-md-description">
+                <p>the flatness tolerance in mm/mm</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>gap_angle</code></b>(                  <code>float</code>
+)              –
+              <div class="doc-md-description">
+                <p>random gap angle generated from a log-normal
+sampler with mean value 0.1 deg and CoV = 1.0</p>
+              </div>
+            </li>
+            <li>
+<b><code>gap_height</code></b>(                  <code>float</code>
+)              –
+              <div class="doc-md-description">
+                <p>random gap height, generated from the distribution
+returned by the <em>gap_height_distribution</em> function, based on
+the random <em>gap_angle</em> and on the given <em>flange_diameter</em> and
+<em>flange_flatness_tolerance</em> parameters.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p>The following example creates a standard gap-size sampler and generate
+three realizations.</p>
+<pre><code class="language-py"># Gap size sampler for 7.5 m falnge with flatness tolerance 1.4 mm/m
+samp = standard_gap_size_sampler(7.5, 0.0014)
+
+ga1, gh1 = next(samp)  # A random gap-anlge, gap-height pair
+ga2, gh2 = next(samp)  # Another random gap-anlge, gap-height pair
+ga3, gh3 = next(samp)  # Yet another random gap-anlge, gap-height pair
+
+</code></pre>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.standard_markov_matrix_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">standard_markov_matrix_sampler</span><span class="p">(</span><span class="n">markov_matrix</span><span class="p">,</span> <span class="n">range_CoV</span><span class="o">=</span><span class="mf">0.12</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sampler that generates a random markov matrix according to ref [2].</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>markov_matrix</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="pyflange.fatigue.MarkovMatrix" href="../fatigue/#pyflange.fatigue.MarkovMatrix">MarkovMatrix</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>the deterministic
+design Markov matrix.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>range_CoV</code></b>
+                  (<code>float</code>, default:
+                      <code>0.12</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>the coefficient of variation of each load
+range, assumed normally-distributed with mean value
+contained in the passed <em>markov_matrix</em> parameters.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>        <p><strong>Returns</strong> a MarkovMatrix sampler that yields random Markov matrices
+having the same mean load values and number of cycles as the passed
+<em>markov_matrix</em> parameter, but random ranges multiplied by a random
+factor extracted by a normal distribution with mean value 1.0 and
+CoV equal to the passed <em>range_CoV</em> parameter.</p>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../fatigue/" class="btn btn-neutral float-left" title="fatigue"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../gap/" class="btn btn-neutral float-right" title="gap">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../fatigue/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../gap/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

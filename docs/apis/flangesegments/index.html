@@ -45,8 +45,6 @@
               <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../bolts/">bolts</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../gap/">gap</a>
-                  </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">flangesegments</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.FlangeSegment">FlangeSegment</a>
@@ -122,6 +120,13 @@
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../fatigue/">fatigue</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../stats/">stats</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Deprecated API's</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../gap/">gap</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Examples</span></p>
@@ -621,9 +626,12 @@ equal to 1.0, threfore, by default, s_botom = s.</p>
 )
               –
               <div class="doc-md-description">
-                <p>Optional individual initial shell stiffness value. This value can be
-calculated in a separate FE analysis. The unit must be [N/m/m]. If omitted,
-the interpolated formula from [1] will be used.</p>
+                <p>Is either a stiffness value, a function or None:
+- If it is a stiffness value (e.g. calculated by a spearate FE analysis,
+  it will be used as shell stiffness. The unit must be [N/m/m]. 
+- If it is a function, the value <code>k_shell(self)</code> will be used as shell
+  stiffness.
+- If None or omitted, the interpolated formula from [1] will be used.</p>
               </div>
             </li>
         </ul>
@@ -1957,7 +1965,7 @@ shell thickness and gap angle.</p>
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../gap/" class="btn btn-neutral float-left" title="gap"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../bolts/" class="btn btn-neutral float-left" title="bolts"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../fatigue/" class="btn btn-neutral float-right" title="fatigue">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
@@ -1981,7 +1989,7 @@ shell thickness and gap angle.</p>
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../gap/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../bolts/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../fatigue/" style="color: #fcfcfc">Next &raquo;</a></span>

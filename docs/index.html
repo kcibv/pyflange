@@ -51,11 +51,16 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="apis/bolts/">bolts</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="apis/gap/">gap</a>
-                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="apis/flangesegments/">flangesegments</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="apis/fatigue/">fatigue</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="apis/stats/">stats</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Deprecated API's</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="apis/gap/">gap</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Examples</span></p>
@@ -150,7 +155,7 @@ fseg = PolynomialLFlangeSegment(
 
 # Assert if the flange-segment fails with failure mode B.
 # If not, an exception will be raised. 
-fseg.validate(470e6, 450e6)
+fseg.validate(325e6, 295e6)
 </code></pre>
 <p>Notice that a consistent set of units of measurements has been used for inputs, namely:
 meter for distances, radians for angles and newton for forces. It is not required to
@@ -214,5 +219,5 @@ Ms = fseg.bolt_bending_moment(Z)    # return the numpy array (Ms(2000), Ms(2500)
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-10-21 13:24:33.368101+00:00
+Build Date UTC : 2025-11-12 10:54:30.812434+00:00
 -->
