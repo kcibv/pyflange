@@ -2,7 +2,7 @@
 Example: Montecarlo Simulation
 ============================== 
 
-This example shows how the pythagoras library can be used to generate a random 
+This example shows how the pyflange library can be used to generate a random 
 sample of bolt fatigue cases, which could be used, for example in a reliability 
 analysis.
 

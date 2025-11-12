@@ -1680,7 +1680,7 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
 
     **Returns:**
 
-    - `bolt_markov_matrix : pythagoras.fatigue.MarkovMatrix`
+    - `bolt_markov_matrix : pyflange.fatigue.MarkovMatrix`
       The bolt markov matrix representing the stress history in the bolt due to 
       the applied flange markov matrix.
     '''
