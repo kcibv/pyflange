@@ -159,6 +159,11 @@ cython_debug/
 #.idea/
 
 
-# Hand-made versioning
+# Natasha versioning
 __void__/
 **/.versions/
+
+
+# Locals
+local/
+*.todo.md
