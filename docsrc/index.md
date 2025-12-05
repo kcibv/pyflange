@@ -51,7 +51,7 @@ u_tol = 0.0014                  # flatness tolerance in mm/mm
 gap_dist = gap_height_distribution(D, u_tol, gap_length)    # lognormal distribution
 
 # Create the FlangeSegment model
-from pyflange.flangesegments import PolynomialLFlangeSegment
+from pyflange.flangesegments import PolynomialLFlangeSegment, Gap
 Nb = 120    # number of bolts
 fseg = PolynomialLFlangeSegment(
     a = 0.2325,              # distance between inner face of the flange and center of the bolt hole
@@ -71,8 +71,9 @@ fseg = PolynomialLFlangeSegment(
     washer = M80_washer,     # washer object created above
     nut = M80_nut,           # nut object created above
 
-    gap_height = gap_dist.ppf(0.95),    # maximum longitudinal gap height, 95% quantile
-    gap_angle = gap_angle)              # longitudinal gap length
+    gap = Gap(height = gap_dist.ppf(0.95),    # maximum longitudinal gap height, 95% quantile
+              angle  = gap_angle)             # longitudinal gap length
+    )
 
 # Assert if the flange-segment fails with failure mode B.
 # If not, an exception will be raised. 

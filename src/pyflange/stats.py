@@ -408,7 +408,7 @@ def standard_PolynomialLFlangeSegment_sampler (
     ```
     '''
    
-    from .flangesegments import PolynomialLFlangeSegment, shell_stiffness
+    from .flangesegments import PolynomialLFlangeSegment, shell_stiffness, Gap
     import numpy as np
     from math import pi
     deg = pi/180
@@ -439,16 +439,15 @@ def standard_PolynomialLFlangeSegment_sampler (
     # generate random flange segments
     while True:
         gap_angle, gap_height = next(gap_size_sampler)
+        gap = Gap(height=gap_height, angle=gap_angle, shape_factor=next(gap_shape_factor_sampler))
         yield PolynomialLFlangeSegment(
                 a=a, b=b, s=s, t=t, R=R, central_angle=central_angle, Zg=Zg, bolt=bolt, 
-                Do=Do, washer=washer, nut=nut, gap_angle=gap_angle, gap_height=gap_height,
-                E=E, G=G, s_ratio=s_ratio, r=r, 
+                Do=Do, washer=washer, nut=nut, gap=gap, E=E, G=G, s_ratio=s_ratio, r=r,
 
                 k_shell = np.interp(gap_angle, gap_angles, shell_stiffnesses) if k_shell=='interp' else k_shell,
 
                 # Realizations of probabilistic parameters
                 Fv = average_random_preload(preload_sampler, gap_angle/central_angle/2),
-                gap_shape_factor = next(gap_shape_factor_sampler),   # Factor accounting for a shape different than sinusoidal
                 tilt_angle = next(tilt_angle_sampler) % pi           # Flange radia tilt angle
             )
 

@@ -68,6 +68,19 @@ import pandas as pd
 
 
 
+@dataclass
+class Gap:
+    ''' A flange gap
+
+    This class represents the gap between two flanges, due to imprerfections.
+    '''
+
+    height       : float         # maximum longitudinal gap height
+    angle        : float         # angle subtended by the gap arc from the flange center
+    shape_factor : float = 1.0   # Factor accounting for a shape different than sinusoidal
+
+
+
 class FlangeSegment (ABC):
     ''' Abstract FlangeSegment class.
 
@@ -486,13 +499,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         nut: Nut object representing the fastenrr nut.
 
-        gap_height: Maximum longitudinal gap height.
-
-        gap_angle: Angle subtended by the gap arc from the flange center.
-
-        gap_shape_factor: A correction factor that applies to `Fs2-Fs1` and to
-            `Fs3-Fs1` to account for gap shape different that the default sinusoidal
-            shape. If omitted, it defaults to 1.0 (sinusoida shape).
+        gap: flange gap object
 
         tilt_angle: Flange tilt angle, in radians.
 
@@ -536,9 +543,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     washer: Washer  # Bolt washer
     nut: Nut        # Bolt nut
 
-    gap_height: float               # maximum longitudinal gap height
-    gap_angle: float                # angle subtended by the gap arc from the flange center
-    gap_shape_factor: float = 1.0   # Factor accounting for a shape different than sinusoidal
+    gap: Gap        # Object representing the flange gap
 
     tilt_angle: float = 0.0         # angle of flange tilt
 
@@ -807,7 +812,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         # Scale Fs2 based on the gap shape
         Fs1 = self.bolt_force_at_rest
-        return Fs1 + (Fs2 - Fs1) * self.gap_shape_factor
+        return Fs1 + (Fs2 - Fs1) * self.gap.shape_factor
 
 
     @cached_property
@@ -845,7 +850,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         ''' Force necessary to completely close the imperfection gap '''
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
-        return -0.5 * self._gap_stiffness * self.gap_height * c
+        return -0.5 * self._gap_stiffness * self.gap.height * c
 
 
     @cached_property
@@ -985,7 +990,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         # Calculate the shell stiffness
         s_avg = (self.s + self.s_ratio * self.s) / 2    # Average shell thickness
-        L_gap = self.R * self.gap_angle                 # Gap lenght at mid-line of shell with average thickness
+        L_gap = self.R * self.gap.angle                 # Gap lenght at mid-line of shell with average thickness
         k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48A
         try:
             k_shell = float(self.k_shell)
@@ -1002,7 +1007,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49
 
         # Stiffness correction factor
-        f_tot = min(1.0 + 1.5 * self.gap_angle/(pi/2), 2.5) * min(self.gap_angle/(pi/6), 1)**2
+        f_tot = min(1.0 + 1.5 * self.gap.angle/(pi/2), 2.5) * min(self.gap.angle/(pi/6), 1)**2
 
         log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange, f_tot=f_tot)
 
@@ -1041,7 +1046,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         # Return the stiffness correction factor, acc. [1], eq.75
         return min(1 + self._gap_stiffness / k_seg,
-                   4 * pi/3 / self.gap_angle)
+                   4 * pi/3 / self.gap.angle)
 
 
     @cached_property
@@ -1064,7 +1069,31 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         p_max = (self.bolt_force_at_tensile_ULS - self.bolt_force_at_rest) / (self.shell_force_at_tensile_ULS - self.shell_force_at_rest)
 
         # Initial slope
-        return min(scf*p, p_max) * self.gap_shape_factor
+        return min(scf*p, p_max) * self.gap.shape_factor
+
+
+    # ----------------------------------------------------------------------
+    #  DEPRECATED ATTRIBUTES AND METHODS
+    #
+    #  The following methods are deprecated and kept only for backwards
+    #  compatibility
+    # ----------------------------------------------------------------------
+
+    @property
+    def gap_height (self):
+        ''' Gap height. Deprecated: use `gap.height` instead. '''
+        return self.gap.height
+
+    @property
+    def gap_angle (self):
+        ''' Gap angle. Deprecated: use `gap.angle` instead. '''
+        return self.gap.angle
+
+    @property
+    def gap_shape_factor (self):
+        ''' Gap shape factor. Deprecated: use `gap.shape_factor` instead. '''
+        return self.gap.shape_factor
+
 
 
 
@@ -1107,13 +1136,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         nut: Nut object representing the fastenrr nut.
 
-        gap_height: Maximum longitudinal gap height.
-
-        gap_angle: Angle subtended by the gap arc from the flange center.
-
-        gap_shape_factor: A correction factor that applies to `Fs2-Fs1` and to
-            `Fs3-Fs1` to account for gap shape different that the default sinusoidal
-            shape. If omitted, it defaults to 1.0 (sinusoida shape).
+        gap: Object representing the flange gap.
 
         tilt_angle: Flange tilt angle, in radians.
 
@@ -1154,9 +1177,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     washer: Washer  # Bolt washer
     nut: Nut        # Bolt nut
 
-    gap_height: float   # maximum longitudinal gap height
-    gap_angle: float    # angle subtended by the gap arc from the flange center
-    gap_shape_factor: float = 1.0   # Factor accounting for a shape different than sinusoidal
+    gap: Gap        # Flange gap object
     
     tilt_angle : float = 0.0    # angle of flange tilt
 
@@ -1410,7 +1431,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         # Scale Fs2 based on the gap shape
         Fs1 = self.bolt_force_at_rest
-        return Fs1 + (Fs2 - Fs1) * self.gap_shape_factor
+        return Fs1 + (Fs2 - Fs1) * self.gap.shape_factor
 
     @cached_property
     def bolt_moment_at_tensile_ULS (self):
@@ -1448,7 +1469,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         ''' Force necessary to completely close the imperfection gap '''
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
-        return -0.5 * self._gap_stiffness * self.gap_height * c
+        return -0.5 * self._gap_stiffness * self.gap.height * c
     
     @cached_property
     def _tilt_neutralization_shell_force (self):
@@ -1488,12 +1509,12 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         I_tg = c_m * self.t**3 / 12
        
         # Calculate the gap stiffness
-        alpha_gap=self.gap_angle*180/pi
+        alpha_gap=self.gap.angle*180/pi
         f_tot= min(1 + alpha_gap/90 *1.5,2.5)
         k_gap=self._gap_stiffness/f_tot                 #total gap stiffness, without the adjustment factor of 2.2 acc. to [1] eq.26
 
         #Preload force at which edge contact occurs (31)
-        Fv_c=0.5*self.gap_height/( self.b**3/(3*self.E*I_tg) + self.b**2*self.a/(2*self.E*I_tg) + 1.2*self.b/(self.G*A_tg) + 1/(c_m*(k_gap)) )
+        Fv_c=0.5*self.gap.height/( self.b**3/(3*self.E*I_tg) + self.b**2*self.a/(2*self.E*I_tg) + 1.2*self.b/(self.G*A_tg) + 1/(c_m*(k_gap)) )
 
         #Reduction due to early prying (30)
         delta_Z_gap_c=-max((self.Fv-Fv_c) * ((3*self.a+2*self.b)*self.b**2/(2*(self.a+self.b)**3)),0)
@@ -1564,8 +1585,8 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         # Calculate the shell stiffness
         #Rm = self.R - self.s/2   # radius of the shell midline
-        #L_gap = Rm * self.gap_angle
-        L_gap = self.R * self.gap_angle
+        #L_gap = Rm * self.gap.angle
+        L_gap = self.R * self.gap.angle
         #k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (Rm*1000)) * (L_gap*1000))    # ref. [1], eq.48
         k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48
         s_avg = (self.s + self.s_ratio * self.s) / 2
@@ -1580,7 +1601,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         L2 = L_gap**2
         k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49
         
-        alpha_gap=self.gap_angle*180/pi
+        alpha_gap=self.gap.angle*180/pi
         f_tot= min(1 + alpha_gap/90 *1.5,2.5)
         
         log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange, f_tot=f_tot)
@@ -1621,7 +1642,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         
         # Return the stiffness correction factor, acc. [1], eq.75
         return min(1 + self._gap_stiffness / k_seg,
-                   4 * pi/3 / self.gap_angle)
+                   4 * pi/3 / self.gap.angle)
 
     @cached_property
     def _polynomial_initial_slope (self):
@@ -1641,9 +1662,33 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         gap_closing_ratio=self._total_gap_neutralization_shell_force/(self.Fv)
         
         # Initial slope
-        xi_ini=min(gap_closing_ratio*p*0.5,p_max)*self.gap_shape_factor
+        xi_ini=min(gap_closing_ratio*p*0.5,p_max)*self.gap.shape_factor
         
         return -xi_ini
+
+
+    # ----------------------------------------------------------------------
+    #  DEPRECATED ATTRIBUTES AND METHODS
+    #
+    #  The following methods are deprecated and kept only for backwards
+    #  compatibility
+    # ----------------------------------------------------------------------
+
+    @property
+    def gap_height (self):
+        ''' Gap height. Deprecated: use `gap.height` instead. '''
+        return self.gap.height
+
+    @property
+    def gap_angle (self):
+        ''' Gap angle. Deprecated: use `gap.angle` instead. '''
+        return self.gap.angle
+
+    @property
+    def gap_shape_factor (self):
+        ''' Gap shape factor. Deprecated: use `gap.shape_factor` instead. '''
+        return self.gap.shape_factor
+
 
 
 

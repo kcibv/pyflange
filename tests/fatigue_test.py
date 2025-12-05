@@ -162,9 +162,9 @@ def test_bolt_markov_matrix ():
 
         tilt_angle = tilt_angle,
 
-        gap_height = gap_height_distribution(D, 0.0014, gap_angle*D/2).ppf(0.95),   # maximum longitudinal gap height
-        gap_angle = gap_angle,  # longitudinal gap length
-        gap_shape_factor = gap_shape_factor,
+        gap = Gap(height = gap_height_distribution(D, 0.0014, gap_angle*D/2).ppf(0.95),   # maximum longitudinal gap height
+                  angle = gap_angle,  # longitudinal gap length
+                  shape_factor = gap_shape_factor),
 
         s_ratio = 100/72)        # ratio of bottom shell thickness over tower shell thickness
 
