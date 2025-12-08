@@ -24,6 +24,7 @@ import pyflange.stats as stats
 from math import pi
 mm = 0.001
 kN = 1000
+deg = pi/180
 
 from pyflange.bolts import StandardMetricBolt, RoundNut
 N_BOLTS = 156
@@ -42,16 +43,25 @@ fseg_samp = stats.standard_PolynomialLFlangeSegment_sampler (
         bolt = StandardMetricBolt("M80", "10.9", shank_length=160*mm, 
                 shank_diameter_ratio=76.1/80, stud=True),
 
-        bolt_preload_ratio = 0.750,     # Ratio between mean preload Fp and Fy = As*fy.
-        bolt_preload_cov = 0.03,        # Coefficient of variation of the bolt preload.
 
         Do = 86*mm,               # Bolt hole diameter
         washer = None,            # Bolt washer
         nut = RoundNut("M80"),    # Bolt nut
 
-        flange_flatness_tolerance = 0.0014,   # 1.4 mm/m
+        # Bolt preload random sampler
+        preload_sampler = stats.norm_sampler(2932.24*kN, 0.03), # bolt preload random sampler
 
-        s_ratio = 1.0       # Ratio of bottom shell thickness over s. Default s_botom = s.
+        # Gap random stampler
+        gap_sampler = stats.standard_gap_sampler(flange_diameter = 8000*mm,
+                                                 flange_flatness_tolerance = 0.0014,   # 1.4 mm/m
+                                                 gap_angle_sampler = stats.lognorm_sampler(100*deg, 1.0),
+                                                 gap_shape_factor_sampler = stats.norm_sampler(1.0, 0.15)),
+
+        # Flange tilt angle random stampler
+        tilt_sampler = stats.lognorm_sampler(0.1*deg, 0.50),
+
+        # Ratio of bottom shell thickness over s. Default s_botom = s.
+        s_ratio = 1.0       
     )
 ```
 
