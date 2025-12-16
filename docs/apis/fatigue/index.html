@@ -160,6 +160,7 @@ a bolt, given its FlangeSegment model, fatigue curve and allowable damage.</p>
 
 
 
+
   <div class="doc doc-children">
 
 
@@ -248,6 +249,7 @@ following attributes are available.</p>
 
 
 
+
   <div class="doc doc-children">
 
 
@@ -279,7 +281,7 @@ following attributes are available.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="pyflange.fatigue.DoubleSlopeFatigueCurve" href="#pyflange.fatigue.DoubleSlopeFatigueCurve">DoubleSlopeFatigueCurve</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="DoubleSlopeFatigueCurve (pyflange.fatigue.DoubleSlopeFatigueCurve)" href="#pyflange.fatigue.DoubleSlopeFatigueCurve">DoubleSlopeFatigueCurve</a></code></p>
 
 
         <p>Bolt Fatigue Curve according to IEC 61400-6 AMD1.</p>
@@ -301,7 +303,7 @@ IEC 61400-6 AMD1.</p>
         <ul class="first simple">
             <li>
               <b><code>diameter</code></b>
-                  (<code>float</code>)
+                  (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
                 <p>The bolt diameter in meters.</p>
@@ -309,7 +311,7 @@ IEC 61400-6 AMD1.</p>
             </li>
             <li>
               <b><code>DS_ref</code></b>
-                  (<code>float</code>, default:
+                  (<code><span title="float">float</span></code>, default:
                       <code>50000000.0</code>
 )
               –
@@ -319,7 +321,7 @@ IEC 61400-6 AMD1.</p>
             </li>
             <li>
               <b><code>gamma_M</code></b>
-                  (<code>float</code>, default:
+                  (<code><span title="float">float</span></code>, default:
                       <code>1.1</code>
 )
               –
@@ -333,6 +335,7 @@ IEC 61400-6 AMD1.</p>
   </tbody>
 </table>        <p>Thuis class inherits all the properties and methods of the
 <code>DoubleSlopeFatigueCurve</code> class.</p>
+
 
 
 
@@ -373,7 +376,7 @@ IEC 61400-6 AMD1.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="pyflange.fatigue.MultiSlopeFatigueCurve" href="#pyflange.fatigue.MultiSlopeFatigueCurve">MultiSlopeFatigueCurve</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="MultiSlopeFatigueCurve (pyflange.fatigue.MultiSlopeFatigueCurve)" href="#pyflange.fatigue.MultiSlopeFatigueCurve">MultiSlopeFatigueCurve</a></code></p>
 
 
         <p>Wöhler curve with double logarithmic slope.</p>
@@ -393,7 +396,7 @@ slopes m1 and m2.</p>
         <ul class="first simple">
             <li>
               <b><code>m1</code></b>
-                  (<code>float</code>)
+                  (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
                 <p>The logarithmic slope of the lower cycle values.</p>
@@ -401,7 +404,7 @@ slopes m1 and m2.</p>
             </li>
             <li>
               <b><code>m2</code></b>
-                  (<code>float</code>)
+                  (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
                 <p>The logarithmic slope of the higher cycle values.</p>
@@ -409,7 +412,7 @@ slopes m1 and m2.</p>
             </li>
             <li>
               <b><code>DS12</code></b>
-                  (<code>float</code>)
+                  (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
                 <p>The stress range where the two branches of the curve meet.</p>
@@ -417,7 +420,7 @@ slopes m1 and m2.</p>
             </li>
             <li>
               <b><code>N12</code></b>
-                  (<code>float</code>)
+                  (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
                 <p>The number of cycles to failure corresponding to DS12.</p>
@@ -430,6 +433,7 @@ slopes m1 and m2.</p>
 </table>        <p>All the constructor parameters are also available as instance attributes
 (i.e. <code>scn.m1</code>, <code>snc.m2</code>, <code>snc.DS12</code>, <code>snc.N12</code>).</p>
 <p>This class implements all the methods of FatigueCurve.</p>
+
 
 
 
@@ -483,6 +487,7 @@ instantiated directly.</p>
 
 
 
+
   <div class="doc doc-children">
 
 
@@ -508,6 +513,7 @@ instantiated directly.</p>
 <p>Given a number of cycles, this function return the corresponding
 stress range that produce a fatigue failure.</p>
 
+
     </div>
 
 </div>
@@ -526,6 +532,7 @@ stress range that produce a fatigue failure.</p>
         <p>Number of cycles.</p>
 <p>Given a stress range DS, this function return the corresponding
 number of cycles that produce a fatigue failure.</p>
+
 
     </div>
 
@@ -556,6 +563,7 @@ number of cycles that produce a fatigue failure.</p>
   Markov matrix.</li>
 </ul>
 
+
     </div>
 
 </div>
@@ -574,6 +582,7 @@ number of cycles that produce a fatigue failure.</p>
         <p>Fatigue damage.</p>
 <p>Given a number of cycles n and a stress range DS, this function returns
 the dorresponding fatigue damage (D = n / N(DS)).</p>
+
 
     </div>
 
@@ -637,6 +646,7 @@ are also reflected as attributes:</p>
 
 
 
+
   <div class="doc doc-children">
 
 
@@ -668,12 +678,13 @@ are also reflected as attributes:</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="pyflange.fatigue.FatigueCurve" href="#pyflange.fatigue.FatigueCurve">FatigueCurve</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="FatigueCurve (pyflange.fatigue.FatigueCurve)" href="#pyflange.fatigue.FatigueCurve">FatigueCurve</a></code></p>
 
 
         <p>Multi-Slope Fatigue Curve.</p>
 <p>This class is a FatigueCurve with multiple slopes.
 It takes any number of SingleSlopeFatigueCurve objects as arguments.</p>
+
 
 
 
@@ -718,7 +729,7 @@ It takes any number of SingleSlopeFatigueCurve objects as arguments.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="pyflange.fatigue.FatigueCurve" href="#pyflange.fatigue.FatigueCurve">FatigueCurve</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="FatigueCurve (pyflange.fatigue.FatigueCurve)" href="#pyflange.fatigue.FatigueCurve">FatigueCurve</a></code></p>
 
 
         <p>Wöhler curve with single logarithmic slope.</p>
@@ -738,7 +749,7 @@ slope m.</p>
         <ul class="first simple">
             <li>
               <b><code>m</code></b>
-                  (<code>float</code>)
+                  (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
                 <p>The logarithmic slope of the fatigue curve.</p>
@@ -746,7 +757,7 @@ slope m.</p>
             </li>
             <li>
               <b><code>DS_ref</code></b>
-                  (<code>float</code>)
+                  (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
                 <p>Arbitrary reference stress range.</p>
@@ -754,7 +765,7 @@ slope m.</p>
             </li>
             <li>
               <b><code>N_ref</code></b>
-                  (<code>float</code>)
+                  (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
                 <p>The number of cycles that produce failure under the
@@ -768,6 +779,7 @@ stress range D_ref.</p>
 </table>        <p>All the constructor parameters are also available as instance attributes
 (i.e. <code>scn.m</code>, <code>snc.DS_ref</code>, <code>snc.N_ref</code>).</p>
 <p>This class implements all the methods of FatigueCurve.</p>
+
 
 
 
@@ -833,6 +845,7 @@ a MarkvoMatrix object.</p>
   The MarkvoMatrix instance representing the loads contained in the
   .mkv file.</li>
 </ul>
+
 
     </div>
 
