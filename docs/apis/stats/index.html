@@ -910,7 +910,7 @@ fseg3 = next(fseg_samp)     # Yet another random L-Flange segment object
 
 
 <h2 id="pyflange.stats.standard_bolt_fatigue_curve_sampler" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">standard_bolt_fatigue_curve_sampler</span><span class="p">(</span><span class="n">bolt_nominal_diameter</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">standard_bolt_fatigue_curve_sampler</span><span class="p">(</span><span class="n">bolt_nominal_diameter</span><span class="p">,</span> <span class="n">mean_stress_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">stress_factor_CoV</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></code>
 
 </h2>
 
@@ -936,6 +936,26 @@ fseg3 = next(fseg_samp)     # Yet another random L-Flange segment object
               –
               <div class="doc-md-description">
                 <p>The nominal diameter of the bolt.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>mean_stress_factor</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The mean value of the fatigue class
+coefficinet, assumed normally-distributed. Defaults to 1.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>range_CoV</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The coefficient of variation of the fatigue
+class, assumed normally distributed. It defaults to 0.10.</p>
               </div>
             </li>
         </ul>
@@ -1084,7 +1104,7 @@ ga3, gh3 = next(samp)  # Yet another random gap-anlge, gap-height pair
 
 
 <h2 id="pyflange.stats.standard_markov_matrix_sampler" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">standard_markov_matrix_sampler</span><span class="p">(</span><span class="n">markov_matrix</span><span class="p">,</span> <span class="n">range_CoV</span><span class="o">=</span><span class="mf">0.12</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">standard_markov_matrix_sampler</span><span class="p">(</span><span class="n">markov_matrix</span><span class="p">,</span> <span class="n">mean_range_coeff</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">range_CoV</span><span class="o">=</span><span class="mf">0.12</span><span class="p">)</span></code>
 
 </h2>
 
@@ -1119,6 +1139,18 @@ design Markov matrix.</p>
               </div>
             </li>
             <li>
+              <b><code>mean_range_coeff</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The mean coefficient of each load
+range, assumed log-normally-distributed with mean value
+contained in the passed <em>markov_matrix</em> parameters. Defaults to 1.0.</p>
+              </div>
+            </li>
+            <li>
               <b><code>range_CoV</code></b>
                   (<code><span title="float">float</span></code>, default:
                       <code>0.12</code>
@@ -1126,7 +1158,7 @@ design Markov matrix.</p>
               –
               <div class="doc-md-description">
                 <p>The coefficient of variation of each load
-range, assumed normally-distributed with mean value
+range, assumed log-normally-distributed with mean value
 contained in the passed <em>markov_matrix</em> parameters. Defaults to 0.12.</p>
               </div>
             </li>
