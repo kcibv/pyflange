@@ -5,7 +5,7 @@ import numpy as np
 import os
 from xlwings import Book
 
-from pyflange.logger import read_data_log
+from pyflange.utils import read_data_log
 
 # Units of measurement
 m = 1
@@ -47,13 +47,14 @@ def read_array (book, name):
 
 
 def load_markov_matrix (book, name):
-    import pandas as pd
+    from pyflange.fatigue import MarkovMatrix
     data = read_array(book, name).T
-    return pd.DataFrame({
-        "Cycles": data[2],
-        "Mean": data[1]*1000,
-        "Range": data[0]*1000
-    })
+    return MarkovMatrix(
+        cycles = data[2],
+        mean = data[1]*1000,
+        range = data[0]*1000,
+        duration = 25
+    )
 
 
 def flangesegment_to_excel (book, sheet_name, fseg):

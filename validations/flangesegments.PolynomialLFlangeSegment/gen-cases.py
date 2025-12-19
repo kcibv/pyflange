@@ -1,8 +1,8 @@
 import sys
-from pyflange.logger import Logger, log_data
+from pyflange.utils import Logger, log_data
 logger = Logger(__name__)
 
-from pyflange.flangesegments import PolynomialLFlangeSegment, shell_stiffness
+from pyflange.flangesegments import PolynomialLFlangeSegment, shell_stiffness, Gap
 from pyflange.bolts import MetricBolt, HexNut, FlatWasher
 from pyflange.gap import gap_height_distribution
 
@@ -101,9 +101,9 @@ def create_D4600_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0, 
         washer = FlatWasher(outer_diameter=92*mm, inner_diameter=49.4*mm, thickness=8*mm),   # washer
         nut = M48_hex_nut,
 
-        gap_height = gap.ppf(0.95),             # maximum longitudinal gap height
-        gap_angle = gap_angle,                  # longitudinal gap length
-        gap_shape_factor = gap_shape_factor,    # scaling factor accounting for the gap shape
+        gap = Gap(height = gap.ppf(0.95),             # maximum longitudinal gap height
+                  angle = gap_angle,                  # longitudinal gap length
+                  shape_factor = gap_shape_factor),   # scaling factor accounting for the gap shape
 
         tilt_angle = tilt_angle,    # flange tilt angle
 
@@ -150,9 +150,9 @@ def create_D7500_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0, 
         washer = None,      # no washer
         nut = M80_hex_nut,  # bolt nut
 
-        gap_height = gap.ppf(0.95),             # maximum longitudinal gap height
-        gap_angle = gap_angle,                  # longitudinal gap length
-        gap_shape_factor = gap_shape_factor,    # scaling factor accounting for the gap shape
+        gap = Gap(height = gap.ppf(0.95),             # maximum longitudinal gap height
+                  angle = gap_angle,                  # longitudinal gap length
+                  shape_factor = gap_shape_factor),    # scaling factor accounting for the gap shape
 
         tilt_angle = tilt_angle,    # flange tilt angle
 
@@ -188,12 +188,20 @@ if len(params) == 0 or "-h" in params:
     print("Generate the PyFlange validation report cases." )
     print("")
     print("Usage:")
-    print("    gen-params.py <case-list> [-h | -i]")
+    print("    gen-cases.py <case-list> [-h | -i]")
     print("")
     print("Parameters:")
-    print("    <case-list>  is the list of the case numbers to be generated")
+    print("    <case-list>  is the list of the case numbers to be generated. One or more of:")
+    print("                 1 (D = 7500 mm with sinusoidal gap shape and no flange tilt.)")
+    print("                 2 (D = 7500 mm with sinusoidal gap shape and 1 deg flange tilt")
+    print("                 3 (D = 7500 mm gap shape factor 1.2 and no flange tilt")
+    print("                 4 (D = 4600 mm with sinusoidal gap shape and no flange tilt")
+    print("")
     print("    -i           uses the interpolated shell stiffness instead of the simplified formula")
     print("    -h           prints this help message")
+    print("")
+    print("Example:")
+    print("    gen-cases.py 1 3 4 -i")
     print("")
 
 

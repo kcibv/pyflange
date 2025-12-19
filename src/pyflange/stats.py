@@ -412,7 +412,7 @@ def standard_PolynomialLFlangeSegment_sampler (
 
 
 
-def standard_markov_matrix_sampler (markov_matrix, range_CoV=0.12):
+def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_CoV=0.12):
     ''' Sampler that generates a random markov matrix according to ref [2].
 
     Args:
@@ -426,7 +426,7 @@ def standard_markov_matrix_sampler (markov_matrix, range_CoV=0.12):
         pyflange.fatigue.MarkovMatrix: A random Markov matrix.
     '''
     from .fatigue import MarkovMatrix
-    range_coeff_sampler = lognorm_sampler(1, range_CoV)
+    range_coeff_sampler = lognorm_sampler(mean_range_coeff, range_CoV)
     while True:
         yield MarkovMatrix(
             cycles = markov_matrix.cycles,
@@ -437,7 +437,7 @@ def standard_markov_matrix_sampler (markov_matrix, range_CoV=0.12):
 
 
 
-def standard_bolt_fatigue_curve_sampler (bolt_nominal_diameter):
+def standard_bolt_fatigue_curve_sampler (bolt_nominal_diameter, mean_stress_factor=1.0, stress_factor_CoV=0.10):
     ''' Sampler that generates random bolt SN curves, according to ref. [2].
 
     Args:
@@ -447,7 +447,7 @@ def standard_bolt_fatigue_curve_sampler (bolt_nominal_diameter):
         pyflange.fatigue.BoltFatigueCurve: A random bolt fatigue curve object.
     '''
     from .fatigue import BoltFatigueCurve
-    stress_factor_samp = norm_sampler(1, 0.10)
+    stress_factor_samp = norm_sampler(mean_stress_factor, stress_factor_CoV)
     DS_ref_mean = 62e6 # 62 MPa
     while True:
         DS_ref = DS_ref_mean * next(stress_factor_samp)
