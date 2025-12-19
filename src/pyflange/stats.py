@@ -418,8 +418,11 @@ def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_C
     Args:
         markov_matrix (pyflange.fatigue.MarkovMatrix): The deterministic
             design Markov matrix.
+        mean_range_coeff (float, optional): The mean coefficient of each load
+            range, assumed log-normally-distributed with mean value
+            contained in the passed *markov_matrix* parameters. Defaults to 1.0.
         range_CoV (float, optional): The coefficient of variation of each load
-            range, assumed normally-distributed with mean value
+            range, assumed log-normally-distributed with mean value
             contained in the passed *markov_matrix* parameters. Defaults to 0.12.
 
     Yields:
@@ -442,6 +445,10 @@ def standard_bolt_fatigue_curve_sampler (bolt_nominal_diameter, mean_stress_fact
 
     Args:
         bolt_nominal_diameter (float): The nominal diameter of the bolt.
+        mean_stress_factor (float, optional): The mean value of the fatigue class
+            coefficinet, assumed normally-distributed. Defaults to 1.
+        range_CoV (float, optional): The coefficient of variation of the fatigue
+            class, assumed normally distributed. It defaults to 0.10.
 
     Yields:
         pyflange.fatigue.BoltFatigueCurve: A random bolt fatigue curve object.
