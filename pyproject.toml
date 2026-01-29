@@ -19,7 +19,8 @@ classifiers = [
 dependencies = [
     "numpy>=1.26.4",
     "scipy",
-    "pandas"
+    "pandas",
+    "metrum"
 ]
 license = "GPL-3.0-only"
 license-files = ["LICENSE"]

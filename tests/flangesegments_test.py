@@ -2,51 +2,51 @@ import pytest
 from pyflange.flangesegments import *
 from pyflange.bolts import MetricBolt, HexNut
 from pyflange.gap import gap_height_distribution
+from metrum.units import deg
 
 from math import *
 import numpy as np
-
-# Units of measurement
-deg = pi/180
 
 
 
 class TestPolynomialLFlangeSegment:
 
     def fseg (self, gap_angle=30*deg, gap_shape_factor=1.0, tilt_angle=0.0):
-        D = 7.5
+        from metrum.units import m, mm, um, kN, MPa
+
+        D = 7500*mm
         Nb = 120
         
         return PolynomialLFlangeSegment(
 
-            a = 0.2325,         # distance between inner face of the flange and center of the bolt hole
-            b = 0.1665,         # distance between center of the bolt hole and center-line of the shell
-            s = 0.0720,         # shell thickness
-            t = 0.2000,         # flange thickness
+            a = 232.5*mm,         # distance between inner face of the flange and center of the bolt hole
+            b = 166.5*mm,         # distance between center of the bolt hole and center-line of the shell
+            s =  72.0*mm,         # shell thickness
+            t = 200.0*mm,         # flange thickness
             R = D/2,            # shell outer curvature radius
             central_angle = 2*pi/Nb,    # angle subtended by the flange segment arc
 
-            Zg = -14795000/Nb,  # load applied to the flange segment shell at rest
-                                # (normally dead weight of tower + RNA, divided by the number of bolts)
+            Zg = -14795*kN / Nb,  # load applied to the flange segment shell at rest
+                                  # (normally dead weight of tower + RNA, divided by the number of bolts)
 
             bolt = MetricBolt(
-                nominal_diameter = 0.080,
-                thread_pitch = 0.006,
+                nominal_diameter = 80*mm,
+                thread_pitch = 6*mm,
                 shank_diameter_ratio = 76.1/80,
-                shank_length = 0.270,
-                yield_stress = 900e6,
-                ultimate_tensile_stress = 1000e6,
+                shank_length = 270*mm,
+                yield_stress = 900*MPa,
+                ultimate_tensile_stress = 1000*MPa,
                 stud = True),
-            Fv = 2800000,        # applied bolt preload
+            Fv = 3007.85395*kN,        # applied bolt preload
 
-            Do = 0.086,     # bolt hole diameter
+            Do = 86*mm,     # bolt hole diameter
             washer = None,    # no washer diameter
             nut = HexNut(
-                nominal_diameter = 0.080,
-                thickness = 0.064,
-                inscribed_diameter = 0.115,
-                circumscribed_diameter = 0.1275,
-                bearing_diameter = 0.140),
+                nominal_diameter = 80*mm,
+                thickness = 64*mm,
+                inscribed_diameter = 115*mm,
+                circumscribed_diameter = 127.5*mm,
+                bearing_diameter = 140*mm),
 
             tilt_angle = tilt_angle,
             
@@ -55,7 +55,11 @@ class TestPolynomialLFlangeSegment:
                       angle = gap_angle,  # longitudinal gap length
                       shape_factor = gap_shape_factor),
 
-            s_ratio = 100/72)        # ratio of bottom shell thickness over tower shell thickness
+            s_ratio = 100/72,        # ratio of bottom shell thickness over tower shell thickness
+
+            PPL = 0.05,                 # Percentage of plastic loss
+            DFT = 300*um,               # Dry film thickness
+            settlement_factor = 0.5)    # Bolt settlement factor
 
 
     def test_shell_force_at_rest (self):

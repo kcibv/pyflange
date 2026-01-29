@@ -478,7 +478,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         central_angle (float): Angle subtended by the flange segment arc.
         Zg (float): Load on the shell at rest (e.g., dead weight). Negative for compression.
         bolt (Bolt): The bolt in the flange segment.
-        Fv (float): Design preload value.
+        Fv (float): Design preload value before losses.
         Do (float): Bolt hole diameter.
         washer (Washer): The washer used. None if no washer.
         nut (Nut): The nut used.
@@ -490,6 +490,11 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         r (float): Radius of the rounding between shell and flange.
         k_shell (float, callable, None): Shell stiffness. Can be a value, a function,
             or None to use the interpolated formula.
+        PPL (float): Percentage of bolt pretension loss due to plastic strain. Defaults to 0.0.
+        DFT (float): Maximum allowalble dry film thickness of coating applied on the contact
+            area between washers and flange [m]. Defaults to 0.0 m.
+        settlement_factor (float): Factor reducing the amount of bolt settlement, to be
+            taken as 1.0 for torque tightening and 0.5 for tension tightening. Defaults to 1.0.
     '''
 
     a: float        # distance between inner face of the flange and center of the bolt hole
@@ -503,7 +508,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
                     # of tower + RNA, divided by the number of bolts). Negative if compression.
 
     bolt: Bolt      # Bolt object representing the flange segment bolt
-    Fv: float       # applied bolt preload
+    Fv: float       # applied bolt preload before pretension losses
 
     Do: float       # Bolt hole diameter
     washer: Washer  # Bolt washer
@@ -519,6 +524,14 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     r: float = 0.01         # Rounding between flange and shell
     
     k_shell: float = None       # optional initial shell stiffness in [N/m/m].
+
+    PPL: float = 0.0      # Percentage of pretension losses due to plastic strain
+
+    DFT: float = 0.0        # Maximum allowable dry film thickness of coatings applied in the 
+                            # contact area between washers and flange [m]
+
+    settlement_factor: float = 1.0   # Factor reducing the amount of bolt settlement, to be
+                                     # taken as 1.0 for torque tightening and 1.0 for tension tightening.
 
 
     def failure_mode (self, fy_sh, fy_fl, gamma_0=1.1):
@@ -668,11 +681,31 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         c = self.central_angle * (self.R - s_avg/2)
         I_tg = c * self.t**3 / 12
         ak = self._stiffness_correction_factor
-        bolt_rotation = Z*self.b*a_star / (3*self.E*I_tg*ak) + (Fs - self.Fv) / (2*a_star*self._bolt_axial_stiffness)
+        bolt_rotation = Z*self.b*a_star / (3*self.E*I_tg*ak) + (Fs - self.bolt_preload) / (2*a_star*self._bolt_axial_stiffness)
 
         log_data(self, a_star=a_star, I_tg=I_tg)
 
         return bolt_rotation * 2*self._bolt_bending_stiffness
+
+
+    @cached_property
+    def bolt_preload (self):
+        from metrum.units import um, kN
+
+        # Preload losses due to settlements
+        if self.DFT > 0:
+            DFT_ref = 1*um
+            f_z_tot = max( (8*(self.DFT/DFT_ref)**(-0.6))*self.DFT , 50*um )
+            bolt_resilience = 1 / self._bolt_axial_stiffness
+            flange_resilience = 1 / self._flange_axial_stiffness
+            delta_Fv_z = self.settlement_factor * (f_z_tot / (bolt_resilience + flange_resilience))
+        else:
+            delta_Fv_z = 0*kN
+
+        # Preload losses due to plastic deformation
+        delta_Fv_pl = self.PPL * self.Fv
+
+        return self.Fv - delta_Fv_z - delta_Fv_pl
 
 
     @cached_property
@@ -691,7 +724,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         The bolt force at rest is just the bolt pretension.
         '''
-        return self.Fv
+        return self.bolt_preload
 
 
     @cached_property
@@ -728,7 +761,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         # The slope between points P1 and P3 should match the
         # theoretical value of stiffness of the system.
         Z = self.shell_force_at_small_displacement
-        return self.Fv + self._polynomial_initial_slope * (Z - self.Zg)
+        return self.bolt_preload + self._polynomial_initial_slope * (Z - self.Zg)
 
 
     @cached_property
@@ -973,7 +1006,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
         I = c * self.t**3 / 12
-        u = (Z0 * self.b**2 / (3 * self.E * I) + (Fs0 - self.Fv) / (2 * self._bolt_axial_stiffness * a_red)) * (a_red + self.b)   # ref. [1], eq.72
+        u = (Z0 * self.b**2 / (3 * self.E * I) + (Fs0 - self.bolt_preload) / (2 * self._bolt_axial_stiffness * a_red)) * (a_red + self.b)   # ref. [1], eq.72
 
         # Evaluate the segment stiffness
         s_avg = (self.s + self.s_ratio * self.s) / 2
@@ -1001,7 +1034,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         p = Ks / (Ks + Kp)
 
         # Initial slope correction factor
-        scf = -self._total_gap_neutralization_shell_force / (0.5 * self.Fv)
+        scf = -self._total_gap_neutralization_shell_force / (0.5 * self.bolt_preload)
 
         # Maximum allowable value of p
         p_max = (self.bolt_force_at_tensile_ULS - self.bolt_force_at_rest) / (self.shell_force_at_tensile_ULS - self.shell_force_at_rest)
@@ -1093,7 +1126,9 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     r: float = 0.01 #rounding between flange and shell
     
-    k_shell: float = None       # optional initial shell stiffness in [N/m/m].
+    k_shell: float = None   # optional initial shell stiffness in [N/m/m].
+
+
 
     def failure_mode (self, fy_sh, fy_fl,gamma_0 = 1.1):
         '''Determines the failure mode of the flange.
