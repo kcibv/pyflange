@@ -690,6 +690,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def bolt_preload (self):
+        ''' Bolt preload after settlment and plastic losses.'''
         from metrum.units import um, kN
 
         # Preload losses due to settlements

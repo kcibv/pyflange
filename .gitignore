@@ -166,4 +166,4 @@ __void__/
 
 # Locals
 local/
-*.todo.md
+todo.*

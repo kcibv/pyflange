@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # version 3 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-# References:
 '''
 This module contains tools for the probabilistic analysis of flanged connections.
 In particular, three categories of tools are provided:
@@ -60,8 +58,7 @@ The following references are used through this documentation:
 from typing import Generator
 import scipy.stats as stats
 from .bolts import Bolt, Washer, Nut
-from math import pi
-deg = pi/180
+from metrum.units import deg
 
 
 
@@ -250,6 +247,7 @@ def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
 
         ```
     '''
+    from math import pi
     from .flangesegments import Gap
 
     while True:
@@ -278,15 +276,22 @@ def standard_PolynomialLFlangeSegment_sampler (
         nut: Nut,        # Bolt nut
 
         preload_sampler: Generator,     # Random preload sampler
-        gap_sampler: Generator,         # gap object random sampler
+        ppl_sampler: Generator,         # Percentage of pretension losses sampler
+        dft_sampler: Generator,         # Dry film thickness sampler
+        gap_sampler: Generator,         # Gap object random sampler
 
         tilt_sampler: Generator = lognorm_sampler(0.1*deg, 0.50),
 
         E: float = 210e9,        # Young modulus of the flange
         G: float = 80.77e9,      # Shear modulus of the flange
-        s_ratio: float = 1.0,    # Ratio of bottom shell thickness over s. Default s_botom = s.
+        s_ratio: float = 1.0,    # Ratio of bottom shell thickness over s. 
+                                 # Default s_botom = s.
         r: float = 0.01,         # Rounding between flange and shell
-        k_shell = 'interp'       # Custom shell stiffness
+        k_shell = 'interp',      # Custom shell stiffness
+        settlement_factor: float = 1.0  # Factor reducing the amount of bolt 
+                                        # settlement, to be taken as 1.0 for 
+                                        # torque tightening and 1.0 for tension 
+                                        # tightening.
     ):
     ''' A sampler that yields random pyflange PolynomialLFlangeSegment objects.
 
@@ -308,6 +313,8 @@ def standard_PolynomialLFlangeSegment_sampler (
         washer (pyflange.bolts.Washer): Bolt washer.
         nut (pyflange.bolts.Nut): Bolt nut.
         preload_sampler (Generator): Random preload sampler.
+        ppl_sampler (Generator): Percentage of pretension losses sampler.
+        dft_sampler (Generator): Dry film thickness sampler.
         gap_sampler (Generator): Gap object random sampler.
         tilt_sampler (Generator, optional): Random tilt angle sampler.
             Defaults to lognorm_sampler(0.1*deg, 0.50).
@@ -320,6 +327,9 @@ def standard_PolynomialLFlangeSegment_sampler (
             If 'interp' (default), stiffness is interpolated.
             If a number, it's used as the stiffness.
             If None, a simplified formula is used.
+        settlement_factor (float, optional): Factor reducing the amount of bolt 
+            settlement, to be taken as 1.0 for torque tightening and 1.0 for 
+            tension tightening. If omitted, it defaults to 1.0.
 
     Yields:
         pyflange.flangesegments.PolynomialLFlangeSegment: A random L-Flange segment object.
@@ -330,8 +340,7 @@ def standard_PolynomialLFlangeSegment_sampler (
 
         ```py
         from math import pi
-        mm = 0.001
-        kN = 1000
+        from metrum.units import mm, um, kN
 
         import pyflange.stats as stats
         from pyflange.bolts import StandardMetricBolt, RoundNut
@@ -355,8 +364,10 @@ def standard_PolynomialLFlangeSegment_sampler (
                 washer = None,            # Bolt washer
                 nut = RoundNut("M80"),    # Bolt nut
 
-                # bolt preload random sampler
+                # bolt preload random sampler and preload losses parameters
                 preload_sampler = stats.norm_sampler(2932.24*kN, 0.03), 
+                ppl_sampler = stats.norm_sampler(0.03, 1/3),
+                dft_sampler = stats.norm_sampler(250*um, 0.12),
 
                 # gap object random sampler
                 gap_sampler = stats.standard_gap_sampler(
@@ -366,7 +377,8 @@ def standard_PolynomialLFlangeSegment_sampler (
                             gap_shape_factor_sampler = stats.norm_sampler(1.0, 0.15)
                         ),
 
-                s_ratio = 1.0       # Ratio of bottom shell thickness over s. Default s_botom = s.
+                s_ratio = 1.0,              # Ratio of bottom shell thickness over s.
+                settlement_factor = 0.50    # Settlement reduction for tension tightening.
             )
 
         fseg1 = next(fseg_samp)     # A random L-Flange segment object
@@ -376,6 +388,7 @@ def standard_PolynomialLFlangeSegment_sampler (
         ```
     '''
 
+    from math import pi
     from .flangesegments import PolynomialLFlangeSegment, shell_stiffness
     import numpy as np
 
@@ -383,32 +396,23 @@ def standard_PolynomialLFlangeSegment_sampler (
     gap_angles = np.linspace(10*deg, 180*deg, 100)
     shell_stiffnesses = np.array([shell_stiffness(R, s, gap_angle) for gap_angle in gap_angles])
 
-    # preload averaging over gap
-    def average_random_preload (preload_sampler, n):
-        # Averaging over "50% of the bolts with a gap"
-        # I am having a small sub-routine that randomly samples the preload over
-        # half the gap angle and then takes the average of that for each simulation.
-        # Then you get a larger scatter for smaller gap angles.
-
-        n = max(round(n), 1)
-        sum = 0
-        for i in range(n):
-            sum += next(preload_sampler)
-        return sum/n
-
     # generate random flange segments
     while True:
         gap = next(gap_sampler)
-        yield PolynomialLFlangeSegment(
+        tilt = next(tilt_sampler) % pi
+        create_fseg = lambda Fv, PPL, DFT: PolynomialLFlangeSegment(
                 a=a, b=b, s=s, t=t, R=R, central_angle=central_angle, Zg=Zg, bolt=bolt,
-                Do=Do, washer=washer, nut=nut, gap=gap, E=E, G=G, s_ratio=s_ratio, r=r,
-
-                k_shell = np.interp(gap.angle, gap_angles, shell_stiffnesses) if k_shell=='interp' else k_shell,
-
-                # Realizations of probabilistic parameters
-                Fv = average_random_preload(preload_sampler, gap.angle/central_angle/2),
-                tilt_angle = next(tilt_sampler) % pi           # Flange radia tilt angle
+                Do=Do, washer=washer, nut=nut, gap=gap, tilt_angle=tilt,
+                E=E, G=G, s_ratio=s_ratio, r=r,
+                Fv=Fv, PPL=PPL, DFT=DFT, settlement_factor=settlement_factor,
+                k_shell = np.interp(gap.angle, gap_angles, shell_stiffnesses) if k_shell=='interp' else k_shell
             )
+        Fv1 = create_fseg(next(preload_sampler), next(ppl_sampler), next(dft_sampler)).bolt_preload
+        Fv2 = create_fseg(next(preload_sampler), next(ppl_sampler), next(dft_sampler)).bolt_preload
+        Fv3 = create_fseg(next(preload_sampler), next(ppl_sampler), next(dft_sampler)).bolt_preload
+        Fv4 = create_fseg(next(preload_sampler), next(ppl_sampler), next(dft_sampler)).bolt_preload
+        Fv5 = create_fseg(next(preload_sampler), next(ppl_sampler), next(dft_sampler)).bolt_preload
+        yield create_fseg((Fv1+Fv2+Fv3+Fv4+Fv5)/5, PPL=0, DFT=0)
 
 
 
