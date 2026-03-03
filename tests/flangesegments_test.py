@@ -11,7 +11,7 @@ import numpy as np
 
 class TestPolynomialLFlangeSegment:
 
-    def fseg (self, gap_angle=30*deg, gap_shape_factor=1.0, tilt_angle=0.0):
+    def fseg (self, gap_angle=30*deg, gap_shape_factor=1.0, tilt_angle=0.0, PPL=0.05, DFT=300e-6, settlfac=0.50):
         from metrum.units import m, mm, um, kN, MPa
 
         D = 7500*mm
@@ -57,10 +57,14 @@ class TestPolynomialLFlangeSegment:
 
             s_ratio = 100/72,        # ratio of bottom shell thickness over tower shell thickness
 
-            PPL = 0.05,                 # Percentage of plastic loss
-            DFT = 300*um,               # Dry film thickness
-            settlement_factor = 0.5)    # Bolt settlement factor
+            PPL = PPL,                 # Percentage of plastic loss
+            DFT = DFT,               # Dry film thickness
+            settlement_factor = settlfac)    # Bolt settlement factor
 
+    def test_bolt_preload (self):
+        from metrum.units import um, kN
+        fseg = self.fseg( 30*deg, 1.0, 0*deg, PPL=0.05, DFT=300*um, settlfac=0.50)
+        assert round(fseg.bolt_preload) == 2800*kN
 
     def test_shell_force_at_rest (self):
         assert round(self.fseg( 30*deg, 1.0, 0*deg).shell_force_at_rest/1000, 1) == -123.3
