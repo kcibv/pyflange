@@ -131,6 +131,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_moment_at_tensile_ULS">bolt_moment_at_tensile_ULS</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.bolt_preload">bolt_preload</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.gap_angle">gap_angle</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegment.gap_height">gap_height</a>
@@ -1293,7 +1295,7 @@ functions inherited from the parent class.</p>
                   (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
-                <p>Design preload value.</p>
+                <p>Design preload value before losses.</p>
               </div>
             </li>
             <li>
@@ -1380,6 +1382,32 @@ functions inherited from the parent class.</p>
               <div class="doc-md-description">
                 <p>Shell stiffness. Can be a value, a function,
 or None to use the interpolated formula.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>PPL</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Percentage of bolt pretension loss due to plastic strain. Defaults to 0.0.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>DFT</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Maximum allowalble dry film thickness of coating applied on the contact
+area between washers and flange [m]. Defaults to 0.0 m.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>settlement_factor</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Factor reducing the amount of bolt settlement, to be
+taken as 1.0 for torque tightening and 0.5 for tension tightening. Defaults to 1.0.</p>
               </div>
             </li>
         </ul>
@@ -1826,6 +1854,29 @@ failure mode B.</p>
     <div class="doc doc-contents ">
 
         <p>Bolt bending moment at tensile failure (Ms2).</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegment.bolt_preload" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_preload</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Bolt preload after settlment and plastic losses.</p>
 
     </div>
 

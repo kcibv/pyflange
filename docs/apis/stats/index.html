@@ -629,7 +629,7 @@ val3 = next(samp)       # Yet another random value from ndist distribution
 
 
 <h2 id="pyflange.stats.standard_PolynomialLFlangeSegment_sampler" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">standard_PolynomialLFlangeSegment_sampler</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">central_angle</span><span class="p">,</span> <span class="n">Zg</span><span class="p">,</span> <span class="n">bolt</span><span class="p">,</span> <span class="n">Do</span><span class="p">,</span> <span class="n">washer</span><span class="p">,</span> <span class="n">nut</span><span class="p">,</span> <span class="n">preload_sampler</span><span class="p">,</span> <span class="n">gap_sampler</span><span class="p">,</span> <span class="n">tilt_sampler</span><span class="o">=</span><span class="n">lognorm_sampler</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">deg</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">E</span><span class="o">=</span><span class="mf">210000000000.0</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="mf">80770000000.0</span><span class="p">,</span> <span class="n">s_ratio</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">k_shell</span><span class="o">=</span><span class="s1">&#39;interp&#39;</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">standard_PolynomialLFlangeSegment_sampler</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">central_angle</span><span class="p">,</span> <span class="n">Zg</span><span class="p">,</span> <span class="n">bolt</span><span class="p">,</span> <span class="n">Do</span><span class="p">,</span> <span class="n">washer</span><span class="p">,</span> <span class="n">nut</span><span class="p">,</span> <span class="n">preload_sampler</span><span class="p">,</span> <span class="n">ppl_sampler</span><span class="p">,</span> <span class="n">dft_sampler</span><span class="p">,</span> <span class="n">gap_sampler</span><span class="p">,</span> <span class="n">tilt_sampler</span><span class="o">=</span><span class="n">lognorm_sampler</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">deg</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">E</span><span class="o">=</span><span class="mf">210000000000.0</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="mf">80770000000.0</span><span class="p">,</span> <span class="n">s_ratio</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">k_shell</span><span class="o">=</span><span class="s1">&#39;interp&#39;</span><span class="p">,</span> <span class="n">settlement_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
 
 </h2>
 
@@ -751,6 +751,22 @@ segment bolt.</p>
               </div>
             </li>
             <li>
+              <b><code>ppl_sampler</code></b>
+                  (<code><span title="typing.Generator">Generator</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Percentage of pretension losses sampler.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>dft_sampler</code></b>
+                  (<code><span title="typing.Generator">Generator</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Dry film thickness sampler.</p>
+              </div>
+            </li>
+            <li>
               <b><code>gap_sampler</code></b>
                   (<code><span title="typing.Generator">Generator</span></code>)
               –
@@ -761,7 +777,7 @@ segment bolt.</p>
             <li>
               <b><code>tilt_sampler</code></b>
                   (<code><span title="typing.Generator">Generator</span></code>, default:
-                      <code><a class="autorefs autorefs-internal" title="lognorm_sampler(mean, cv) (pyflange.stats.lognorm_sampler)" href="#pyflange.stats.lognorm_sampler">lognorm_sampler</a>(0.1 * <span title="pyflange.stats.deg">deg</span>, 0.5)</code>
+                      <code><a class="autorefs autorefs-internal" title="lognorm_sampler(mean, cv) (pyflange.stats.lognorm_sampler)" href="#pyflange.stats.lognorm_sampler">lognorm_sampler</a>(0.1 * <span title="metrum.units.deg">deg</span>, 0.5)</code>
 )
               –
               <div class="doc-md-description">
@@ -823,6 +839,18 @@ If a number, it's used as the stiffness.
 If None, a simplified formula is used.</p>
               </div>
             </li>
+            <li>
+              <b><code>settlement_factor</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Factor reducing the amount of bolt 
+settlement, to be taken as 1.0 for torque tightening and 1.0 for 
+tension tightening. If omitted, it defaults to 1.0.</p>
+              </div>
+            </li>
         </ul>
       </td>
     </tr>
@@ -856,8 +884,7 @@ If None, a simplified formula is used.</p>
   <p>The following example creates a L-Flange segment sampler and generates
 three random flange segments.</p>
 <pre><code class="language-py">from math import pi
-mm = 0.001
-kN = 1000
+from metrum.units import mm, um, kN
 
 import pyflange.stats as stats
 from pyflange.bolts import StandardMetricBolt, RoundNut
@@ -881,8 +908,10 @@ fseg_samp = standard_PolynomialLFlangeSegment_sampler (
         washer = None,            # Bolt washer
         nut = RoundNut(&quot;M80&quot;),    # Bolt nut
 
-        # bolt preload random sampler
+        # bolt preload random sampler and preload losses parameters
         preload_sampler = stats.norm_sampler(2932.24*kN, 0.03), 
+        ppl_sampler = stats.norm_sampler(0.03, 1/3),
+        dft_sampler = stats.norm_sampler(250*um, 0.12),
 
         # gap object random sampler
         gap_sampler = stats.standard_gap_sampler(
@@ -892,7 +921,8 @@ fseg_samp = standard_PolynomialLFlangeSegment_sampler (
                     gap_shape_factor_sampler = stats.norm_sampler(1.0, 0.15)
                 ),
 
-        s_ratio = 1.0       # Ratio of bottom shell thickness over s. Default s_botom = s.
+        s_ratio = 1.0,              # Ratio of bottom shell thickness over s.
+        settlement_factor = 0.50    # Settlement reduction for tension tightening.
     )
 
 fseg1 = next(fseg_samp)     # A random L-Flange segment object
@@ -1033,7 +1063,7 @@ class, assumed normally distributed. It defaults to 0.10.</p>
             <li>
               <b><code>gap_angle_sampler</code></b>
                   (<code><span title="typing.Generator">Generator</span></code>, default:
-                      <code><a class="autorefs autorefs-internal" title="lognorm_sampler(mean, cv) (pyflange.stats.lognorm_sampler)" href="#pyflange.stats.lognorm_sampler">lognorm_sampler</a>(100 * <span title="pyflange.stats.deg">deg</span>, 1.0)</code>
+                      <code><a class="autorefs autorefs-internal" title="lognorm_sampler(mean, cv) (pyflange.stats.lognorm_sampler)" href="#pyflange.stats.lognorm_sampler">lognorm_sampler</a>(100 * <span title="metrum.units.deg">deg</span>, 1.0)</code>
 )
               –
               <div class="doc-md-description">
