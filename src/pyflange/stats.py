@@ -249,9 +249,10 @@ def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
     '''
     from math import pi
     from .flangesegments import Gap
+    from .utils import reduce_to_pi
 
     while True:
-        gap_angle = next(gap_angle_sampler) % pi
+        gap_angle = reduce_to_pi( next(gap_angle_sampler) )
         gap_dist = gap_height_distribution(flange_diameter, flange_flatness_tolerance, gap_angle*flange_diameter/2)
         gap_height = min(gap_dist.rvs(), 2*gap_dist.ppf(0.95))
         yield Gap(gap_height, gap_angle, next(gap_shape_factor_sampler))
@@ -390,16 +391,17 @@ def standard_PolynomialLFlangeSegment_sampler (
 
     from math import pi
     from .flangesegments import PolynomialLFlangeSegment, shell_stiffness
+    from .utils import reduce_to_pi
     import numpy as np
 
     # stiffness interpolaion
-    gap_angles = np.linspace(10*deg, 180*deg, 100)
+    gap_angles = np.linspace(10*deg, 180*deg, 1000)
     shell_stiffnesses = np.array([shell_stiffness(R, s, gap_angle) for gap_angle in gap_angles])
 
     # generate random flange segments
     while True:
         gap = next(gap_sampler)
-        tilt = next(tilt_sampler) % pi
+        tilt = reduce_to_pi( next(tilt_sampler) )
         create_fseg = lambda Fv, PPL, DFT: PolynomialLFlangeSegment(
                 a=a, b=b, s=s, t=t, R=R, central_angle=central_angle, Zg=Zg, bolt=bolt,
                 Do=Do, washer=washer, nut=nut, gap=gap, tilt_angle=tilt,
@@ -407,12 +409,17 @@ def standard_PolynomialLFlangeSegment_sampler (
                 Fv=Fv, PPL=PPL, DFT=DFT, settlement_factor=settlement_factor,
                 k_shell = np.interp(gap.angle, gap_angles, shell_stiffnesses) if k_shell=='interp' else k_shell
             )
-        Fv1 = create_fseg(next(preload_sampler), next(ppl_sampler), next(dft_sampler)).bolt_preload
-        Fv2 = create_fseg(next(preload_sampler), next(ppl_sampler), next(dft_sampler)).bolt_preload
-        Fv3 = create_fseg(next(preload_sampler), next(ppl_sampler), next(dft_sampler)).bolt_preload
-        Fv4 = create_fseg(next(preload_sampler), next(ppl_sampler), next(dft_sampler)).bolt_preload
-        Fv5 = create_fseg(next(preload_sampler), next(ppl_sampler), next(dft_sampler)).bolt_preload
-        yield create_fseg((Fv1+Fv2+Fv3+Fv4+Fv5)/5, PPL=0, DFT=0)
+
+        # Averaging bolt preload over "50% of the boltvs with a gap"
+        # I am having a small sub-routine that randomly samples the preload over
+        # half the gap angle and then takes the average of that for each simulation.
+        # Then you get a larger scatter for smaller gap angles.
+        n = max(round(gap.angle/central_angle/2), 1)  # number of bolts on which we average
+        averaged_preload = np.mean([
+                create_fseg(next(preload_sampler), next(ppl_sampler), next(dft_sampler)).bolt_preload
+                for i in range(n)
+            ])
+        yield create_fseg(averaged_preload, PPL=0, DFT=0)
 
 
 

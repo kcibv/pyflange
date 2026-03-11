@@ -40,3 +40,14 @@ def load_csv_database (db_name, index_col="id"):
     import pandas as pd
     db_path = os.path.join(os.path.dirname(__file__), f"data/{db_name}.csv")
     return pd.read_csv(db_path, index_col=index_col)
+
+
+
+# ------------------------------------------------------------------------------
+#  Angle Reduction
+# ------------------------------------------------------------------------------
+
+def reduce_to_pi (angle):
+    from math import pi
+    reduced_angle = angle % (2*pi)
+    return reduced_angle if reduced_angle < pi else 2*pi - reduced_angle
