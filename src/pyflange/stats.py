@@ -475,7 +475,7 @@ def standard_bolt_fatigue_curve_sampler (bolt_nominal_diameter, mean_stress_fact
 
 
 
-def fatigue_case_sampler (fseg_samp, markov_matrix_samp, fatigue_curve_samp, allowable_damage_samp):
+def fatigue_case_sampler (fseg_samp, markov_matrix_samp, fatigue_curve_samp, allowable_damage_samp, SMF=1.0):
     ''' Sampler that generates random fatigue cases.
 
     Args:
@@ -483,6 +483,7 @@ def fatigue_case_sampler (fseg_samp, markov_matrix_samp, fatigue_curve_samp, all
         markov_matrix_samp (Generator): A `pyflange.fatigue.MarkovMatrix` sampler.
         fatigue_curve_samp (Generator): A `pyflange.fatigue.BoltFatigueCurve` sampler.
         allowable_damage_samp (Generator): A `float` sampler that generates random allowable damages.
+        SMF (float, optional): Stress Multiplication Factor. Defaults to 1.0.
 
     Yields:
         pyflange.fatigue.BoltFatigueAnalysis: A random `BoltFatigueAnalysis` object.
@@ -494,4 +495,5 @@ def fatigue_case_sampler (fseg_samp, markov_matrix_samp, fatigue_curve_samp, all
             fseg = next(fseg_samp),
             flange_mkvm = next(markov_matrix_samp),
             custom_fatigue_curve = next(fatigue_curve_samp),
-            allowable_damage = next(allowable_damage_samp) )
+            allowable_damage = next(allowable_damage_samp),
+            SMF=SMF)

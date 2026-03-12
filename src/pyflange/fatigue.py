@@ -359,6 +359,10 @@ class BoltFatigueAnalysis:
     - `allowable_damage` : `float` [Optional]
       The maximum allowable fatigue damage. If omitted, it defaults to 1.0.
 
+    - `SMF` : `float` [optional]
+      Stress Multiplication Factor to be applied to bolt Markov matrix
+      stress ranges. If omitted, it defaults to 1.0.
+
     **Attributes:**
 
     All the passed arguments are also available as attributes. Plus the
@@ -385,6 +389,7 @@ class BoltFatigueAnalysis:
     flange_mkvm: MarkovMatrix
     custom_fatigue_curve: FatigueCurve = None
     allowable_damage: float = 1.0
+    SMF: float = 1.0
 
     @functools.cached_property
     def fatigue_curve (self):
@@ -395,7 +400,7 @@ class BoltFatigueAnalysis:
         from math import log
         from .flangesegments import bolt_markov_matrix
         bending_factor = max(0.5, 0.5 + 0.5*log(self.fseg.bolt.nominal_diameter/0.036) / log(150/36))
-        return bolt_markov_matrix(self.fseg, self.flange_mkvm, bending_factor)
+        return bolt_markov_matrix(self.fseg, self.flange_mkvm, bending_factor, SMF=self.SMF)
 
     @functools.cached_property
     def damage (self):

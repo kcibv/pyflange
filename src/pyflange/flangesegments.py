@@ -1612,7 +1612,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
 
 
-def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_geometric_factor=1.0, mean_factor=1.0, range_factor=1.0):
+def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_geometric_factor=1.0, mean_factor=1.0, range_factor=1.0, SMF=1.0):
     '''Evaluates the bolt Markov matrix from the shell Markov matrix.
 
     Args:
@@ -1621,14 +1621,16 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
             PolynomialFlangeSegments.
         flange_markov_matrix (pyflange.fatigue.MarkovMatrix): The Markov
             matrix of bending moments on the flange.
-        bending_factor (float): Factor for the bending portion of the total
+        bending_factor (float, optional): Factor for the bending portion of the total
             stress range.
-        macro_geometric_factor (float): Factor for macro geometric influences,
-            affecting dead weight, mean, and range values.
-        mean_factor (float): Factor for the mean values of the tower's
-            bending moments.
-        range_factor (float): Factor for the range of the tower's bending
-            moments.
+        macro_geometric_factor (float, optional): Factor for macro geometric influences,
+            affecting dead weight, mean, and range values. If omitted, it defaults to 1.0.
+        mean_factor (float, optional): Factor for the mean values of the tower's
+            bending moments. If omitted, it defaults to 1.0.
+        range_factor (float, optional): Factor for the range of the tower's bending
+            moments. If omitted, it defaults to 1.0.
+        SMF (float, optional): Stress Multiplication Factor to be applied 
+            to bolt Markov matrix stress ranges. If omitted, it defaults to 1.0.
 
     Returns:
         pyflange.fatigue.MarkovMatrix: The bolt's Markov matrix representing
@@ -1655,7 +1657,7 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
     # Bolt ess Markov Matrix
     S_min = fseg.bolt_axial_force(Z_min)/bolt_A + bending_factor * fseg.bolt_bending_moment(Z_min)/bolt_W
     S_max = fseg.bolt_axial_force(Z_max)/bolt_A + bending_factor * fseg.bolt_bending_moment(Z_max)/bolt_W
-    return MarkovMatrix(range = np.abs(S_max - S_min),
+    return MarkovMatrix(range = SMF * np.abs(S_max - S_min),
                         mean = (S_min + S_max) / 2,
                         cycles = Z_cycles,
                         duration = flange_markov_matrix.duration)
