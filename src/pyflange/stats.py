@@ -58,7 +58,7 @@ The following references are used through this documentation:
 from typing import Generator
 import scipy.stats as stats
 from .bolts import Bolt, Washer, Nut
-from metrum.units import deg
+from metrum.units import deg, MPa
 
 
 
@@ -451,7 +451,7 @@ def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_C
 
 
 
-def standard_bolt_fatigue_curve_sampler (bolt_nominal_diameter, mean_stress_factor=1.0, stress_factor_CoV=0.10):
+def standard_bolt_fatigue_curve_sampler (bolt_nominal_diameter, mean_stress_factor=1.0, stress_factor_CoV=0.10, DS_ref_mean=62*MPa):
     ''' Sampler that generates random bolt SN curves, according to ref. [2].
 
     Args:
@@ -460,13 +460,15 @@ def standard_bolt_fatigue_curve_sampler (bolt_nominal_diameter, mean_stress_fact
             coefficinet, assumed normally-distributed. Defaults to 1.
         range_CoV (float, optional): The coefficient of variation of the fatigue
             class, assumed normally distributed. It defaults to 0.10.
+        DS_ref_mean (float, optional); The mean value of the fatigue curve 
+            reference stress range. If unknown it could be calculated as 1.24
+            times the fatigue class. If omitted, it defaults to 62 MPa.
 
     Yields:
         pyflange.fatigue.BoltFatigueCurve: A random bolt fatigue curve object.
     '''
     from .fatigue import BoltFatigueCurve
     stress_factor_samp = norm_sampler(mean_stress_factor, stress_factor_CoV)
-    DS_ref_mean = 62e6 # 62 MPa
     while True:
         DS_ref = DS_ref_mean * next(stress_factor_samp)
         yield BoltFatigueCurve(bolt_nominal_diameter, DS_ref, gamma_M=1.0)
