@@ -16,35 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # version 3 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-''' Fatigue calculation tools.
+"""Fatigue calculation tools.
 
 This module defines functions and classes to support structural fatigue
-calculations.
-
-In particular, the module contains the following functions ...
-
-- `markov_matrix_from_SGRE_format(pathFile , unitFactor [optional])` which reads
-  a .mkv file from SGRE as markov matrix and converts in into a pandas dataframe
-
-... and the following `FatigueCurve` classes:
-
-- `SingleSlopeFatigueCurve`
-- `DoubleSlopeFatigueCurve`
-- `SNCurve`
-
-Each fatigue curve class exxposes the following methods:
-
-- `fatigue_curve.N(DS)` returns the number of cycles corresponding to the
-  given stress range DS
-- `fatigue_curve.DS(N)` returns the stress range corresponding to the
-  given number of cycles N
-- `fatigue_curve.damage(n, DS)` returns the fatigue damage cumulated by
-  a stress range DS repeated n times
-
-Finally, this module contains a `BoltFatigueAnalysis` class that brings
-it all together and calculates the fatigue damage and the fatigue life of 
-a bolt, given its FlangeSegment model, fatigue curve and allowable damage.
-'''
+calculations for large flanges. It includes utilities for reading Markov matrices,
+defining various types of S-N curves (fatigue curves), and performing
+bolt fatigue analysis.
+"""
 
 import numpy as np
 import pandas as pd
@@ -56,62 +34,43 @@ import functools
 from .flangesegments import FlangeSegment
 
 
-
 @dataclass
 class MarkovMatrix:
-    ''' A Markov Matrix
+    """A Markov Matrix representing a load history.
 
     This class represents a load history in the form of a Markov Matrix.
     The 'load' can be expressed in terms of moments, forces, stresses, etc.
-    
-    This is a dataclass, therefore the following constructor parameters
-    are also reflected as attributes:
 
-    - range  : np.ndarray       
-      Array of stress ranges (or load ranges in general)
-    
-    - mean   : np.ndarray       
-      Array of mean stress values (or load values in general)
-    
-    - cycles : np.ndarray       
-      Array of cycles corresponding to each load value
-    
-    - duration: float        
-      Duration of the load history. If omitted, it defaults to 1.
-    '''
+    Attributes:
+        range (np.ndarray): Array of stress ranges (or load ranges in general).
+        mean (np.ndarray): Array of mean stress values (or load values in general).
+        cycles (np.ndarray): Array of cycles corresponding to each load value.
+        duration (float): Duration of the load history. Defaults to 1.
+    """
 
-    range    : np.ndarray       # array of stress ranges (or load ranges in general)
-    mean     : np.ndarray       # array of mean stress values (or load values in general)
-    cycles   : np.ndarray       # array of cycles corresponding to each load value
-    duration : float = 1        # duration of the load history
+    range: np.ndarray
+    mean: np.ndarray
+    cycles: np.ndarray
+    duration: float = 1
 
 
+def markov_matrix_from_SGRE_format(pathFile, unitFactor=1e3, duration=1):
+    """Reads a .mkv file into a MarkovMatrix object.
 
-def markov_matrix_from_SGRE_format (pathFile, unitFactor=1e3, duration=1):
-    ''' **Reads a .mkv file into a pandas.DataFrame object.**
+    Reads a Markov matrix from a SGRE .mkv file and converts it into
+    a MarkovMatrix object.
 
-    Reads a Markov matrix from a SGRE .mkv file and converts in into
-    a MarkvoMatrix object.
+    Args:
+        pathFile (str): The path of the .mkv file to be read.
+        unitFactor (float): A scaling factor to be applied to the values.
+            Useful for unit conversion. Defaults to 1e3.
+        duration (float): The duration of the loads contained in the .mkv file.
+            Defaults to 1.
 
-    **Arguments:**
-
-    - `pathFile : str` 
-      The path of the .mkv file to be read
-
-    - `unitFactor : float` 
-      A scalind factor to be applied to the moment values. Useful for unit 
-      conversion.
-
-    - `duration : float`
-      The duration of the loads contained in the .mkv file. If omitted, it
-      defaults to 1.
-
-    **Returns:**
-
-    - `markov_matrix : MarkovMatrix`
-      The MarkvoMatrix instance representing the loads contained in the
-      .mkv file.
-    '''
+    Returns:
+        MarkovMatrix: The MarkovMatrix instance representing the loads contained
+            in the .mkv file.
+    """
 
     with open(pathFile) as mkv_file:
         MM = mkv_file.readlines()
@@ -159,53 +118,60 @@ def markov_matrix_from_SGRE_format (pathFile, unitFactor=1e3, duration=1):
                         np.array(mkv_cycles), float(duration))
 
 
-
 class FatigueCurve:
-    ''' A Wöhler curve.
+    """A Wöhler (S-N) curve base class.
 
-    This is a base class for creating Wohler curves. It is not supposed to be
+    This is a base class for creating Wohler curves. It should not be
     instantiated directly.
-    '''
+    """
 
-    def N (self, DS):
-        ''' Number of cycles.
+    def N(self, DS):
+        """Calculates the number of cycles to failure for a given stress range.
 
-        Given a stress range DS, this function return the corresponding
-        number of cycles that produce a fatigue failure.
-        '''
+        Args:
+            DS (float or np.ndarray): The stress range(s).
+
+        Returns:
+            float or np.ndarray: The number of cycles that produce a fatigue failure.
+        """
         pass
 
-    def DS (self, N):
-        ''' Stress range.
+    def DS(self, N):
+        """Calculates the stress range for a given number of cycles.
 
-        Given a number of cycles, this function return the corresponding
-        stress range that produce a fatigue failure.
-        '''
+        Args:
+            N (float or np.ndarray): The number of cycles to failure.
+
+        Returns:
+            float or np.ndarray: The corresponding stress range that produces
+                fatigue failure.
+        """
         pass
 
-    def damage (self, n, DS):
-        ''' Fatigue damage.
+    def damage(self, n, DS):
+        """Calculates the fatigue damage for a given number of cycles and stress range.
 
-        Given a number of cycles n and a stress range DS, this function returns
-        the dorresponding fatigue damage (D = n / N(DS)).
-        '''
+        Calculates the damage as D = n / N(DS).
+
+        Args:
+            n (float or np.ndarray): The number of applied cycles.
+            DS (float or np.ndarray): The stress range(s).
+
+        Returns:
+            float or np.ndarray: The fatigue damage.
+        """
         return n / self.N(DS)
 
-    def cumulated_damage (self, markov_matrix):
-        ''' **Cumulated damage according to the Miner's rule**
+    def cumulated_damage(self, markov_matrix):
+        """Calculates the cumulated damage according to Miner's rule.
 
-        **Args:**
-            
-        - `markov_matrix : MarkvMatrix`
-          This is the load history expressed as a MarkovMatrix object.
+        Args:
+            markov_matrix (MarkovMatrix): The load history expressed as a
+                MarkovMatrix object.
 
-        **Returns:**
-
-        - `damage : float`
-          The cumulated fatigue damage produced in the detail represented by t
-          his fatigue curve, under the load history represented by the passed 
-          Markov matrix.
-        '''
+        Returns:
+            float: The cumulated fatigue damage under the given load history.
+        """
 
         n = markov_matrix.cycles    # array of number of cycles
         DS = markov_matrix.range    # array of stress ranges
@@ -213,111 +179,115 @@ class FatigueCurve:
         return np.nansum(D)         # total damage
 
 
-
 @dataclass
-class SingleSlopeFatigueCurve (FatigueCurve):
-    ''' Wöhler curve with single logarithmic slope.
+class SingleSlopeFatigueCurve(FatigueCurve):
+    """Wöhler curve with a single logarithmic slope.
 
-    This class implements the FatigueCurve interface for a curve with single
+    This class implements the FatigueCurve interface for a curve with a single
     slope m.
 
-    Args:
+    Attributes:
         m (float): The logarithmic slope of the fatigue curve.
-
         DS_ref (float): Arbitrary reference stress range.
-
         N_ref (float): The number of cycles that produce failure under the
-            stress range D_ref.
-
-    All the constructor parameters are also available as instance attributes
-    (i.e. `scn.m`, `snc.DS_ref`, `snc.N_ref`).
-
-    This class implements all the methods of FatigueCurve.
-    '''
+            stress range DS_ref.
+    """
 
     m: float
     DS_ref: float
     N_ref: float
 
-
     @functools.cached_property
-    def a (self):
+    def a(self):
+        """float: The constant 'a' in the S-N curve equation N * DS^m = a."""
         return self.DS_ref ** self.m * self.N_ref
 
-    def N (self, DS):
+    def N(self, DS):
         return self.a / DS**self.m
 
-    def DS (self, N):
+    def DS(self, N):
         return (self.a / N)**(1/self.m)
 
 
-
 class MultiSlopeFatigueCurve(FatigueCurve):
-    '''Multi-Slope Fatigue Curve.
+    """Multi-Slope Fatigue Curve.
 
-    This class is a FatigueCurve with multiple slopes.
-    It takes any number of SingleSlopeFatigueCurve objects as arguments.
-    '''
+    This class represents a FatigueCurve composed of multiple slopes.
+    It takes any number of SingleSlopeFatigueCurve objects and uses the
+    maximum number of cycles (or stress range) among them for a given input.
+
+    Attributes:
+        curves (tuple): A tuple of SingleSlopeFatigueCurve objects.
+    """
 
     def __init__(self, *fatigue_curves):
+        """Initializes the MultiSlopeFatigueCurve.
+
+        Args:
+            *fatigue_curves (SingleSlopeFatigueCurve): Any number of fatigue curve
+                components.
+        """
         self.curves = fatigue_curves
 
     def N(self, DS):
+        """Calculates the number of cycles to failure.
+
+        Args:
+            DS (float or np.ndarray): The stress range(s).
+
+        Returns:
+            float or np.ndarray: The maximum number of cycles from the component curves.
+        """
         return np.maximum.reduce([curve.N(DS) for curve in self.curves])
 
     def DS(self, N):
+        """Calculates the stress range.
+
+        Args:
+            N (float or np.ndarray): The number of cycles.
+
+        Returns:
+            float or np.ndarray: The maximum stress range from the component curves.
+        """
         return np.maximum.reduce([curve.DS(N) for curve in self.curves])
 
 
-
-class DoubleSlopeFatigueCurve (MultiSlopeFatigueCurve):
-    ''' Wöhler curve with double logarithmic slope.
+class DoubleSlopeFatigueCurve(MultiSlopeFatigueCurve):
+    """Wöhler curve with double logarithmic slope.
 
     This class implements the FatigueCurve interface for a curve with two
-    slopes m1 and m2.
+    slopes m1 and m2, intersecting at a specific point (DS12, N12).
+    """
 
-    Args:
-        m1 (float): The logarithmic slope of the lower cycle values.
+    def __init__(self, m1, m2, DS12, N12):
+        """Initializes the DoubleSlopeFatigueCurve.
 
-        m2 (float): The logarithmic slope of the higher cycle values.
-
-        DS12 (float): The stress range where the two branches of the curve meet.
-
-        N12 (float): The number of cycles to failure corresponding to DS12.
-
-    All the constructor parameters are also available as instance attributes
-    (i.e. `scn.m1`, `snc.m2`, `snc.DS12`, `snc.N12`).
-
-    This class implements all the methods of FatigueCurve.
-    '''
-
-    def __init__ (self, m1, m2, DS12, N12):
+        Args:
+            m1 (float): The logarithmic slope of the lower cycle values.
+            m2 (float): The logarithmic slope of the higher cycle values.
+            DS12 (float): The stress range at the knee point where slopes meet.
+            N12 (float): The number of cycles at the knee point where slopes meet.
+        """
         curve1 = SingleSlopeFatigueCurve(m1, DS12, N12)
         curve2 = SingleSlopeFatigueCurve(m2, DS12, N12)
         super().__init__(curve1, curve2)
 
 
+class BoltFatigueCurve(DoubleSlopeFatigueCurve):
+    """Bolt Fatigue Curve according to IEC 61400-6 AMD1.
 
-class BoltFatigueCurve (DoubleSlopeFatigueCurve):
-    ''' Bolt Fatigue Curve according to IEC 61400-6 AMD1.
-
-    Given a bolt diameter, creates a DoubleSlopeFatigueCurve having
-    logaritmic slopes m1=3 and m2=5 and change-of-slope at 2 milion cycles
-    and stress range depending on the bolt diameter as specified by
-    IEC 61400-6 AMD1.
+    Creates a DoubleSlopeFatigueCurve with logarithmic slopes m1=3 and m2=5,
+    a knee point at 2 million cycles, and a stress range depending on the
+    bolt diameter as specified by IEC 61400-6 AMD1.
 
     Args:
         diameter (float): The bolt diameter in meters.
+        DS_ref (float, optional): Reference stress range at 2e6 cycles.
+            Defaults to 50 MPa (50e6 Pa).
+        gamma_M (float, optional): The material factor. Defaults to 1.1.
+    """
 
-        DS_ref (float): Reference stress range at 2e6 cyckes. Defaults to 50 MPa if omitted.
-
-        gamma_M (float): The material factor. Defaults to 1.1 if omitted
-
-    Thuis class inherits all the properties and methods of the
-    `DoubleSlopeFatigueCurve` class.
-    '''
-
-    def __init__ (self, diameter, DS_ref=50e6, gamma_M=1.1):
+    def __init__(self, diameter, DS_ref=50e6, gamma_M=1.1):
         N12 = 2.0e6    # knee point
         m1 = 3
         m2 = 5
@@ -332,58 +302,25 @@ class BoltFatigueCurve (DoubleSlopeFatigueCurve):
         super().__init__(m1, m2, DSc/gamma_M, N12)
 
 
-
 @dataclass
 class BoltFatigueAnalysis:
-    ''' Fatigue analysis data for a flange bolt
+    """Fatigue analysis for a flange bolt.
 
-    Given a `FlangeSegment` instance and a `MarkovMatrix`, creates an
-    object containing the fatigue analysis results for the segment bolt,
-    under the given loading.
+    Calculates fatigue damage and life for a bolt given its flange segment model,
+    load history, and fatigue curve.
 
-    **Args:**
-
-    - `fseg` : `FlangeSegment`
-      The FlangeSegment object for which the fatigue analysis needs to 
-      be performed.
-
-    - `flange_mkvm` : `MarkovMatrix`
-      The Markov matrix representing the bending moments history on the
-      flange.
-
-    - `custom_fatigue_curve` : `FatigueCurve` [Optonal]
-      The fatigue curve applicable for the bolt. If omitted, a 
-      BoltFatigueCurve instance will be used, based on the flange segment
-      bolt diameter.
-
-    - `allowable_damage` : `float` [Optional]
-      The maximum allowable fatigue damage. If omitted, it defaults to 1.0.
-
-    - `SMF` : `float` [optional]
-      Stress Multiplication Factor to be applied to bolt Markov matrix
-      stress ranges. If omitted, it defaults to 1.0.
-
-    **Attributes:**
-
-    All the passed arguments are also available as attributes. Plus the
-    following attributes are available.
-
-    - `.fatigue_curve` : `FatigueCurve`
-      It contains the BoltFatigueCurve instance based on the flange segment
-      bolt diameter. Unless `custom_fatigue_curve` is provided, in which
-      case it points to the latter.
-
-    - `.bolt_mkvm` : `MarkovMatrix`
-      The markov matrix of the axial+bending stress ranges acting in the
-      bolt due to the `.flange_mkvm` passed as parameter.
-
-    - `.damage` : `float`
-      The cumulated damage in the bolt due to the load in `.bolt_mkvm`.
-
-    - `.fatigue_life` : `float`
-      The fatigue life of the bolt, expressed in the same time units as
-      the `.flange_mkvm.duration` attribute.
-    '''
+    Attributes:
+        fseg (FlangeSegment): The FlangeSegment object for the analysis.
+        flange_mkvm (MarkovMatrix): The Markov matrix representing the bending
+            moments history on the flange.
+        custom_fatigue_curve (FatigueCurve, optional): The fatigue curve for the
+            bolt. If None, a BoltFatigueCurve is generated based on the bolt
+            diameter. Defaults to None.
+        allowable_damage (float): The maximum allowable fatigue damage.
+            Defaults to 1.0.
+        SMF (float): Stress Multiplication Factor applied to bolt stress ranges.
+            Defaults to 1.0.
+    """
 
     fseg: FlangeSegment
     flange_mkvm: MarkovMatrix
@@ -392,21 +329,24 @@ class BoltFatigueAnalysis:
     SMF: float = 1.0
 
     @functools.cached_property
-    def fatigue_curve (self):
+    def fatigue_curve(self):
+        """FatigueCurve: The fatigue curve used in the analysis."""
         return self.custom_fatigue_curve or BoltFatigueCurve(self.fseg.bolt.nominal_diameter)
 
     @functools.cached_property
-    def bolt_mkvm (self):
+    def bolt_mkvm(self):
+        """MarkovMatrix: The Markov matrix of axial+bending stress ranges in the bolt."""
         from math import log
         from .flangesegments import bolt_markov_matrix
         bending_factor = max(0.5, 0.5 + 0.5*log(self.fseg.bolt.nominal_diameter/0.036) / log(150/36))
         return bolt_markov_matrix(self.fseg, self.flange_mkvm, bending_factor, SMF=self.SMF)
 
     @functools.cached_property
-    def damage (self):
+    def damage(self):
+        """float: The total cumulated fatigue damage."""
         return self.fatigue_curve.cumulated_damage(self.bolt_mkvm)
 
     @functools.cached_property
-    def fatigue_life (self):
+    def fatigue_life(self):
+        """float: The fatigue life in the same units as flange_mkvm.duration."""
         return self.allowable_damage / self.damage * self.flange_mkvm.duration
-
