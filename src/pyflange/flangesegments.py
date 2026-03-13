@@ -1683,11 +1683,9 @@ def shell_stiffness (shell_radius, shell_thickness, gap_angle):
 
 @cache
 def _load_shell_stiffness_interpolator ():
-    '''Loads and caches the shell stiffness interpolator.
+    # Loads and caches the shell stiffness interpolator.
+    # Returns scipy.interpolate.LinearNDInterpolator: The interpolator function.
 
-    Returns:
-        scipy.interpolate.LinearNDInterpolator: The interpolator function.
-    '''
     from .utils import load_csv_database
     from scipy.interpolate import LinearNDInterpolator
     ssdf = load_csv_database("flangesegments.shell_stiffness", index_col=None)

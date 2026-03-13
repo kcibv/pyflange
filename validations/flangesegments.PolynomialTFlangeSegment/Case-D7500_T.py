@@ -5,32 +5,79 @@ logger = Logger(__name__)
 from pyflange.flangesegments import PolynomialTFlangeSegment, bolt_markov_matrix, shell_stiffness
 from pyflange.bolts import MetricBolt, HexNut
 from pyflange.gap import gap_height_distribution
-from pyflange.fatigue import markov_matrix_from_SGRE_format, BoltFatigueCurve
+from pyflange.fatigue import MarkovMatrix, BoltFatigueCurve
 
 from math import pi
 import numpy as np
 
 from workbook import open_workbook, flangesegment_to_excel
+from metrum.units import m, mm, kg, t, s, N, kN, Pa, MPa, GPam rad, deg
 
 
-# Units of measurement
-m = 1
-mm = 0.001*m
 
-kg = 1
-t = 1000*kg
+def markov_matrix_from_SGRE_format(pathFile, unitFactor=1e3, duration=1):
+    """Reads a .mkv file into a MarkovMatrix object.
 
-s = 1
+    Reads a Markov matrix from a SGRE .mkv file and converts it into
+    a MarkovMatrix object.
 
-N = kg*m/s**2
-kN = 1000*N
+    Args:
+        pathFile (str): The path of the .mkv file to be read.
+        unitFactor (float): A scaling factor to be applied to the values.
+            Useful for unit conversion. Defaults to 1e3.
+        duration (float): The duration of the loads contained in the .mkv file.
+            Defaults to 1.
 
-Pa = 1
-MPa = 1e6*Pa
-GPa = 1e9*Pa
+    Returns:
+        MarkovMatrix: The MarkovMatrix instance representing the loads contained
+            in the .mkv file.
+    """
+    from pyflange.fatigue import MarkovMatrix
 
-rad = 1
-deg = (pi/180)*rad
+    with open(pathFile) as mkv_file:
+        MM = mkv_file.readlines()
+
+    # Initialize the markov matrix columns with empty values
+    mkv_cycles = []
+    mkv_mean = []
+    mkv_range = []
+    
+    rowMeans = False
+    rowRanges = False
+    countStartLines = 0
+    
+    for row in MM:
+    
+        if row == '---------------------------\n':
+            countStartLines += 1
+            if countStartLines == 2:
+                rowMeans=True
+                continue
+                
+        if rowMeans:
+            
+            rowValues=row.replace('\n','').split(' ')
+            meanValues = [e for e in rowValues if e not in (' ')]
+            #meanValues.pop(0)
+            rowMeans=False
+            rowRanges=True
+            continue
+        
+        if rowRanges:
+            
+            rowValues=row.replace('\n','').split(' ')
+            rowValues = [e for e in rowValues if e not in (' ')]
+            rangeValue=rowValues[0]
+            
+            for i in range(1,len(rowValues)):
+                if float(rowValues[i]) == 0.0: continue
+                #moment
+                mkv_cycles.append(float(rowValues[i]))
+                mkv_mean.append(float(meanValues[i])*unitFactor)
+                mkv_range.append(float(rangeValue)*unitFactor)
+        
+    return MarkovMatrix(np.array(mkv_range), np.array(mkv_mean), 
+                        np.array(mkv_cycles), float(duration))
 
 
 
