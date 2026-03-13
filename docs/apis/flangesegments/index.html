@@ -217,8 +217,6 @@
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments._load_shell_stiffness_interpolator">_load_shell_stiffness_interpolator</a>
-    </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.bolt_markov_matrix">bolt_markov_matrix</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.shell_stiffness">shell_stiffness</a>
@@ -3379,52 +3377,8 @@ ref. [2], sec. G.4.2.</p>
 <div class="doc doc-object doc-function">
 
 
-<h2 id="pyflange.flangesegments._load_shell_stiffness_interpolator" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">_load_shell_stiffness_interpolator</span><span class="p">()</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
-  </span>
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Loads and caches the shell stiffness interpolator.</p>
-
-
-<table class="field-list">
-  <colgroup>
-    <col class="field-name" />
-    <col class="field-body" />
-  </colgroup>
-  <tbody valign="top">
-    <tr class="field">
-      <th class="field-name">Returns:</th>
-      <td class="field-body">
-        <ul class="first simple">
-            <li>
-              –
-              <div class="doc-md-description">
-                <p>scipy.interpolate.LinearNDInterpolator: The interpolator function.</p>
-              </div>
-            </li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
 <h2 id="pyflange.flangesegments.bolt_markov_matrix" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">bolt_markov_matrix</span><span class="p">(</span><span class="n">fseg</span><span class="p">,</span> <span class="n">flange_markov_matrix</span><span class="p">,</span> <span class="n">bending_factor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">macro_geometric_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mean_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">range_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">bolt_markov_matrix</span><span class="p">(</span><span class="n">fseg</span><span class="p">,</span> <span class="n">flange_markov_matrix</span><span class="p">,</span> <span class="n">bending_factor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">macro_geometric_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mean_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">range_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">SMF</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
 
 </h2>
 
@@ -3487,7 +3441,7 @@ stress range.</p>
               –
               <div class="doc-md-description">
                 <p>Factor for macro geometric influences,
-affecting dead weight, mean, and range values.</p>
+affecting dead weight, mean, and range values. If omitted, it defaults to 1.0.</p>
               </div>
             </li>
             <li>
@@ -3498,7 +3452,7 @@ affecting dead weight, mean, and range values.</p>
               –
               <div class="doc-md-description">
                 <p>Factor for the mean values of the tower's
-bending moments.</p>
+bending moments. If omitted, it defaults to 1.0.</p>
               </div>
             </li>
             <li>
@@ -3509,7 +3463,18 @@ bending moments.</p>
               –
               <div class="doc-md-description">
                 <p>Factor for the range of the tower's bending
-moments.</p>
+moments. If omitted, it defaults to 1.0.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>SMF</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Stress Multiplication Factor to be applied 
+to bolt Markov matrix stress ranges. If omitted, it defaults to 1.0.</p>
               </div>
             </li>
         </ul>

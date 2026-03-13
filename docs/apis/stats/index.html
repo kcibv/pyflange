@@ -175,7 +175,7 @@ simulation, is given in <a href="../../examples/montecarlo/">this example</a>.</
 
 
 <h2 id="pyflange.stats.fatigue_case_sampler" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">fatigue_case_sampler</span><span class="p">(</span><span class="n">fseg_samp</span><span class="p">,</span> <span class="n">markov_matrix_samp</span><span class="p">,</span> <span class="n">fatigue_curve_samp</span><span class="p">,</span> <span class="n">allowable_damage_samp</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">fatigue_case_sampler</span><span class="p">(</span><span class="n">fseg_samp</span><span class="p">,</span> <span class="n">markov_matrix_samp</span><span class="p">,</span> <span class="n">fatigue_curve_samp</span><span class="p">,</span> <span class="n">allowable_damage_samp</span><span class="p">,</span> <span class="n">SMF</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
 
 </h2>
 
@@ -225,6 +225,16 @@ simulation, is given in <a href="../../examples/montecarlo/">this example</a>.</
               –
               <div class="doc-md-description">
                 <p>A <code>float</code> sampler that generates random allowable damages.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>SMF</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Stress Multiplication Factor. Defaults to 1.0.</p>
               </div>
             </li>
         </ul>
@@ -940,7 +950,7 @@ fseg3 = next(fseg_samp)     # Yet another random L-Flange segment object
 
 
 <h2 id="pyflange.stats.standard_bolt_fatigue_curve_sampler" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">standard_bolt_fatigue_curve_sampler</span><span class="p">(</span><span class="n">bolt_nominal_diameter</span><span class="p">,</span> <span class="n">mean_stress_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">stress_factor_CoV</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">standard_bolt_fatigue_curve_sampler</span><span class="p">(</span><span class="n">bolt_nominal_diameter</span><span class="p">,</span> <span class="n">mean_stress_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">stress_factor_CoV</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">DS_ref_mean</span><span class="o">=</span><span class="mi">62</span> <span class="o">*</span> <span class="n">MPa</span><span class="p">)</span></code>
 
 </h2>
 
