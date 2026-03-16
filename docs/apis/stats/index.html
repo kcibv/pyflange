@@ -229,12 +229,14 @@ simulation, is given in <a href="../../examples/montecarlo/">this example</a>.</
             </li>
             <li>
               <b><code>SMF</code></b>
-                  (<code><span title="float">float</span></code>, default:
+                  (<code><span title="float">float</span> | <span title="typing.Generator">Generator</span></code>, default:
                       <code>1.0</code>
 )
               –
               <div class="doc-md-description">
-                <p>Stress Multiplication Factor. Defaults to 1.0.</p>
+                <p>Stress Multiplication Factor. If it is a sampler, a new
+SMF will be generated for every next fatigue case. If it is a float, it will be 
+applied to every next fatigue case. If omitted, it defaults to 1.0.</p>
               </div>
             </li>
         </ul>
@@ -1034,7 +1036,7 @@ class, assumed normally distributed. It defaults to 0.10.</p>
 
 
 <h2 id="pyflange.stats.standard_gap_sampler" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">standard_gap_sampler</span><span class="p">(</span><span class="n">flange_diameter</span><span class="p">,</span> <span class="n">flange_flatness_tolerance</span><span class="p">,</span> <span class="n">gap_angle_sampler</span><span class="o">=</span><span class="n">lognorm_sampler</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">deg</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">gap_shape_factor_sampler</span><span class="o">=</span><span class="n">norm_sampler</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">))</span></code>
+            <code class="highlight language-python"><span class="n">standard_gap_sampler</span><span class="p">(</span><span class="n">flange_diameter</span><span class="p">,</span> <span class="n">flange_flatness_tolerance</span><span class="p">,</span> <span class="n">gap_angle_sampler</span><span class="o">=</span><span class="n">lognorm_sampler</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">deg</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">gap_shape_factor_sampler</span><span class="o">=</span><span class="n">norm_sampler</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">),</span> <span class="n">gap_height_cap</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span></code>
 
 </h2>
 
@@ -1090,6 +1092,18 @@ Defaults to a log-normal sampler with mean 0.1 deg and CoV = 1.0.</p>
               <div class="doc-md-description">
                 <p>A sampler for the gap shape factor.
 Defaults to a normal sampler with mean 1.0 and CoV = 0.15.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gap_height_cap</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>2.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The generated gap height will be capped at
+gap_height_cap * p95, where p95 is the 95th percentile of the gap height
+distribution. If omitted, it defaults to 2.0.</p>
               </div>
             </li>
         </ul>
