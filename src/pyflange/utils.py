@@ -48,6 +48,5 @@ def load_csv_database (db_name, index_col="id"):
 # ------------------------------------------------------------------------------
 
 def reduce_to_pi (angle):
-    from math import pi
-    reduced_angle = angle % (2*pi)
-    return reduced_angle if reduced_angle < pi else 2*pi - reduced_angle
+    from math import sin, cos, atan2
+    return abs(atan2(sin(angle), cos(angle)))

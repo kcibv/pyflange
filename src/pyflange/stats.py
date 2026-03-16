@@ -217,7 +217,8 @@ def lognorm_sampler (mean, cv):
 
 def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
                           gap_angle_sampler = lognorm_sampler(100*deg, 1.0),
-                          gap_shape_factor_sampler = norm_sampler(1.0, 0.15)):
+                          gap_shape_factor_sampler = norm_sampler(1.0, 0.15),
+                          gap_height_cap = 2.0):
     ''' Sampler that generates random flange gaps according to ref. [1].
 
     Args:
@@ -227,6 +228,9 @@ def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
             Defaults to a log-normal sampler with mean 0.1 deg and CoV = 1.0.
         gap_shape_factor_sampler (Generator, optional): A sampler for the gap shape factor.
             Defaults to a normal sampler with mean 1.0 and CoV = 0.15.
+        gap_height_cap (float, optional): The generated gap height will be capped at
+            gap_height_cap * p95, where p95 is the 95th percentile of the gap height
+            distribution. If omitted, it defaults to 2.0.
 
     Yields:
         tuple: A tuple containing:
@@ -254,7 +258,7 @@ def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
     while True:
         gap_angle = reduce_to_pi( next(gap_angle_sampler) )
         gap_dist = gap_height_distribution(flange_diameter, flange_flatness_tolerance, gap_angle*flange_diameter/2)
-        gap_height = min(gap_dist.rvs(), 2*gap_dist.ppf(0.95))
+        gap_height = min(gap_dist.rvs(), gap_height_cap*gap_dist.ppf(0.95))
         yield Gap(gap_height, gap_angle, next(gap_shape_factor_sampler))
 
 
@@ -483,7 +487,9 @@ def fatigue_case_sampler (fseg_samp, markov_matrix_samp, fatigue_curve_samp, all
         markov_matrix_samp (Generator): A `pyflange.fatigue.MarkovMatrix` sampler.
         fatigue_curve_samp (Generator): A `pyflange.fatigue.BoltFatigueCurve` sampler.
         allowable_damage_samp (Generator): A `float` sampler that generates random allowable damages.
-        SMF (float, optional): Stress Multiplication Factor. Defaults to 1.0.
+        SMF (float | Generator, optional): Stress Multiplication Factor. If it is a sampler, a new
+            SMF will be generated for every next fatigue case. If it is a float, it will be 
+            applied to every next fatigue case. If omitted, it defaults to 1.0.
 
     Yields:
         pyflange.fatigue.BoltFatigueAnalysis: A random `BoltFatigueAnalysis` object.
@@ -496,4 +502,4 @@ def fatigue_case_sampler (fseg_samp, markov_matrix_samp, fatigue_curve_samp, all
             flange_mkvm = next(markov_matrix_samp),
             custom_fatigue_curve = next(fatigue_curve_samp),
             allowable_damage = next(allowable_damage_samp),
-            SMF=SMF)
+            SMF = next(SMF) if isinstance(SMF, Generator) else SMF)
