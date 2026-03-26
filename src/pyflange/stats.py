@@ -215,6 +215,34 @@ def lognorm_sampler (mean, cv):
     return sampler( stats.lognorm(s=shape, loc=0, scale=scale) )
 
 
+def weibull_sampler (shape, scale=1.0):
+    ''' Sampler based on a Weibull distribution.
+
+    Args:
+        shape (float): Shape parameter of the weibull distribution.
+        scale (float, optional): Scale parameter of the weibull distribution.
+            Defaults to 1.0.
+
+    Returns:
+        A Weibull distribution sampler with given scale and shape
+        parameters.
+
+    Example:
+        The following example creates a Weibull distribution sampler and 
+        generates three realizations.
+
+        ```py
+        samp = weibull_sampler(1.5, 2)  # normal sampler sampler with  
+                                        # shape 1.5 and scale 2.0
+
+        val1 = next(samp)   # A random value from the Weibull distribution
+        val2 = next(samp)   # Another random value from the Weibull distribution
+        val3 = next(samp)   # Yet another random value from the Weibull distribution
+        ```
+    '''
+    return sampler( stats.weibull_min(shape, scale=scale) )
+
+
 def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
                           gap_angle_sampler = lognorm_sampler(100*deg, 1.0),
                           gap_shape_factor_sampler = norm_sampler(1.0, 0.15),
