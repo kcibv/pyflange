@@ -232,7 +232,7 @@ def weibull_sampler (shape, scale=1.0):
         generates three realizations.
 
         ```py
-        samp = weibull_sampler(1.5, 2)  # normal sampler sampler with  
+        samp = weibull_sampler(1.5, 2)  # Weibull sampler sampler with  
                                         # shape 1.5 and scale 2.0
 
         val1 = next(samp)   # A random value from the Weibull distribution
@@ -241,6 +241,37 @@ def weibull_sampler (shape, scale=1.0):
         ```
     '''
     return sampler( stats.weibull_min(shape, scale=scale) )
+
+
+def beta_sampler (a, b, x0=0, x1=1):
+    ''' Sampler based on a Beta distribution.
+
+    Args:
+        a (float): Shape parameter alpha.
+        b (float): Shape parameter beta.
+        x0 (float, optional): Lower bound of the variable definition interval.
+            If omitted, it defaults to 0.
+        x1 (float, optional): Upper bound of the variable definition interval.
+            If omitted, it defaults to 1.
+
+    Returns:
+        A Beta distribution sampler with given shape parameters and definition
+        interval boundaries.
+
+    Example:
+        The following example creates a Beta distribution sampler and 
+        generates three realizations.
+
+        ```py
+        samp = beta_sampler(2, 5)  # Beta sampler sampler with  
+                                   # alpha=2, beta=5, defined in [0,1].
+
+        val1 = next(samp)   # A random value from the Beta distribution
+        val2 = next(samp)   # Another random value from the Beta distribution
+        val3 = next(samp)   # Yet another random value from the Beta distribution
+        ```
+    '''
+    return sampler( stats.beta(a, b, loc=x0, scale=x1-x0) )
 
 
 def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
