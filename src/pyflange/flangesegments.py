@@ -554,7 +554,6 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         fd_fl = fy_fl / gamma_0
         
         Dw = self.washer.outer_diameter if self.washer else self.nut.bearing_diameter
-        a_red = self.b / (self._prying_lever_ratio - 1) #Tobinaga reduction
         b_red = self.b-self.s/2-0.8*self.r
 
         c_shell = self.central_angle * (self.R - self.s/2)
@@ -585,8 +584,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
             return min(target_Zu_sh, target_Zu_fl)
 
         # Failure mode B
-        Zu_sh_B = lambda Mu_pl3: (F_tRd * a_red + Mu_pl3) / (a_red + self.b)
-        Zu_fl_B = lambda Mu_pl3: (F_tRd * a_red + Mu_pl3) / (a_red + b_red)
+        Zu_sh_B = lambda Mu_pl3: (F_tRd * self._a_red + Mu_pl3) / (self._a_red + self.b)
+        Zu_fl_B = lambda Mu_pl3: (F_tRd * self._a_red + Mu_pl3) / (self._a_red + b_red)
         Zu_B = find_Zu(Zu_sh_B, Zu_fl_B) 
 
         # Failure mode D
@@ -675,15 +674,13 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         Returns:
             float: The bolt bending moment.
         '''
-        a_red = self.b / (self._prying_lever_ratio - 1)
-        a_star = max(0.4, min((self.t / (a_red + self.b))**2 , 1)) * a_red
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
         I_tg = c * self.t**3 / 12
         ak = self._stiffness_correction_factor
-        bolt_rotation = Z*self.b*a_star / (3*self.E*I_tg*ak) + (Fs - self.bolt_preload) / (2*a_star*self._bolt_axial_stiffness)
+        bolt_rotation = Z*self.b*self._a_star / (3*self.E*I_tg*ak) + (Fs - self.bolt_preload) / (2*self._a_star*self._bolt_axial_stiffness)
 
-        log_data(self, a_star=a_star, I_tg=I_tg)
+        log_data(self, I_tg=I_tg)
 
         return bolt_rotation * 2*self._bolt_bending_stiffness
 
@@ -820,6 +817,14 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         '''Shell force necessary to completely close the imperfection gap (Z4).'''
         return self.shell_force_at_rest + self._total_gap_neutralization_shell_force
 
+    @cached_property
+    def _a_red (self):
+        #Tobinaga reduction
+        return self.b / (self._prying_lever_ratio - 1)
+
+    @cached_property
+    def _a_star (self):
+        return max(0.4, min((self.t / (self._a_red + self.b))**2 , 1)) * self._a_red
 
     @cached_property
     def _total_gap_neutralization_shell_force (self):
@@ -953,14 +958,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
 
     @cached_property
-    def _gap_stiffness (self):
-        '''Stiffness of the design gap.
-
-        Returns the gap stiffness as a spring constant per unit of flange-segment
-        arc length, calculated according to ref.[1], sec. 8.1 and ref.[2], eq. G.35.
-        '''
-
-        # Calculate the shell stiffness
+    def _k_shell (self):
+        # Shell stiffness
         s_avg = (self.s + self.s_ratio * self.s) / 2    # Average shell thickness
         L_gap = self.R * self.gap.angle                 # Gap lenght at mid-line of shell with average thickness
         k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48A
@@ -969,7 +968,14 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         except Exception:
             k_shell = self.k_shell(self) if callable(self.k_shell) else self.E * s_avg / (k_fac * L_gap)
 
+        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell)
+        return k_shell
+
+
+    @cached_property
+    def _k_flange (self):
         # Calculate the flange stiffness
+        L_gap = self.R * self.gap.angle                 # Gap lenght at mid-line of shell with average thickness
         w = self.a + self.b + self.s/2      # flange segment length
         A = w * self.t                      # flange segment longitudinal cross-section area
         I = w * self.t**3 / 12              # flange segment longitudinal corss-section second moment of area
@@ -977,14 +983,25 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         GA = self.G * A
         L2 = L_gap**2
         k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49
+        log_data(self, A_cf=A, I_cf=I, k_fl=k_flange)
+        return k_flange
+
+
+    @cached_property
+    def _gap_stiffness (self):
+        '''Stiffness of the design gap.
+
+        Returns the gap stiffness as a spring constant per unit of flange-segment
+        arc length, calculated according to ref.[1], sec. 8.1 and ref.[2], eq. G.35.
+        '''
 
         # Stiffness correction factor
         f_tot = min(1.0 + 1.5 * self.gap.angle/(pi/2), 2.5) * min(self.gap.angle/(pi/6), 1)**2
 
-        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange, f_tot=f_tot)
+        log_data(self, f_tot=f_tot)
 
         # Total gap stiffness according to ref. [1], eq.53
-        return f_tot * (k_shell + k_flange)
+        return f_tot * (self._k_shell + self._k_flange)
 
 
     @cached_property
@@ -1003,11 +1020,10 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         Fs0 = self._ideal_bolt_force_at_tensile_ULS
 
         # Evaluate the displacement u in the ultimate prying state.
-        a_red = self.b / (self._prying_lever_ratio - 1)
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
         I = c * self.t**3 / 12
-        u = (Z0 * self.b**2 / (3 * self.E * I) + (Fs0 - self.bolt_preload) / (2 * self._bolt_axial_stiffness * a_red)) * (a_red + self.b)   # ref. [1], eq.72
+        u = (Z0 * self.b**2 / (3 * self.E * I) + (Fs0 - self.bolt_preload) / (2 * self._bolt_axial_stiffness * self._a_red)) * (self._a_red + self.b)   # ref. [1], eq.72
 
         # Evaluate the segment stiffness
         s_avg = (self.s + self.s_ratio * self.s) / 2
@@ -1066,6 +1082,56 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         '''Deprecated. Use `gap.shape_factor` instead.'''
         return self.gap.shape_factor
 
+
+
+class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
+    '''An L-Flange implementation of a `PolynomialFlangeSegment`.
+
+    This class models an L-flange segment using the polynomial model from
+    ref. [1] and [2], as it will be modified in IEC 61400-6 ED2.
+    '''
+    
+    @cached_property
+    def _a_star (self):
+        ''' a* parameter
+        As it will be modified in IEC 61400-6 ED2
+        '''
+        return max(0.3, min((self.t / (self._a_red + self.b))**2 , 1)) * self._a_red
+
+
+    @cached_property
+    def _parallel_gap_neutralization_shell_force (self):
+        '''Force necessary to close a parallel imperfection gap.
+        As it will be modified in IEC 61400-6 ED2
+        '''
+
+        # Calaculate ED2 correction factor
+        d = self.bolt.nominal_diameter
+        alfa_ref = 1 - 0.630 * 2*d / (1.25*self.b + self.b)
+        It_ref = alfa_ref * (1.25*self.b+self.b) * (2*d)**3 / 3
+        alfa = 1 - 0.630 * self.t / (self.a + self.b)
+        It = alfa * (self.a + self.b) * self.t**3 / 3
+        f_kgap = max(1.0 , min( self.a/self.b / (It/It_ref)**0.5 , 1.5))
+
+        # Return ED2 gap closing force
+        return f_kgap * super()._parallel_gap_neutralization_shell_force
+
+
+    @cached_property
+    def _gap_stiffness (self):
+        '''Stiffness of the design gap.
+
+        Returns the gap stiffness as a spring constant per unit of flange-segment
+        arc length, as it will be modified in IEC 61400-6 ED2
+        '''
+
+        # Stiffness correction factor
+        f_tot = min(1.4 + 0.6 * self.gap.angle/(pi/2), 2.0) #* min(self.gap.angle/(pi/6), 1)**2
+
+        log_data(self, f_tot=f_tot)
+
+        # Total gap stiffness according to ref. [1], eq.53
+        return f_tot * self._k_shell + self._k_flange
 
 
 
@@ -1251,7 +1317,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         Returns:
             float: The bolt bending moment.
         '''
-        a_red = self.b / (self._prying_lever_ratio - 1)
+        a_red = self.b / (self._prying_lever_ratio - 1) #Tobinaga reduction
         a_star = max(0.4, min((self.t / (a_red + self.b))**2 , 1)) * a_red
 
         s_avg = self.s * (1 + self.s_ratio) / 2
