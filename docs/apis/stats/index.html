@@ -51,6 +51,8 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">stats</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.beta_sampler">beta_sampler</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.fatigue_case_sampler">fatigue_case_sampler</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.gap_height_distribution">gap_height_distribution</a>
@@ -68,6 +70,8 @@
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.standard_gap_sampler">standard_gap_sampler</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.standard_markov_matrix_sampler">standard_markov_matrix_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.weibull_sampler">weibull_sampler</a>
     </li>
     </ul>
                   </li>
@@ -170,6 +174,119 @@ simulation, is given in <a href="../../examples/montecarlo/">this example</a>.</
 
 
 
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.beta_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">beta_sampler</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">x1</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sampler based on a Beta distribution.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>a</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape parameter alpha.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>b</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape parameter beta.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>x0</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Lower bound of the variable definition interval.
+If omitted, it defaults to 0.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>x1</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>1</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Upper bound of the variable definition interval.
+If omitted, it defaults to 1.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>A Beta distribution sampler with given shape parameters and definition</p>
+              </div>
+            </li>
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>interval boundaries.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <p>The following example creates a Beta distribution sampler and 
+generates three realizations.</p>
+<pre><code class="language-py">samp = beta_sampler(2, 5)  # Beta sampler sampler with  
+                           # alpha=2, beta=5, defined in [0,1].
+
+val1 = next(samp)   # A random value from the Beta distribution
+val2 = next(samp)   # Another random value from the Beta distribution
+val3 = next(samp)   # Yet another random value from the Beta distribution
+</code></pre>
+</details>
+
+    </div>
+
+</div>
 
 <div class="doc doc-object doc-function">
 
@@ -1243,6 +1360,100 @@ contained in the passed <em>markov_matrix</em> parameters. Defaults to 0.12.</p>
     </tr>
   </tbody>
 </table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.weibull_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">weibull_sampler</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sampler based on a Weibull distribution.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>shape</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape parameter of the weibull distribution.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>scale</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>1.0</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Scale parameter of the weibull distribution.
+Defaults to 1.0.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>A Weibull distribution sampler with given scale and shape</p>
+              </div>
+            </li>
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>parameters.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <p>The following example creates a Weibull distribution sampler and 
+generates three realizations.</p>
+<pre><code class="language-py">samp = weibull_sampler(1.5, 2)  # Weibull sampler sampler with  
+                                # shape 1.5 and scale 2.0
+
+val1 = next(samp)   # A random value from the Weibull distribution
+val2 = next(samp)   # Another random value from the Weibull distribution
+val3 = next(samp)   # Yet another random value from the Weibull distribution
+</code></pre>
+</details>
 
     </div>
 

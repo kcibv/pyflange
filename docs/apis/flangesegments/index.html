@@ -155,6 +155,16 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegmentED2">PolynomialLFlangeSegmentED2</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegmentED2._a_star">_a_star</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegmentED2._gap_stiffness">_gap_stiffness</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialLFlangeSegmentED2._parallel_gap_neutralization_shell_force">_parallel_gap_neutralization_shell_force</a>
+    </li>
+        </ul>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment">PolynomialTFlangeSegment</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#pyflange.flangesegments.PolynomialTFlangeSegment._bolt_axial_stiffness">_bolt_axial_stiffness</a>
@@ -2286,6 +2296,135 @@ ref. [2], sec. G.4.2.</p>
     </div>
 
 </div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.flangesegments.PolynomialLFlangeSegmentED2" class="doc doc-heading">
+            <code>PolynomialLFlangeSegmentED2</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="PolynomialLFlangeSegment
+
+
+  
+      dataclass
+   (pyflange.flangesegments.PolynomialLFlangeSegment)" href="#pyflange.flangesegments.PolynomialLFlangeSegment">PolynomialLFlangeSegment</a></code></p>
+
+
+        <p>An L-Flange implementation of a <code>PolynomialFlangeSegment</code>.</p>
+<p>This class models an L-flange segment using the polynomial model from
+ref. [1] and [2], as it will be modified in IEC 61400-6 ED2.</p>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegmentED2._a_star" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">_a_star</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>a* parameter
+As it will be modified in IEC 61400-6 ED2</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegmentED2._gap_stiffness" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">_gap_stiffness</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Stiffness of the design gap.</p>
+<p>Returns the gap stiffness as a spring constant per unit of flange-segment
+arc length, as it will be modified in IEC 61400-6 ED2</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.flangesegments.PolynomialLFlangeSegmentED2._parallel_gap_neutralization_shell_force" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">_parallel_gap_neutralization_shell_force</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Force necessary to close a parallel imperfection gap.
+As it will be modified in IEC 61400-6 ED2</p>
+
+    </div>
+
+</div>
+
+
 
 
 

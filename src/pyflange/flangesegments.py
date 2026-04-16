@@ -968,7 +968,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         except Exception:
             k_shell = self.k_shell(self) if callable(self.k_shell) else self.E * s_avg / (k_fac * L_gap)
 
-        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell)
+        log_data(self, L_gap=L_gap, k_fac=k_fac)
         return k_shell
 
 
@@ -1126,7 +1126,7 @@ class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
         '''
 
         # Stiffness correction factor
-        f_tot = min(1.4 + 0.6 * self.gap.angle/(pi/2), 2.0) #* min(self.gap.angle/(pi/6), 1)**2
+        f_tot = min(1.4 + 0.6 * self.gap.angle/(pi/2), 2.0) * min(self.gap.angle/(pi/6), 1)**2
 
         log_data(self, f_tot=f_tot)
 
