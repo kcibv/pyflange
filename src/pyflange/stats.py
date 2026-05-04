@@ -317,8 +317,9 @@ def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
     while True:
         gap_angle = reduce_to_pi( next(gap_angle_sampler) )
         gap_dist = gap_height_distribution(flange_diameter, flange_flatness_tolerance, gap_angle*flange_diameter/2)
-        gap_height = min(gap_dist.rvs(), gap_height_cap*gap_dist.ppf(0.95))
-        yield Gap(gap_height, gap_angle, next(gap_shape_factor_sampler))
+        gap_height = gap_dist.rvs()
+        if gap_height <= gap_height_cap*gap_dist.ppf(0.95):
+            yield Gap(gap_height, gap_angle, next(gap_shape_factor_sampler))
 
 
 
