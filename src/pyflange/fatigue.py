@@ -286,3 +286,7 @@ class BoltFatigueAnalysis:
     def fatigue_life(self):
         """float: The fatigue life in the same units as flange_mkvm.duration."""
         return self.allowable_damage / self.damage * self.flange_mkvm.duration
+
+
+
+
