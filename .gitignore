@@ -166,5 +166,6 @@ __void__/
 
 # Locals
 local/
-todo.*
+*.todo.md
 src/pyflange/_forrester.py
+.aider*

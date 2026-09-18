@@ -14,8 +14,8 @@ implementation of Marc Seidel's polynomial model for predicting bolt
 forces and moments due to the tower shell force, (soon to be) published 
 in the the standard IEC 61400-6-AMD1.
 
-This package has beend developed within the Bolt and Beoutiful GROW
-project by KCI, Siemens Gamesa and TNO.
+This package has beend developed within the Bolt and Beautiful GROW
+project by KCI, Siemens Gamesa, JBO and TNO.
 
 The rest of this documentation will show how to get started and where to        
 find extra documentation.
