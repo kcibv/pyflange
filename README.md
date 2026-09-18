@@ -5,24 +5,40 @@
 PyFlange Python Package
 =========================================================================
 
-This package has the ambitious goal of providing all the tools engineers 
-need for the design of large bolted flanges such as the flanges used in
-offshore wind for connecting the turbine tower to the foundation.
+PyFlange is an open-source Python library for the analysis of large bolted 
+ring-flange connections, with a focus on offshore wind turbine support 
+structures.
 
-Far from achieving its goal, this package currently contains only an
-implementation of Marc Seidel's polynomial model for predicting bolt
-forces and moments due to the tower shell force, (soon to be) published 
-in the the standard IEC 61400-6-AMD1.
+The package was developed within the Bolt & Beautiful GROW project by KCI, 
+Siemens Gamesa, JBO and TNO. It provides a computationally efficient 
+implementation of analytical ring-flange models that can be used to predict 
+bolt axial forces and bending moments resulting from shell loading. The core 
+analytical formulation is based on Marc Seidel's polynomial model version which 
+is expected to be published in IEC 61400-6-ED2.
 
-This package has beend developed within the Bolt and Beautiful GROW
-project by KCI, Siemens Gamesa, JBO and TNO.
+Both L-flange and T-flange ring connections are supported, through the
+`PolynomialLFlangeSegment` and `PolynomialTFlangeSegment` classes respectively.
 
-The rest of this documentation will show how to get started and where to        
-find extra documentation.
+In addition to flange-segment modelling, PyFlange contains:
+- Objects representing standard metric bolts, nuts and washers.
+- Gap modelling utilities for flange imperfections and manufacturing tolerances.
+- Fatigue assessment utilities for bolted connections.
+- Statistical tools and probability distributions.
+- Random samplers (`pyflange.stats`) and a worked-out Monte Carlo simulation example for probabilistic assessments.
+- Validation cases and documentation for ring-flange applications.
+
+PyFlange is intended for engineering analyses in which large numbers of flange 
+evaluations are required and where computational efficiency is important.
+
+The rest of this documentation explains how to install the package, create 
+flange-segment models and use the available analysis tools.
 
 
 Getting Started
 -------------------------------------------------------------------------
+PyFlange requires Python 3.9 or later. Its dependencies (`numpy`, `scipy`,
+`pandas` and `metrum`) are installed automatically via pip.
+
 You can install PyFlange via pip as follows:
 
 ```
@@ -42,7 +58,8 @@ M80_washer = ISOFlatWasher("M80")
 M80_nut    = ISOHexNut("M80")
 
 # Define the gap parameters
-from pyflange.gap import gap_height_distribution
+# (pyflange.gap is deprecated; gap_height_distribution now lives in pyflange.stats)
+from pyflange.stats import gap_height_distribution
 from math import pi
 D = 7.50                        # meters, flange outer diameter
 gap_angle = pi/6                # 30 deg gap angle
@@ -75,9 +92,10 @@ fseg = PolynomialLFlangeSegment(
               angle = gap_angle)              # longitudinal gap length
     )
 
-# Assert if the flange-segment fails with failure mode B.
-# If not, an exception will be raised. 
-fseg.validate(325e6, 295e6)
+# Verify that failure mode B is governing for this flange segment, which is
+# a requirement for the polynomial model to be applicable. If another
+# failure mode governs, a ValueError is raised.
+fseg.validate(fy_sh=325e6, fy_fl=295e6)
 ```
 
 > Notice that a consistent set of units of measurements has been used for inputs, namely:
@@ -92,7 +110,7 @@ Fs = fseg.bolt_axial_force(3500)    # bolt force corresponding to the tower shel
 Ms = fseg.bolt_bending_moment(2000) # bolt bending moment corresponding to the tower shell force Z = 2000 N
 ```
 
-The argumment `Z`, passed to `bolt_axial_force` and `bolt_bending_moment` can also be a
+The argument `Z`, passed to `bolt_axial_force` and `bolt_bending_moment` can also be a
 numpy array. In that case an array of Fs and Ms values will be returned.
 
 ``` python
@@ -102,12 +120,40 @@ Fs = fseg.bolt_axial_force(Z)       # return the numpy array (Fs(2000), Fs(2500)
 Ms = fseg.bolt_bending_moment(Z)    # return the numpy array (Ms(2000), Ms(2500), Ms(3000))
 ```
 
+### Fatigue analysis
+
+Once a `FlangeSegment` is available, it can be combined with a load history
+(expressed as a `MarkovMatrix`) to perform a bolt fatigue assessment:
+
+``` python
+from pyflange.fatigue import MarkovMatrix, BoltFatigueAnalysis
+import numpy as np
+
+# Markov matrix representing the bending-moment load history acting on the flange
+flange_mkvm = MarkovMatrix(
+    range    = np.array([50e3, 80e3, 120e3]),   # Nm, load range of each bin
+    mean     = np.array([10e3, 15e3, 20e3]),    # Nm, mean load of each bin
+    cycles   = np.array([1e6, 5e5, 1e4]),       # number of cycles of each bin
+    duration = 25                               # years represented by this matrix
+)
+
+# Run the fatigue analysis for the flange segment created above.
+# If no custom fatigue curve is given, a BoltFatigueCurve is derived
+# automatically from the bolt's nominal diameter, according to IEC 61400-6 AMD1.
+fatigue = BoltFatigueAnalysis(fseg, flange_mkvm)
+
+print(fatigue.damage)        # cumulated fatigue damage
+print(fatigue.fatigue_life)  # fatigue life, in the same unit as `duration`
+```
+
 
 
 Learn More
 -------------------------------------------------------------------------
 
-For more details, read the [pyflage API documentation](https://kcibv.github.io/pyflange/). 
+For more details, read the [PyFlange API documentation](https://kcibv.github.io/pyflange/), 
+which covers the `bolts`, `flangesegments`, `fatigue` and `stats` modules, as well as a 
+worked-out [Monte Carlo simulation example](https://kcibv.github.io/pyflange/examples/montecarlo/).
 
 
 
@@ -155,5 +201,3 @@ GNU General Public License version 3 for more details.
 
 You should have received a copy of the GNU General Public License
 version 3 along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
