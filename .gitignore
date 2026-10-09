@@ -169,3 +169,4 @@ local/
 *.todo.md
 src/pyflange/_forrester.py
 .aider*
+*.repomix.md
