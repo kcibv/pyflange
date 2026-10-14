@@ -8,6 +8,7 @@ nav:
       - flangesegments: apis/flangesegments.md
       - fatigue: apis/fatigue.md
       - stats: apis/stats.md
+      - utils: apis/utils.md
     - Deprecated API's:
       - gap: apis/gap.md
     - Examples:
@@ -22,9 +23,19 @@ plugins:
     default_handler: python
     handlers:
       python:
+        paths: [src]
         options:
           show_root_heading: true
           heading_level: 1
           show_source: false
           docstring_style: google
+          show_signature_annotations: true
 
+markdown_extensions:
+- admonition
+- pymdownx.arithmatex:
+    generic: true
+- pymdownx.superfences
+
+extra_javascript:
+- https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js

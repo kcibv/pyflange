@@ -46,6 +46,7 @@ Key components provided by this module:
 Units:
     All parameters must be supplied in a consistent system of units. When using
     SI units:
+
     - Distances and diameters: meters (m)
     - Forces: newtons (N)
     - Bending moments: newton-meters (N·m)
@@ -298,14 +299,7 @@ class DoubleSlopeFatigueCurve(MultiSlopeFatigueCurve):
     """
 
     def __init__(self, m1: float, m2: float, DS12: float, N12: float) -> None:
-        r"""Initializes the DoubleSlopeFatigueCurve.
-
-        Args:
-            m1 (float): Logarithmic slope exponent for the lower-cycle regime ($N \le N_{12}$).
-            m2 (float): Logarithmic slope exponent for the higher-cycle regime ($N > N_{12}$).
-            DS12 (float): Stress range $\Delta S_{12}$ at the knee point where the two slopes meet.
-            N12 (float): Number of cycles $N_{12}$ at the knee point where the two slopes meet.
-        """
+        """Initializes the DoubleSlopeFatigueCurve (see the class documentation)."""
         curve1 = SingleSlopeFatigueCurve(m1, DS12, N12)
         curve2 = SingleSlopeFatigueCurve(m2, DS12, N12)
         super().__init__(curve1, curve2)
@@ -340,18 +334,25 @@ class BoltFatigueCurve(DoubleSlopeFatigueCurve):
             Defaults to 50 MPa (`50e6` Pa).
         gamma_M (float, optional): Material partial safety factor $\gamma_M$ for fatigue design.
             Defaults to 1.1.
+
+    Example:
+        ```python
+        import numpy as np
+        from pyflange.fatigue import BoltFatigueCurve, MarkovMatrix
+
+        curve = BoltFatigueCurve(0.080)       # M80 bolt, default fatigue class
+        N = curve.N(40e6)                     # cycles to failure at a 40 MPa range
+
+        mkvm = MarkovMatrix(range=np.array([20e6, 40e6]),
+                            mean=np.array([300e6, 300e6]),
+                            cycles=np.array([1e6, 1e4]),
+                            duration=20)      # e.g. 20 years
+        D = curve.cumulated_damage(mkvm)      # Miner's sum
+        ```
     """
 
     def __init__(self, diameter: float, DS_ref: float = 50e6, gamma_M: float = 1.1) -> None:
-        r"""Initializes the BoltFatigueCurve according to IEC 61400-6 AMD1.
-
-        Args:
-            diameter (float): Nominal bolt diameter $d$ in meters.
-            DS_ref (float, optional): Reference characteristic stress range $\Delta S_{\text{ref}}$
-                at $2 \times 10^6$ cycles (in Pa). Defaults to 50 MPa (`50e6` Pa).
-            gamma_M (float, optional): Material partial safety factor $\gamma_M$.
-                Defaults to 1.1.
-        """
+        """Initializes the BoltFatigueCurve (see the class documentation)."""
         N12 = 2.0e6    # knee point
         m1 = 3
         m2 = 5

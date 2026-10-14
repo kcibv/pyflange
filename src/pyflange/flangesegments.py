@@ -16,36 +16,69 @@
 # You should have received a copy of the GNU General Public License
 # version 3 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-'''
-This module contains ``FlangeSegment`` classes, which model the mechanical
-behavior of a flange sector containig one bolt only.
+'''Mechanical models of single-bolt flange segments.
 
-Currently, the only two type of FlangeSegment available are an L-Flange segment
-and a T-Flange segment, implementing a polinomial relation between tower shell force
+This module contains `FlangeSegment` classes, which model the mechanical
+behavior of a flange sector containing one bolt only. The module provides:
+
+- `Gap`: description of the imperfection gap between two flange faces.
+- `FlangeSegment`: abstract base class defining the transfer-function interface
+  (bolt axial force and bolt bending moment as functions of the shell pull force).
+- `PolynomialFlangeSegment`: abstract base class implementing the polynomial
+  transfer functions of refs. [1] and [2].
+- `PolynomialLFlangeSegment` and `PolynomialLFlangeSegmentED2`: polynomial
+  L-flange segment models (the latter implementing the modifications expected
+  in IEC 61400-6 ED2).
+- `PolynomialTFlangeSegment`: polynomial T-flange segment model.
+- `bolt_markov_matrix`: conversion of a flange bending-moment Markov matrix into
+  a bolt stress Markov matrix, via the segment transfer functions.
+- `shell_stiffness`: shell stiffness interpolated from tabulated FEA results.
+
+The only types of FlangeSegment currently available are an L-Flange segment
+and a T-Flange segment, implementing a polynomial relation between tower shell
 force and bolt force / bolt moment. Nonetheless, this module has been structured
 to be easily extensible with other types of FlangeSegment model, such as
 Multilinear (Petersen) L-Flanges, Multilinear T-Flanges, etc.
 
+Units:
+    All parameters must be supplied in a consistent system of units, e.g. meters
+    for lengths, newtons for forces and pascals for stresses. Angles are
+    expressed in radians.
+
+Example:
+    The following example creates an L-flange segment and evaluates the bolt
+    axial force for a given shell pull force.
+
+    ```python
+    from math import pi
+    from pyflange.bolts import StandardMetricBolt, RoundNut
+    from pyflange.flangesegments import Gap, PolynomialLFlangeSegment
+
+    fseg = PolynomialLFlangeSegment(
+        a=0.150, b=0.122, s=0.054, t=0.172, R=4.0,
+        central_angle=2*pi/156,
+        Zg=-115e3,                              # dead weight per bolt (compression)
+        bolt=StandardMetricBolt("M80", "10.9", shank_length=0.160, stud=True),
+        Fv=2.9e6,                               # bolt preload
+        Do=0.086, washer=None, nut=RoundNut("M80"),
+        gap=Gap(height=0.002, angle=pi/6))
+
+    Fs = fseg.bolt_axial_force(500e3)           # bolt force for a shell pull of 500 kN
+    ```
+
 The models implemented in this module are based on the following references:
 
-[1]:  Marc Seidel, SGRE TE TF PST: IEC 61400-6 AMD1 Background Document
-      Fatigue design for ring flange connsections in wind turbine support structures.
-
-[2]:  IEC 61400-6:2020/AMD1 - wIND ENERGY GENERATION SYSTEMS - Part 6: Tower and foundation
-      design requirements - AMENDMENT 1
-      Draft version 2024-10-01
-
-[3]:  Petersen, C.: Nachweis der Betriebsfestigkeit exzentrisch beanspruchter Ringflansch-verbindungen
-      (Fatigue assessment of eccentrically loaded ring flange connections).
-      Stahlbau 67 (1998), S. 191-203. https://onlinelibrary.wiley.com/doi/abs/10.1002/stab.199800690
-
-[4]:  Petersen, C.: Stahlbau (Steel construction), 4. Auflage Braunschweig: Wiesbaden: Springer Vieweg 2012.
-      https://link.springer.com/book/10.1007%2F978-3-8348-8610-1
-
-[9]:  Tobinaga, I.; Ishihara, T.: A study of action point correction factor for L‐type flanges of wind turbine towers.
-      Wind Energy 21 (2018), p. 801-806. https://doi.org/10.1002/we.2193
-
-
+- `[1]` Marc Seidel, SGRE TE TF PST: IEC 61400-6 AMD1 Background Document
+  Fatigue design for ring flange connections in wind turbine support structures.
+- `[2]` IEC 61400-6:2020/AMD1 - Wind energy generation systems - Part 6: Tower and foundation
+  design requirements - Amendment 1. Draft version 2024-10-01.
+- `[3]` Petersen, C.: Nachweis der Betriebsfestigkeit exzentrisch beanspruchter Ringflansch-verbindungen
+  (Fatigue assessment of eccentrically loaded ring flange connections).
+  Stahlbau 67 (1998), S. 191-203. <https://onlinelibrary.wiley.com/doi/abs/10.1002/stab.199800690>
+- `[4]` Petersen, C.: Stahlbau (Steel construction), 4. Auflage Braunschweig: Wiesbaden: Springer Vieweg 2012.
+  <https://link.springer.com/book/10.1007%2F978-3-8348-8610-1>
+- `[9]` Tobinaga, I.; Ishihara, T.: A study of action point correction factor for L-type flanges of wind turbine towers.
+  Wind Energy 21 (2018), p. 801-806. <https://doi.org/10.1002/we.2193>
 '''
 
 
@@ -74,8 +107,10 @@ class Gap:
 
     Attributes:
         height (float): Maximum longitudinal gap height.
-        angle (float): Angle subtended by the gap arc from the flange center.
-        shape_factor (float): Factor accounting for a shape different than sinusoidal.
+        angle (float): Angle subtended by the gap arc from the flange center,
+            in radians.
+        shape_factor (float): Factor accounting for a shape different than
+            sinusoidal. Defaults to 1.0 (sinusoidal gap).
     '''
 
     height       : float         # maximum longitudinal gap height
@@ -126,10 +161,17 @@ class PolynomialFlangeSegment (FlangeSegment):
     instantiated directly but to be subclassed.
 
     The polynomial transfer functions are defined by 4 reference points:
+
     - P1: Flange segment at rest.
     - P2: Flange segment at ultimate tensile limit state.
     - P3: Flange segment in small tensile deformation.
     - P4: Gap closure state.
+
+    Child classes must provide the coordinates of these points (shell force,
+    bolt force and bolt moment) through the abstract properties of this class.
+    The transfer functions are a quadratic polynomial through P1, P2 and P3 in
+    the tensile domain (above the shell force at rest), a quadratic polynomial
+    between P4 and P1 in the compressive domain, and a constant below P4.
     '''
 
     def bolt_axial_force (self, shell_pull):
@@ -469,6 +511,10 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     ref. [1] and [2]. It defines the reference points for the polynomial
     functions inherited from the parent class.
 
+    The transfer functions are available through the `bolt_axial_force` and
+    `bolt_bending_moment` methods, which accept either a scalar or a NumPy
+    array of shell pull forces.
+
     Attributes:
         a (float): Distance from inner flange face to bolt hole center.
         b (float): Distance from bolt hole center to shell center-line.
@@ -488,10 +534,12 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         G (float): Shear modulus of the flange material.
         s_ratio (float): Ratio of bottom shell thickness to `s`.
         r (float): Radius of the rounding between shell and flange.
-        k_shell (float, callable, None): Shell stiffness. Can be a value, a function,
-            or None to use the interpolated formula.
-        PPL (float): Percentage of bolt pretension loss due to plastic strain. Defaults to 0.0.
-        DFT (float): Maximum allowalble dry film thickness of coating applied on the contact
+        k_shell (float, callable, None): Shell stiffness [N/m/m]. Can be a value, a
+            function taking the flange segment as argument and returning the
+            stiffness, or `None` to use the simplified formula of ref. [1].
+        PPL (float): Percentage of bolt pretension loss due to plastic strain,
+            expressed as a fraction of `Fv` (e.g. 0.03 for 3%). Defaults to 0.0.
+        DFT (float): Maximum allowable dry film thickness of coating applied on the contact
             area between washers and flange [m]. Defaults to 0.0 m.
         settlement_factor (float): Factor reducing the amount of bolt settlement, to be
             taken as 1.0 for torque tightening and 0.5 for tension tightening. Defaults to 1.0.
@@ -537,13 +585,18 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     def failure_mode (self, fy_sh, fy_fl, gamma_0=1.1):
         '''Determines the failure mode of the flange.
 
+        The ultimate shell force is evaluated for each of the failure modes
+        A, B, D and E of ref. [2], and the governing mode is the one with the
+        lowest ultimate shell force.
+
         Args:
             fy_sh (float): Yield stress of the shell material.
             fy_fl (float): Yield stress of the flange material.
-            gamma_0 (float): Material factor.
+            gamma_0 (float, optional): Material factor. Defaults to 1.1.
 
         Returns:
             tuple: A tuple containing:
+
                 - str: The failure mode ("A", "B", "D", or "E").
                 - list: A list of the shell force limits for each failure mode [Zu_A, Zu_B, Zu_D, Zu_E].
         '''
@@ -623,7 +676,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         Args:
             fy_sh (float): Yield stress of the shell material.
             fy_fl (float): Yield stress of the flange material.
-            gamma_0 (float): Material factor.
+            gamma_0 (float, optional): Material factor. Defaults to 1.1.
 
         Raises:
             ValueError: If the failure mode is not "B".
@@ -687,7 +740,11 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def bolt_preload (self):
-        ''' Bolt preload after settlment and plastic losses.'''
+        '''float: Bolt preload after settlement and plastic losses.
+
+        The preload `Fv` is reduced by the settlement loss (function of `DFT`
+        and `settlement_factor`) and by the plastic loss (`PPL * Fv`).
+        '''
         from metrum.units import um, kN
 
         # Preload losses due to settlements
@@ -1085,10 +1142,12 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
 
 class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
-    '''An L-Flange implementation of a `PolynomialFlangeSegment`.
+    '''An L-Flange segment modeled as it will be modified in IEC 61400-6 ED2.
 
-    This class models an L-flange segment using the polynomial model from
-    ref. [1] and [2], as it will be modified in IEC 61400-6 ED2.
+    This class has the same parameters and interface as `PolynomialLFlangeSegment`,
+    but it replaces the `a*` parameter, the parallel-gap closing force and the
+    gap stiffness with the formulations that will be introduced in
+    IEC 61400-6 ED2.
     '''
     
     @cached_property
@@ -1143,6 +1202,10 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     ref. [1] and [2]. It defines the reference points for the polynomial
     functions inherited from the parent class.
 
+    The transfer functions are available through the `bolt_axial_force` and
+    `bolt_bending_moment` methods, which accept either a scalar or a NumPy
+    array of shell pull forces.
+
     Attributes:
         a (float): Distance from inner flange face to bolt hole center.
         b (float): Distance from bolt hole center to shell center-line.
@@ -1162,8 +1225,8 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         G (float): Shear modulus of the flange material.
         s_ratio (float): Ratio of bottom shell thickness to `s`.
         r (float): Radius of the rounding between shell and flange.
-        k_shell (float, None): Shell stiffness. Can be a value or None to use
-            the interpolated formula.
+        k_shell (float, None): Shell stiffness [N/m/m]. Can be a value or `None`
+            to use the simplified formula of ref. [1].
     '''
 
     a: float        # distance between inner face of the flange and center of the bolt hole
@@ -1200,15 +1263,20 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     def failure_mode (self, fy_sh, fy_fl,gamma_0 = 1.1):
         '''Determines the failure mode of the flange.
 
+        The ultimate shell force is evaluated for each of the failure modes
+        A, B, D and E, and the governing mode is the one with the lowest
+        ultimate shell force.
+
         Args:
             fy_sh (float): Yield stress of the shell material.
             fy_fl (float): Yield stress of the flange material.
-            gamma_0 (float): Material factor.
+            gamma_0 (float, optional): Material factor. Defaults to 1.1.
 
         Returns:
             tuple: A tuple containing:
+
                 - str: The failure mode ("A", "B", "D", or "E").
-                - list: A list of the shell force limits for each failure mode [Zu_A, Zu_B, Zu_D, Zu_E].
+                - tuple: The shell force limits for each failure mode (Zu_A, Zu_B, Zu_D, Zu_E).
         '''
 
         from scipy.optimize import fsolve
@@ -1266,7 +1334,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         Args:
             fy_sh (float): Yield stress of the shell material.
             fy_fl (float): Yield stress of the flange material.
-            gamma_0 (float): Material factor.
+            gamma_0 (float, optional): Material factor. Defaults to 1.1.
 
         Raises:
             ValueError: If the failure mode is not "A".
@@ -1681,6 +1749,12 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_geometric_factor=1.0, mean_factor=1.0, range_factor=1.0, SMF=1.0):
     '''Evaluates the bolt Markov matrix from the shell Markov matrix.
 
+    The flange bending moment ranges and means are converted into shell pull
+    forces acting on the flange segment, and then into minimum and maximum bolt
+    stresses through the transfer functions of the flange segment. The bolt
+    stress is the sum of the axial stress and of the bending stress scaled by
+    `bending_factor`, evaluated on the bolt thread cross-section.
+
     Args:
         fseg (PolynomialFlangeSegment): The flange segment containing the
             transfer functions. **WARNING:** Currently only works with
@@ -1688,7 +1762,7 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
         flange_markov_matrix (pyflange.fatigue.MarkovMatrix): The Markov
             matrix of bending moments on the flange.
         bending_factor (float, optional): Factor for the bending portion of the total
-            stress range.
+            stress range. Defaults to 0.0 (axial stress only).
         macro_geometric_factor (float, optional): Factor for macro geometric influences,
             affecting dead weight, mean, and range values. If omitted, it defaults to 1.0.
         mean_factor (float, optional): Factor for the mean values of the tower's
@@ -1700,7 +1774,8 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
 
     Returns:
         pyflange.fatigue.MarkovMatrix: The bolt's Markov matrix representing
-            the stress history.
+            the stress history. Its cycles and duration are the same as the
+            flange Markov matrix.
     '''
     from .fatigue import MarkovMatrix
 
@@ -1734,6 +1809,8 @@ def shell_stiffness (shell_radius, shell_thickness, gap_angle):
     '''Calculates the axial stiffness of a flange-segment shell via interpolation.
 
     This function interpolates shell stiffness from a dataset of 2160 FEA results.
+    Values outside the range covered by the dataset are not extrapolated, and
+    `nan` is returned instead.
 
     Args:
         shell_radius (float): Outer radius of the shell.
@@ -1741,7 +1818,8 @@ def shell_stiffness (shell_radius, shell_thickness, gap_angle):
         gap_angle (float): Angular length of the flange gap in radians.
 
     Returns:
-        float: The interpolated shell stiffness (K_sh).
+        float: The interpolated shell stiffness (K_sh), or `nan` if the
+            arguments are outside the dataset range.
     '''
     interpolate_shell_stiffness = _load_shell_stiffness_interpolator()
     return interpolate_shell_stiffness(shell_radius, shell_thickness, gap_angle)

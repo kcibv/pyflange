@@ -17,35 +17,38 @@
 # You should have received a copy of the GNU General Public License
 # version 3 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-'''
-This module contains tools for the probabilistic analysis of flanged connections.
-In particular, three categories of tools are provided:
+'''Probability distributions and random samplers for probabilistic flange analyses.
 
-- Probability distributions for some flange properties
-- Samplers: random realization generators for flange properties
+This module contains tools for the probabilistic analysis of flanged
+connections. In particular, two categories of tools are provided:
 
-The provided probability distributions are:
+- Probability distributions for some flange properties.
+- Samplers: random realization generators for flange properties.
 
-- gap_height_distribution
+The only provided probability distribution is:
+
+- `gap_height_distribution`
 
 The samplers are just [Python generator functions](https://realpython.com/ref/glossary/generator/)
 that yield random values. Samplers can be used in a loop or to generate
 random values via the python [next](https://realpython.com/ref/builtin-functions/next/) function.
 The following *general-purpose* samplers are available:
 
-- sampler
-- norm_sampler
-- lognorm_sampler
-- fatigue_case_sampler
+- `sampler`
+- `norm_sampler`
+- `lognorm_sampler`
+- `weibull_sampler`
+- `beta_sampler`
+- `fatigue_case_sampler`
 
 The following samplers are instead specific to IEC 61400-6:2020:
 
-- standard_gap_size_sampler
-- standard_PolynomialLFlangeSegment_sampler
-- standard_markov_matrix_sampler
-- standard_bolt_fatigue_curve_sampler
+- `standard_gap_sampler`
+- `standard_PolynomialLFlangeSegment_sampler`
+- `standard_markov_matrix_sampler`
+- `standard_bolt_fatigue_curve_sampler`
 
-An example of how to use the above generator to perform a Montecarlo
+An example of how to use the above generators to perform a Montecarlo
 simulation, is given in [this example](../examples/montecarlo.md).
 
 The following references are used through this documentation:
@@ -71,25 +74,30 @@ from metrum.units import deg, MPa
 # =============================================================================
 
 def gap_height_distribution (flange_diameter, flange_flatness_tolerance, gap_length):
-    ''' Evaluates the gap heigh probability distribution according to ref. [1].
+    ''' Evaluates the gap height probability distribution according to ref. [1].
+
+    The gap height is modeled as a log-normal random variable, whose mean value
+    and coefficient of variation depend on the flange diameter, the flatness
+    tolerance and the gap length.
 
     Args:
         flange_diameter (float): The outer diameter of the flange, expressed in meters.
         flange_flatness_tolerance (float): The flatness tolerance, as defined in ref. [1],
             expressed in mm/mm (non-dimensional).
-        gap_length (float): The length of the gap, espressed in meters and measured at
+        gap_length (float): The length of the gap, expressed in meters and measured at
             the outer edge of the flange.
 
     Returns:
-        scipy.stats.lognorm: A scipy log-normal variable representing the gap height
-            stocastic variable.
+        scipy.stats.rv_frozen: A frozen SciPy log-normal distribution
+            (`scipy.stats.lognorm`) representing the gap height stochastic
+            variable, expressed in meters.
 
     Example:
-        The following example, creates a gap distribution and the calculates the 95% quantile
-        of the gap height
+        The following example creates a gap distribution and then calculates
+        the 95% quantile of the gap height.
 
         ```python
-        from pyflange.gap import gap_height_distribution
+        from pyflange.stats import gap_height_distribution
 
         D = 7.50      # Flange diameter in meters
         u = 0.0014    # Flatness tolerance (non-dimensional)
@@ -135,8 +143,8 @@ def sampler (random_variable: stats.rv_continuous):
             random variable.
 
     Yields:
-        A generator that, at every `next` call returns a random realization
-        of the passed random variable.
+        float: A random realization of the passed random variable, at every
+            `next` call.
 
     Example:
         The following example creates a Normal distribution sampler and generates
@@ -165,15 +173,15 @@ def norm_sampler (mean, cv):
         cv (float): Coefficient of variation of the normal distribution.
 
     Returns:
-        A normal distribution sampler with given mean value and
-        coefficient of variation.
+        Generator: A normal distribution sampler with given mean value and
+            coefficient of variation.
 
     Example:
         The following example creates a Normal distribution sampler and generates
         three realizations.
 
         ```py
-        samp = norm_sampler(12.0, 0.25)   # normal sampler sampler with mean 12.0
+        samp = norm_sampler(12.0, 0.25)   # normal sampler with mean 12.0
                                           # and CoV = 0.25.
 
         val1 = next(samp)   # A random value from the normal distribution
@@ -193,15 +201,15 @@ def lognorm_sampler (mean, cv):
         cv (float): Coefficient of variation of the log-normal distribution.
 
     Returns:
-        A log-normal distribution sampler with given mean value and
-        coefficient of variation.
+        Generator: A log-normal distribution sampler with given mean value
+            and coefficient of variation.
 
     Example:
         The following example creates a Log-Normal distribution sampler and
         generates three realizations.
 
         ```py
-        samp = lognorm_sampler(12.0, 0.25)  # log-normal sampler sampler with
+        samp = lognorm_sampler(12.0, 0.25)  # log-normal sampler with
                                             # mean value 12.0 and CoV = 0.25.
 
         val1 = next(samp)   # A random value from the log-normal distribution
@@ -219,20 +227,20 @@ def weibull_sampler (shape, scale=1.0):
     ''' Sampler based on a Weibull distribution.
 
     Args:
-        shape (float): Shape parameter of the weibull distribution.
-        scale (float, optional): Scale parameter of the weibull distribution.
+        shape (float): Shape parameter of the Weibull distribution.
+        scale (float, optional): Scale parameter of the Weibull distribution.
             Defaults to 1.0.
 
     Returns:
-        A Weibull distribution sampler with given scale and shape
-        parameters.
+        Generator: A Weibull distribution sampler with given scale and shape
+            parameters.
 
     Example:
         The following example creates a Weibull distribution sampler and 
         generates three realizations.
 
         ```py
-        samp = weibull_sampler(1.5, 2)  # Weibull sampler sampler with  
+        samp = weibull_sampler(1.5, 2)  # Weibull sampler with  
                                         # shape 1.5 and scale 2.0
 
         val1 = next(samp)   # A random value from the Weibull distribution
@@ -255,15 +263,15 @@ def beta_sampler (a, b, x0=0, x1=1):
             If omitted, it defaults to 1.
 
     Returns:
-        A Beta distribution sampler with given shape parameters and definition
-        interval boundaries.
+        Generator: A Beta distribution sampler with given shape parameters
+            and definition interval boundaries.
 
     Example:
         The following example creates a Beta distribution sampler and 
         generates three realizations.
 
         ```py
-        samp = beta_sampler(2, 5)  # Beta sampler sampler with  
+        samp = beta_sampler(2, 5)  # Beta sampler with  
                                    # alpha=2, beta=5, defined in [0,1].
 
         val1 = next(samp)   # A random value from the Beta distribution
@@ -280,11 +288,19 @@ def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
                           gap_height_cap = 2.0):
     ''' Sampler that generates random flange gaps according to ref. [1].
 
+    For each realization, a gap angle is drawn from `gap_angle_sampler`, the
+    gap height is then drawn from the distribution returned by
+    `gap_height_distribution` for that angle, and the gap shape factor is drawn
+    from `gap_shape_factor_sampler`. Realizations are discarded and redrawn
+    when the gap angle is not between 0 and 180 degrees, or when the gap height
+    exceeds `gap_height_cap` times the 95th percentile of its distribution.
+
     Args:
-        flange_diameter (float): The diameter of the flange.
+        flange_diameter (float): The outer diameter of the flange, in meters.
         flange_flatness_tolerance (float): The flatness tolerance in mm/mm.
-        gap_angle_sampler (Generator, optional): A sampler for the gap angle.
-            Defaults to a log-normal sampler with mean 0.1 deg and CoV = 1.0.
+        gap_angle_sampler (Generator, optional): A sampler for the gap angle,
+            in radians. Defaults to a log-normal sampler with mean 100 deg and
+            CoV = 1.0.
         gap_shape_factor_sampler (Generator, optional): A sampler for the gap shape factor.
             Defaults to a normal sampler with mean 1.0 and CoV = 0.15.
         gap_height_cap (float, optional): The generated gap height will be capped at
@@ -292,22 +308,22 @@ def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
             distribution. If omitted, it defaults to 2.0.
 
     Yields:
-        tuple: A tuple containing:
-            - gap_angle (float): Random gap angle.
-            - gap_height (float): Random gap height.
+        pyflange.flangesegments.Gap: A random gap, with random height, angle
+            and shape factor.
 
     Example:
-        The following example creates a standard gap-size sampler and generate
+        The following example creates a standard gap sampler and generates
         three realizations.
 
         ```py
-        # Gap size sampler for 7.5 m falnge with flatness tolerance 1.4 mm/m
-        samp = standard_gap_size_sampler(7.5, 0.0014)
+        # Gap sampler for a 7.5 m flange with flatness tolerance 1.4 mm/m
+        samp = standard_gap_sampler(7.5, 0.0014)
 
-        ga1, gh1 = next(samp)  # A random gap-anlge, gap-height pair
-        ga2, gh2 = next(samp)  # Another random gap-anlge, gap-height pair
-        ga3, gh3 = next(samp)  # Yet another random gap-anlge, gap-height pair
+        gap1 = next(samp)  # A random gap
+        gap2 = next(samp)  # Another random gap
+        gap3 = next(samp)  # Yet another random gap
 
+        print(gap1.height, gap1.angle, gap1.shape_factor)
         ```
     '''
     from math import pi
@@ -360,6 +376,13 @@ def standard_PolynomialLFlangeSegment_sampler (
     ):
     ''' A sampler that yields random pyflange PolynomialLFlangeSegment objects.
 
+    For each realization, a random gap and a random flange tilt are drawn, and
+    the bolt preload is sampled and averaged over the bolts affected by the gap
+    (half of the bolts subtended by the gap angle, at least one), to account
+    for the larger preload scatter at small gap angles. The returned segment
+    already includes the effect of the sampled preload losses (settlement and
+    plastic), so its `PPL` and `DFT` attributes are zero.
+
     Args:
         a (float): Distance between inner face of the flange and center of the
             bolt hole.
@@ -378,22 +401,27 @@ def standard_PolynomialLFlangeSegment_sampler (
         washer (pyflange.bolts.Washer): Bolt washer.
         nut (pyflange.bolts.Nut): Bolt nut.
         preload_sampler (Generator): Random preload sampler.
-        ppl_sampler (Generator): Percentage of pretension losses sampler.
+        ppl_sampler (Generator): Sampler of the percentage of pretension
+            losses due to plastic deformation (non-dimensional, e.g. 0.03 for 3%).
         dft_sampler (Generator): Dry film thickness sampler.
-        gap_sampler (Generator): Gap object random sampler.
-        tilt_sampler (Generator, optional): Random tilt angle sampler.
-            Defaults to lognorm_sampler(0.1*deg, 0.50).
+        gap_sampler (Generator): Sampler of `pyflange.flangesegments.Gap`
+            objects, such as `standard_gap_sampler`.
+        tilt_sampler (Generator, optional): Random tilt angle sampler. Sampled
+            angles are reduced to the interval [0, pi].
+            Defaults to `lognorm_sampler(0.1*deg, 0.50)`.
         E (float, optional): Young modulus of the flange. Defaults to 210e9.
         G (float, optional): Shear modulus of the flange. Defaults to 80.77e9.
         s_ratio (float, optional): Ratio of bottom shell thickness over s.
             Defaults to 1.0.
         r (float, optional): Rounding between flange and shell. Defaults to 0.01.
-        k_shell (str|float|None, optional): Custom shell stiffness.
-            If 'interp' (default), stiffness is interpolated.
+        k_shell (str | float | None, optional): Custom shell stiffness.
+            If `'interp'` (default), the stiffness is interpolated from the
+            tabulated FEA results, as a function of the gap angle (see
+            `pyflange.flangesegments.shell_stiffness`).
             If a number, it's used as the stiffness.
-            If None, a simplified formula is used.
+            If `None`, a simplified formula is used.
         settlement_factor (float, optional): Factor reducing the amount of bolt 
-            settlement, to be taken as 1.0 for torque tightening and 1.0 for 
+            settlement, to be taken as 1.0 for torque tightening and 0.5 for
             tension tightening. If omitted, it defaults to 1.0.
 
     Yields:
@@ -488,17 +516,20 @@ def standard_PolynomialLFlangeSegment_sampler (
 
 
 def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_CoV=0.12):
-    ''' Sampler that generates a random markov matrix according to ref [2].
+    ''' Sampler that generates a random Markov matrix according to ref [2].
+
+    Each realization has the same cycles, means and duration as the design
+    Markov matrix, while its ranges are scaled by a single log-normally
+    distributed coefficient.
 
     Args:
         markov_matrix (pyflange.fatigue.MarkovMatrix): The deterministic
             design Markov matrix.
-        mean_range_coeff (float, optional): The mean coefficient of each load
-            range, assumed log-normally-distributed with mean value
-            contained in the passed *markov_matrix* parameters. Defaults to 1.0.
-        range_CoV (float, optional): The coefficient of variation of each load
-            range, assumed log-normally-distributed with mean value
-            contained in the passed *markov_matrix* parameters. Defaults to 0.12.
+        mean_range_coeff (float, optional): The mean value of the coefficient
+            multiplying the load ranges of *markov_matrix*, assumed
+            log-normally distributed. Defaults to 1.0.
+        range_CoV (float, optional): The coefficient of variation of the
+            coefficient multiplying the load ranges. Defaults to 0.12.
 
     Yields:
         pyflange.fatigue.MarkovMatrix: A random Markov matrix.
@@ -516,15 +547,19 @@ def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_C
 
 
 def standard_bolt_fatigue_curve_sampler (bolt_nominal_diameter, mean_stress_factor=1.0, stress_factor_CoV=0.10, DS_ref_mean=62*MPa):
-    ''' Sampler that generates random bolt SN curves, according to ref. [2].
+    ''' Sampler that generates random bolt S-N curves, according to ref. [2].
+
+    The reference stress range of each curve is the product of `DS_ref_mean`
+    and a normally distributed random coefficient. The curves have no material
+    safety factor (`gamma_M = 1.0`).
 
     Args:
-        bolt_nominal_diameter (float): The nominal diameter of the bolt.
+        bolt_nominal_diameter (float): The nominal diameter of the bolt, in meters.
         mean_stress_factor (float, optional): The mean value of the fatigue class
-            coefficinet, assumed normally-distributed. Defaults to 1.
-        range_CoV (float, optional): The coefficient of variation of the fatigue
-            class, assumed normally distributed. It defaults to 0.10.
-        DS_ref_mean (float, optional); The mean value of the fatigue curve 
+            coefficient, assumed normally distributed. Defaults to 1.
+        stress_factor_CoV (float, optional): The coefficient of variation of the
+            fatigue class coefficient, assumed normally distributed. Defaults to 0.10.
+        DS_ref_mean (float, optional): The mean value of the fatigue curve
             reference stress range. If unknown it could be calculated as 1.24
             times the fatigue class. If omitted, it defaults to 62 MPa.
 
@@ -543,7 +578,8 @@ def fatigue_case_sampler (fseg_samp, markov_matrix_samp, fatigue_curve_samp, all
     ''' Sampler that generates random fatigue cases.
 
     Args:
-        fseg_samp (Generator): A `pyflange.flangesegments.FlangeSegment` sampler.
+        fseg_samp (Generator): A `pyflange.flangesegments.FlangeSegment` sampler,
+            such as `standard_PolynomialLFlangeSegment_sampler`.
         markov_matrix_samp (Generator): A `pyflange.fatigue.MarkovMatrix` sampler.
         fatigue_curve_samp (Generator): A `pyflange.fatigue.BoltFatigueCurve` sampler.
         allowable_damage_samp (Generator): A `float` sampler that generates random allowable damages.

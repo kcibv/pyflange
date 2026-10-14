@@ -29,6 +29,24 @@ and nut fastener components. In particular it provides:
 - A `HexNut` class that models generic hexagonal nuts, an `ISOHexNut` factory
   function that generates a `HexNut` with ISO 4032 dimensions, and a `RoundNut`
   factory function that generates a standard flanged nut.
+- `Bolt`, `Washer` and `Nut` base classes, and the `BoltCrossSection` helper
+  class describing a circular cross-section.
+
+Units:
+    All parameters must be supplied in a consistent system of units, e.g. meters
+    for lengths and pascals for stresses.
+
+Example:
+    The following example creates an M80 stud bolt of grade 10.9, together with
+    its standard nut, and evaluates the bolt axial stiffness.
+
+    ```python
+    from pyflange.bolts import StandardMetricBolt, RoundNut
+
+    bolt = StandardMetricBolt("M80", "10.9", shank_length=0.160, stud=True)
+    nut = RoundNut("M80")
+    k = bolt.axial_stiffness(0.35)    # axial stiffness for a 350 mm clamped length
+    ```
 """
 
 from dataclasses import dataclass
