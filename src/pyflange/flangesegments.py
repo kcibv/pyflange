@@ -951,7 +951,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         H = A @ (np.linalg.inv(B) @ C)
 
         # The last equation of the system H*M = D is h2*M = d2 and
-        # we can therefore determine M from it as d2/h2:
+        # we can therefore determine M from it as d2/h2:https://kcibv-my.sharepoint.com/:x:/g/personal/g_arona_kci_nl/IQAKaieb_blBTKSeQD2YdipAAapxRzwqZ_nRcG577qOwY-I?e=l8iviI
         M = d2 / H[1]
 
         # Return the tower shell force force corresponding to M

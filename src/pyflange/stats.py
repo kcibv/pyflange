@@ -502,7 +502,7 @@ def standard_PolynomialLFlangeSegment_sampler (
                 k_shell = np.interp(gap.angle, gap_angles, shell_stiffnesses) if k_shell=='interp' else k_shell
             )
 
-        # Averaging bolt preload over "50% of the boltvs with a gap"
+        # Averaging bolt preload over "50% of the bolts within the gap"
         # I am having a small sub-routine that randomly samples the preload over
         # half the gap angle and then takes the average of that for each simulation.
         # Then you get a larger scatter for smaller gap angles.
