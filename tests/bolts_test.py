@@ -4,6 +4,14 @@ from pyflange.bolts import *
 
 
 
+class TestBolt:
+
+    def test_subclasses (self):
+        assert issubclass(MetricBolt, Bolt)
+        assert isinstance(StandardMetricBolt("M16", "8.8"), Bolt)
+
+
+
 class TestBoltCrossSection:
 
     def test_diameter (self):
@@ -231,6 +239,25 @@ class TestMetricBolt:
 
         assert round(bolt.shank_cross_section_area, 6) == 0.000804
 
+    def test_nominal_cross_section_area (self):
+        bolt = MetricBolt(
+            nominal_diameter = 0.016,
+            thread_pitch = 0.002,
+            yield_stress = 640e6,
+            ultimate_tensile_stress = 800e6)
+
+        assert round(bolt.nominal_cross_section_area, 6) == 0.000201
+
+    def test_tensile_moment_of_resistance (self):
+        bolt = MetricBolt(
+            nominal_diameter = 0.016,
+            thread_pitch = 0.002,
+            yield_stress = 640e6,
+            ultimate_tensile_stress = 800e6)
+
+        assert bolt.tensile_moment_of_resistance == pytest.approx(bolt.thread_cross_section.elastic_section_modulus)
+        assert round(bolt.tensile_moment_of_resistance * 1e9) == 277
+
 
 
 
@@ -266,6 +293,14 @@ class TestStandardMetricBolt:
     def test_shear_modulus (self):
         bolt = StandardMetricBolt("M16", "8.8")
         assert round(bolt.shear_modulus/1e9, 2) == 80.77
+
+
+
+class TestWasher:
+
+    def test_subclasses (self):
+        assert issubclass(FlatWasher, Washer)
+        assert isinstance(ISOFlatWasher("M16"), Washer)
 
 
 
@@ -315,6 +350,15 @@ def test_ISOFlatWasher ():
     assert washer.thickness == 0.003
     assert washer.elastic_modulus == 210e9
     assert washer.poissons_ratio == 0.3
+
+
+
+class TestNut:
+
+    def test_subclasses (self):
+        assert issubclass(HexNut, Nut)
+        assert isinstance(ISOHexNut("M16"), Nut)
+        assert isinstance(RoundNut("M42"), Nut)
 
 
 

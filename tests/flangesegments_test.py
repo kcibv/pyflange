@@ -35,6 +35,117 @@ def check_validation_case (path):
 
 
 
+class TestGap:
+
+    def test_attributes (self):
+        gap = Gap(height=0.001, angle=30*deg, shape_factor=1.2)
+        assert gap.height == 0.001
+        assert gap.angle == 30*deg
+        assert gap.shape_factor == 1.2
+
+    def test_default_shape_factor (self):
+        gap = Gap(height=0.001, angle=30*deg)
+        assert gap.shape_factor == 1.0
+
+
+
+class TestFlangeSegment:
+
+    def test_abstract (self):
+        with pytest.raises(TypeError):
+            FlangeSegment()
+
+        class IncompleteFlangeSegment (FlangeSegment):
+            def bolt_axial_force (self, shell_pull):
+                return shell_pull
+
+        with pytest.raises(TypeError):
+            IncompleteFlangeSegment()
+
+    def test_concrete_subclass (self):
+        class LinearFlangeSegment (FlangeSegment):
+            def bolt_axial_force (self, shell_pull):
+                return 2*shell_pull
+            def bolt_bending_moment (self, shell_pull):
+                return 3*shell_pull
+
+        fseg = LinearFlangeSegment()
+        assert fseg.bolt_axial_force(1.0) == 2.0
+        assert fseg.bolt_bending_moment(1.0) == 3.0
+
+
+
+class TestPolynomialFlangeSegment:
+
+    class StubFlangeSegment (PolynomialFlangeSegment):
+        # Reference points of the polynomial transfer functions
+        shell_force_at_rest = 0.0
+        bolt_force_at_rest = 100.0
+        bolt_moment_at_rest = 1.0
+        shell_force_at_small_displacement = 10.0
+        bolt_force_at_small_displacement = 110.0
+        bolt_moment_at_small_displacement = 2.0
+        shell_force_at_tensile_ULS = 100.0
+        bolt_force_at_tensile_ULS = 300.0
+        bolt_moment_at_tensile_ULS = 30.0
+        shell_force_at_closed_gap = -50.0
+
+    def test_abstract (self):
+        with pytest.raises(TypeError):
+            PolynomialFlangeSegment()
+
+    def test_bolt_axial_force (self):
+        fseg = self.StubFlangeSegment()
+
+        # The tensile branch passes through the points P1, P3 and P2
+        assert fseg.bolt_axial_force(0.0) == pytest.approx(100.0)
+        assert fseg.bolt_axial_force(10.0) == pytest.approx(110.0)
+        assert fseg.bolt_axial_force(100.0) == pytest.approx(300.0)
+
+        # The compressive branch is tangent to the tensile branch in P1
+        # and has zero slope in P4.
+        dZ = 1e-6
+        tens_slope = (fseg.bolt_axial_force(dZ) - fseg.bolt_axial_force(0.0)) / dZ
+        comp_slope = (fseg.bolt_axial_force(0.0) - fseg.bolt_axial_force(-dZ)) / dZ
+        assert comp_slope == pytest.approx(tens_slope, rel=1e-4)
+        assert (fseg.bolt_axial_force(-50.0+dZ) - fseg.bolt_axial_force(-50.0)) / dZ == pytest.approx(0.0, abs=1e-4)
+
+        # The force is constant below P4
+        Fs4 = fseg.bolt_axial_force(-50.0)
+        assert Fs4 < 100.0
+        assert fseg.bolt_axial_force(-60.0) == pytest.approx(Fs4)
+        assert fseg.bolt_axial_force(-1e6) == pytest.approx(Fs4)
+
+        # Array input
+        Z = np.array([-1e6, -50.0, 0.0, 10.0, 100.0])
+        np.testing.assert_allclose(fseg.bolt_axial_force(Z), [Fs4, Fs4, 100.0, 110.0, 300.0])
+
+    def test_bolt_bending_moment (self):
+        fseg = self.StubFlangeSegment()
+
+        # The tensile branch passes through the points P1, P3 and P2
+        assert fseg.bolt_bending_moment(0.0) == pytest.approx(1.0)
+        assert fseg.bolt_bending_moment(10.0) == pytest.approx(2.0)
+        assert fseg.bolt_bending_moment(100.0) == pytest.approx(30.0)
+
+        # The compressive branch is tangent to the tensile branch in P1
+        # and has zero slope in P4.
+        dZ = 1e-6
+        tens_slope = (fseg.bolt_bending_moment(dZ) - fseg.bolt_bending_moment(0.0)) / dZ
+        comp_slope = (fseg.bolt_bending_moment(0.0) - fseg.bolt_bending_moment(-dZ)) / dZ
+        assert comp_slope == pytest.approx(tens_slope, rel=1e-4)
+        assert (fseg.bolt_bending_moment(-50.0+dZ) - fseg.bolt_bending_moment(-50.0)) / dZ == pytest.approx(0.0, abs=1e-4)
+
+        # The moment is constant below P4
+        Ms4 = fseg.bolt_bending_moment(-50.0)
+        assert fseg.bolt_bending_moment(-1e6) == pytest.approx(Ms4)
+
+        # Array input
+        Z = np.array([-1e6, -50.0, 0.0, 10.0, 100.0])
+        np.testing.assert_allclose(fseg.bolt_bending_moment(Z), [Ms4, Ms4, 1.0, 2.0, 30.0])
+
+
+
 class TestPolynomialLFlangeSegment:
 
     def fseg (self, gap_angle=30*deg, gap_shape_factor=1.0, tilt_angle=0.0, PPL=0.05, DFT=300e-6, settlfac=0.50):
@@ -342,9 +453,71 @@ class TestPolynomialLFlangeSegment:
         assert fm == "B"
 
 
+    def test_validate (self):
+        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
+        fseg.validate(335e6, 285e6)     # failure mode B: no error
+
+        fseg.failure_mode = lambda *args, **kwargs: ("A", [])
+        with pytest.raises(ValueError):
+            fseg.validate(335e6, 285e6)
+
+
     @pytest.mark.parametrize("path", validation_cases("L"), ids=os.path.basename)
     def test_validation_cases (self, path):
         check_validation_case(path)
+
+
+
+class TestPolynomialLFlangeSegmentED2:
+
+    def fseg (self, gap_angle=30*deg, **kwargs):
+        from dataclasses import fields
+        fseg = TestPolynomialLFlangeSegment().fseg(gap_angle, **kwargs)
+        return PolynomialLFlangeSegmentED2(**{f.name: getattr(fseg, f.name) for f in fields(fseg)})
+
+    def test_inheritance (self):
+        fseg = self.fseg()
+        assert isinstance(fseg, PolynomialLFlangeSegment)
+
+    def test_a_star (self):
+        fseg = self.fseg()
+        a_red = fseg._a_red
+        assert fseg._a_star == pytest.approx(max(0.3, min((fseg.t / (a_red + fseg.b))**2, 1)) * a_red)
+
+    def test_gap_stiffness (self):
+        for gap_angle in (20*deg, 30*deg, 60*deg, 120*deg):
+            fseg = self.fseg(gap_angle)
+            f_tot = min(1.4 + 0.6 * gap_angle/(pi/2), 2.0) * min(gap_angle/(pi/6), 1)**2
+            assert fseg._gap_stiffness == pytest.approx(f_tot * fseg._k_shell + fseg._k_flange)
+
+    def test_parallel_gap_neutralization_shell_force (self):
+        for gap_angle in (30*deg, 60*deg, 120*deg):
+            fseg = self.fseg(gap_angle)
+            s_avg = fseg.s * (1 + fseg.s_ratio) / 2
+            c = fseg.central_angle * (fseg.R - s_avg/2)
+            base_force = -0.5 * fseg._gap_stiffness * fseg.gap.height * c
+
+            # The ED2 correction factor is between 1.0 and 1.5
+            f_kgap = fseg._parallel_gap_neutralization_shell_force / base_force
+            assert 1.0 <= f_kgap <= 1.5
+
+    def test_bolt_axial_force (self):
+        fseg = self.fseg()
+        assert fseg.bolt_axial_force(fseg.shell_force_at_rest) == pytest.approx(fseg.bolt_force_at_rest)
+        assert fseg.bolt_axial_force(fseg.shell_force_at_small_displacement) == pytest.approx(fseg.bolt_force_at_small_displacement)
+        assert fseg.bolt_axial_force(fseg.shell_force_at_tensile_ULS) == pytest.approx(fseg.bolt_force_at_tensile_ULS)
+
+    def test_bolt_bending_moment (self):
+        fseg = self.fseg()
+        assert fseg.bolt_bending_moment(fseg.shell_force_at_rest) == pytest.approx(fseg.bolt_moment_at_rest)
+        assert fseg.bolt_bending_moment(fseg.shell_force_at_small_displacement) == pytest.approx(fseg.bolt_moment_at_small_displacement)
+        assert fseg.bolt_bending_moment(fseg.shell_force_at_tensile_ULS) == pytest.approx(fseg.bolt_moment_at_tensile_ULS)
+
+    def test_shell_force_at_closed_gap (self):
+        # The ED2 gap closing force differs from the ED1 one
+        fseg_ed1 = TestPolynomialLFlangeSegment().fseg(30*deg)
+        fseg_ed2 = self.fseg(30*deg)
+        assert fseg_ed2.shell_force_at_closed_gap != pytest.approx(fseg_ed1.shell_force_at_closed_gap)
 
 
 
@@ -655,15 +828,150 @@ class TestPolynomialTFlangeSegment:
         assert fm == "A"
 
 
+    def test_validate (self):
+        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
+        fseg.validate(335e6, 285e6)     # failure mode A: no error
+
+        fseg.failure_mode = lambda *args, **kwargs: ("B", [])
+        with pytest.raises(ValueError):
+            fseg.validate(335e6, 285e6)
+
+
     @pytest.mark.parametrize("path", validation_cases("T"), ids=os.path.basename)
     def test_validation_cases (self, path):
         check_validation_case(path)
 
 
 
+def test_bolt_markov_matrix ():
+    from pyflange.fatigue import MarkovMatrix
+
+    # Create a test flange segment
+    D = 7.5
+    Nb = 120
+    gap_angle = 30*deg
+
+    fseg = PolynomialLFlangeSegment(
+
+        a = 0.2325,         # distance between inner face of the flange and center of the bolt hole
+        b = 0.1665,         # distance between center of the bolt hole and center-line of the shell
+        s = 0.0720,         # shell thickness
+        t = 0.2000,         # flange thickness
+        R = D/2,            # shell outer curvature radius
+        central_angle = 2*pi/Nb,    # angle subtended by the flange segment arc
+
+        Zg = -14795000/Nb,  # load applied to the flange segment shell at rest
+                            # (normally dead weight of tower + RNA, divided by the number of bolts)
+
+        bolt = MetricBolt(
+            nominal_diameter = 0.080,
+            thread_pitch = 0.006,
+            shank_diameter_ratio = 76.1/80,
+            shank_length = 0.270,
+            yield_stress = 900e6,
+            ultimate_tensile_stress = 1000e6,
+            stud = True),
+        Fv = 2800000,        # applied bolt preload
+
+        Do = 0.086,     # bolt hole diameter
+        washer = None,    # no washer diameter
+        nut = HexNut(
+            nominal_diameter = 0.080,
+            thickness = 0.064,
+            inscribed_diameter = 0.115,
+            circumscribed_diameter = 0.1275,
+            bearing_diameter = 0.140),
+
+        tilt_angle = 0.0,
+
+        gap = Gap(height = gap_height_distribution(D, 0.0014, gap_angle*D/2).ppf(0.95),   # maximum longitudinal gap height
+                  angle = gap_angle,  # longitudinal gap length
+                  shape_factor = 1.0),
+
+        s_ratio = 100/72)        # ratio of bottom shell thickness over tower shell thickness
+
+    #Flange Geometry
+    Rm = fseg.R - fseg.s/2
+    flange_W = pi/4 * (fseg.R**4 - (fseg.R-fseg.s)**4) / Rm
+    shell_A = fseg.s * fseg.central_angle * Rm
+
+    # Bolt Geometry
+    bolt_A = fseg.bolt.thread_cross_section.area
+    bolt_W = fseg.bolt.thread_cross_section.elastic_section_modulus
+
+    # Create a test flange makov matrix
+    mkv_flng = MarkovMatrix(
+            range = np.array([100, 200, 300]),
+            mean = np.array([400, 500 ,600]),
+            cycles = np.array([0.1, 0.2, 0.3])*1e6,
+            duration=1)
+
+    # Create the bolt markov matrix
+    mkv_bolt = bolt_markov_matrix(fseg, mkv_flng)
+
+    # Verify that the bolt cycles are the same as the flange cycles
+    np.testing.assert_array_equal(mkv_flng.cycles, mkv_bolt.cycles)
+
+    # Verify that the bolt load duration is the same as the flange load duration
+    assert mkv_bolt.duration == mkv_flng.duration
+
+    # Markov matrix of Z
+    Z_mean   = mkv_flng.mean / flange_W * shell_A
+    Z_ranges = mkv_flng.range / flange_W * shell_A
+    assert round(Z_ranges[0], 3) == 0.449
+    assert round(Z_ranges[1], 3) == 0.897
+    assert round(Z_ranges[2], 3) == 1.346
+    assert round(Z_mean[0], 3) == 1.795
+    assert round(Z_mean[1], 3) == 2.244
+    assert round(Z_mean[2], 3) == 2.692
+    Z_min = Z_mean - Z_ranges/2 + fseg.Zg
+    Z_max = Z_mean + Z_ranges/2 + fseg.Zg
+
+    # Bolt markov matrix
+    S_min = fseg.bolt_axial_force(Z_min)/bolt_A
+    S_max = fseg.bolt_axial_force(Z_max)/bolt_A
+    np.testing.assert_array_equal(mkv_bolt.mean, (S_min + S_max)/2)
+    np.testing.assert_array_equal(mkv_bolt.range, S_max - S_min)
+
+    # Bending factor and stress multiplication factor
+    mkv_bolt = bolt_markov_matrix(fseg, mkv_flng, bending_factor=0.5, SMF=1.2)
+    S_min = fseg.bolt_axial_force(Z_min)/bolt_A + 0.5*fseg.bolt_bending_moment(Z_min)/bolt_W
+    S_max = fseg.bolt_axial_force(Z_max)/bolt_A + 0.5*fseg.bolt_bending_moment(Z_max)/bolt_W
+    np.testing.assert_allclose(mkv_bolt.mean, (S_min + S_max)/2)
+    np.testing.assert_allclose(mkv_bolt.range, 1.2*np.abs(S_max - S_min))
+
+    # Mean, range and macro-geometric factors
+    mkv_bolt = bolt_markov_matrix(fseg, mkv_flng, macro_geometric_factor=1.1, mean_factor=0.9, range_factor=1.3)
+    Z_mean   = mkv_flng.mean / flange_W * shell_A * 0.9 * 1.1
+    Z_ranges = mkv_flng.range / flange_W * shell_A * 1.3 * 1.1
+    Z_min = Z_mean - Z_ranges/2 + fseg.Zg * 1.1
+    Z_max = Z_mean + Z_ranges/2 + fseg.Zg * 1.1
+    S_min = fseg.bolt_axial_force(Z_min)/bolt_A
+    S_max = fseg.bolt_axial_force(Z_max)/bolt_A
+    np.testing.assert_allclose(mkv_bolt.mean, (S_min + S_max)/2)
+    np.testing.assert_allclose(mkv_bolt.range, np.abs(S_max - S_min))
+
+
+
 def test_shell_stiffness ():
-    pass
     assert shell_stiffness(1.5, 0.01, 135*deg) == 83000000
+
+    # No extrapolation outside the dataset range
+    assert isnan(shell_stiffness(1000.0, 0.01, 135*deg))
+
+
+
+def test_load_shell_stiffness_interpolator ():
+    from pyflange.flangesegments import _load_shell_stiffness_interpolator
+    from scipy.interpolate import LinearNDInterpolator
+
+    interp = _load_shell_stiffness_interpolator()
+    assert isinstance(interp, LinearNDInterpolator)
+
+    # The interpolator is cached
+    assert _load_shell_stiffness_interpolator() is interp
+
+    assert interp(1.5, 0.01, 135*deg) == shell_stiffness(1.5, 0.01, 135*deg)
 
 
 
