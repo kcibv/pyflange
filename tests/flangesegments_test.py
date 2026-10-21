@@ -7,6 +7,32 @@ from metrum.units import deg
 from math import *
 import numpy as np
 
+import os
+import sys
+import json
+import glob
+
+VALIDATIONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "validations")
+sys.path.insert(0, VALIDATIONS_DIR)
+from validate import validate
+
+
+def validation_cases (flange_type):
+    '''Paths of the validation case files in validations/references for the given flange type ("L" or "T").'''
+    paths = []
+    for path in sorted(glob.glob(os.path.join(VALIDATIONS_DIR, "references", "*.json"))):
+        with open(path, encoding="utf-8") as f:
+            if json.load(f)["segment"]["flange_type"] == flange_type:
+                paths.append(path)
+    return paths
+
+
+def check_validation_case (path):
+    failures = [c for c in validate(path) if not c["pass"]]
+    assert not failures, f"{len(failures)} failed comparisons in {os.path.basename(path)}:\n" + "\n".join(
+        f"    gap {c['gap_angle']} deg, {c['parameter']}: expected {c['expected']:.6g}, obtained {c['obtained']:.6g}, "
+        f"mismatch {c['mismatch']:+.3%} (allowable {c['allowable_mismatch']:.2%})" for c in failures)
+
 
 
 class TestPolynomialLFlangeSegment:
@@ -316,6 +342,11 @@ class TestPolynomialLFlangeSegment:
         assert fm == "B"
 
 
+    @pytest.mark.parametrize("path", validation_cases("L"), ids=os.path.basename)
+    def test_validation_cases (self, path):
+        check_validation_case(path)
+
+
 
 class TestPolynomialTFlangeSegment:
 
@@ -622,6 +653,11 @@ class TestPolynomialTFlangeSegment:
         fseg = self.fseg(30*deg, 1.0, 0.0*deg)
         fm, Zus = fseg.failure_mode(335e6, 285e6)
         assert fm == "A"
+
+
+    @pytest.mark.parametrize("path", validation_cases("T"), ids=os.path.basename)
+    def test_validation_cases (self, path):
+        check_validation_case(path)
 
 
 

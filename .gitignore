@@ -171,3 +171,6 @@ src/pyflange/_forrester.py
 .aider*
 *.repomix.md
 CLAUDE.md
+
+# Validation results exported to Excel (py validations/validate.py validations/references/*.json --excel)
+validations/results/
