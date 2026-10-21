@@ -41,6 +41,14 @@
                 <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
                 </li>
               </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../cli/">Command-line interface</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../json-format/">JSON case format</a>
+                </li>
+              </ul>
               <p class="caption"><span class="caption-text">API's</span></p>
               <ul class="current">
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">bolts</a>
@@ -117,6 +125,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.StandardMetricBolt">StandardMetricBolt</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.bolts.standard_hole_diameter">standard_hole_diameter</a>
+    </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../flangesegments/">flangesegments</a>
@@ -124,6 +134,8 @@
                   <li class="toctree-l1"><a class="reference internal" href="../fatigue/">fatigue</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../stats/">stats</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../io/">io</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Deprecated API's</span></p>
@@ -179,13 +191,35 @@ and nut fastener components. In particular it provides:</p>
 <li>A <code>MetricBolt</code> class that models generic bolts with metric screw threads and a
   <code>StandardMetricBolt</code> factory function that generates <code>MetricBolt</code> objects with
   standard properties.</li>
+<li>A <code>standard_hole_diameter</code> function returning the standard clearance hole
+  diameter of a metric bolt.</li>
 <li>A <code>FlatWasher</code> class that models generic flat washers and an <code>ISOFlatWasher</code>
   factory function that returns a <code>FlatWasher</code> with ISO 7089 standard dimensions.</li>
 <li>A <code>HexNut</code> class that models generic hexagonal nuts, an <code>ISOHexNut</code> factory
   function that generates a <code>HexNut</code> with ISO 4032 dimensions, and a <code>RoundNut</code>
   factory function that generates a standard flanged nut.</li>
+<li><code>Bolt</code>, <code>Washer</code> and <code>Nut</code> base classes, and the <code>BoltCrossSection</code> helper
+  class describing a circular cross-section.</li>
 </ul>
 
+
+<details class="units" open>
+  <summary>Units</summary>
+  <p>All parameters must be supplied in a consistent system of units, e.g. meters
+for lengths and pascals for stresses.</p>
+</details>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <p>The following example creates an M80 stud bolt of grade 10.9, together with
+its standard nut, and evaluates the bolt axial stiffness.</p>
+<pre><code class="language-python">from pyflange.bolts import StandardMetricBolt, RoundNut
+
+bolt = StandardMetricBolt(&quot;M80&quot;, &quot;10.9&quot;, shank_length=0.160, stud=True)
+nut = RoundNut(&quot;M80&quot;)
+k = bolt.axial_stiffness(0.35)    # axial stiffness for a 350 mm clamped length
+</code></pre>
+</details>
 
 
 
@@ -1754,13 +1788,16 @@ Defaults to 0.0.</p>
             </li>
             <li>
               <b><code>shank_diameter_ratio</code></b>
-                  (<code><span title="float">float</span></code>, default:
+                  (<code><span title="float">float</span> | <span title="str">str</span></code>, default:
                       <code>1.0</code>
 )
               –
               <div class="doc-md-description">
-                <p>Ratio between the shank diameter
-and the bolt nominal diameter. Defaults to 1.0.</p>
+                <p>Ratio between the shank
+diameter and the bolt nominal diameter. If it is the string
+<code>"pitch"</code>, the shank diameter is taken equal to the thread basic
+pitch diameter (ISO 724), as is common for reduced-shank stud bolts.
+Defaults to 1.0.</p>
               </div>
             </li>
             <li>
@@ -1802,6 +1839,111 @@ Defaults to False.</p>
   </tbody>
 </table>
 
+<details class="example" open>
+  <summary>Example</summary>
+  <pre><code class="language-python"># M80 stud bolt whose shank diameter equals the thread pitch diameter
+bolt = StandardMetricBolt(&quot;M80&quot;, &quot;10.9&quot;, shank_length=0.160,
+                          shank_diameter_ratio=&quot;pitch&quot;, stud=True)
+</code></pre>
+</details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.bolts.standard_hole_diameter" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">standard_hole_diameter</span><span class="p">(</span><span class="n">designation</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return the standard clearance hole diameter for a metric bolt.</p>
+<p>The values are tabulated in the <code>bolts.metric_screws</code> database for the
+sizes 'M8', 'M10', 'M12', 'M16', 'M20', 'M24', 'M30', 'M36', 'M42', 'M48',
+'M56', 'M64', 'M72' and 'M80'.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>designation</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Metric screw thread designation (e.g. "M80").</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>float</code></b>              –
+              <div class="doc-md-description">
+                <p>The clearance hole diameter, in meters (e.g. 0.086 for "M80").</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="KeyError">KeyError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If no standard hole diameter is available for the given
+designation.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <pre><code class="language-python">Do = standard_hole_diameter(&quot;M80&quot;)    # 0.086 m
+</code></pre>
+</details>
+
     </div>
 
 </div>
@@ -1817,7 +1959,7 @@ Defaults to False.</p>
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../.." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../json-format/" class="btn btn-neutral float-left" title="JSON case format"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../flangesegments/" class="btn btn-neutral float-right" title="flangesegments">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
@@ -1841,7 +1983,7 @@ Defaults to False.</p>
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../.." style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../../json-format/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../flangesegments/" style="color: #fcfcfc">Next &raquo;</a></span>

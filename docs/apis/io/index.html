@@ -1,0 +1,2859 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>io - PyFlange Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "io";
+        var mkdocs_page_input_path = "apis\\io.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../..">
+          <img src="../../assets/logo.svg" class="logo" alt="Logo"/>
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../cli/">Command-line interface</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../json-format/">JSON case format</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API's</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../bolts/">bolts</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../flangesegments/">flangesegments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fatigue/">fatigue</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../stats/">stats</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">io</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.DEFAULT_FLANGE_SEGMENT_TYPE">DEFAULT_FLANGE_SEGMENT_TYPE</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.FLANGE_SEGMENT_TYPES">FLANGE_SEGMENT_TYPES</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.FORMAT_VERSION">FORMAT_VERSION</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.LEGACY_DS_REF_MEAN">LEGACY_DS_REF_MEAN</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.SAMPLE_COLUMNS">SAMPLE_COLUMNS</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.SUPPORTED_FORMAT_VERSIONS">SUPPORTED_FORMAT_VERSIONS</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.bolt_to_dict">bolt_to_dict</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.create_bolt">create_bolt</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.create_distribution">create_distribution</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.create_fatiguecase">create_fatiguecase</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.create_fatiguecase_sampler">create_fatiguecase_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.create_fatiguecurve">create_fatiguecurve</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.create_flangesegment">create_flangesegment</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.create_gap_sampler">create_gap_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.create_markovmatrix">create_markovmatrix</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.create_nut">create_nut</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.create_realization">create_realization</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.create_sampler">create_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.create_washer">create_washer</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.dict_to_excel">dict_to_excel</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.dict_to_json">dict_to_json</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.fatiguecase_to_dict">fatiguecase_to_dict</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.fatiguecurve_to_dict">fatiguecurve_to_dict</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.flangesegment_to_dict">flangesegment_to_dict</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.format_version">format_version</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.gap_to_dict">gap_to_dict</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.load_fatiguecase">load_fatiguecase</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.load_fatiguecase_sampler">load_fatiguecase_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.load_inputfile">load_inputfile</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.markovmatrix_to_dict">markovmatrix_to_dict</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.nut_to_dict">nut_to_dict</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.sample_fatiguecase">sample_fatiguecase</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.upgrade_case">upgrade_case</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.io.washer_to_dict">washer_to_dict</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Deprecated API's</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../gap/">gap</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Examples</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/montecarlo/">Montecarlo Simulation</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">PyFlange Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">API's</li>
+      <li class="breadcrumb-item active">io</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<h1 id="pyflange.io" class="doc doc-heading">
+            <code>pyflange.io</code>
+
+
+</h1>
+
+    <div class="doc doc-contents first">
+
+        <p>Reading and writing flange fatigue cases in the PyFlange JSON format.</p>
+<p>This module implements the PyFlange JSON case format, documented in detail in
+the <a href="../../json-format/">JSON format reference</a>. In particular it provides:</p>
+<ul>
+<li>Loaders, that convert a JSON case file (or the equivalent dictionary) into
+  PyFlange objects: <code>load_fatiguecase</code>, <code>load_fatiguecase_sampler</code> and the
+  lower-level <code>create_*</code> functions.</li>
+<li>Exporters, that convert PyFlange objects back into dictionaries in the same
+  format (<code>*_to_dict</code> functions) and write dictionaries to JSON or Excel files
+  (<code>dict_to_json</code>, <code>dict_to_excel</code>).</li>
+<li>Monte Carlo helpers: <code>sample_fatiguecase</code>, that runs a simulation and returns
+  a table of realizations, and <code>create_realization</code>, that rebuilds a single
+  realization from that table.</li>
+</ul>
+
+
+<details class="format-versions" open>
+  <summary>Format versions</summary>
+  <p>The current format version is <code>0.2.0</code> (<code>FORMAT_VERSION</code>). Files without a
+<code>format_version</code> field are assumed to be version <code>0.1.0</code> (the format used
+by the former Forrester tool) and are upgraded on the fly by
+<code>upgrade_case</code>, so they keep producing the same results.</p>
+</details>
+
+<details class="units" open>
+  <summary>Units</summary>
+  <p>All values are expressed in SI units (m, N, Pa, rad), except where stated
+otherwise in the format reference.</p>
+</details>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <pre><code class="language-python">from pyflange.io import load_fatiguecase, fatiguecase_to_dict, dict_to_json
+
+fcase = load_fatiguecase(&quot;case.json&quot;)       # a BoltFatigueAnalysis object
+print(fcase.damage, fcase.fatigue_life)
+
+dict_to_json(fatiguecase_to_dict(fcase, verbose=True), &quot;case-res.json&quot;)
+</code></pre>
+</details>
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="pyflange.io.DEFAULT_FLANGE_SEGMENT_TYPE" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">DEFAULT_FLANGE_SEGMENT_TYPE</span> <span class="o">=</span> <span class="s1">&#39;PolynomialLFlangeSegment&#39;</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>str: The flange segment type used when <code>FlangeSegment.type</code> is omitted
+(IEC 61400-6 AMD1 model).</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="pyflange.io.FLANGE_SEGMENT_TYPES" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">FLANGE_SEGMENT_TYPES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;PolynomialLFlangeSegment&#39;</span><span class="p">,</span> <span class="s1">&#39;PolynomialLFlangeSegmentED2&#39;</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>tuple: The flange segment types supported by the JSON format.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="pyflange.io.FORMAT_VERSION" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">FORMAT_VERSION</span> <span class="o">=</span> <span class="s1">&#39;0.2.0&#39;</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>str: The version of the JSON format written by this module.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="pyflange.io.LEGACY_DS_REF_MEAN" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">LEGACY_DS_REF_MEAN</span> <span class="o">=</span> <span class="mf">62000000.0</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>float: Mean fatigue reference stress range implicitly used by format 0.1.0
+samplers, in Pa. Format 0.1.0 files get it assigned when upgraded.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="pyflange.io.SAMPLE_COLUMNS" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">SAMPLE_COLUMNS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BoltPreload&#39;</span><span class="p">,</span> <span class="s1">&#39;GapShapeFactor&#39;</span><span class="p">,</span> <span class="s1">&#39;TiltAngle&#39;</span><span class="p">,</span> <span class="s1">&#39;GapAngle&#39;</span><span class="p">,</span> <span class="s1">&#39;GapHeight&#39;</span><span class="p">,</span> <span class="s1">&#39;FatigueClass&#39;</span><span class="p">,</span> <span class="s1">&#39;MomentRangeCoefficient&#39;</span><span class="p">,</span> <span class="s1">&#39;Damage&#39;</span><span class="p">,</span> <span class="s1">&#39;AllowableDamage&#39;</span><span class="p">,</span> <span class="s1">&#39;FatigueLife&#39;</span><span class="p">,</span> <span class="s1">&#39;SMF&#39;</span><span class="p">,</span> <span class="s1">&#39;Utilization&#39;</span><span class="p">]</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>list: The columns of the table returned by <code>sample_fatiguecase</code>.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="pyflange.io.SUPPORTED_FORMAT_VERSIONS" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">SUPPORTED_FORMAT_VERSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;0.1.0&#39;</span><span class="p">,</span> <span class="s1">&#39;0.2.0&#39;</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>tuple: The JSON format versions that this module can read.</p>
+
+    </div>
+
+</div>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.bolt_to_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bolt_to_dict</span><span class="p">(</span><span class="n">bolt</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Converts a bolt object to a dictionary in the JSON format.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>bolt</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="MetricBolt
+
+
+  
+      dataclass
+   (pyflange.bolts.MetricBolt)" href="../bolts/#pyflange.bolts.MetricBolt">MetricBolt</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>The bolt object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>dict</code></b>              –
+              <div class="doc-md-description">
+                <p>The bolt parameters, with type <code>"MetricBolt"</code>.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the bolt type is not supported.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.create_bolt" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_bolt</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a bolt object from a dictionary of parameters.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>**params</code></b>
+              –
+              <div class="doc-md-description">
+                <p>The bolt parameters. The <code>type</code> key selects the bolt
+kind: <code>"StandardMetricBolt"</code> (keys <code>designation</code>, <code>material_grade</code>,
+<code>shank_length</code>, <code>shank_diameter_ratio</code>, <code>stud</code>) or <code>"MetricBolt"</code>
+(keys <code>nominal_diameter</code>, <code>thread_pitch</code>, <code>yield_stress</code>,
+<code>ultimate_tensile_stress</code>, <code>elastic_modulus</code>, <code>poissons_ratio</code>,
+<code>shank_length</code>, <code>shank_diameter_ratio</code>, <code>stud</code>).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>pyflange.bolts.MetricBolt: The bolt object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the bolt type is not supported.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.create_distribution" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_distribution</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a scipy distribution from a dictionary of parameters.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>**params</code></b>
+              –
+              <div class="doc-md-description">
+                <p>Distribution parameters. The <code>Distribution</code> key selects
+the distribution kind:</p>
+<ul>
+<li><code>"Normal"</code>: keys <code>Mean</code>, <code>CoV</code>.</li>
+<li><code>"LogNormal"</code>: keys <code>Mean</code>, <code>CoV</code>.</li>
+<li><code>"Weibull"</code>: keys <code>Shape</code>, <code>Scale</code>.</li>
+<li><code>"Beta"</code>: keys <code>Alpha</code>, <code>Beta</code> and optionally <code>x0</code>, <code>x1</code>
+  (bounds of the definition interval, default 0 and 1).</li>
+</ul>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>scipy.stats.rv_frozen: A frozen scipy continuous distribution.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If an unsupported distribution type is provided.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.create_fatiguecase" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_fatiguecase</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">SMF</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a BoltFatigueAnalysis object from a case dictionary.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+                  (<code><span title="dict">dict</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>A case dictionary, in any supported format version.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>SMF</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Stress multiplication factor. If omitted, the
+<code>SMF</code> value of the case is used, or 1.0 if the case has none.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>pyflange.fatigue.BoltFatigueAnalysis: The fatigue analysis object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.create_fatiguecase_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_fatiguecase_sampler</span><span class="p">(</span><span class="n">fseg</span><span class="p">,</span> <span class="n">markov_matrix</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a sampler of random fatigue cases.</p>
+<p>The random flange segments are of the same type as <code>fseg</code> and share its
+deterministic parameters. Their shell stiffness is always interpolated
+from the FEA data (see <code>pyflange.flangesegments.shell_stiffness</code>) as a
+function of the random gap angle.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>fseg</code></b>
+                  (<code><span title="PolynomialLFlangeSegment">PolynomialLFlangeSegment</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The base flange segment object.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>markov_matrix</code></b>
+                  (<code><span title="MarkovMatrix">MarkovMatrix</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The base Markov matrix object.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>**params</code></b>
+              –
+              <div class="doc-md-description">
+                <p>Statistical parameters (<code>Stats</code> section, current format
+version), for preload, plastic loss, DFT, gap, tilt, load range
+factor, fatigue class factor, allowable damage and stress
+multiplication factor.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>Generator</code></b>              –
+              <div class="doc-md-description">
+                <p>A generator that yields randomized BoltFatigueAnalysis objects.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If an unsupported distribution type is provided for any
+parameter.</p>
+              </div>
+            </li>
+            <li>
+                  <code><span title="KeyError">KeyError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If a required parameter is missing.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.create_fatiguecurve" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_fatiguecurve</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a fatigue curve object from a dictionary of parameters.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>**params</code></b>
+              –
+              <div class="doc-md-description">
+                <p>Fatigue curve parameters (<code>BoltFatigueCurve</code> section). The
+optional <code>type</code> key selects the curve kind:</p>
+<ul>
+<li><code>"BoltFatigueCurve"</code> (default): keys <code>BoltNominalDiameter</code>,
+  <code>DS_ref</code>, <code>gamma_M</code>.</li>
+<li><code>"SingleSlopeFatigueCurve"</code>: keys <code>m</code>, <code>DS_ref</code>, <code>N_ref</code>.</li>
+<li><code>"DoubleSlopeFatigueCurve"</code>: keys <code>m1</code>, <code>m2</code>, <code>DS_ref</code>, <code>N_ref</code>,
+  where <code>DS_ref</code> and <code>N_ref</code> define the knee point.</li>
+</ul>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>pyflange.fatigue.FatigueCurve: The fatigue curve object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the curve type is not supported.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.create_flangesegment" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_flangesegment</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a flange segment from a dictionary of parameters.</p>
+<p>Given a dictionary containing the parameters for a flange segment object
+in the PyFlange JSON format (<code>FlangeSegment</code> section), returns the
+corresponding flange segment. Only L-flange segments are supported.</p>
+<p>The bolt preload is given either as <code>preload_ratio</code> (fraction of the bolt
+tensile yield force, <code>As * fy</code>) or as an absolute force <code>Fv</code>, but not both.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>**params</code></b>
+              –
+              <div class="doc-md-description">
+                <p>Flange segment parameters. Expected keys are 'a', 'b', 's',
+'t', 'R', 'central_angle', 'Zg', 'bolt', 'preload_ratio' or 'Fv',
+'Do', 'washer', 'nut', 'gap', 'tilt_angle', 'E', 'G', 's_ratio',
+'r', 'k_shell', 'PPL', 'DFT', 'settlement_factor' and, optionally,
+'type' (default <code>DEFAULT_FLANGE_SEGMENT_TYPE</code>). Other keys are
+ignored.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>PolynomialLFlangeSegment</code></b>              –
+              <div class="doc-md-description">
+                <p>The flange segment object (possibly a
+<code>PolynomialLFlangeSegmentED2</code>).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If an unsupported type is provided, or if the preload is
+not specified exactly once.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.create_gap_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_gap_sampler</span><span class="p">(</span><span class="n">flange_diameter</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a random gap sampler from a dictionary of parameters.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>flange_diameter</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The outer diameter of the flange.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>**params</code></b>
+              –
+              <div class="doc-md-description">
+                <p>Gap sampler parameters (<code>Stats.Gap</code> section). The
+<code>JointDistribution</code> key selects the kind of sampler:</p>
+<ul>
+<li><code>"IEC 61400-6:2020 AMD1"</code>: keys <code>FlatnessTolerance</code>, <code>Angle</code>
+  (distribution), <code>ShapeFactor</code> (distribution).</li>
+<li><code>"IEC 61400-6:2020 ED2"</code>: key <code>FlatnessTolerance</code>.</li>
+<li><code>"ClaytonCopula"</code>: keys <code>Theta</code>, <code>Height</code> (distribution),
+  <code>Angle</code> (distribution), <code>ShapeFactor</code> (distribution).</li>
+</ul>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>Generator</code></b>              –
+              <div class="doc-md-description">
+                <p>A sampler yielding random <code>pyflange.flangesegments.Gap</code> objects.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If an unsupported joint distribution is provided.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.create_markovmatrix" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_markovmatrix</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a Markov matrix object from a dictionary of parameters.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>**params</code></b>
+              –
+              <div class="doc-md-description">
+                <p>Markov matrix parameters (<code>MarkovMatrix</code> section).
+Expected keys are 'range', 'mean', 'cycles', 'duration'.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>pyflange.fatigue.MarkovMatrix: The Markov matrix object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.create_nut" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_nut</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a nut object from a dictionary of parameters.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>**params</code></b>
+              –
+              <div class="doc-md-description">
+                <p>The nut parameters. The <code>type</code> key selects the nut kind:
+<code>"ISOHexNut"</code> or <code>"RoundNut"</code> (key <code>designation</code>), or <code>"HexNut"</code>
+(keys <code>nominal_diameter</code>, <code>thickness</code>, <code>inscribed_diameter</code>,
+<code>circumscribed_diameter</code>, <code>bearing_diameter</code>, <code>elastic_modulus</code>,
+<code>poissons_ratio</code>).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>pyflange.bolts.HexNut: The nut object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the nut type is not supported.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.create_realization" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_realization</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Rebuilds a single Monte Carlo realization.</p>
+<p>Given the case that generated a sample and one row of the table returned
+by <code>sample_fatiguecase</code> (or of the corresponding CSV file), rebuilds the
+random fatigue case that produced that row.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+                  (<code><span title="dict">dict</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The case dictionary that generated the sample.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>record</code></b>
+                  (<code><span title="Mapping">Mapping</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>One realization, with the keys listed in
+<code>SAMPLE_COLUMNS</code> (e.g. a <code>pandas.Series</code> row).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>pyflange.fatigue.BoltFatigueAnalysis: The rebuilt fatigue case.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.create_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_sampler</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a pyflange sampler from a dictionary of parameters.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>**params</code></b>
+              –
+              <div class="doc-md-description">
+                <p>Sampler parameters. All the distributions supported by
+<code>create_distribution</code> are accepted, plus <code>"Product"</code>, which
+samples the product of two independent variables described by
+the <code>Dist1</code> and <code>Dist2</code> keys.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>Generator</code></b>              –
+              <div class="doc-md-description">
+                <p>A sampler yielding random values.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If an unsupported distribution type is provided.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.create_washer" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_washer</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a washer object from a dictionary of parameters.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>params</code></b>
+                  (<code><span title="dict">dict</span> | None</code>)
+              –
+              <div class="doc-md-description">
+                <p>The washer parameters, or <code>None</code> for no washer.
+The <code>type</code> key selects the washer kind: <code>"ISOFlatWasher"</code> (key
+<code>designation</code>) or <code>"FlatWasher"</code> (keys <code>outer_diameter</code>,
+<code>inner_diameter</code>, <code>thickness</code>, <code>elastic_modulus</code>, <code>poissons_ratio</code>).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>pyflange.bolts.FlatWasher | None: The washer object, or <code>None</code>.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the washer type is not supported.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.dict_to_excel" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">dict_to_excel</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Writes a dictionary to an Excel file.</p>
+<p>This utility function takes a dictionary and an Excel file name as inputs,
+flattens the dictionary into a list of chained-key-value pairs, and
+writes it to an Excel file in a two-column table, where the first column
+contains the keys and the second column contains the corresponding values.
+Each value cell is also given an Excel name equal to its key, so that it
+can be referenced by name from other workbooks.</p>
+
+
+<details class="example" open>
+  <summary>Example</summary>
+  <p>Given the following dictionary:
+    d = {
+        "a": 10,
+        "b": {
+            "c": 20,
+            "d": 30
+        }
+    }</p>
+<p>This function will write it to Excel in the following format:
+    | KEY | VALUE |
+    |-----|-------|
+    | a   | 10    |
+    | b.c | 20    |
+    | b.d | 30    |</p>
+</details>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>d</code></b>
+                  (<code><span title="dict">dict</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The dictionary to be written.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>file_path</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The path to the Excel file to be created.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.dict_to_json" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">dict_to_json</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Writes a dictionary to a JSON file.</p>
+<p>Numpy scalars and arrays are converted to plain Python numbers and lists.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>d</code></b>
+                  (<code><span title="dict">dict</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The dictionary to be written.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>file_path</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The path to the JSON file to be created.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.fatiguecase_to_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fatiguecase_to_dict</span><span class="p">(</span><span class="n">fcase</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Converts a fatigue analysis to a dictionary in the JSON format.</p>
+<p>The returned dictionary contains the case input (it can be loaded back
+with <code>create_fatiguecase</code>) and the analysis results.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>fcase</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="BoltFatigueAnalysis
+
+
+  
+      dataclass
+   (pyflange.fatigue.BoltFatigueAnalysis)" href="../fatigue/#pyflange.fatigue.BoltFatigueAnalysis">BoltFatigueAnalysis</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>The fatigue analysis.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>verbose</code></b>
+                  (<code><span title="bool">bool</span></code>, default:
+                      <code>False</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>If True, the flange segment report (see
+<code>flangesegment_to_dict</code>), the bolt stress Markov matrix and the
+fatigue life are included too. Defaults to False.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>dict</code></b>              –
+              <div class="doc-md-description">
+                <p>The fatigue case data and results (<code>damage</code>, <code>allowable_damage</code>,
+<code>SMF</code> and, if verbose, <code>FatigueLife</code>).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If <code>fcase</code> is not a BoltFatigueAnalysis object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.fatiguecurve_to_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fatiguecurve_to_dict</span><span class="p">(</span><span class="n">sncurve</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Converts a fatigue curve object to a dictionary in the JSON format.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>sncurve</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="FatigueCurve (pyflange.fatigue.FatigueCurve)" href="../fatigue/#pyflange.fatigue.FatigueCurve">FatigueCurve</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>A <code>BoltFatigueCurve</code>,
+<code>SingleSlopeFatigueCurve</code> or <code>DoubleSlopeFatigueCurve</code> object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>dict</code></b>              –
+              <div class="doc-md-description">
+                <p>The fatigue curve parameters. For a <code>BoltFatigueCurve</code>, the
+knee point of the design curve is reported too, as <code>m1</code>, <code>m2</code>,
+<code>DS12</code> and <code>N_ref</code>.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the fatigue curve type is not supported.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.flangesegment_to_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">flangesegment_to_dict</span><span class="p">(</span><span class="n">fseg</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Converts a flange segment to a dictionary in the JSON format.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>fseg</code></b>
+                  (<code><span title="PolynomialLFlangeSegment">PolynomialLFlangeSegment</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The flange segment object.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>verbose</code></b>
+                  (<code><span title="bool">bool</span></code>, default:
+                      <code>False</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>If True, the dictionary also contains
+a report of derived and intermediate quantities (preload after
+losses, polynomial reference points and coefficients, transfer
+functions, stiffnesses, etc.). These extra keys are ignored when
+the dictionary is loaded back. Defaults to False.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>dict</code></b>              –
+              <div class="doc-md-description">
+                <p>The flange segment parameters.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the flange segment type is not supported.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.format_version" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">format_version</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Returns the format version of a case dictionary.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+                  (<code><span title="dict">dict</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>A case dictionary, as read from a JSON case file.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>str</code></b>              –
+              <div class="doc-md-description">
+                <p>The value of the <code>format_version</code> field, or <code>"0.1.0"</code> if the
+field is missing.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.gap_to_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">gap_to_dict</span><span class="p">(</span><span class="n">gap</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Converts a gap object to a dictionary in the JSON format.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>gap</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="Gap
+
+
+  
+      dataclass
+   (pyflange.flangesegments.Gap)" href="../flangesegments/#pyflange.flangesegments.Gap">Gap</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>The gap object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>dict</code></b>              –
+              <div class="doc-md-description">
+                <p>The gap parameters.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If <code>gap</code> is not a Gap object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.load_fatiguecase" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_fatiguecase</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">SMF</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Loads a BoltFatigueAnalysis object from a JSON file.</p>
+<p>Given the path of a JSON file containing a flange fatigue case in the
+PyFlange JSON format, returns the corresponding BoltFatigueAnalysis object.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>file_path</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The path to the JSON file.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>SMF</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Stress multiplication factor. If omitted, the
+<code>SMF</code> value of the case is used, or 1.0 if the case has none.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>pyflange.fatigue.BoltFatigueAnalysis: The loaded fatigue analysis object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.load_fatiguecase_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_fatiguecase_sampler</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Loads a fatigue case sampler from a JSON file.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>file_path</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The path to the JSON file containing the fatigue case
+and its <code>Stats</code> section.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>Generator</code></b>              –
+              <div class="doc-md-description">
+                <p>A generator that yields randomized BoltFatigueAnalysis objects.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.load_inputfile" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_inputfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Loads a JSON input file to a dictionary.</p>
+<p>The content is returned as it is, without any format upgrade or
+validation. Use <code>upgrade_case</code> to convert it to the current version.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>file_path</code></b>
+                  (<code><span title="str">str</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Path of the JSON file.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>dict</code></b>              –
+              <div class="doc-md-description">
+                <p>The content of the JSON file.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.markovmatrix_to_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">markovmatrix_to_dict</span><span class="p">(</span><span class="n">mkvm</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Converts a Markov matrix object to a dictionary in the JSON format.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>mkvm</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="MarkovMatrix
+
+
+  
+      dataclass
+   (pyflange.fatigue.MarkovMatrix)" href="../fatigue/#pyflange.fatigue.MarkovMatrix">MarkovMatrix</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>The Markov matrix object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>dict</code></b>              –
+              <div class="doc-md-description">
+                <p>The Markov matrix parameters.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If <code>mkvm</code> is not a MarkovMatrix object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.nut_to_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">nut_to_dict</span><span class="p">(</span><span class="n">nut</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Converts a nut object to a dictionary in the JSON format.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>nut</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="HexNut
+
+
+  
+      dataclass
+   (pyflange.bolts.HexNut)" href="../bolts/#pyflange.bolts.HexNut">HexNut</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>The nut object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>dict</code></b>              –
+              <div class="doc-md-description">
+                <p>The nut parameters, with type <code>"HexNut"</code>.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the nut type is not supported.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.sample_fatiguecase" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">sample_fatiguecase</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Runs a Monte Carlo simulation of a fatigue case.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+                  (<code><span title="dict">dict</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>A case dictionary, including the <code>Stats</code> section.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>size</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Number of realizations to generate.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>seed</code></b>
+                  (<code><span title="int">int</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Seed of the random number generator. If given,
+the numpy global random generator is re-seeded, so that the
+simulation is reproducible. If omitted, the current random state
+is used.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>progress</code></b>
+                  (<code><span title="callable">callable</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>A function called as <code>progress(i)</code>
+after the generation of the i-th realization (1-based).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>pandas.DataFrame: A table with one row per realization and the
+columns listed in <code>SAMPLE_COLUMNS</code>. Lengths are in m, forces in N,
+angles in rad, stresses in Pa, fatigue life in the time units of
+the Markov matrix duration. <code>FatigueClass</code> is the knee-point
+stress range of the sampled bolt S-N curve and
+<code>MomentRangeCoefficient</code> the factor applied to the load ranges.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.upgrade_case" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">upgrade_case</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Converts a case dictionary to the current format version.</p>
+<p>The input dictionary is not modified: a converted copy is returned.
+Upgrading a version <code>0.1.0</code> case:</p>
+<ul>
+<li>sets <code>format_version</code> to the current version;</li>
+<li>adds <code>DS_ref_mean = 62 MPa</code> to <code>Stats.FatigueClassFactor</code>, if the
+  <code>Stats</code> section is present, which is the value implicitly used by the
+  version <code>0.1.0</code> Monte Carlo sampler.</li>
+</ul>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>data</code></b>
+                  (<code><span title="dict">dict</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>A case dictionary in any supported format version.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>dict</code></b>              –
+              <div class="doc-md-description">
+                <p>An equivalent case dictionary in the current format version.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the format version is not supported.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.io.washer_to_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">washer_to_dict</span><span class="p">(</span><span class="n">washer</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Converts a washer object to a dictionary in the JSON format.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>washer</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="FlatWasher
+
+
+  
+      dataclass
+   (pyflange.bolts.FlatWasher)" href="../bolts/#pyflange.bolts.FlatWasher">FlatWasher</a> | None</code>)
+              –
+              <div class="doc-md-description">
+                <p>The washer object.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>dict | None: The washer parameters, with type <code>"FlatWasher"</code>, or
+<code>None</code> if <code>washer</code> is <code>None</code>.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If the washer type is not supported.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../stats/" class="btn btn-neutral float-left" title="stats"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../gap/" class="btn btn-neutral float-right" title="gap">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../stats/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../gap/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

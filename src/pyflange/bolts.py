@@ -24,6 +24,8 @@ and nut fastener components. In particular it provides:
 - A `MetricBolt` class that models generic bolts with metric screw threads and a
   `StandardMetricBolt` factory function that generates `MetricBolt` objects with
   standard properties.
+- A `standard_hole_diameter` function returning the standard clearance hole
+  diameter of a metric bolt.
 - A `FlatWasher` class that models generic flat washers and an `ISOFlatWasher`
   factory function that returns a `FlatWasher` with ISO 7089 standard dimensions.
 - A `HexNut` class that models generic hexagonal nuts, an `ISOHexNut` factory
@@ -442,21 +444,40 @@ def StandardMetricBolt(designation, material_grade, shank_length=0.0, shank_diam
             - Ferritic stainless: 'F45', 'F60'
         shank_length (float, optional): Length of the unthreaded shank.
             Defaults to 0.0.
-        shank_diameter_ratio (float, optional): Ratio between the shank diameter
-            and the bolt nominal diameter. Defaults to 1.0.
+        shank_diameter_ratio (float | str, optional): Ratio between the shank
+            diameter and the bolt nominal diameter. If it is the string
+            `"pitch"`, the shank diameter is taken equal to the thread basic
+            pitch diameter (ISO 724), as is common for reduced-shank stud bolts.
+            Defaults to 1.0.
         stud (bool, optional): True if this is a stud bolt, False otherwise.
             Defaults to False.
 
     Returns:
         MetricBolt: A `MetricBolt` instance with standard properties.
+
+    Example:
+        ```python
+        # M80 stud bolt whose shank diameter equals the thread pitch diameter
+        bolt = StandardMetricBolt("M80", "10.9", shank_length=0.160,
+                                  shank_diameter_ratio="pitch", stud=True)
+        ```
     """
 
     geometry = load_csv_database('bolts.metric_screws')
     material = load_csv_database('bolts.materials')
 
+    nominal_diameter = geometry['nominal_diameter'][designation]
+    thread_pitch = geometry['course_pitch'][designation]
+
+    if isinstance(shank_diameter_ratio, str):
+        if shank_diameter_ratio.lower() != "pitch":
+            raise ValueError(f"Unsupported shank diameter ratio: '{shank_diameter_ratio}'")
+        thread_height = 0.5 * 3**0.5 * thread_pitch
+        shank_diameter_ratio = (nominal_diameter - 2 * 3/8 * thread_height) / nominal_diameter
+
     return MetricBolt(
-        nominal_diameter = geometry['nominal_diameter'][designation],
-        thread_pitch = geometry['course_pitch'][designation],
+        nominal_diameter = nominal_diameter,
+        thread_pitch = thread_pitch,
         yield_stress = material['yield_stress'][material_grade],
         ultimate_tensile_stress = material['ultimate_tensile_stress'][material_grade],
         elastic_modulus = material['youngs_modulus'][material_grade],
@@ -464,6 +485,37 @@ def StandardMetricBolt(designation, material_grade, shank_length=0.0, shank_diam
         shank_length = shank_length,
         shank_diameter_ratio = shank_diameter_ratio,
         stud = stud)
+
+
+
+def standard_hole_diameter(designation):
+    """Return the standard clearance hole diameter for a metric bolt.
+
+    The values are tabulated in the `bolts.metric_screws` database for the
+    sizes 'M8', 'M10', 'M12', 'M16', 'M20', 'M24', 'M30', 'M36', 'M42', 'M48',
+    'M56', 'M64', 'M72' and 'M80'.
+
+    Args:
+        designation (str): Metric screw thread designation (e.g. "M80").
+
+    Returns:
+        float: The clearance hole diameter, in meters (e.g. 0.086 for "M80").
+
+    Raises:
+        KeyError: If no standard hole diameter is available for the given
+            designation.
+
+    Example:
+        ```python
+        Do = standard_hole_diameter("M80")    # 0.086 m
+        ```
+    """
+    from math import isnan
+    geometry = load_csv_database('bolts.metric_screws')
+    Do = float(geometry['hole_diameter'][designation])
+    if isnan(Do):
+        raise KeyError(f"No standard hole diameter available for '{designation}'")
+    return Do
 
 
 

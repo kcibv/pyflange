@@ -207,9 +207,12 @@ class SingleSlopeFatigueCurve(FatigueCurve):
             DS (float | np.ndarray): Applied stress range(s) $\Delta S$.
 
         Returns:
-            float | np.ndarray: Number of cycles to failure $N$.
+            float | np.ndarray: Number of cycles to failure $N$. A zero stress
+                range in an array returns `inf` (infinite endurance).
         """
-        return self.a / DS**self.m
+        # Zero-range bins (common in Markov matrices) legitimately yield N = inf
+        with np.errstate(divide='ignore'):
+            return self.a / DS**self.m
 
     def DS(self, N: float | np.ndarray) -> float | np.ndarray:
         r"""Calculates the allowable stress range for given cycle count(s).
@@ -335,6 +338,11 @@ class BoltFatigueCurve(DoubleSlopeFatigueCurve):
         gamma_M (float, optional): Material partial safety factor $\gamma_M$ for fatigue design.
             Defaults to 1.1.
 
+    Attributes:
+        diameter (float): The nominal bolt diameter passed to the constructor.
+        DS_ref (float): The reference stress range passed to the constructor.
+        gamma_M (float): The material safety factor passed to the constructor.
+
     Example:
         ```python
         import numpy as np
@@ -353,6 +361,10 @@ class BoltFatigueCurve(DoubleSlopeFatigueCurve):
 
     def __init__(self, diameter: float, DS_ref: float = 50e6, gamma_M: float = 1.1) -> None:
         """Initializes the BoltFatigueCurve (see the class documentation)."""
+        self.diameter = diameter
+        self.DS_ref = DS_ref
+        self.gamma_M = gamma_M
+
         N12 = 2.0e6    # knee point
         m1 = 3
         m2 = 5

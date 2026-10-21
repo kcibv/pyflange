@@ -65,6 +65,92 @@ def test_gap_height_distribution ():
 
 
 
+def test_gap_height_distribution_ED2 ():
+    D = 7.5
+    u = 0.0014
+    L = pi/6 * D/2
+
+    gap_dist = stats.gap_height_distribution_ED2(D, u, L)
+
+    assert isinstance(gap_dist.dist, scipy.stats.rv_continuous)
+    assert gap_dist.dist.name == "weibull_min"
+    assert gap_dist.args[0] == pytest.approx(0.667 + 0.0232*30 - 0.0000489*30**2)
+    assert round(gap_dist.mean(), 7) == 0.0003974
+    assert round(gap_dist.ppf(0.95), 7) == 0.0009913
+
+
+
+def test_gap_angle_distribution_ED2 ():
+    gap_dist = stats.gap_angle_distribution_ED2(7.5, 0.0014)
+
+    assert gap_dist.dist.name == "beta"
+    assert gap_dist.support() == (0, pytest.approx(pi))
+    assert round(gap_dist.mean(), 4) == 1.4736
+    assert round(gap_dist.ppf(0.95), 4) == 2.9982
+
+
+
+def test_standard_gap_sampler_ED2 ():
+    gaps = take(stats.standard_gap_sampler_ED2(7.5, 0.0014), 2000)
+    for gap in gaps[:100]:
+        assert isinstance(gap, Gap)
+        assert 0 <= gap.angle <= pi
+        assert gap.height >= 0
+        assert gap.shape_factor == 1.0
+
+    angles = np.array([gap.angle for gap in gaps])
+    assert np.mean(angles) == pytest.approx(stats.gap_angle_distribution_ED2(7.5, 0.0014).mean(), rel=0.05)
+
+
+
+def test_product_sampler ():
+    values = take(stats.product_sampler(scipy.stats.norm(2.0, 0.1), scipy.stats.norm(3.0, 0.1)), 10000)
+    assert np.mean(values) == pytest.approx(6.0, rel=0.01)
+
+
+
+def test_clayton_copula_sampler ():
+    theta = 2.0
+    dist1 = scipy.stats.norm(10, 1)
+    dist2 = scipy.stats.lognorm(0.5)
+    values = take(stats.clayton_copula_sampler(theta, dist1, dist2), 5000)
+    assert values.shape == (5000, 2)
+
+    # Marginal distributions are preserved
+    assert np.mean(values[:,0]) == pytest.approx(dist1.mean(), rel=0.01)
+    assert np.mean(values[:,1]) == pytest.approx(dist2.mean(), rel=0.03)
+    assert scipy.stats.kstest(values[:,0], dist1.cdf).pvalue > 0.01
+    assert scipy.stats.kstest(values[:,1], dist2.cdf).pvalue > 0.01
+
+    # Kendall's tau of the Clayton copula is theta / (theta + 2)
+    tau = scipy.stats.kendalltau(values[:,0], values[:,1]).statistic
+    assert tau == pytest.approx(theta / (theta + 2), abs=0.03)
+
+    # Lower tail dependence: small values of the first variable come with small values of the second
+    low1 = values[:,0] < dist1.ppf(0.05)
+    assert np.mean(values[low1, 1] < dist2.ppf(0.05)) > 0.5
+
+    with pytest.raises(ValueError):
+        next(stats.clayton_copula_sampler(0.0, dist1, dist2))
+
+
+
+def test_clayton_gap_sampler ():
+    samp = stats.clayton_gap_sampler(2.0,
+                height_marginal_dist = scipy.stats.lognorm(0.8, scale=0.001),
+                angle_marginal_dist = scipy.stats.beta(2, 3, scale=pi),
+                shape_factor_sampler = repeat(1.1))
+    gaps = take(samp, 100)
+    for gap in gaps:
+        assert isinstance(gap, Gap)
+        assert isinstance(gap.height, float)
+        assert isinstance(gap.angle, float)
+        assert 0 <= gap.angle <= pi
+        assert gap.height > 0
+        assert gap.shape_factor == 1.1
+
+
+
 def test_sampler ():
     samp = stats.sampler(scipy.stats.uniform(2, 3))
     assert isinstance(samp, GeneratorType)
@@ -194,6 +280,17 @@ def test_standard_PolynomialLFlangeSegment_sampler ():
     n = round(gap.angle / params['central_angle'] / 2)
     assert n == 10
     assert fseg.Fv == pytest.approx(np.mean(np.arange(1, n+1) * 1e5))
+
+    # Custom segment class
+    from pyflange.flangesegments import PolynomialLFlangeSegmentED2
+    samp = stats.standard_PolynomialLFlangeSegment_sampler(
+        **params,
+        preload_sampler = repeat(2800e3),
+        ppl_sampler = repeat(0.0),
+        dft_sampler = repeat(0.0),
+        gap_sampler = repeat(gap),
+        segment_class = PolynomialLFlangeSegmentED2)
+    assert type(next(samp)) is PolynomialLFlangeSegmentED2
 
 
 

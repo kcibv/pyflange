@@ -241,6 +241,22 @@ class TestBoltFatigueCurve:
         assert curve.DS(2e6) == pytest.approx(50*MPa)
         assert curve.DS(6.4e7) == pytest.approx(25*MPa)
 
+    def test_input_attributes (self):
+        curve = BoltFatigueCurve(0.080, DS_ref=62*MPa, gamma_M=1.2)
+        assert curve.diameter == 0.080
+        assert curve.DS_ref == 62*MPa
+        assert curve.gamma_M == 1.2
+
+    def test_zero_ranges (self):
+        # Zero-range bins have infinite endurance and give no damage, without warnings
+        import warnings
+        curve = BoltFatigueCurve(0.024, DS_ref=50*MPa, gamma_M=1.0)
+        mkvm = MarkovMatrix(range=np.array([0.0, 50*MPa]), mean=np.zeros(2), cycles=np.array([1e9, 2e6]))
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            assert curve.N(np.array([0.0]))[0] == np.inf
+            assert curve.cumulated_damage(mkvm) == pytest.approx(1.0)
+
 
 
 class TestBoltFatigueAnalysis:

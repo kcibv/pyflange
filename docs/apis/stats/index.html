@@ -41,6 +41,14 @@
                 <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
                 </li>
               </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../cli/">Command-line interface</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../json-format/">JSON case format</a>
+                </li>
+              </ul>
               <p class="caption"><span class="caption-text">API's</span></p>
               <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../bolts/">bolts</a>
@@ -53,13 +61,23 @@
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.beta_sampler">beta_sampler</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.clayton_copula_sampler">clayton_copula_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.clayton_gap_sampler">clayton_gap_sampler</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.fatigue_case_sampler">fatigue_case_sampler</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.gap_angle_distribution_ED2">gap_angle_distribution_ED2</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.gap_height_distribution">gap_height_distribution</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.gap_height_distribution_ED2">gap_height_distribution_ED2</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.lognorm_sampler">lognorm_sampler</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.norm_sampler">norm_sampler</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.product_sampler">product_sampler</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.sampler">sampler</a>
     </li>
@@ -69,11 +87,15 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.standard_gap_sampler">standard_gap_sampler</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.standard_gap_sampler_ED2">standard_gap_sampler_ED2</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.standard_markov_matrix_sampler">standard_markov_matrix_sampler</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pyflange.stats.weibull_sampler">weibull_sampler</a>
     </li>
     </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../io/">io</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Deprecated API's</span></p>
@@ -122,39 +144,48 @@
 
     <div class="doc doc-contents first">
 
-        <p>This module contains tools for the probabilistic analysis of flanged connections.
-In particular, three categories of tools are provided:</p>
+        <p>Probability distributions and random samplers for probabilistic flange analyses.</p>
+<p>This module contains tools for the probabilistic analysis of flanged
+connections. In particular, two categories of tools are provided:</p>
 <ul>
-<li>Probability distributions for some flange properties</li>
-<li>Samplers: random realization generators for flange properties</li>
+<li>Probability distributions for some flange properties.</li>
+<li>Samplers: random realization generators for flange properties.</li>
 </ul>
 <p>The provided probability distributions are:</p>
 <ul>
-<li>gap_height_distribution</li>
+<li><code>gap_height_distribution</code> (IEC 61400-6 AMD1)</li>
+<li><code>gap_height_distribution_ED2</code> and <code>gap_angle_distribution_ED2</code> (IEC 61400-6 ED2)</li>
 </ul>
 <p>The samplers are just <a href="https://realpython.com/ref/glossary/generator/">Python generator functions</a>
 that yield random values. Samplers can be used in a loop or to generate
 random values via the python <a href="https://realpython.com/ref/builtin-functions/next/">next</a> function.
 The following <em>general-purpose</em> samplers are available:</p>
 <ul>
-<li>sampler</li>
-<li>norm_sampler</li>
-<li>lognorm_sampler</li>
-<li>fatigue_case_sampler</li>
+<li><code>sampler</code></li>
+<li><code>norm_sampler</code></li>
+<li><code>lognorm_sampler</code></li>
+<li><code>weibull_sampler</code></li>
+<li><code>beta_sampler</code></li>
+<li><code>product_sampler</code></li>
+<li><code>clayton_copula_sampler</code></li>
+<li><code>clayton_gap_sampler</code></li>
+<li><code>fatigue_case_sampler</code></li>
 </ul>
 <p>The following samplers are instead specific to IEC 61400-6:2020:</p>
 <ul>
-<li>standard_gap_size_sampler</li>
-<li>standard_PolynomialLFlangeSegment_sampler</li>
-<li>standard_markov_matrix_sampler</li>
-<li>standard_bolt_fatigue_curve_sampler</li>
+<li><code>standard_gap_sampler</code></li>
+<li><code>standard_gap_sampler_ED2</code></li>
+<li><code>standard_PolynomialLFlangeSegment_sampler</code></li>
+<li><code>standard_markov_matrix_sampler</code></li>
+<li><code>standard_bolt_fatigue_curve_sampler</code></li>
 </ul>
-<p>An example of how to use the above generator to perform a Montecarlo
+<p>An example of how to use the above generators to perform a Montecarlo
 simulation, is given in <a href="../../examples/montecarlo/">this example</a>.</p>
 <p>The following references are used through this documentation:</p>
 <ul>
 <li><code>[1]</code> IEC 61400-6 AMD1 Background document</li>
 <li><code>[2]</code> IEC 61400-6:2020</li>
+<li><code>[3]</code> IEC 61400-6 ED2 (draft)</li>
 </ul>
 
 
@@ -254,15 +285,10 @@ If omitted, it defaults to 1.</p>
       <td class="field-body">
         <ul class="first simple">
             <li>
-              –
+<b><code>Generator</code></b>              –
               <div class="doc-md-description">
-                <p>A Beta distribution sampler with given shape parameters and definition</p>
-              </div>
-            </li>
-            <li>
-              –
-              <div class="doc-md-description">
-                <p>interval boundaries.</p>
+                <p>A Beta distribution sampler with given shape parameters
+and definition interval boundaries.</p>
               </div>
             </li>
         </ul>
@@ -275,7 +301,7 @@ If omitted, it defaults to 1.</p>
   <summary>Example</summary>
   <p>The following example creates a Beta distribution sampler and 
 generates three realizations.</p>
-<pre><code class="language-py">samp = beta_sampler(2, 5)  # Beta sampler sampler with  
+<pre><code class="language-py">samp = beta_sampler(2, 5)  # Beta sampler with  
                            # alpha=2, beta=5, defined in [0,1].
 
 val1 = next(samp)   # A random value from the Beta distribution
@@ -283,6 +309,220 @@ val2 = next(samp)   # Another random value from the Beta distribution
 val3 = next(samp)   # Yet another random value from the Beta distribution
 </code></pre>
 </details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.clayton_copula_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">clayton_copula_sampler</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">marginal_dist1</span><span class="p">,</span> <span class="n">marginal_dist2</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sampler of two random variables joined by a Clayton copula.</p>
+<p>The copula realizations are generated with the conditional inverse method:
+given two independent uniform variables <code>u</code> and <code>w</code>, the second copula
+variable is</p>
+<p>$$v = \left(u^{-\theta} \left(w^{-\theta/(1+\theta)} - 1\right) + 1\right)^{-1/\theta}$$</p>
+<p>and the two variables are then mapped to the marginal distributions via
+their inverse cumulative distribution functions. The Kendall's rank
+correlation of the two variables is $\tau = \theta / (\theta + 2)$.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>theta</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Clayton copula parameter. Must be positive.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>marginal_dist1</code></b>
+                  (<code><span title="scipy.stats.rv_frozen">rv_frozen</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Marginal distribution of the
+first variable.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>marginal_dist2</code></b>
+                  (<code><span title="scipy.stats.rv_frozen">rv_frozen</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Marginal distribution of the
+second variable.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Yields:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>numpy.ndarray: An array <code>[x1, x2]</code> containing a joint realization of
+the two variables.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>If <code>theta</code> is not positive.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <pre><code class="language-py">from scipy.stats import norm, lognorm
+samp = clayton_copula_sampler(2.0, norm(10, 1), lognorm(0.5))
+x1, x2 = next(samp)
+</code></pre>
+</details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.clayton_gap_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">clayton_gap_sampler</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">height_marginal_dist</span><span class="p">,</span> <span class="n">angle_marginal_dist</span><span class="p">,</span> <span class="n">shape_factor_sampler</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sampler that generates random flange gaps with correlated height and angle.</p>
+<p>The gap height and gap angle are generated as two variables joined by a
+Clayton copula (see <code>clayton_copula_sampler</code>), while the gap shape factor
+is generated independently.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>theta</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Clayton copula parameter. Must be positive.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>height_marginal_dist</code></b>
+                  (<code><span title="scipy.stats.rv_frozen">rv_frozen</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Marginal distribution
+of the gap height, in meters.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>angle_marginal_dist</code></b>
+                  (<code><span title="scipy.stats.rv_frozen">rv_frozen</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Marginal distribution
+of the gap angle, in radians.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>shape_factor_sampler</code></b>
+                  (<code><span title="typing.Generator">Generator</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>A sampler for the gap shape factor.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Yields:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>pyflange.flangesegments.Gap: A random gap.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
     </div>
 
@@ -317,7 +557,8 @@ val3 = next(samp)   # Yet another random value from the Beta distribution
                   (<code><span title="typing.Generator">Generator</span></code>)
               –
               <div class="doc-md-description">
-                <p>A <code>pyflange.flangesegments.FlangeSegment</code> sampler.</p>
+                <p>A <code>pyflange.flangesegments.FlangeSegment</code> sampler,
+such as <code>standard_PolynomialLFlangeSegment_sampler</code>.</p>
               </div>
             </li>
             <li>
@@ -391,6 +632,83 @@ applied to every next fatigue case. If omitted, it defaults to 1.0.</p>
 <div class="doc doc-object doc-function">
 
 
+<h2 id="pyflange.stats.gap_angle_distribution_ED2" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">gap_angle_distribution_ED2</span><span class="p">(</span><span class="n">flange_diameter</span><span class="p">,</span> <span class="n">flange_flatness_tolerance</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Evaluates the gap angle probability distribution according to ref. [3].</p>
+<p>The gap angle is modeled as a Beta random variable defined over the
+interval [0, pi], whose parameters depend on the flange diameter and
+flatness tolerance.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>flange_diameter</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The outer diameter of the flange, in meters.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>flange_flatness_tolerance</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The flatness tolerance, in mm/mm
+(non-dimensional).</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>scipy.stats.rv_frozen: A frozen SciPy Beta distribution
+(<code>scipy.stats.beta</code>) representing the gap angle, in radians.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h2 id="pyflange.stats.gap_height_distribution" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">gap_height_distribution</span><span class="p">(</span><span class="n">flange_diameter</span><span class="p">,</span> <span class="n">flange_flatness_tolerance</span><span class="p">,</span> <span class="n">gap_length</span><span class="p">)</span></code>
 
@@ -399,7 +717,10 @@ applied to every next fatigue case. If omitted, it defaults to 1.0.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Evaluates the gap heigh probability distribution according to ref. [1].</p>
+        <p>Evaluates the gap height probability distribution according to ref. [1].</p>
+<p>The gap height is modeled as a log-normal random variable, whose mean value
+and coefficient of variation depend on the flange diameter, the flatness
+tolerance and the gap length.</p>
 
 
 <table class="field-list">
@@ -434,7 +755,7 @@ expressed in mm/mm (non-dimensional).</p>
                   (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
-                <p>The length of the gap, espressed in meters and measured at
+                <p>The length of the gap, expressed in meters and measured at
 the outer edge of the flange.</p>
               </div>
             </li>
@@ -457,8 +778,9 @@ the outer edge of the flange.</p>
             <li>
               –
               <div class="doc-md-description">
-                <p>scipy.stats.lognorm: A scipy log-normal variable representing the gap height
-stocastic variable.</p>
+                <p>scipy.stats.rv_frozen: A frozen SciPy log-normal distribution
+(<code>scipy.stats.lognorm</code>) representing the gap height stochastic
+variable, expressed in meters.</p>
               </div>
             </li>
         </ul>
@@ -469,9 +791,9 @@ stocastic variable.</p>
 
 <details class="example" open>
   <summary>Example</summary>
-  <p>The following example, creates a gap distribution and the calculates the 95% quantile
-of the gap height</p>
-<pre><code class="language-python">from pyflange.gap import gap_height_distribution
+  <p>The following example creates a gap distribution and then calculates
+the 95% quantile of the gap height.</p>
+<pre><code class="language-python">from pyflange.stats import gap_height_distribution
 
 D = 7.50      # Flange diameter in meters
 u = 0.0014    # Flatness tolerance (non-dimensional)
@@ -479,6 +801,105 @@ L = 1.22      # Gap length
 gap_dist = gap_height_distribution(D, u, L)     # a lognorm distribution object
 
 u95 = gap_dist.ppf(0.95)    # PPF is the inverse of CDF. See scipy.stats.lognorm documentation.
+</code></pre>
+</details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.gap_height_distribution_ED2" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">gap_height_distribution_ED2</span><span class="p">(</span><span class="n">flange_diameter</span><span class="p">,</span> <span class="n">flange_flatness_tolerance</span><span class="p">,</span> <span class="n">gap_length</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Evaluates the gap height probability distribution according to ref. [3].</p>
+<p>The gap height is modeled as a Weibull random variable, whose shape and
+scale parameters depend on the flange diameter, the flatness tolerance and
+the gap angle.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>flange_diameter</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The outer diameter of the flange, in meters.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>flange_flatness_tolerance</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The flatness tolerance, in mm/mm
+(non-dimensional).</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gap_length</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The length of the gap, in meters, measured at the
+outer edge of the flange.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>scipy.stats.rv_frozen: A frozen SciPy Weibull distribution
+(<code>scipy.stats.weibull_min</code>) representing the gap height, in meters.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <pre><code class="language-python">from math import pi
+from pyflange.stats import gap_height_distribution_ED2
+
+D = 7.50                         # Flange diameter in meters
+u = 0.0014                       # Flatness tolerance (1.4 mm/m)
+L = pi/6 * D/2                   # Length of a 30 deg gap
+dist = gap_height_distribution_ED2(D, u, L)
+u95 = dist.ppf(0.95)             # 95% quantile of the gap height
 </code></pre>
 </details>
 
@@ -543,15 +964,10 @@ u95 = gap_dist.ppf(0.95)    # PPF is the inverse of CDF. See scipy.stats.lognorm
       <td class="field-body">
         <ul class="first simple">
             <li>
-              –
+<b><code>Generator</code></b>              –
               <div class="doc-md-description">
-                <p>A log-normal distribution sampler with given mean value and</p>
-              </div>
-            </li>
-            <li>
-              –
-              <div class="doc-md-description">
-                <p>coefficient of variation.</p>
+                <p>A log-normal distribution sampler with given mean value
+and coefficient of variation.</p>
               </div>
             </li>
         </ul>
@@ -564,7 +980,7 @@ u95 = gap_dist.ppf(0.95)    # PPF is the inverse of CDF. See scipy.stats.lognorm
   <summary>Example</summary>
   <p>The following example creates a Log-Normal distribution sampler and
 generates three realizations.</p>
-<pre><code class="language-py">samp = lognorm_sampler(12.0, 0.25)  # log-normal sampler sampler with
+<pre><code class="language-py">samp = lognorm_sampler(12.0, 0.25)  # log-normal sampler with
                                     # mean value 12.0 and CoV = 0.25.
 
 val1 = next(samp)   # A random value from the log-normal distribution
@@ -634,15 +1050,10 @@ val3 = next(samp)   # Yet another random value from the log-normal distribution
       <td class="field-body">
         <ul class="first simple">
             <li>
-              –
+<b><code>Generator</code></b>              –
               <div class="doc-md-description">
-                <p>A normal distribution sampler with given mean value and</p>
-              </div>
-            </li>
-            <li>
-              –
-              <div class="doc-md-description">
-                <p>coefficient of variation.</p>
+                <p>A normal distribution sampler with given mean value and
+coefficient of variation.</p>
               </div>
             </li>
         </ul>
@@ -655,12 +1066,93 @@ val3 = next(samp)   # Yet another random value from the log-normal distribution
   <summary>Example</summary>
   <p>The following example creates a Normal distribution sampler and generates
 three realizations.</p>
-<pre><code class="language-py">samp = norm_sampler(12.0, 0.25)   # normal sampler sampler with mean 12.0
+<pre><code class="language-py">samp = norm_sampler(12.0, 0.25)   # normal sampler with mean 12.0
                                   # and CoV = 0.25.
 
 val1 = next(samp)   # A random value from the normal distribution
 val2 = next(samp)   # Another random value from the normal distribution
 val3 = next(samp)   # Yet another random value from the normal distribution
+</code></pre>
+</details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.product_sampler" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">product_sampler</span><span class="p">(</span><span class="n">dist1</span><span class="p">,</span> <span class="n">dist2</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sampler of the product of two independent random variables.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>dist1</code></b>
+                  (<code><span title="scipy.stats.rv_frozen">rv_frozen</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Distribution of the first factor.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>dist2</code></b>
+                  (<code><span title="scipy.stats.rv_frozen">rv_frozen</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Distribution of the second factor.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Yields:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b></code>float</code></b>              –
+              <div class="doc-md-description">
+                <p>The product of a realization of <code>dist1</code> and a realization
+of <code>dist2</code>.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <pre><code class="language-py">from scipy.stats import norm, lognorm
+samp = product_sampler(norm(1.0, 0.1), lognorm(0.1))
+value = next(samp)
 </code></pre>
 </details>
 
@@ -718,15 +1210,10 @@ random variable.</p>
       <td class="field-body">
         <ul class="first simple">
             <li>
-              –
+<b></code>float</code></b>              –
               <div class="doc-md-description">
-                <p>A generator that, at every <code>next</code> call returns a random realization</p>
-              </div>
-            </li>
-            <li>
-              –
-              <div class="doc-md-description">
-                <p>of the passed random variable.</p>
+                <p>A random realization of the passed random variable, at every
+<code>next</code> call.</p>
               </div>
             </li>
         </ul>
@@ -758,7 +1245,7 @@ val3 = next(samp)       # Yet another random value from ndist distribution
 
 
 <h2 id="pyflange.stats.standard_PolynomialLFlangeSegment_sampler" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">standard_PolynomialLFlangeSegment_sampler</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">central_angle</span><span class="p">,</span> <span class="n">Zg</span><span class="p">,</span> <span class="n">bolt</span><span class="p">,</span> <span class="n">Do</span><span class="p">,</span> <span class="n">washer</span><span class="p">,</span> <span class="n">nut</span><span class="p">,</span> <span class="n">preload_sampler</span><span class="p">,</span> <span class="n">ppl_sampler</span><span class="p">,</span> <span class="n">dft_sampler</span><span class="p">,</span> <span class="n">gap_sampler</span><span class="p">,</span> <span class="n">tilt_sampler</span><span class="o">=</span><span class="n">lognorm_sampler</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">deg</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">E</span><span class="o">=</span><span class="mf">210000000000.0</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="mf">80770000000.0</span><span class="p">,</span> <span class="n">s_ratio</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">k_shell</span><span class="o">=</span><span class="s1">&#39;interp&#39;</span><span class="p">,</span> <span class="n">settlement_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">standard_PolynomialLFlangeSegment_sampler</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">central_angle</span><span class="p">,</span> <span class="n">Zg</span><span class="p">,</span> <span class="n">bolt</span><span class="p">,</span> <span class="n">Do</span><span class="p">,</span> <span class="n">washer</span><span class="p">,</span> <span class="n">nut</span><span class="p">,</span> <span class="n">preload_sampler</span><span class="p">,</span> <span class="n">ppl_sampler</span><span class="p">,</span> <span class="n">dft_sampler</span><span class="p">,</span> <span class="n">gap_sampler</span><span class="p">,</span> <span class="n">tilt_sampler</span><span class="o">=</span><span class="n">lognorm_sampler</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="n">deg</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">E</span><span class="o">=</span><span class="mf">210000000000.0</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="mf">80770000000.0</span><span class="p">,</span> <span class="n">s_ratio</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">k_shell</span><span class="o">=</span><span class="s1">&#39;interp&#39;</span><span class="p">,</span> <span class="n">settlement_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">segment_class</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -766,6 +1253,12 @@ val3 = next(samp)       # Yet another random value from ndist distribution
     <div class="doc doc-contents ">
 
         <p>A sampler that yields random pyflange PolynomialLFlangeSegment objects.</p>
+<p>For each realization, a random gap and a random flange tilt are drawn, and
+the bolt preload is sampled and averaged over the bolts affected by the gap
+(half of the bolts subtended by the gap angle, at least one), to account
+for the larger preload scatter at small gap angles. The returned segment
+already includes the effect of the sampled preload losses (settlement and
+plastic), so its <code>PPL</code> and <code>DFT</code> attributes are zero.</p>
 
 
 <table class="field-list">
@@ -884,7 +1377,8 @@ segment bolt.</p>
                   (<code><span title="typing.Generator">Generator</span></code>)
               –
               <div class="doc-md-description">
-                <p>Percentage of pretension losses sampler.</p>
+                <p>Sampler of the percentage of pretension
+losses due to plastic deformation (non-dimensional, e.g. 0.03 for 3%).</p>
               </div>
             </li>
             <li>
@@ -900,7 +1394,8 @@ segment bolt.</p>
                   (<code><span title="typing.Generator">Generator</span></code>)
               –
               <div class="doc-md-description">
-                <p>Gap object random sampler.</p>
+                <p>Sampler of <code>pyflange.flangesegments.Gap</code>
+objects, such as <code>standard_gap_sampler</code>.</p>
               </div>
             </li>
             <li>
@@ -910,8 +1405,9 @@ segment bolt.</p>
 )
               –
               <div class="doc-md-description">
-                <p>Random tilt angle sampler.
-Defaults to lognorm_sampler(0.1*deg, 0.50).</p>
+                <p>Random tilt angle sampler. Sampled
+angles are reduced to the interval [0, pi].
+Defaults to <code>lognorm_sampler(0.1*deg, 0.50)</code>.</p>
               </div>
             </li>
             <li>
@@ -963,9 +1459,11 @@ Defaults to 1.0.</p>
               –
               <div class="doc-md-description">
                 <p>Custom shell stiffness.
-If 'interp' (default), stiffness is interpolated.
+If <code>'interp'</code> (default), the stiffness is interpolated from the
+tabulated FEA results, as a function of the gap angle (see
+<code>pyflange.flangesegments.shell_stiffness</code>).
 If a number, it's used as the stiffness.
-If None, a simplified formula is used.</p>
+If <code>None</code>, a simplified formula is used.</p>
               </div>
             </li>
             <li>
@@ -976,8 +1474,21 @@ If None, a simplified formula is used.</p>
               –
               <div class="doc-md-description">
                 <p>Factor reducing the amount of bolt 
-settlement, to be taken as 1.0 for torque tightening and 1.0 for 
+settlement, to be taken as 1.0 for torque tightening and 0.5 for
 tension tightening. If omitted, it defaults to 1.0.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>segment_class</code></b>
+                  (<code><span title="type">type</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The class of the generated flange
+segments: <code>PolynomialLFlangeSegment</code> or one of its subclasses,
+such as <code>PolynomialLFlangeSegmentED2</code>. If omitted, it defaults to
+<code>PolynomialLFlangeSegment</code>.</p>
               </div>
             </li>
         </ul>
@@ -1076,7 +1587,10 @@ fseg3 = next(fseg_samp)     # Yet another random L-Flange segment object
 
     <div class="doc doc-contents ">
 
-        <p>Sampler that generates random bolt SN curves, according to ref. [2].</p>
+        <p>Sampler that generates random bolt S-N curves, according to ref. [2].</p>
+<p>The reference stress range of each curve is the product of <code>DS_ref_mean</code>
+and a normally distributed random coefficient. The curves have no material
+safety factor (<code>gamma_M = 1.0</code>).</p>
 
 
 <table class="field-list">
@@ -1094,7 +1608,7 @@ fseg3 = next(fseg_samp)     # Yet another random L-Flange segment object
                   (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
-                <p>The nominal diameter of the bolt.</p>
+                <p>The nominal diameter of the bolt, in meters.</p>
               </div>
             </li>
             <li>
@@ -1105,16 +1619,30 @@ fseg3 = next(fseg_samp)     # Yet another random L-Flange segment object
               –
               <div class="doc-md-description">
                 <p>The mean value of the fatigue class
-coefficinet, assumed normally-distributed. Defaults to 1.</p>
+coefficient, assumed normally distributed. Defaults to 1.</p>
               </div>
             </li>
             <li>
-              <b><code>range_CoV</code></b>
-                  (<code><span title="float">float</span></code>)
+              <b><code>stress_factor_CoV</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>0.1</code>
+)
               –
               <div class="doc-md-description">
-                <p>The coefficient of variation of the fatigue
-class, assumed normally distributed. It defaults to 0.10.</p>
+                <p>The coefficient of variation of the
+fatigue class coefficient, assumed normally distributed. Defaults to 0.10.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>DS_ref_mean</code></b>
+                  (<code><span title="float">float</span></code>, default:
+                      <code>62 * <span title="metrum.units.MPa">MPa</span></code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The mean value of the fatigue curve
+reference stress range. If unknown it could be calculated as 1.24
+times the fatigue class. If omitted, it defaults to 62 MPa.</p>
               </div>
             </li>
         </ul>
@@ -1161,6 +1689,12 @@ class, assumed normally distributed. It defaults to 0.10.</p>
     <div class="doc doc-contents ">
 
         <p>Sampler that generates random flange gaps according to ref. [1].</p>
+<p>For each realization, a gap angle is drawn from <code>gap_angle_sampler</code>, the
+gap height is then drawn from the distribution returned by
+<code>gap_height_distribution</code> for that angle, and the gap shape factor is drawn
+from <code>gap_shape_factor_sampler</code>. Realizations are discarded and redrawn
+when the gap angle is not between 0 and 180 degrees, or when the gap height
+exceeds <code>gap_height_cap</code> times the 95th percentile of its distribution.</p>
 
 
 <table class="field-list">
@@ -1178,7 +1712,7 @@ class, assumed normally distributed. It defaults to 0.10.</p>
                   (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
-                <p>The diameter of the flange.</p>
+                <p>The outer diameter of the flange, in meters.</p>
               </div>
             </li>
             <li>
@@ -1196,8 +1730,9 @@ class, assumed normally distributed. It defaults to 0.10.</p>
 )
               –
               <div class="doc-md-description">
-                <p>A sampler for the gap angle.
-Defaults to a log-normal sampler with mean 0.1 deg and CoV = 1.0.</p>
+                <p>A sampler for the gap angle,
+in radians. Defaults to a log-normal sampler with mean 100 deg and
+CoV = 1.0.</p>
               </div>
             </li>
             <li>
@@ -1240,11 +1775,10 @@ distribution. If omitted, it defaults to 2.0.</p>
       <td class="field-body">
         <ul class="first simple">
             <li>
-<b></code>tuple</code></b>              –
+              –
               <div class="doc-md-description">
-                <p>A tuple containing:
-- gap_angle (float): Random gap angle.
-- gap_height (float): Random gap height.</p>
+                <p>pyflange.flangesegments.Gap: A random gap, with random height, angle
+and shape factor.</p>
               </div>
             </li>
         </ul>
@@ -1255,15 +1789,100 @@ distribution. If omitted, it defaults to 2.0.</p>
 
 <details class="example" open>
   <summary>Example</summary>
-  <p>The following example creates a standard gap-size sampler and generate
+  <p>The following example creates a standard gap sampler and generates
 three realizations.</p>
-<pre><code class="language-py"># Gap size sampler for 7.5 m falnge with flatness tolerance 1.4 mm/m
-samp = standard_gap_size_sampler(7.5, 0.0014)
+<pre><code class="language-py"># Gap sampler for a 7.5 m flange with flatness tolerance 1.4 mm/m
+samp = standard_gap_sampler(7.5, 0.0014)
 
-ga1, gh1 = next(samp)  # A random gap-anlge, gap-height pair
-ga2, gh2 = next(samp)  # Another random gap-anlge, gap-height pair
-ga3, gh3 = next(samp)  # Yet another random gap-anlge, gap-height pair
+gap1 = next(samp)  # A random gap
+gap2 = next(samp)  # Another random gap
+gap3 = next(samp)  # Yet another random gap
 
+print(gap1.height, gap1.angle, gap1.shape_factor)
+</code></pre>
+</details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="pyflange.stats.standard_gap_sampler_ED2" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">standard_gap_sampler_ED2</span><span class="p">(</span><span class="n">flange_diameter</span><span class="p">,</span> <span class="n">flange_flatness_tolerance</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sampler that generates random flange gaps according to ref. [3].</p>
+<p>For each realization, a gap angle is drawn from the distribution returned
+by <code>gap_angle_distribution_ED2</code> and the gap height is then drawn from the
+distribution returned by <code>gap_height_distribution_ED2</code> for that angle.
+The gap shape factor is always 1.0.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>flange_diameter</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The outer diameter of the flange, in meters.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>flange_flatness_tolerance</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>The flatness tolerance in mm/mm.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Yields:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>pyflange.flangesegments.Gap: A random gap, with random height and angle.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <pre><code class="language-py"># ED2 gap sampler for a 7.5 m flange with flatness tolerance 1.4 mm/m
+samp = standard_gap_sampler_ED2(7.5, 0.0014)
+gap = next(samp)
 </code></pre>
 </details>
 
@@ -1282,7 +1901,10 @@ ga3, gh3 = next(samp)  # Yet another random gap-anlge, gap-height pair
 
     <div class="doc doc-contents ">
 
-        <p>Sampler that generates a random markov matrix according to ref [2].</p>
+        <p>Sampler that generates a random Markov matrix according to ref [2].</p>
+<p>Each realization has the same cycles, means and duration as the design
+Markov matrix, while its ranges are scaled by a single log-normally
+distributed coefficient.</p>
 
 
 <table class="field-list">
@@ -1316,9 +1938,9 @@ design Markov matrix.</p>
 )
               –
               <div class="doc-md-description">
-                <p>The mean coefficient of each load
-range, assumed log-normally-distributed with mean value
-contained in the passed <em>markov_matrix</em> parameters. Defaults to 1.0.</p>
+                <p>The mean value of the coefficient
+multiplying the load ranges of <em>markov_matrix</em>, assumed
+log-normally distributed. Defaults to 1.0.</p>
               </div>
             </li>
             <li>
@@ -1328,9 +1950,8 @@ contained in the passed <em>markov_matrix</em> parameters. Defaults to 1.0.</p>
 )
               –
               <div class="doc-md-description">
-                <p>The coefficient of variation of each load
-range, assumed log-normally-distributed with mean value
-contained in the passed <em>markov_matrix</em> parameters. Defaults to 0.12.</p>
+                <p>The coefficient of variation of the
+coefficient multiplying the load ranges. Defaults to 0.12.</p>
               </div>
             </li>
         </ul>
@@ -1394,7 +2015,7 @@ contained in the passed <em>markov_matrix</em> parameters. Defaults to 0.12.</p>
                   (<code><span title="float">float</span></code>)
               –
               <div class="doc-md-description">
-                <p>Shape parameter of the weibull distribution.</p>
+                <p>Shape parameter of the Weibull distribution.</p>
               </div>
             </li>
             <li>
@@ -1404,7 +2025,7 @@ contained in the passed <em>markov_matrix</em> parameters. Defaults to 0.12.</p>
 )
               –
               <div class="doc-md-description">
-                <p>Scale parameter of the weibull distribution.
+                <p>Scale parameter of the Weibull distribution.
 Defaults to 1.0.</p>
               </div>
             </li>
@@ -1425,15 +2046,10 @@ Defaults to 1.0.</p>
       <td class="field-body">
         <ul class="first simple">
             <li>
-              –
+<b><code>Generator</code></b>              –
               <div class="doc-md-description">
-                <p>A Weibull distribution sampler with given scale and shape</p>
-              </div>
-            </li>
-            <li>
-              –
-              <div class="doc-md-description">
-                <p>parameters.</p>
+                <p>A Weibull distribution sampler with given scale and shape
+parameters.</p>
               </div>
             </li>
         </ul>
@@ -1446,7 +2062,7 @@ Defaults to 1.0.</p>
   <summary>Example</summary>
   <p>The following example creates a Weibull distribution sampler and 
 generates three realizations.</p>
-<pre><code class="language-py">samp = weibull_sampler(1.5, 2)  # Weibull sampler sampler with  
+<pre><code class="language-py">samp = weibull_sampler(1.5, 2)  # Weibull sampler with  
                                 # shape 1.5 and scale 2.0
 
 val1 = next(samp)   # A random value from the Weibull distribution
@@ -1471,7 +2087,7 @@ val3 = next(samp)   # Yet another random value from the Weibull distribution
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../fatigue/" class="btn btn-neutral float-left" title="fatigue"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../gap/" class="btn btn-neutral float-right" title="gap">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../io/" class="btn btn-neutral float-right" title="io">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -1497,7 +2113,7 @@ val3 = next(samp)   # Yet another random value from the Weibull distribution
       <span><a href="../fatigue/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../gap/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../io/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

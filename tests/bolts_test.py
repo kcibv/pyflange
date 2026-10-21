@@ -295,6 +295,32 @@ class TestStandardMetricBolt:
         assert round(bolt.shear_modulus/1e9, 2) == 80.77
 
 
+    def test_pitch_shank_diameter_ratio (self):
+        # The shank diameter equals the thread basic pitch diameter (ISO 724)
+        bolt = StandardMetricBolt("M80", "10.9", shank_diameter_ratio="pitch")
+        assert bolt.shank_diameter == pytest.approx(bolt.thread_basic_pitch_diameter)
+        assert round(bolt.shank_diameter*1000, 2) == 76.10
+
+        bolt = StandardMetricBolt("M12", "10.9", shank_diameter_ratio="PITCH")
+        assert round(bolt.shank_diameter*1000, 2) == 10.86
+
+        with pytest.raises(ValueError):
+            StandardMetricBolt("M80", "10.9", shank_diameter_ratio="minor")
+
+
+
+def test_standard_hole_diameter ():
+    assert standard_hole_diameter("M80") == 0.086
+    assert standard_hole_diameter("M8") == 0.009
+    assert standard_hole_diameter("M36") == 0.039
+
+    # Sizes without tabulated hole diameter
+    with pytest.raises(KeyError):
+        standard_hole_diameter("M90")
+    with pytest.raises(KeyError):
+        standard_hole_diameter("M7")
+
+
 
 class TestWasher:
 

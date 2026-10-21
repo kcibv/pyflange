@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyflange"
-version = "0.12.0"
+version = "0.13.0"
 authors = [
   { name="Marcello Del Buono", email="m.buono@kci.nl" },
 ]
@@ -20,7 +20,9 @@ dependencies = [
     "numpy>=1.26.4",
     "scipy",
     "pandas",
-    "metrum"
+    "metrum",
+    "openpyxl",
+    "typer>=0.9"
 ]
 license = "GPL-3.0-only"
 license-files = ["LICENSE"]
@@ -28,6 +30,9 @@ license-files = ["LICENSE"]
 [project.urls]
 Homepage = "https://github.com/kcibv/pyflange"
 Issues = "https://github.com/kcibv/pyflange/issues"
+
+[project.scripts]
+pyflange = "pyflange.cli:app"
 
 
 [tool.setuptools]

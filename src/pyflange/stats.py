@@ -25,9 +25,10 @@ connections. In particular, two categories of tools are provided:
 - Probability distributions for some flange properties.
 - Samplers: random realization generators for flange properties.
 
-The only provided probability distribution is:
+The provided probability distributions are:
 
-- `gap_height_distribution`
+- `gap_height_distribution` (IEC 61400-6 AMD1)
+- `gap_height_distribution_ED2` and `gap_angle_distribution_ED2` (IEC 61400-6 ED2)
 
 The samplers are just [Python generator functions](https://realpython.com/ref/glossary/generator/)
 that yield random values. Samplers can be used in a loop or to generate
@@ -39,11 +40,15 @@ The following *general-purpose* samplers are available:
 - `lognorm_sampler`
 - `weibull_sampler`
 - `beta_sampler`
+- `product_sampler`
+- `clayton_copula_sampler`
+- `clayton_gap_sampler`
 - `fatigue_case_sampler`
 
 The following samplers are instead specific to IEC 61400-6:2020:
 
 - `standard_gap_sampler`
+- `standard_gap_sampler_ED2`
 - `standard_PolynomialLFlangeSegment_sampler`
 - `standard_markov_matrix_sampler`
 - `standard_bolt_fatigue_curve_sampler`
@@ -55,6 +60,7 @@ The following references are used through this documentation:
 
 - `[1]` IEC 61400-6 AMD1 Background document
 - `[2]` IEC 61400-6:2020
+- `[3]` IEC 61400-6 ED2 (draft)
 
 '''
 
@@ -120,6 +126,83 @@ def gap_height_distribution (flange_diameter, flange_flatness_tolerance, gap_len
     scale = exp(log(k_mean) - shape**2 / 2)
 
     return lognorm(s=shape, loc=0, scale=scale)
+
+
+
+def gap_height_distribution_ED2 (flange_diameter, flange_flatness_tolerance, gap_length):
+    ''' Evaluates the gap height probability distribution according to ref. [3].
+
+    The gap height is modeled as a Weibull random variable, whose shape and
+    scale parameters depend on the flange diameter, the flatness tolerance and
+    the gap angle.
+
+    Args:
+        flange_diameter (float): The outer diameter of the flange, in meters.
+        flange_flatness_tolerance (float): The flatness tolerance, in mm/mm
+            (non-dimensional).
+        gap_length (float): The length of the gap, in meters, measured at the
+            outer edge of the flange.
+
+    Returns:
+        scipy.stats.rv_frozen: A frozen SciPy Weibull distribution
+            (`scipy.stats.weibull_min`) representing the gap height, in meters.
+
+    Example:
+        ```python
+        from math import pi
+        from pyflange.stats import gap_height_distribution_ED2
+
+        D = 7.50                         # Flange diameter in meters
+        u = 0.0014                       # Flatness tolerance (1.4 mm/m)
+        L = pi/6 * D/2                   # Length of a 30 deg gap
+        dist = gap_height_distribution_ED2(D, u, L)
+        u95 = dist.ppf(0.95)             # 95% quantile of the gap height
+        ```
+    '''
+    from math import pi
+    from scipy.stats import weibull_min
+
+    # Convert parameters to units used in ED2 formulae
+    u_tol = flange_flatness_tolerance / 0.001             # mm/m
+    gap_angle = gap_length / (flange_diameter/2) / deg    # degrees
+
+    # Weibull shape factor
+    alpha = 0.667 + 0.0232 * gap_angle - 0.0000489 * gap_angle**2
+
+    # Weibull scale factor, in mm
+    beta1 = (0.00588 + 0.000304*flange_diameter) * u_tol
+    beta2 = (0.0000109 * u_tol**2 + 0.0000378 * u_tol) * (0.2274*flange_diameter) \
+            * (1.0447 * (pi/12 * flange_diameter * u_tol)**(-0.291))
+    beta = beta1 * gap_angle + beta2 * gap_angle**2
+
+    return weibull_min(alpha, scale=beta*0.001)
+
+
+def gap_angle_distribution_ED2 (flange_diameter, flange_flatness_tolerance):
+    ''' Evaluates the gap angle probability distribution according to ref. [3].
+
+    The gap angle is modeled as a Beta random variable defined over the
+    interval [0, pi], whose parameters depend on the flange diameter and
+    flatness tolerance.
+
+    Args:
+        flange_diameter (float): The outer diameter of the flange, in meters.
+        flange_flatness_tolerance (float): The flatness tolerance, in mm/mm
+            (non-dimensional).
+
+    Returns:
+        scipy.stats.rv_frozen: A frozen SciPy Beta distribution
+            (`scipy.stats.beta`) representing the gap angle, in radians.
+    '''
+    from math import pi
+    from scipy.stats import beta
+
+    u_tol = flange_flatness_tolerance / 0.001     # mm/m
+
+    a = 0.9 * 1.103 * (pi * flange_diameter * u_tol/12)**(-0.216)
+    b = 1.3373 * (flange_diameter * u_tol**2)**(-0.146)
+
+    return beta(a, b, loc=0, scale=pi)
 
 
 
@@ -339,6 +422,135 @@ def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
 
 
 
+def standard_gap_sampler_ED2 (flange_diameter, flange_flatness_tolerance):
+    ''' Sampler that generates random flange gaps according to ref. [3].
+
+    For each realization, a gap angle is drawn from the distribution returned
+    by `gap_angle_distribution_ED2` and the gap height is then drawn from the
+    distribution returned by `gap_height_distribution_ED2` for that angle.
+    The gap shape factor is always 1.0.
+
+    Args:
+        flange_diameter (float): The outer diameter of the flange, in meters.
+        flange_flatness_tolerance (float): The flatness tolerance in mm/mm.
+
+    Yields:
+        pyflange.flangesegments.Gap: A random gap, with random height and angle.
+
+    Example:
+        ```py
+        # ED2 gap sampler for a 7.5 m flange with flatness tolerance 1.4 mm/m
+        samp = standard_gap_sampler_ED2(7.5, 0.0014)
+        gap = next(samp)
+        ```
+    '''
+    from .flangesegments import Gap
+
+    gap_angle_dist = gap_angle_distribution_ED2(flange_diameter, flange_flatness_tolerance)
+    while True:
+        gap_angle = gap_angle_dist.rvs()
+        gap_length = gap_angle * flange_diameter/2
+        gap_height = gap_height_distribution_ED2(flange_diameter, flange_flatness_tolerance, gap_length).rvs()
+        yield Gap(gap_height, gap_angle)
+
+
+
+def product_sampler (dist1, dist2):
+    ''' Sampler of the product of two independent random variables.
+
+    Args:
+        dist1 (scipy.stats.rv_frozen): Distribution of the first factor.
+        dist2 (scipy.stats.rv_frozen): Distribution of the second factor.
+
+    Yields:
+        float: The product of a realization of `dist1` and a realization
+            of `dist2`.
+
+    Example:
+        ```py
+        from scipy.stats import norm, lognorm
+        samp = product_sampler(norm(1.0, 0.1), lognorm(0.1))
+        value = next(samp)
+        ```
+    '''
+    while True:
+        yield dist1.rvs() * dist2.rvs()
+
+
+
+def clayton_copula_sampler (theta, marginal_dist1, marginal_dist2):
+    ''' Sampler of two random variables joined by a Clayton copula.
+
+    The copula realizations are generated with the conditional inverse method:
+    given two independent uniform variables `u` and `w`, the second copula
+    variable is
+
+    $$v = \\left(u^{-\\theta} \\left(w^{-\\theta/(1+\\theta)} - 1\\right) + 1\\right)^{-1/\\theta}$$
+
+    and the two variables are then mapped to the marginal distributions via
+    their inverse cumulative distribution functions. The Kendall's rank
+    correlation of the two variables is $\\tau = \\theta / (\\theta + 2)$.
+
+    Args:
+        theta (float): Clayton copula parameter. Must be positive.
+        marginal_dist1 (scipy.stats.rv_frozen): Marginal distribution of the
+            first variable.
+        marginal_dist2 (scipy.stats.rv_frozen): Marginal distribution of the
+            second variable.
+
+    Yields:
+        numpy.ndarray: An array `[x1, x2]` containing a joint realization of
+            the two variables.
+
+    Raises:
+        ValueError: If `theta` is not positive.
+
+    Example:
+        ```py
+        from scipy.stats import norm, lognorm
+        samp = clayton_copula_sampler(2.0, norm(10, 1), lognorm(0.5))
+        x1, x2 = next(samp)
+        ```
+    '''
+    import numpy as np
+
+    if not theta > 0:
+        raise ValueError(f"The Clayton copula parameter must be positive, got {theta}")
+
+    while True:
+        u, w = np.random.random_sample(2)
+        v = (u**(-theta) * (w**(-theta/(1+theta)) - 1) + 1)**(-1/theta)
+        yield np.array([marginal_dist1.ppf(u), marginal_dist2.ppf(v)])
+
+
+
+def clayton_gap_sampler (theta, height_marginal_dist, angle_marginal_dist, shape_factor_sampler):
+    ''' Sampler that generates random flange gaps with correlated height and angle.
+
+    The gap height and gap angle are generated as two variables joined by a
+    Clayton copula (see `clayton_copula_sampler`), while the gap shape factor
+    is generated independently.
+
+    Args:
+        theta (float): Clayton copula parameter. Must be positive.
+        height_marginal_dist (scipy.stats.rv_frozen): Marginal distribution
+            of the gap height, in meters.
+        angle_marginal_dist (scipy.stats.rv_frozen): Marginal distribution
+            of the gap angle, in radians.
+        shape_factor_sampler (Generator): A sampler for the gap shape factor.
+
+    Yields:
+        pyflange.flangesegments.Gap: A random gap.
+    '''
+    from .flangesegments import Gap
+
+    height_angle_samp = clayton_copula_sampler(theta, height_marginal_dist, angle_marginal_dist)
+    while True:
+        height, angle = next(height_angle_samp)
+        yield Gap(height=float(height), angle=float(angle), shape_factor=next(shape_factor_sampler))
+
+
+
 def standard_PolynomialLFlangeSegment_sampler (
         a: float,        # distance between inner face of the flange and center of the bolt hole
         b: float,        # distance between center of the bolt hole and center-line of the shell
@@ -369,10 +581,12 @@ def standard_PolynomialLFlangeSegment_sampler (
                                  # Default s_botom = s.
         r: float = 0.01,         # Rounding between flange and shell
         k_shell = 'interp',      # Custom shell stiffness
-        settlement_factor: float = 1.0  # Factor reducing the amount of bolt 
-                                        # settlement, to be taken as 1.0 for 
-                                        # torque tightening and 1.0 for tension 
+        settlement_factor: float = 1.0, # Factor reducing the amount of bolt
+                                        # settlement, to be taken as 1.0 for
+                                        # torque tightening and 1.0 for tension
                                         # tightening.
+        segment_class: type = None      # Class of the generated segments.
+                                        # Default PolynomialLFlangeSegment.
     ):
     ''' A sampler that yields random pyflange PolynomialLFlangeSegment objects.
 
@@ -423,6 +637,10 @@ def standard_PolynomialLFlangeSegment_sampler (
         settlement_factor (float, optional): Factor reducing the amount of bolt 
             settlement, to be taken as 1.0 for torque tightening and 0.5 for
             tension tightening. If omitted, it defaults to 1.0.
+        segment_class (type, optional): The class of the generated flange
+            segments: `PolynomialLFlangeSegment` or one of its subclasses,
+            such as `PolynomialLFlangeSegmentED2`. If omitted, it defaults to
+            `PolynomialLFlangeSegment`.
 
     Yields:
         pyflange.flangesegments.PolynomialLFlangeSegment: A random L-Flange segment object.
@@ -482,24 +700,25 @@ def standard_PolynomialLFlangeSegment_sampler (
     '''
 
     from math import pi
-    from .flangesegments import PolynomialLFlangeSegment, shell_stiffness
+    from .flangesegments import PolynomialLFlangeSegment
     from .utils import reduce_to_pi
     import numpy as np
 
+    segment_class = segment_class or PolynomialLFlangeSegment
+
     # stiffness interpolaion
-    gap_angles = np.linspace(10*deg, 180*deg, 1000)
-    shell_stiffnesses = np.array([shell_stiffness(R, s, gap_angle) for gap_angle in gap_angles])
+    interp_shell_stiffness = _shell_stiffness_interpolator(R, s)
 
     # generate random flange segments
     while True:
         gap = next(gap_sampler)
         tilt = reduce_to_pi( next(tilt_sampler) )
-        create_fseg = lambda Fv, PPL, DFT: PolynomialLFlangeSegment(
+        create_fseg = lambda Fv, PPL, DFT: segment_class(
                 a=a, b=b, s=s, t=t, R=R, central_angle=central_angle, Zg=Zg, bolt=bolt,
                 Do=Do, washer=washer, nut=nut, gap=gap, tilt_angle=tilt,
                 E=E, G=G, s_ratio=s_ratio, r=r,
                 Fv=Fv, PPL=PPL, DFT=DFT, settlement_factor=settlement_factor,
-                k_shell = np.interp(gap.angle, gap_angles, shell_stiffnesses) if k_shell=='interp' else k_shell
+                k_shell = interp_shell_stiffness(gap.angle) if k_shell=='interp' else k_shell
             )
 
         # Averaging bolt preload over "50% of the bolts within the gap"
@@ -512,6 +731,19 @@ def standard_PolynomialLFlangeSegment_sampler (
                 for i in range(n)
             ])
         yield create_fseg(averaged_preload, PPL=0, DFT=0)
+
+
+
+def _shell_stiffness_interpolator (R, s):
+    # Returns a fast function gap_angle -> shell stiffness, for the given shell
+    # radius and thickness, by tabulating `shell_stiffness` over 1000 angles.
+    # It is also used by pyflange.io to rebuild sampled segments exactly.
+    import numpy as np
+    from .flangesegments import shell_stiffness
+
+    gap_angles = np.linspace(10*deg, 180*deg, 1000)
+    shell_stiffnesses = np.array([shell_stiffness(R, s, gap_angle) for gap_angle in gap_angles])
+    return lambda gap_angle: np.interp(gap_angle, gap_angles, shell_stiffnesses)
 
 
 

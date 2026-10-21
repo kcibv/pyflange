@@ -44,7 +44,17 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#usage-instructions">Usage instructions</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#command-line-usage">Command-line usage</a>
+    </li>
     </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="cli/">Command-line interface</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="json-format/">JSON case format</a>
                 </li>
               </ul>
               <p class="caption"><span class="caption-text">API's</span></p>
@@ -56,6 +66,8 @@
                   <li class="toctree-l1"><a class="reference internal" href="apis/fatigue/">fatigue</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="apis/stats/">stats</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="apis/io/">io</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Deprecated API's</span></p>
@@ -173,11 +185,19 @@ Z = np.array([2000, 2500, 3000])
 Fs = fseg.bolt_axial_force(Z)       # return the numpy array (Fs(2000), Fs(2500), Fs(3000))
 Ms = fseg.bolt_bending_moment(Z)    # return the numpy array (Ms(2000), Ms(2500), Ms(3000))
 </code></pre>
+<h2 id="command-line-usage">Command-line usage</h2>
+<p>Bolt fatigue analyses can also be run without writing any code, by describing
+the flange case in a JSON file (see the <a href="json-format/">JSON case format</a>)
+and using the <code>pyflange</code> <a href="cli/">command-line tool</a>:</p>
+<pre><code class="language-bash">pyflange determ case.json               # deterministic fatigue analysis
+pyflange sample case.json --seed 1      # Monte Carlo simulation
+pyflange stats case-sample.csv          # statistics of the Monte Carlo sample
+</code></pre>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="apis/bolts/" class="btn btn-neutral float-right" title="bolts">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="cli/" class="btn btn-neutral float-right" title="Command-line interface">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -201,7 +221,7 @@ Ms = fseg.bolt_bending_moment(Z)    # return the numpy array (Ms(2000), Ms(2500)
     
     
     
-      <span><a href="apis/bolts/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="cli/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
@@ -220,5 +240,5 @@ Ms = fseg.bolt_bending_moment(Z)    # return the numpy array (Ms(2000), Ms(2500)
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2026-10-09 17:14:03.947460+00:00
+Build Date UTC : 2026-10-21 12:18:37.840952+00:00
 -->

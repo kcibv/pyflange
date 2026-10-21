@@ -8,6 +8,8 @@ The library is organized in the following modules:
 - `pyflange.fatigue`: Markov matrices, S-N curves and bolt fatigue analysis.
 - `pyflange.stats`: probability distributions and random samplers for
   probabilistic (Monte Carlo) analyses.
+- `pyflange.io`: reading and writing fatigue cases in the PyFlange JSON format.
+- `pyflange.cli`: command-line interface (`pyflange` or `python -m pyflange`).
 - `pyflange.utils`: internal helpers.
 - `pyflange.gap`: legacy module, kept for backwards compatibility.
 """

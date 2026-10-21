@@ -102,3 +102,16 @@ Fs = fseg.bolt_axial_force(Z)       # return the numpy array (Fs(2000), Fs(2500)
 Ms = fseg.bolt_bending_moment(Z)    # return the numpy array (Ms(2000), Ms(2500), Ms(3000))
 ```
 
+
+Command-line usage
+------------------
+Bolt fatigue analyses can also be run without writing any code, by describing
+the flange case in a JSON file (see the [JSON case format](json-format.md))
+and using the `pyflange` [command-line tool](cli.md):
+
+```bash
+pyflange determ case.json               # deterministic fatigue analysis
+pyflange sample case.json --seed 1      # Monte Carlo simulation
+pyflange stats case-sample.csv          # statistics of the Monte Carlo sample
+```
+

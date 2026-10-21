@@ -3,11 +3,14 @@ docs_dir: docsrc
 site_dir: docs
 nav:
     - Home: index.md
+    - Command-line interface: cli.md
+    - JSON case format: json-format.md
     - API's:
       - bolts: apis/bolts.md
       - flangesegments: apis/flangesegments.md
       - fatigue: apis/fatigue.md
       - stats: apis/stats.md
+      - io: apis/io.md
     - Deprecated API's:
       - gap: apis/gap.md
     - Examples:
