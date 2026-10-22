@@ -1155,12 +1155,13 @@ class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
         '''
 
         # Stiffness correction factor
-        f_tot = min(1.4 + 0.6 * self.gap.angle/(pi/2), 2.0) * min(self.gap.angle/(pi/6), 1)**2
+        f2 = min(self.gap.angle/(pi/6), 1)**2
+        f_tot = min(1.4 + 0.6 * self.gap.angle/(pi/2), 2.0) * f2
 
         log_data(self, f_tot=f_tot)
 
         # Total gap stiffness according to ref. [5], section 9.7
-        return f_tot * self._k_shell + self._k_flange
+        return f_tot * self._k_shell + f2 * self._k_flange
 
 
 
