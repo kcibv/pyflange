@@ -448,9 +448,55 @@ class TestPolynomialLFlangeSegment:
 
 
     def test_failure_mode (self):
+        from scipy.optimize import fsolve
+
         fseg = self.fseg(30*deg, 1.0, 0.0*deg)
-        fm, Zus = fseg.failure_mode(335e6, 285e6)
+        fy_sh, fy_fl, gamma_0 = 335e6, 285e6, 1.1
+        fm, (Zu_A, Zu_B, Zu_D, Zu_E) = fseg.failure_mode(fy_sh, fy_fl, gamma_0)
         assert fm == "B"
+
+        # Independent check of failure mode D (IEC 61400-6, eqs. G.4, G.7, G.9 and G.11),
+        # with the segment width c at the middle surface of the shell and c' = c - dB.
+        fd_sh, fd_fl = fy_sh / gamma_0, fy_fl / gamma_0
+        F_tR = fseg.bolt.ultimate_tensile_capacity()
+        Dw = fseg.nut.bearing_diameter
+        c = fseg.central_angle * (fseg.R - fseg.s/2)
+        M_pl2_hole = fd_fl * (c - fseg.Do) * fseg.t**2 / 4
+        DM_pl2 = F_tR/2 * (Dw + fseg.Do)/4
+        M_pl_sh = lambda N: fd_sh * c * fseg.s**2 / 4 * (1 - (N / (fd_sh * c * fseg.s))**2)
+        M_pl_fl = lambda V: fd_fl * c * fseg.t**2 / 4 * (1 - (V / (fd_fl * c * fseg.t / 3**0.5))**2)**0.5
+        b_fl = fseg.b - fseg.s/2 - 0.8*fseg.r
+        Zu_D_sh = fsolve(lambda Z: (M_pl2_hole + DM_pl2 + M_pl_sh(Z)) / fseg.b - Z, F_tR)[0]
+        Zu_D_fl = fsolve(lambda Z: (M_pl2_hole + DM_pl2 + M_pl_fl(Z)) / b_fl - Z, F_tR)[0]
+        assert Zu_A == pytest.approx(F_tR)
+        assert Zu_D == pytest.approx(min(Zu_D_sh, Zu_D_fl))
+
+
+    def test_prying_lever_ratio (self):
+        from dataclasses import replace
+        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
+
+        # Within the validity range of IEC 61400-6, eqs. G.16 and G.17, a' < a
+        a, b, t = fseg.a, fseg.b, fseg.t
+        alpha = t / (a + b)
+        beta = (a/b - 1.25)**0.32 + 0.45
+        a_red = (1 - (1 - alpha**beta)**5) * a
+        assert fseg._a_red == pytest.approx(a_red)
+        assert fseg._a_red < a
+
+        # Rigid flange (a/b <= 1.25): a' = a
+        assert replace(fseg, a=1.2*b)._a_red == pytest.approx(1.2*b)
+
+        # a/b > 2.25: out of the validity range, a' = a
+        assert replace(fseg, a=2.5*b)._a_red == pytest.approx(2.5*b)
+
+        # Flange aspect ratio below -0.12*a/b + 0.55: out of the validity range, a' = a
+        thin = replace(fseg, t=0.3*(a + b))
+        assert thin.t / (a + b) < 0.55 - 0.12*a/b
+        assert thin._a_red == pytest.approx(a)
+
+        # Flange aspect ratio above 1: out of the validity range, a' = a
+        assert replace(fseg, t=1.1*(a + b))._a_red == pytest.approx(a)
 
 
     def test_validate (self):
@@ -802,30 +848,67 @@ class TestPolynomialTFlangeSegment:
 
         '''
         These values do not correspond directly with the SGRE validation values.
-        The deviations are due to the different calculation of the initial slope.
+        The deviations are due to the different calculation of the initial slope
+        and to the tensile moment curve, which PyFlange evaluates as the cubic
+        polynomial of IEC 61400-6, eq. G.61, while SGRE fits a quadratic polynomial.
         The pyflange results are used as comparative values.
         '''
 
-        test(self.fseg( 30*deg, 1.0, 0*deg), -53.3)
-        test(self.fseg( 60*deg, 1.0, 0*deg), -57.0)
-        test(self.fseg( 90*deg, 1.0, 0*deg), -64.9)
-        test(self.fseg(120*deg, 1.0, 0*deg), -63.0)
+        test(self.fseg( 30*deg, 1.0, 0*deg), -51.6)
+        test(self.fseg( 60*deg, 1.0, 0*deg), -55.1)
+        test(self.fseg( 90*deg, 1.0, 0*deg), -62.9)
+        test(self.fseg(120*deg, 1.0, 0*deg), -61.1)
 
-        test(self.fseg( 30*deg, 1.5, 0*deg), -57.5)
-        test(self.fseg( 60*deg, 1.5, 0*deg), -61.3)
-        test(self.fseg( 90*deg, 1.5, 0*deg), -69.8)
-        test(self.fseg(120*deg, 1.5, 0*deg), -67.8)
+        test(self.fseg( 30*deg, 1.5, 0*deg), -54.9)
+        test(self.fseg( 60*deg, 1.5, 0*deg), -58.6)
+        test(self.fseg( 90*deg, 1.5, 0*deg), -66.8)
+        test(self.fseg(120*deg, 1.5, 0*deg), -64.8)
 
-        test(self.fseg( 30*deg, 1.0, 1*deg), -96.8)
-        test(self.fseg( 60*deg, 1.0, 1*deg), -101.3)
-        test(self.fseg( 90*deg, 1.0, 1*deg), -110.7)
-        test(self.fseg(120*deg, 1.0, 1*deg), -108.6)
+        test(self.fseg( 30*deg, 1.0, 1*deg), -94.1)
+        test(self.fseg( 60*deg, 1.0, 1*deg), -98.4)
+        test(self.fseg( 90*deg, 1.0, 1*deg), -107.5)
+        test(self.fseg(120*deg, 1.0, 1*deg), -105.4)
+
+
+    def test_tensile_moment_polynomial (self):
+        # The tensile moment curve is the cubic polynomial of IEC 61400-6, eq. G.61
+        for tilt_angle in (0*deg, 1*deg):
+            fseg = self.fseg(60*deg, 1.0, tilt_angle)
+            poly = fseg._tensile_moment_polynomial
+            assert poly.degree() == 3
+            Z1 = fseg.shell_force_at_rest
+            Z2 = fseg.shell_force_at_tensile_ULS
+            for Z in np.linspace(Z1, Z2, 7):
+                expected = fseg._bolt_moment(Z, fseg.bolt_axial_force(Z))
+                assert fseg.bolt_bending_moment(Z) == pytest.approx(expected)
 
 
     def test_failure_mode (self):
         fseg = self.fseg(30*deg, 1.0, 0.0*deg)
-        fm, Zus = fseg.failure_mode(335e6, 285e6)
+        fy_fl, gamma_0 = 285e6, 1.1
+        fm, (Zu_A, Zu_B, Zu_D, Zu_E) = fseg.failure_mode(335e6, fy_fl, gamma_0)
         assert fm == "A"
+
+        # Independent check of IEC 61400-6, eqs. G.24 to G.29: each ultimate force
+        # is a fixed point of the corresponding equation, with the shear force
+        # in the flange equal to half of the segment force.
+        fd = fy_fl / gamma_0
+        F_tR = fseg.bolt.ultimate_tensile_capacity()
+        Dw = fseg.nut.bearing_diameter
+        c = fseg.central_angle * (fseg.R - fseg.s/2)
+        b_BD = fseg.b - fseg.s/2 - 4/5*fseg.r
+        b_E = fseg.b - (Dw + fseg.Do)/4 - fseg.s/2 - 4/5*fseg.r
+        M_pl2_hole = fd * (c - fseg.Do) * fseg.t**2 / 4
+        M_pl2 = fd * c * fseg.t**2 / 4
+        DM_pl2 = F_tR/2 * (Dw + fseg.Do)/4
+        V_pl = fd * fseg.t * c / 3**0.5
+        M_pl3 = lambda Fu: M_pl2 * (1 - (Fu/2 / V_pl)**2)**0.5 if Fu/2 < V_pl else 0
+        a = fseg._a_red
+
+        assert Zu_A == pytest.approx(2 * F_tR)
+        assert Zu_B == pytest.approx(2 * (F_tR*a + M_pl3(Zu_B)) / (a + b_BD))
+        assert Zu_D == pytest.approx(2 * (M_pl2_hole + DM_pl2 + M_pl3(Zu_D)) / b_BD)
+        assert Zu_E == pytest.approx(2 * (M_pl2 + M_pl3(Zu_E)) / b_E)
 
 
     def test_validate (self):
@@ -837,9 +920,124 @@ class TestPolynomialTFlangeSegment:
             fseg.validate(335e6, 285e6)
 
 
+    def test_polynomial_initial_slope (self):
+        from dataclasses import replace
+
+        def expected_slope (fseg):
+            Ks = fseg._bolt_axial_stiffness
+            Kp = fseg._flange_axial_stiffness
+            p = Ks / (Ks + Kp)
+            p_max = (fseg.bolt_force_at_tensile_ULS - fseg.bolt_force_at_rest) / (fseg.shell_force_at_tensile_ULS - fseg.shell_force_at_rest)
+            chi = 0.5 * p * (-fseg._total_gap_neutralization_shell_force) / (2 * fseg.bolt_preload * 0.5)
+            return min(chi, p_max) * fseg.gap.shape_factor, chi, p_max
+
+        # Ordinary gap: IEC 61400-6, eq. G.54, below its upper bound
+        fseg = self.fseg(60*deg, 1.5, 0*deg)
+        slope, chi, p_max = expected_slope(fseg)
+        assert chi < p_max
+        assert fseg._polynomial_initial_slope == pytest.approx(slope)
+
+        # Very large (unrealistic) gap: the slope is limited to (Fs2 - Fs1) / (Z2 - Z1)
+        fseg = replace(fseg, gap=Gap(height=0.050, angle=60*deg, shape_factor=1.5))
+        slope, chi, p_max = expected_slope(fseg)
+        assert chi > p_max
+        assert fseg._polynomial_initial_slope == pytest.approx(p_max * 1.5)
+
+
+    def test_bolt_preload (self):
+        from dataclasses import replace
+
+        # No losses by default
+        fseg = self.fseg(30*deg, 1.0, 0*deg)
+        assert fseg.bolt_preload == fseg.Fv
+        assert fseg.bolt_force_at_rest == fseg.Fv
+
+        # Same preload losses as the L-flange
+        fseg = replace(fseg, PPL=0.05, DFT=300e-6, settlement_factor=0.5)
+        Ks = fseg._bolt_axial_stiffness
+        Kp = fseg._flange_axial_stiffness
+        f_z = max(8 * 300**(-0.6) * 300e-6, 50e-6)
+        expected = fseg.Fv - 0.5 * f_z / (1/Ks + 1/Kp) - 0.05 * fseg.Fv
+        assert fseg.bolt_preload == pytest.approx(expected)
+        assert fseg.bolt_force_at_rest == pytest.approx(expected)
+        assert fseg.bolt_axial_force(fseg.shell_force_at_rest) == pytest.approx(expected)
+
+
+    def test_tilt_angle_required (self):
+        from dataclasses import fields
+        fseg = self.fseg(30*deg, 1.0, 0*deg)
+        params = {f.name: getattr(fseg, f.name) for f in fields(fseg) if f.name != "tilt_angle"}
+        with pytest.raises(TypeError):
+            PolynomialTFlangeSegment(**params)
+
+
+    def test_poisson_ratio (self):
+        # The tilt neutralization force depends on the Poisson ratio derived from E and G
+        from dataclasses import replace
+        fseg = self.fseg(30*deg, 1.0, 1*deg)
+        fseg_nu = replace(fseg, G=fseg.E / (2*(1 + 0.2)))
+        assert fseg_nu._tilt_neutralization_shell_force != pytest.approx(fseg._tilt_neutralization_shell_force)
+
+
+    def test_k_shell (self):
+        from dataclasses import replace
+        fseg = self.fseg(30*deg, 1.0, 0*deg)
+        assert replace(fseg, k_shell=1.5e9)._k_shell == 1.5e9
+        assert replace(fseg, k_shell=lambda fs: 2.5e9)._k_shell == 2.5e9
+
+        # The default is the simplified formula of IEC 61400-6, eqs. G.43 and G.44
+        L_gap = fseg.R * fseg.gap.angle
+        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * fseg.R*1000) * L_gap*1000)
+        assert fseg._k_shell == pytest.approx(fseg.E * fseg.s / (k_fac * L_gap))
+
+
     @pytest.mark.parametrize("path", validation_cases("T"), ids=os.path.basename)
     def test_validation_cases (self, path):
         check_validation_case(path)
+
+
+
+class TestPolynomialTFlangeSegmentED2:
+
+    def fseg (self, gap_angle=30*deg, *args):
+        from dataclasses import fields
+        fseg = TestPolynomialTFlangeSegment().fseg(gap_angle, *args)
+        return PolynomialTFlangeSegmentED2(**{f.name: getattr(fseg, f.name) for f in fields(fseg)})
+
+    def test_inheritance (self):
+        fseg = self.fseg()
+        assert isinstance(fseg, PolynomialTFlangeSegment)
+
+    def test_gap_stiffness (self):
+        for gap_angle in (20*deg, 30*deg, 60*deg, 120*deg, 180*deg):
+            fseg = self.fseg(gap_angle)
+            f_tot = min(1.4 + 0.6 * gap_angle/(pi/2), 2.0)
+            assert fseg._gap_stiffness == pytest.approx(f_tot * fseg._k_shell + fseg._k_flange)
+
+    def test_early_prying_uses_initial_stiffness (self):
+        # The edge contact preload (IEC 61400-6, eq. G.48) uses the initial linear
+        # stiffness, which is the same for AMD1 and ED2.
+        fseg_amd1 = TestPolynomialTFlangeSegment().fseg(60*deg)
+        fseg_ed2 = self.fseg(60*deg)
+        assert fseg_ed2._early_prying_neutralization_shell_force == pytest.approx(fseg_amd1._early_prying_neutralization_shell_force)
+
+    def test_bolt_axial_force (self):
+        fseg = self.fseg()
+        assert fseg.bolt_axial_force(fseg.shell_force_at_rest) == pytest.approx(fseg.bolt_force_at_rest)
+        assert fseg.bolt_axial_force(fseg.shell_force_at_small_displacement) == pytest.approx(fseg.bolt_force_at_small_displacement)
+        assert fseg.bolt_axial_force(fseg.shell_force_at_tensile_ULS) == pytest.approx(fseg.bolt_force_at_tensile_ULS)
+
+    def test_bolt_bending_moment (self):
+        fseg = self.fseg()
+        assert fseg.bolt_bending_moment(fseg.shell_force_at_rest) == pytest.approx(fseg.bolt_moment_at_rest)
+        assert fseg.bolt_bending_moment(fseg.shell_force_at_small_displacement) == pytest.approx(fseg.bolt_moment_at_small_displacement)
+        assert fseg.bolt_bending_moment(fseg.shell_force_at_tensile_ULS) == pytest.approx(fseg.bolt_moment_at_tensile_ULS)
+
+    def test_shell_force_at_closed_gap (self):
+        # The ED2 gap closing force differs from the AMD1 one
+        fseg_amd1 = TestPolynomialTFlangeSegment().fseg(30*deg)
+        fseg_ed2 = self.fseg(30*deg)
+        assert fseg_ed2.shell_force_at_closed_gap != pytest.approx(fseg_amd1.shell_force_at_closed_gap)
 
 
 

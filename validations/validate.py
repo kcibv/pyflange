@@ -229,6 +229,16 @@ def evaluate_quantities (fseg, gap_dist, case):
     }
 
     if not is_L:
+        # PyFlange evaluates the T-flange bolt moment exactly, as the cubic polynomial
+        # of IEC 61400-6, eq. G.61, while the SGRE sheets fit a quadratic polynomial
+        # through the points P1, P2 and P3. The SGRE coefficients are therefore compared
+        # with the quadratic polynomial through the same points of PyFlange.
+        Z = [Z1, fseg.shell_force_at_tensile_ULS, fseg.shell_force_at_small_displacement]
+        Ms_fit = np.polynomial.polynomial.polyfit(Z, [M1, M2, M3], 2)
+        q["Ms_poly.a2"] = Ms_fit[2] * kN**2
+        q["Ms_poly.a1"] = Ms_fit[1] * kN
+        q["Ms_poly.a0"] = Ms_fit[0]
+
         # The SGRE T-flange sheets report the tilt contribution as a positive
         # reduction, like DZgap and DZgap,tot (the L-flange sheets keep the sign).
         q["DZ_gap_inclination"] = -q["DZ_gap_inclination"]

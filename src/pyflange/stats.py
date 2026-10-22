@@ -583,7 +583,7 @@ def standard_PolynomialLFlangeSegment_sampler (
         k_shell = 'interp',      # Custom shell stiffness
         settlement_factor: float = 1.0, # Factor reducing the amount of bolt
                                         # settlement, to be taken as 1.0 for
-                                        # torque tightening and 1.0 for tension
+                                        # torque tightening and 0.5 for tension
                                         # tightening.
         segment_class: type = None      # Class of the generated segments.
                                         # Default PolynomialLFlangeSegment.

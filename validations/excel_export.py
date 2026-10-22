@@ -152,7 +152,7 @@ def pyflange_sheet_values (fseg, q):
         Z0 = fseg._ideal_shell_force_at_tensile_ULS
         for i, Zi in enumerate([Z1, Z1 + 100], start=1):
             Fs = fseg.bolt_axial_force(Zi)
-            phi_T_low = (Fs - fseg.Fv) * (fseg.b**2/(2*fseg.E*I_tg) + 1/(0.85*fseg.G*A_tg))
+            phi_T_low = (Fs - fseg.bolt_preload) * (fseg.b**2/(2*fseg.E*I_tg) + 1/(0.85*fseg.G*A_tg))
             phi_T_high = Zi * (fseg.b**2/(ak*4*fseg.E*I_tg) + 1/(0.85*fseg.G*A_tg))
             phi = phi_T_low + (phi_T_high - phi_T_low) / (Z0 - Z4) * (Zi - Z4)
             values[f"MZTlow{i}"] = phi_T_low * 2*fseg._bolt_bending_stiffness

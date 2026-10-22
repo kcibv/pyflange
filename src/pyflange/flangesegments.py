@@ -29,7 +29,9 @@ behavior of a flange sector containing one bolt only. The module provides:
 - `PolynomialLFlangeSegment` and `PolynomialLFlangeSegmentED2`: polynomial
   L-flange segment models (the latter implementing the modifications expected
   in IEC 61400-6 ED2).
-- `PolynomialTFlangeSegment`: polynomial T-flange segment model.
+- `PolynomialTFlangeSegment` and `PolynomialTFlangeSegmentED2`: polynomial
+  T-flange segment models (the latter implementing the modifications expected
+  in IEC 61400-6 ED2).
 - `bolt_markov_matrix`: conversion of a flange bending-moment Markov matrix into
   a bolt stress Markov matrix, via the segment transfer functions.
 - `shell_stiffness`: shell stiffness interpolated from tabulated FEA results.
@@ -69,9 +71,11 @@ Example:
 The models implemented in this module are based on the following references:
 
 - `[1]` Marc Seidel, SGRE TE TF PST: IEC 61400-6 AMD1 Background Document
-  Fatigue design for ring flange connections in wind turbine support structures.
-- `[2]` IEC 61400-6:2020/AMD1 - Wind energy generation systems - Part 6: Tower and foundation
-  design requirements - Amendment 1. Draft version 2024-10-01.
+  Fatigue design for ring flange connections in wind turbine support structures. Rev00, 2024.
+- `[2]` IEC 61400-6:2020+AMD1:2025 - Wind energy generation systems - Part 6: Tower and foundation
+  design requirements. Consolidated version, 2025. Equation numbers G.xx refer to its Annex G.
+- `[5]` Marc Seidel, SGRE: IEC 61400-6 AMD1 & ED2 Background Document. Rev01, draft 2026-08-04.
+  The changes of the polynomial model from AMD1 to ED2 are summarised in its section 9.7.
 - `[3]` Petersen, C.: Nachweis der Betriebsfestigkeit exzentrisch beanspruchter Ringflansch-verbindungen
   (Fatigue assessment of eccentrically loaded ring flange connections).
   Stahlbau 67 (1998), S. 191-203. <https://onlinelibrary.wiley.com/doi/abs/10.1002/stab.199800690>
@@ -172,13 +176,15 @@ class PolynomialFlangeSegment (FlangeSegment):
     The transfer functions are a quadratic polynomial through P1, P2 and P3 in
     the tensile domain (above the shell force at rest), a quadratic polynomial
     between P4 and P1 in the compressive domain, and a constant below P4.
+    Child classes may override the tensile polynomials when the reference
+    defines them differently (e.g. the cubic bolt moment of T-flanges).
     '''
 
     def bolt_axial_force (self, shell_pull):
         '''Calculates bolt axial force from tower shell force using a polynomial.
 
-        The relation is defined as a polynomial function based on ref. [1],
-        section 8.2 and ref. [2], section G.4.2.
+        The relation is defined as a polynomial function based on
+        ref. [2], section G.2.2, eq. G.32.
 
         Args:
             shell_pull (float or numpy.ndarray): The tower shell force Z.
@@ -221,8 +227,8 @@ class PolynomialFlangeSegment (FlangeSegment):
     def bolt_bending_moment (self, shell_pull):
         '''Calculates bolt bending moment from tower shell force using a polynomial.
 
-        The relation is defined as a polynomial function based on ref. [1],
-        section 8.3 and ref. [2], section G.4.2.
+        The relation is defined as a polynomial function based on
+        ref. [2], section G.2.3, eqs. G.59 (L-flanges) and G.61 (T-flanges).
 
         Args:
             shell_pull (float or numpy.ndarray): The tower shell force Z.
@@ -536,7 +542,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         r (float): Radius of the rounding between shell and flange.
         k_shell (float, callable, None): Shell stiffness [N/m/m]. Can be a value, a
             function taking the flange segment as argument and returning the
-            stiffness, or `None` to use the simplified formula of ref. [1].
+            stiffness, or `None` to use the simplified formula of ref. [2], eq. G.43.
         PPL (float): Percentage of bolt pretension loss due to plastic strain,
             expressed as a fraction of `Fv` (e.g. 0.03 for 3%). Defaults to 0.0.
         DFT (float): Maximum allowable dry film thickness of coating applied on the contact
@@ -579,7 +585,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
                             # contact area between washers and flange [m]
 
     settlement_factor: float = 1.0   # Factor reducing the amount of bolt settlement, to be
-                                     # taken as 1.0 for torque tightening and 1.0 for tension tightening.
+                                     # taken as 1.0 for torque tightening and 0.5 for tension tightening.
 
 
     def failure_mode (self, fy_sh, fy_fl, gamma_0=1.1):
@@ -609,22 +615,23 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         Dw = self.washer.outer_diameter if self.washer else self.nut.bearing_diameter
         b_red = self.b-self.s/2-0.8*self.r
 
-        c_shell = self.central_angle * (self.R - self.s/2)
-        c_hole = self.central_angle * (self.R - self.s/2 - self.b) - self.bolt.nominal_diameter
-        c_washer = self.central_angle * (self.R - self.s/2 - self.b + (self.Do/2 + Dw/2)/2)
+        # Segment width at the middle surface of the shell (ref. [2], eq. G.34)
+        # and segment width reduced by the bolt hole (ref. [2], eq. G.7)
+        c = self.central_angle * (self.R - self.s/2)
+        c_hole = c - self.Do
 
         # Failure mode A
         F_tRd = self.bolt.ultimate_tensile_capacity()   # Bolt ultimate tensile capacity
         Zu_A = F_tRd                                    # Ultimate tower shell force for failure mode A
 
         # Shell cross-section ultimate capacities
-        Nu_sh = fd_sh * c_shell * self.s                 # Pure axial ultimate capacity
-        Mu_sh = fd_sh * c_shell * self.s**2 / 4          # Pure bending ultimate capacity
+        Nu_sh = fd_sh * c * self.s                 # Pure axial ultimate capacity
+        Mu_sh = fd_sh * c * self.s**2 / 4          # Pure bending ultimate capacity
         MNu_sh = lambda N: Mu_sh * (1 - (N / Nu_sh)**2) if N < Nu_sh else 0 # Bending ultimate capacity, concurrent with axial force
 
-        # Flange cross-section ultimate capacity (at hole)
-        Vu_fl = fd_fl * c_washer * self.t / 3**0.5                # Pure shear ultimate capacity
-        Mu_fl = fd_fl * c_washer * self.t**2 / 4                  # Pure bending ultimate capacity
+        # Flange cross-section ultimate capacity, ref. [2], eqs. G.8, G.10 and G.11
+        Vu_fl = fd_fl * c * self.t / 3**0.5                # Pure shear ultimate capacity
+        Mu_fl = fd_fl * c * self.t**2 / 4                  # Pure bending ultimate capacity
         MVu_fl = lambda V: Mu_fl * (1 - (V / Vu_fl)**2)**0.5 if V < Vu_fl else 0    # Bending ultimate capacity, concurrent with shear
 
         # Iterative calculation of the ultimate shell force, given the two functions:
@@ -636,19 +643,19 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
             target_Zu_fl = fsolve(lambda Z: Zu_fl(MVu_fl(Z)) - Z, Zu_fl(Mu_fl))[0]
             return min(target_Zu_sh, target_Zu_fl)
 
-        # Failure mode B
+        # Failure mode B, ref. [2], eqs. G.3 and G.12
         Zu_sh_B = lambda Mu_pl3: (F_tRd * self._a_red + Mu_pl3) / (self._a_red + self.b)
         Zu_fl_B = lambda Mu_pl3: (F_tRd * self._a_red + Mu_pl3) / (self._a_red + b_red)
-        Zu_B = find_Zu(Zu_sh_B, Zu_fl_B) 
+        Zu_B = find_Zu(Zu_sh_B, Zu_fl_B)
 
-        # Failure mode D
+        # Failure mode D, ref. [2], eqs. G.4, G.7 and G.9
         Mu_pl2 = fd_fl * c_hole * self.t**2 / 4
         DMu_pl2 = F_tRd/2 * (self.Do/2 + Dw/2)/2
         Zu_sh_D = lambda Mu_pl3: (Mu_pl2 + DMu_pl2 + Mu_pl3) / self.b
         Zu_fl_D = lambda Mu_pl3: (Mu_pl2 + DMu_pl2 + Mu_pl3) / b_red
         Zu_D = find_Zu(Zu_sh_D, Zu_fl_D) 
 
-        # Failure mode E
+        # Failure mode E, ref. [2], eq. G.5
         b_E = self.b - (self.Do+Dw)/4
         b_E_red = b_E - self.s/2 - 0.8*self.r
         Zu_sh_E = lambda Mu_pl3: (Mu_fl + Mu_pl3) / b_E
@@ -718,7 +725,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
 
     def _bolt_moment (self, Z, Fs):
-        '''Calculates the bolt bending moment.
+        '''Calculates the bolt bending moment, according to ref. [2], eq. G.59.
 
         Args:
             Z (float): Shell pull force.
@@ -743,24 +750,10 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         '''float: Bolt preload after settlement and plastic losses.
 
         The preload `Fv` is reduced by the settlement loss (function of `DFT`
-        and `settlement_factor`) and by the plastic loss (`PPL * Fv`).
+        and `settlement_factor`, ref. [2], section 6.7.5.1.2, eqs. 27 and 28) and
+        by the plastic loss (`PPL * Fv`, ref. [2], eq. 24).
         '''
-        from metrum.units import um, kN
-
-        # Preload losses due to settlements
-        if self.DFT > 0:
-            DFT_ref = 1*um
-            f_z_tot = max( (8*(self.DFT/DFT_ref)**(-0.6))*self.DFT , 50*um )
-            bolt_resilience = 1 / self._bolt_axial_stiffness
-            flange_resilience = 1 / self._flange_axial_stiffness
-            delta_Fv_z = self.settlement_factor * (f_z_tot / (bolt_resilience + flange_resilience))
-        else:
-            delta_Fv_z = 0*kN
-
-        # Preload losses due to plastic deformation
-        delta_Fv_pl = self.PPL * self.Fv
-
-        return self.Fv - delta_Fv_z - delta_Fv_pl
+        return _preload_after_losses(self)
 
 
     @cached_property
@@ -796,7 +789,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         '''Intermediate tower shell force (Z3).
 
         This auxiliary point gives the polynomial the right initial slope,
-        evaluated according to ref. [1], sec. 8.2.2.3 and ref. [2], sec. G.4.2.
+        evaluated according to ref. [2], Table G.1, point 3.
         '''
 
         # Retrieve point 2A (called point 0 in [1]) and determine Z as
@@ -810,7 +803,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         '''Intermediate bolt axial force (Fs3).
 
         This auxiliary point gives the polynomial the right initial slope,
-        evaluated according to ref. [1], sec. 8.2.2.3 and ref. [2], sec. G.4.2.
+        evaluated according to ref. [2], Table G.1, point 3.
         '''
 
         # The slope between points P1 and P3 should match the
@@ -833,8 +826,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         '''Ultimate Limit State tower shell force (Z2).
 
         This is the tower shell force that brings the flange segment to its
-        tensile ULS, evaluated according to ref. [1], sec. 8.2.2.2 and
-        ref. [2], sec. G.4.2.
+        tensile ULS, evaluated according to ref. [2], Table G.1, point 2.
         '''
 
         Z0 = self._ideal_shell_force_at_tensile_ULS
@@ -849,7 +841,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         '''Bolt axial force at tensile failure (Fs2).
 
         This is the bolt's tensile force at the shell's ULS, assuming
-        failure mode B.
+        failure mode B (ref. [2], eq. G.36), scaled by the gap shape factor.
         '''
 
         # Bolt force at tensile ULS for sinusoidal gap shape
@@ -871,21 +863,29 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_closed_gap (self):
-        '''Shell force necessary to completely close the imperfection gap (Z4).'''
+        '''Shell force necessary to completely close the imperfection gap (Z4).
+
+        Evaluated according to ref. [2], eq. G.56.
+        '''
         return self.shell_force_at_rest + self._total_gap_neutralization_shell_force
 
     @cached_property
     def _a_red (self):
-        #Tobinaga reduction
+        '''Equivalent flange inner length a', according to ref. [2], eq. G.12.'''
         return self.b / (self._prying_lever_ratio - 1)
 
     @cached_property
     def _a_star (self):
+        '''Parameter a* of the bolt moment curve, according to ref. [2], eq. G.60.'''
         return max(0.4, min((self.t / (self._a_red + self.b))**2 , 1)) * self._a_red
 
     @cached_property
     def _total_gap_neutralization_shell_force (self):
-        '''Incremental force to close the imperfection gap (delta-Z_gap,total).'''
+        '''Incremental force to close the imperfection gap (delta-Z_gap,total).
+
+        Evaluated according to ref. [2], eq. G.39, with the sign convention of
+        this module: a negative value is a force closing the gap.
+        '''
         MAXIMUM_GAP_NEUTRALIZATION_SHELL_FORCE = -1000 # 1 kN
         return min(self._parallel_gap_neutralization_shell_force - self._tilt_neutralization_shell_force,
                    MAXIMUM_GAP_NEUTRALIZATION_SHELL_FORCE)
@@ -893,7 +893,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def _parallel_gap_neutralization_shell_force (self):
-        '''Force necessary to close a parallel imperfection gap.'''
+        '''Force necessary to close a parallel imperfection gap (ref. [2], eq. G.40).'''
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
         return -0.5 * self._gap_stiffness * self.gap.height * c
@@ -903,7 +903,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     def _tilt_neutralization_shell_force (self):
         '''Force that neutralizes the flange tilt (DZ_gap,incl).
 
-        This solves equation (G.64) of ref. [2].
+        This solves equation G.66 of ref. [2] and converts the resulting
+        moment into a shell force with equation G.70.
         '''
 
         # The equation to be solved is A*[inv(B)*C]*M = D,
@@ -951,10 +952,10 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         H = A @ (np.linalg.inv(B) @ C)
 
         # The last equation of the system H*M = D is h2*M = d2 and
-        # we can therefore determine M from it as d2/h2:https://kcibv-my.sharepoint.com/:x:/g/personal/g_arona_kci_nl/IQAKaieb_blBTKSeQD2YdipAAapxRzwqZ_nRcG577qOwY-I?e=l8iviI
+        # we can therefore determine M from it as d2/h2.
         M = d2 / H[1]
 
-        # Return the tower shell force force corresponding to M
+        # Return the tower shell force force corresponding to M (ref. [2], eq. G.70)
         c = self.central_angle * R_sh
         b_mean = self.b + self.s/2 - s_mean/2
         return -c * M / (s_mean/2 + b_mean)
@@ -962,64 +963,28 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     
     @cached_property
     def _ideal_bolt_force_at_tensile_ULS (self):
-        '''Bolt axial force at tensile failure for a sinusoidal gap shape.'''
+        '''Bolt axial force at tensile failure for a sinusoidal gap shape (ref. [2], eq. G.36).'''
         return max(self.bolt.ultimate_tensile_capacity(), 1.25*self.bolt_force_at_rest)
 
 
     @cached_property
     def _ideal_shell_force_at_tensile_ULS (self):
-        '''Tower shell force at the theoretical state of full prying (Z0).'''
+        '''Tower shell force at the theoretical state of full prying (Z0, ref. [2], eq. G.37).'''
         return self._ideal_bolt_force_at_tensile_ULS / self._prying_lever_ratio
 
 
     @cached_property
     def _prying_lever_ratio (self):
-        '''Lever ratio A, as defined in [9].'''
-
-        # Ref. [9] uses different symbolts than ref. [1].
-        # This getter uses the symbols defined in ref. [9].
-        e = self.a
-        g = self.b
-
-        # The flange is considered rigid if e <= 1.25*g.
-        # In a rigid flange, the pivid point is the edge, therefore e_reduced = e.
-        if e/g <= 1.25:
-            return (e + g) / e
-
-        # For e > 2.25*g, the model defined in ref. [9] has not been
-        # validated. A warning is thrown, but then the model is applied
-        # anyways.
-        if e/g > 2.25:
-            logger.warning("Flange geometry out of validity range for Tobinaga & Ishihara lever ratio formulation: e/g > 2.25.")
-
-        # Coefficient a, expressing the slenderness of the longitudinal
-        # cross-section of this flange-segment as tatio between thickness
-        # and length.
-        a = min(self.t / (e+g), 1.0)
-        if a < 0.55 - 0.12 * (e/g):
-            # When outside the boundary of validations, throw a warning, but then
-            # apply the model anyways.
-            logger.warning("Flange geometry out of validity range for Tobinaga & Ishihara lever ratio formulation: a < 0.55 - 0.12 * (e/g).")
-
-        # Evaluate the ratio between distance e (pivit point location for rigid body rotation)
-        # and the acctual center of reaction at the prying contact location.
-        b = (e/g - 1.25)**0.32 + 0.45
-        actionpoint_correction_factor = min(1 - (1 - a**b)**5, 1.0)
-
-        # Distance from the center of reaction at prying contact location, form
-        # the center of bolt hole.
-        e_reduced = actionpoint_correction_factor * e
-
-        # Lever ratio
-        return (e_reduced + g) / e_reduced
+        '''Lever ratio (a' + b) / a', according to ref. [2], section G.1.3.'''
+        return _tobinaga_lever_ratio(self.a, self.b, self.t)
 
 
     @cached_property
     def _k_shell (self):
-        # Shell stiffness
+        '''Initial shell stiffness k_shell,ini, according to ref. [2], eqs. G.43 and G.44.'''
         s_avg = (self.s + self.s_ratio * self.s) / 2    # Average shell thickness
-        L_gap = self.R * self.gap.angle                 # Gap lenght at mid-line of shell with average thickness
-        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48A
+        L_gap = self.R * self.gap.angle                 # Gap lenght measured on the outer radius of the shell
+        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [2], eq. G.44
         try:
             k_shell = float(self.k_shell)
         except Exception:
@@ -1031,15 +996,15 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def _k_flange (self):
-        # Calculate the flange stiffness
-        L_gap = self.R * self.gap.angle                 # Gap lenght at mid-line of shell with average thickness
+        '''Flange bending stiffness k_fl, according to ref. [2], eq. G.46.'''
+        L_gap = self.R * self.gap.angle                 # Gap lenght measured on the outer radius of the shell
         w = self.a + self.b + self.s/2      # flange segment length
         A = w * self.t                      # flange segment longitudinal cross-section area
         I = w * self.t**3 / 12              # flange segment longitudinal corss-section second moment of area
         EI = self.E * I
         GA = self.G * A
         L2 = L_gap**2
-        k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49
+        k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [2], eq. G.46
         log_data(self, A_cf=A, I_cf=I, k_fl=k_flange)
         return k_flange
 
@@ -1049,7 +1014,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         '''Stiffness of the design gap.
 
         Returns the gap stiffness as a spring constant per unit of flange-segment
-        arc length, calculated according to ref.[1], sec. 8.1 and ref.[2], eq. G.35.
+        arc length, calculated according to ref. [2], eqs. G.41 and G.42. The factor
+        f_tot of eq. G.42 is further reduced for gap angles smaller than 30 deg.
         '''
 
         # Stiffness correction factor
@@ -1057,7 +1023,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         log_data(self, f_tot=f_tot)
 
-        # Total gap stiffness according to ref. [1], eq.53
+        # Total gap stiffness according to ref. [2], eq. G.41
         return f_tot * (self._k_shell + self._k_flange)
 
 
@@ -1066,8 +1032,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         '''Stiffness correction factor (alpha-k).
 
         This factor modifies the segment force to account for the effect of
-        the gap spring, evaluated according to ref. [1], sec. 8.2.2.2 and
-        ref. [2], eq. G.46.
+        the gap spring, evaluated according to ref. [2], eqs. G.49 to G.51.
         '''
 
         from math import pi
@@ -1080,7 +1045,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
         I = c * self.t**3 / 12
-        u = (Z0 * self.b**2 / (3 * self.E * I) + (Fs0 - self.bolt_preload) / (2 * self._bolt_axial_stiffness * self._a_red)) * (self._a_red + self.b)   # ref. [1], eq.72
+        u = (Z0 * self.b**2 / (3 * self.E * I) + (Fs0 - self.bolt_preload) / (2 * self._bolt_axial_stiffness * self._a_red)) * (self._a_red + self.b)   # ref. [2], eq. G.51
 
         # Evaluate the segment stiffness
         s_avg = (self.s + self.s_ratio * self.s) / 2
@@ -1089,7 +1054,7 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
         log_data(self, u=u, k_seg=k_seg)
 
-        # Return the stiffness correction factor, acc. [1], eq.75
+        # Return the stiffness correction factor, acc. ref. [2], eq. G.49
         return min(1 + self._gap_stiffness / k_seg,
                    4 * pi/3 / self.gap.angle)
 
@@ -1098,8 +1063,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     def _polynomial_initial_slope (self):
         '''Initial slope of the Fs(Z) polynomial.
 
-        This slope is calculated according to ref. [1], section 8.2.2.3
-        and ref. [2], eq. G.53.
+        This slope is calculated according to ref. [2], eqs. G.53 and G.55,
+        and scaled by the gap shape factor.
         '''
 
         # Load factor of the tension spring
@@ -1147,21 +1112,24 @@ class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
     This class has the same parameters and interface as `PolynomialLFlangeSegment`,
     but it replaces the `a*` parameter, the parallel-gap closing force and the
     gap stiffness with the formulations that will be introduced in
-    IEC 61400-6 ED2.
+    IEC 61400-6 ED2 (ref. [5], section 9.7, changes #1 to #3).
     '''
-    
+
     @cached_property
     def _a_star (self):
-        ''' a* parameter
-        As it will be modified in IEC 61400-6 ED2
+        '''Parameter a* of the bolt moment curve, as modified in IEC 61400-6 ED2.
+
+        The lower bound is 0.3*a' instead of 0.4*a' (ref. [5], section 9.7, change #3).
         '''
         return max(0.3, min((self.t / (self._a_red + self.b))**2 , 1)) * self._a_red
 
 
     @cached_property
     def _parallel_gap_neutralization_shell_force (self):
-        '''Force necessary to close a parallel imperfection gap.
-        As it will be modified in IEC 61400-6 ED2
+        '''Force necessary to close a parallel imperfection gap, as modified in IEC 61400-6 ED2.
+
+        The AMD1 force is multiplied by the torsional correction factor f_k,gap
+        (ref. [5], sections 9.3.4 and 9.7, change #1).
         '''
 
         # Calaculate ED2 correction factor
@@ -1181,7 +1149,9 @@ class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
         '''Stiffness of the design gap.
 
         Returns the gap stiffness as a spring constant per unit of flange-segment
-        arc length, as it will be modified in IEC 61400-6 ED2
+        arc length, as it will be modified in IEC 61400-6 ED2 (ref. [5], section 9.7,
+        change #2): the factor f_tot only applies to the shell stiffness. As for
+        AMD1, f_tot is further reduced for gap angles smaller than 30 deg.
         '''
 
         # Stiffness correction factor
@@ -1189,7 +1159,7 @@ class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
 
         log_data(self, f_tot=f_tot)
 
-        # Total gap stiffness according to ref. [1], eq.53
+        # Total gap stiffness according to ref. [5], section 9.7
         return f_tot * self._k_shell + self._k_flange
 
 
@@ -1200,11 +1170,14 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     This class models a T-flange segment using the polynomial model from
     ref. [1] and [2]. It defines the reference points for the polynomial
-    functions inherited from the parent class.
+    functions inherited from the parent class. The segment contains a pair of
+    bolts, one on each side of the shell.
 
     The transfer functions are available through the `bolt_axial_force` and
     `bolt_bending_moment` methods, which accept either a scalar or a NumPy
-    array of shell pull forces.
+    array of shell pull forces. Differently from the L-flange, the bolt
+    bending moment in the tensile domain is a cubic polynomial (ref. [2],
+    eq. G.61).
 
     Attributes:
         a (float): Distance from inner flange face to bolt hole center.
@@ -1213,20 +1186,32 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         t (float): Flange thickness.
         R (float): Shell outer curvature radius.
         central_angle (float): Angle subtended by the flange segment arc.
-        Zg (float): Load on the shell at rest (e.g., dead weight). Negative for compression.
+        Zg (float): Load on the shell at rest (e.g., dead weight), per bolt pair.
+            Negative for compression.
         bolt (Bolt): The bolt in the flange segment.
-        Fv (float): Design preload value.
+        Fv (float): Design preload value before losses.
         Do (float): Bolt hole diameter.
         washer (Washer): The washer used. None if no washer.
         nut (Nut): The nut used.
         gap (Gap): The flange gap.
-        tilt_angle (float): Flange tilt angle in radians.
+        tilt_angle (float): Flange tilt angle in radians. It has no default value,
+            because ref. [2], section G.2.4, requires the inclination of T-flanges
+            to be always considered: pass 0.0 explicitly only if the taper of the
+            flange ensures that the first point of contact is directly below the
+            tower wall (ref. [2], section 6.7.5.3).
         E (float): Young's modulus of the flange material.
         G (float): Shear modulus of the flange material.
         s_ratio (float): Ratio of bottom shell thickness to `s`.
         r (float): Radius of the rounding between shell and flange.
-        k_shell (float, None): Shell stiffness [N/m/m]. Can be a value or `None`
-            to use the simplified formula of ref. [1].
+        k_shell (float, callable, None): Shell stiffness [N/m/m]. Can be a value, a
+            function taking the flange segment as argument and returning the
+            stiffness, or `None` to use the simplified formula of ref. [2], eq. G.43.
+        PPL (float): Percentage of bolt pretension loss due to plastic strain,
+            expressed as a fraction of `Fv` (e.g. 0.03 for 3%). Defaults to 0.0.
+        DFT (float): Maximum allowable dry film thickness of coating applied on the contact
+            area between washers and flange [m]. Defaults to 0.0 m.
+        settlement_factor (float): Factor reducing the amount of bolt settlement, to be
+            taken as 1.0 for torque tightening and 0.5 for tension tightening. Defaults to 1.0.
     '''
 
     a: float        # distance between inner face of the flange and center of the bolt hole
@@ -1237,38 +1222,45 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     central_angle: float     # angle subtended by the flange segment
 
     Zg: float       # load applied to the flange segment shell at rest (normally dead weight
-                    # of tower + RNA, divided by the number of bolts). Negative if compression.
+                    # of tower + RNA, divided by the number of bolt pairs). Negative if compression.
 
     bolt: Bolt      # Bolt object representing the flange segment bolt
-    Fv: float       # applied bolt preload
+    Fv: float       # applied bolt preload before pretension losses
 
     Do: float       # Bolt hole diameter
     washer: Washer  # Bolt washer
     nut: Nut        # Bolt nut
 
     gap: Gap        # Flange gap object
-    
-    tilt_angle : float = 0.0    # angle of flange tilt
+
+    tilt_angle: float       # angle of flange tilt (no default: see class docstring)
 
     E: float = 210e9    # Young modulus of the flange
     G: float = 80.77e9  # Shear modulus of the flange
     s_ratio: float = 1.0    # Ratio of bottom shell thickness over s. Default s_botom = s.
+    r: float = 0.01         # Rounding between flange and shell
 
-    r: float = 0.01 #rounding between flange and shell
-    
     k_shell: float = None   # optional initial shell stiffness in [N/m/m].
 
+    PPL: float = 0.0      # Percentage of pretension losses due to plastic strain
+
+    DFT: float = 0.0        # Maximum allowable dry film thickness of coatings applied in the
+                            # contact area between washers and flange [m]
+
+    settlement_factor: float = 1.0   # Factor reducing the amount of bolt settlement, to be
+                                     # taken as 1.0 for torque tightening and 0.5 for tension tightening.
 
 
-    def failure_mode (self, fy_sh, fy_fl,gamma_0 = 1.1):
+    def failure_mode (self, fy_sh, fy_fl, gamma_0=1.1):
         '''Determines the failure mode of the flange.
 
         The ultimate shell force is evaluated for each of the failure modes
-        A, B, D and E, and the governing mode is the one with the lowest
-        ultimate shell force.
+        A, B, D and E of ref. [2] (eqs. G.24 to G.29), and the governing mode
+        is the one with the lowest ultimate shell force.
 
         Args:
-            fy_sh (float): Yield stress of the shell material.
+            fy_sh (float): Yield stress of the shell material. Not used, since the
+                plastic hinge of T-flanges is in the flange (ref. [2], Figure G.6).
             fy_fl (float): Yield stress of the flange material.
             gamma_0 (float, optional): Material factor. Defaults to 1.1.
 
@@ -1282,37 +1274,46 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         from scipy.optimize import fsolve
 
         fd_fl = fy_fl / gamma_0
-        
+
         Dw = self.washer.outer_diameter if self.washer else self.nut.bearing_diameter
-        a_red = self.b / (self._prying_lever_ratio - 1) #Tobinaga reduction
-        b_E = self.b-(self.Do+Dw)/4
-        b_red = self.b-self.s/2-0.8*self.r
-        
-        c_hole = self.central_angle * (self.R - self.s/2 - self.b) - self.bolt.nominal_diameter
-        c_washer = self.central_angle * (self.R - self.s/2 - self.b + (self.Do/2 + Dw/2)/2)
 
-        # Failure mode A
+        # Reduced distances between plastic hinges (ref. [2], eqs. G.28 and G.29)
+        b_red = self.b - self.s/2 - 0.8*self.r
+        b_E = self.b - (Dw + self.Do)/4 - self.s/2 - 0.8*self.r
+
+        # Segment width at the middle surface of the shell (ref. [2], eq. G.34)
+        # and segment width reduced by the bolt hole (ref. [2], eq. G.7)
+        c = self.central_angle * (self.R - self.s/2)
+        c_hole = c - self.Do
+
+        # Failure mode A (ref. [2], eq. G.24)
         F_tRd = self.bolt.ultimate_tensile_capacity()   # Bolt ultimate tensile capacity
-        Zu_A = 2*F_tRd                                    # Ultimate tower shell force for failure mode A
+        Zu_A = 2*F_tRd                                  # Ultimate tower shell force for failure mode A
 
-        # Flange cross-section ultimate capacity (at hole)
-        Vu_fl = fd_fl * c_washer * self.t / 3**0.5                # Pure shear ultimate capacity
-        Mu_fl = fd_fl * c_washer * self.t**2 / 4                  # Pure bending ultimate capacity
+        # Flange cross-section ultimate capacity, ref. [2], eqs. G.8, G.10 and G.11
+        Vu_fl = fd_fl * c * self.t / 3**0.5                # Pure shear ultimate capacity
+        Mu_fl = fd_fl * c * self.t**2 / 4                  # Pure bending ultimate capacity
         MVu_fl = lambda V: Mu_fl * (1 - (V / Vu_fl)**2)**0.5 if V < Vu_fl else 0    # Bending ultimate capacity, concurrent with shear
 
-        # Failure mode B
-        Zu_fl_B = lambda Mu_pl3: (F_tRd * a_red + Mu_pl3) / (a_red + b_red)
-        Zu_B = 2 * fsolve(lambda Z: Zu_fl_B(MVu_fl(Z)) - Z, Zu_fl_B(Mu_fl))[0]
+        # Each half of the T-flange segment carries half of the shell force Z.
+        # The iterative calculation of ref. [2], eq. G.11 is therefore done
+        # for the half segment, given the function Zu_half(Mu_pl3) returning
+        # the half shell force at flange shear ULS for a given value of Mu_pl3,
+        # and the result is doubled (factor 2 of eqs. G.25 to G.27).
+        def find_Zu (Zu_half):
+            return 2 * fsolve(lambda Z: Zu_half(MVu_fl(Z)) - Z, Zu_half(Mu_fl))[0]
 
-        # Failure mode D
+        # Failure mode B (ref. [2], eq. G.25)
+        a_red = self._a_red
+        Zu_B = find_Zu(lambda Mu_pl3: (F_tRd * a_red + Mu_pl3) / (a_red + b_red))
+
+        # Failure mode D (ref. [2], eqs. G.7, G.9 and G.26)
         Mu_pl2 = fd_fl * c_hole * self.t**2 / 4
         DMu_pl2 = F_tRd/2 * (self.Do/2 + Dw/2)/2
-        Zu_fl_D = lambda Mu_pl3: 2*(Mu_pl2 + DMu_pl2 + Mu_pl3) / b_red
-        Zu_D = 2 * fsolve(lambda Z: Zu_fl_D(MVu_fl(Z)) - Z, Zu_fl_D(Mu_fl))[0]
+        Zu_D = find_Zu(lambda Mu_pl3: (Mu_pl2 + DMu_pl2 + Mu_pl3) / b_red)
 
-        # Failure mode E
-        Zu_fl_E = lambda Mu_pl3: 2*(Mu_fl + Mu_pl3) / b_E
-        Zu_E = 2 * fsolve(lambda Z: Zu_fl_E(MVu_fl(Z)) - Z, Zu_fl_E(Mu_fl))[0]
+        # Failure mode E (ref. [2], eq. G.27)
+        Zu_E = find_Zu(lambda Mu_pl3: (Mu_fl + Mu_pl3) / b_E)
 
         # Determine the governing failure mode
         Zu_min = min(Zu_A, Zu_B, Zu_D, Zu_E)
@@ -1326,10 +1327,12 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         elif Zu_min == Zu_E:
             return "E",(Zu_A, Zu_B, Zu_D, Zu_E)
 
-    def validate (self, fy_sh, fy_fl,gamma_0 = 1.1):
+
+    def validate (self, fy_sh, fy_fl, gamma_0=1.1):
         '''Verifies the applicability of the polynomial model.
 
-        Checks if this T-Flange Segment fails according to failure mode A.
+        Checks if this T-Flange Segment fails according to failure mode A
+        (ref. [2], eq. G.31).
 
         Args:
             fy_sh (float): Yield stress of the shell material.
@@ -1340,7 +1343,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
             ValueError: If the failure mode is not "A".
         '''
 
-        failure_mode,failure_shellforces = self.failure_mode(fy_sh, fy_fl,gamma_0=gamma_0)
+        failure_mode, failure_shellforces = self.failure_mode(fy_sh, fy_fl, gamma_0=gamma_0)
 
         if failure_mode != "A":
             raise ValueError(f"Failure mode {failure_mode} detected, while only failure mode A is supported.")
@@ -1358,7 +1361,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         '''The bending stiffness of the bolt.'''
         tw = self.washer.thickness if self.washer else 0
         return self.bolt.bending_stiffness(2*self.t + 2*tw)
-    
+
 
     @cached_property
     def _flange_axial_stiffness (self):
@@ -1376,18 +1379,15 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
 
     def _bolt_moment (self, Z, Fs):
-        '''Calculates the bolt bending moment.
+        '''Calculates the bolt bending moment, according to ref. [2], eqs. G.61 to G.63.
 
         Args:
-            Z (float): Shell pull force.
-            Fs (float): Bolt axial force.
+            Z (float or numpy.polynomial.Polynomial): Shell pull force.
+            Fs (float or numpy.polynomial.Polynomial): Bolt axial force.
 
         Returns:
-            float: The bolt bending moment.
+            float or numpy.polynomial.Polynomial: The bolt bending moment.
         '''
-        a_red = self.b / (self._prying_lever_ratio - 1) #Tobinaga reduction
-        a_star = max(0.4, min((self.t / (a_red + self.b))**2 , 1)) * a_red
-
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
         A_tg= c *self.t
@@ -1395,17 +1395,50 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         ak = self._stiffness_correction_factor
 
-        phi_T_low=(Fs-self.Fv)*( self.b**2/(2*self.E*I_tg) + 1/(0.85*self.G*A_tg) )
+        phi_T_low=(Fs-self.bolt_preload)*( self.b**2/(2*self.E*I_tg) + 1/(0.85*self.G*A_tg) )
         phi_T_high=Z*( self.b**2/(ak*4*self.E*I_tg) + 1/(0.85*self.G*A_tg) )
 
         Z0 = self._ideal_shell_force_at_tensile_ULS
         Z_close=self.shell_force_at_closed_gap
-        
+
         bolt_rotation=phi_T_low+(phi_T_high-phi_T_low)/(Z0-Z_close)*(Z-Z_close)
 
-        log_data(self, a_star=a_star)
+        log_data(self, a_star=self._a_star)
 
         return bolt_rotation * 2*self._bolt_bending_stiffness
+
+
+    @cached_property
+    def _tensile_moment_polynomial (self):
+        '''Polynomial Ms(Z) for the tensile domain.
+
+        The bolt moment of ref. [2], eq. G.61 is the product of the bolt
+        rotation interpolation, linear in Z, and of the bolt force polynomial,
+        quadratic in Z. It is therefore a cubic polynomial, which is evaluated
+        exactly here, instead of fitting a quadratic polynomial through the
+        points P1, P2 and P3.
+
+        Returns:
+            numpy.polynomial.polynomial.Polynomial: The polynomial for the tensile domain.
+        '''
+
+        from numpy.polynomial.polynomial import Polynomial
+
+        Fs = self._tensile_force_polynomial
+        Z = Polynomial((0, 1), domain=Fs.domain, window=Fs.window, symbol="Z")
+        return self._bolt_moment(Z, Fs)
+
+
+    @cached_property
+    def bolt_preload (self):
+        '''float: Bolt preload after settlement and plastic losses.
+
+        The preload `Fv` is reduced by the settlement loss (function of `DFT`
+        and `settlement_factor`, ref. [2], section 6.7.5.1.2, eqs. 27 and 28) and
+        by the plastic loss (`PPL * Fv`, ref. [2], eq. 24).
+        '''
+        return _preload_after_losses(self)
+
 
     @cached_property
     def shell_force_at_rest (self):
@@ -1422,7 +1455,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         The bolt force at rest is just the bolt pretension.
         '''
-        return self.Fv
+        return self.bolt_preload
 
     @cached_property
     def bolt_moment_at_rest (self):
@@ -1436,7 +1469,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         '''Intermediate tower shell force (Z3).
 
         This auxiliary point gives the polynomial the right initial slope,
-        evaluated according to ref. [1], sec. 8.2.2.3 and ref. [2], sec. G.4.2.
+        evaluated according to ref. [2], Table G.1, point 3.
         '''
         # Retrieve point 2A (called point 0 in [1]) and determine Z as
         # a low pecentage of the theoretical pull Z0.
@@ -1448,16 +1481,12 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         '''Intermediate bolt axial force (Fs3).
 
         This auxiliary point gives the polynomial the right initial slope,
-        evaluated according to ref. [1], sec. 8.2.2.3 and ref. [2], sec. G.4.2.
+        evaluated according to ref. [2], Table G.1, point 3.
         '''
         # The slope between points P1 and P3 should match the
         # theoretical value of stiffness of the system.
         Z = self.shell_force_at_small_displacement
-        Fs3 = self.Fv + self._polynomial_initial_slope * (Z - self.Zg)
-
-        # Scale Fs3 based on the gap shape
-        Fs1 = self.bolt_force_at_rest
-        return Fs1 + (Fs3 - Fs1)
+        return self.bolt_preload + self._polynomial_initial_slope * (Z - self.Zg)
 
     @cached_property
     def bolt_moment_at_small_displacement (self):
@@ -1471,21 +1500,20 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         '''Ultimate Limit State tower shell force (Z2).
 
         This is the tower shell force that brings the flange segment to its
-        tensile ULS, evaluated according to ref. [1], sec. 8.2.2.2 and
-        ref. [2], sec. G.4.2.
+        tensile ULS, evaluated according to ref. [2], Table G.1, point 2.
         '''
         Z0 = self._ideal_shell_force_at_tensile_ULS
         Z2 = self._stiffness_correction_factor * max(
             Z0 + self._total_gap_neutralization_shell_force,
             0.2 * Z0)
         return min(Z0, Z2)
-    
+
     @cached_property
     def bolt_force_at_tensile_ULS (self):
         '''Bolt axial force at tensile failure (Fs2).
 
         This is the bolt's tensile force at the shell's ULS, assuming
-        failure mode A.
+        failure mode A (ref. [2], eq. G.36), scaled by the gap shape factor.
         '''
         # Bolt force at tensile ULS for sinusoidal gap shape
         Fs2 = self._ideal_bolt_force_at_tensile_ULS
@@ -1503,41 +1531,60 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def shell_force_at_closed_gap (self):
-        '''Shell force necessary to completely close the imperfection gap (Z4).'''
+        '''Shell force necessary to completely close the imperfection gap (Z4).
+
+        Evaluated according to ref. [2], eq. G.56.
+        '''
         return self.shell_force_at_rest + self._total_gap_neutralization_shell_force
 
     @cached_property
-    def _total_gap_neutralization_shell_force (self):
-        '''Total incremental force to close the imperfection gap.'''
-        delta_Z_gap=self._parallel_gap_neutralization_shell_force
-        delta_Z_gap_c=self._tilt_neutralization_shell_force
-        delta_Z_gap_incl=self._early_prying_neutralization_shell_force
-        
-        #total shell force at closed gap
-        delta_Z_gap_tot=delta_Z_gap+delta_Z_gap_c+delta_Z_gap_incl
+    def _a_red (self):
+        '''Equivalent flange inner length a', according to ref. [2], eq. G.12.'''
+        return self.b / (self._prying_lever_ratio - 1)
 
-        return delta_Z_gap_tot
-    
+    @cached_property
+    def _a_star (self):
+        '''Parameter a* (ref. [2], eq. G.60). Not used by the T-flange model, only logged.'''
+        return max(0.4, min((self.t / (self._a_red + self.b))**2 , 1)) * self._a_red
+
+    @cached_property
+    def _total_gap_neutralization_shell_force (self):
+        '''Total incremental force to close the imperfection gap.
+
+        Evaluated according to ref. [2], eq. G.39, with the sign convention of
+        this module: a negative value is a force closing the gap.
+        '''
+        delta_Z_gap = self._parallel_gap_neutralization_shell_force
+        delta_Z_gap_incl = self._tilt_neutralization_shell_force
+        delta_Z_gap_c = self._early_prying_neutralization_shell_force
+
+        return delta_Z_gap + delta_Z_gap_incl + delta_Z_gap_c
+
     @cached_property
     def _parallel_gap_neutralization_shell_force (self):
-        '''Force necessary to close a parallel imperfection gap.'''
+        '''Force necessary to close a parallel imperfection gap (ref. [2], eq. G.40).'''
         s_avg = self.s * (1 + self.s_ratio) / 2
         c = self.central_angle * (self.R - s_avg/2)
         return -0.5 * self._gap_stiffness * self.gap.height * c
-    
+
     @cached_property
     def _tilt_neutralization_shell_force (self):
-        '''Force that neutralizes the flange tilt.'''
-        # Calculate geometric properties               
+        '''Force that neutralizes the flange tilt (DZ_gap,incl).
+
+        This solves equation G.66 of ref. [2] in closed form and converts the
+        resulting moment into a shell force with equation G.69.
+        '''
+        # Calculate geometric properties
         Rm= self.R - self.s/2
         c_m=self.central_angle*Rm
         w=2*(self.a+self.b)
 
-        #Reduction due to inclination (58)
-        #shell parameters (56) & (57)
-        K=self.E*self.s**3/(12*(1-0.3**2))
-        n=((3*(1-0.3**2))**0.25)/((Rm*self.s)**0.5)
+        # Shell parameters (ref. [2], eqs. G.67 and G.68)
+        nu = self.E / (2*self.G) - 1
+        K=self.E*self.s**3/(12*(1-nu**2))
+        n=((3*(1-nu**2))**0.25)/((Rm*self.s)**0.5)
 
+        # Second row of the matrix equation G.66, solved for M
         d11=1/(2*K*n**3)+Rm**2/(self.E*w*self.t)
         d22=1/(K*n)+12*Rm**2/(self.E*w*self.t**3)
         c12=1/(2*K*n**2)
@@ -1546,129 +1593,102 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         d02=self.tilt_angle * (d11*d22-c12**2)/(c22*d11-c12**2)
         M_tilt=d02*(self.E*w*self.t**3)/(12*Rm**2)
         delta_Z_gap_incl=-M_tilt*c_m/(w/2+self.b)
-        
+
         log_data(self, M_tilt=M_tilt)
-        
+
         return delta_Z_gap_incl
-    
+
     @cached_property
     def _early_prying_neutralization_shell_force (self):
-        '''Increase of the gap closing force due to early prying at the edges.'''
-        # Calculate geometric properties                
+        '''Increase of the gap closing force due to early prying at the edges (DZ_gap,c).
+
+        Evaluated according to ref. [2], eqs. G.47 and G.48.
+        '''
+        # Calculate geometric properties
         Rm= self.R - self.s/2
         c_m=self.central_angle*Rm
         A_tg= c_m *self.t
         I_tg = c_m * self.t**3 / 12
-       
-        # Calculate the gap stiffness
-        alpha_gap=self.gap.angle*180/pi
-        f_tot= min(1 + alpha_gap/90 *1.5,2.5)
-        k_gap=self._gap_stiffness/f_tot                 #total gap stiffness, without the adjustment factor of 2.2 acc. to [1] eq.26
 
-        #Preload force at which edge contact occurs (31)
+        # Initial linear gap stiffness, without the factor f_tot
+        k_gap = self._k_shell + self._k_flange
+
+        # Preload force at which edge contact occurs (ref. [2], eq. G.48)
         Fv_c=0.5*self.gap.height/( self.b**3/(3*self.E*I_tg) + self.b**2*self.a/(2*self.E*I_tg) + 1.2*self.b/(self.G*A_tg) + 1/(c_m*(k_gap)) )
 
-        #Reduction due to early prying (30)
-        delta_Z_gap_c=-max((self.Fv-Fv_c) * ((3*self.a+2*self.b)*self.b**2/(2*(self.a+self.b)**3)),0)
-        
+        # Reduction due to early prying (ref. [2], eq. G.47)
+        delta_Z_gap_c=-max((self.bolt_preload-Fv_c) * ((3*self.a+2*self.b)*self.b**2/(2*(self.a+self.b)**3)),0)
+
         log_data(self, Fv_c=Fv_c, A_tg=A_tg, I_tg=I_tg)
-        
+
         return delta_Z_gap_c
-    
+
     @cached_property
     def _ideal_bolt_force_at_tensile_ULS (self):
-        '''Bolt axial force at tensile ULS.'''
+        '''Bolt axial force at tensile ULS (ref. [2], eq. G.36).'''
         # The bolt is loaded with the ultimate capacity, by definition.
         # If the pretension Fv is too close to the ultimate capacity Fsu, the polynomial
         # function may get too steep, therefore we make sure that Fs2 is at list 125% of Fv.
         return max(self.bolt.ultimate_tensile_capacity(), 1.25*self.bolt_force_at_rest)
-    
+
     @cached_property
     def _ideal_shell_force_at_tensile_ULS (self):
-        '''Ideal shell force at tensile ULS.'''
+        '''Shell force at the theoretical state of full separation (Z0, ref. [2], eq. G.38).'''
         return self._ideal_bolt_force_at_tensile_ULS * 2
 
     @cached_property
     def _prying_lever_ratio (self):
-        '''Lever ratio A, as defined in [9].'''
+        '''Lever ratio (a' + b) / a', according to ref. [2], section G.1.3.'''
+        return _tobinaga_lever_ratio(self.a, self.b, self.t)
 
-        # Ref. [9] uses different symbolts than ref. [1].
-        # This getter uses the symbols defined in ref. [9].
-        e = self.a
-        g = self.b
+    @cached_property
+    def _k_shell (self):
+        '''Initial shell stiffness k_shell,ini, according to ref. [2], eqs. G.43 and G.44.'''
+        s_avg = (self.s + self.s_ratio * self.s) / 2    # Average shell thickness
+        L_gap = self.R * self.gap.angle                 # Gap lenght measured on the outer radius of the shell
+        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [2], eq. G.44
+        try:
+            k_shell = float(self.k_shell)
+        except Exception:
+            k_shell = self.k_shell(self) if callable(self.k_shell) else self.E * s_avg / (k_fac * L_gap)
 
-        # The flange is considered rigid if e <= 1.25*g.
-        # In a rigid flange, the pivid point is the edge, therefore e_reduced = e.
-        if e/g <= 1.25:
-            return (e + g) / e
+        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell)
+        return k_shell
 
-        # For e > 2.25*g, the model defined in ref. [9] has not been
-        # validated. A warning is thrown, but then the model is applied
-        # anyways.
-        if e/g > 2.25:
-            logger.warning("Flange geometry out of validity range for Tobinaga & Ishihara lever ratio formulation: e/g > 2.25.")
-
-        # Coefficient a, expressing the slenderness of the longitudinal
-        # cross-section of this flange-segment as tatio between thickness
-        # and length.
-        a = min(self.t / (e+g), 1.0)
-        if a < 0.55 - 0.12 * (e/g):
-            # When outside the boundary of validations, throw a warning, but then
-            # apply the model anyways.
-            logger.warning("Flange geometry out of validity range for Tobinaga & Ishihara lever ratio formulation: a < 0.55 - 0.12 * (e/g).")
-
-        # Evaluate the ratio between distance e (pivit point location for rigid body rotation)
-        # and the acctual center of reaction at the prying contact location.
-        b = (e/g - 1.25)**0.32 + 0.45
-        actionpoint_correction_factor = min(1 - (1 - a**b)**5, 1.0)
-
-        # Distance from the center of reaction at prying contact location, form
-        # the center of bolt hole.
-        e_reduced = actionpoint_correction_factor * e
-
-        # Lever ratio
-        return (e_reduced + g) / e_reduced
+    @cached_property
+    def _k_flange (self):
+        '''Flange bending stiffness k_fl, according to ref. [2], eq. G.46.'''
+        L_gap = self.R * self.gap.angle     # Gap lenght measured on the outer radius of the shell
+        w = (self.a + self.b)*2             # flange segment length
+        A = w * self.t                      # flange segment longitudinal cross-section area
+        I = w * self.t**3 / 12              # flange segment longitudinal corss-section second moment of area
+        EI = self.E * I
+        GA = self.G * A
+        L2 = L_gap**2
+        k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [2], eq. G.46
+        log_data(self, A_cf=A, I_cf=I, k_fl=k_flange)
+        return k_flange
 
     @cached_property
     def _gap_stiffness (self):
         '''Stiffness of the design gap.
 
         Returns the gap stiffness as a spring constant per unit of flange-segment
-        arc length, calculated according to ref.[1], sec. 9.1.
+        arc length, calculated according to ref. [2], eqs. G.41 and G.42.
         '''
+        f_tot = min(1.0 + 1.5 * self.gap.angle/(pi/2), 2.5)
 
-        # Calculate the shell stiffness
-        #Rm = self.R - self.s/2   # radius of the shell midline
-        #L_gap = Rm * self.gap.angle
-        L_gap = self.R * self.gap.angle
-        #k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (Rm*1000)) * (L_gap*1000))    # ref. [1], eq.48
-        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [1], eq.48
-        s_avg = (self.s + self.s_ratio * self.s) / 2
-        k_shell = self.k_shell or self.E * s_avg / (k_fac * L_gap)                   # ref. [1], eq.47
+        log_data(self, f_tot=f_tot)
 
-        # Calculate the flange stiffness
-        w = (self.a + self.b)*2      # flange segment length
-        A = w * self.t                      # flange segment longitudinal cross-section area
-        I = w * self.t**3 / 12              # flange segment longitudinal corss-section second moment of area
-        EI = self.E * I
-        GA = self.G * A
-        L2 = L_gap**2
-        k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [1], eq.49
-        
-        alpha_gap=self.gap.angle*180/pi
-        f_tot= min(1 + alpha_gap/90 *1.5,2.5)
-        
-        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell, A_cf=A, I_cf=I, k_fl=k_flange, f_tot=f_tot)
-
-        # Total gap stiffness according to ref. [1], eq.53
-        return f_tot * (k_shell + k_flange)
+        # Total gap stiffness according to ref. [2], eq. G.41
+        return f_tot * (self._k_shell + self._k_flange)
 
     @cached_property
     def _stiffness_correction_factor (self):
         '''Stiffness correction factor (alpha-k).
 
         This factor modifies the segment force to account for the effect of
-        the gap spring, evaluated according to ref. [1], sec. 9.2.2.2.
+        the gap spring, evaluated according to ref. [2], eqs. G.49, G.50 and G.52.
         '''
 
         from math import pi
@@ -1676,24 +1696,19 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         Rm= self.R - self.s/2
         cm=self.central_angle*Rm
 
-        # Retrieve point 2B
+        # Retrieve point 0
         Z0 = self._ideal_shell_force_at_tensile_ULS
-        # Z2B=max(Z0 + self._parallel_gap_neutralization_shell_force,
-        #         0.2 * Z0)
-
         Fs0 = self._ideal_bolt_force_at_tensile_ULS
 
-        # Evaluate the displacement u in the ultimate prying state.
-        Cs=self._bolt_axial_stiffness
+        # Evaluate the displacement u in the ultimate prying state (ref. [2], eq. G.52)
+        u = (Fs0 - self.bolt_preload) / (2*self._bolt_axial_stiffness)
 
-        u = (Fs0-self.Fv)/(2*Cs)   # (40)
-
-        # Evaluate the segment stiffness
+        # Evaluate the segment stiffness (ref. [2], eq. G.50)
         k_seg = Z0 / (u * cm)
-        
+
         log_data(self, u=u, k_seg=k_seg)
-        
-        # Return the stiffness correction factor, acc. [1], eq.75
+
+        # Return the stiffness correction factor, acc. ref. [2], eq. G.49
         return min(1 + self._gap_stiffness / k_seg,
                    4 * pi/3 / self.gap.angle)
 
@@ -1701,23 +1716,21 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     def _polynomial_initial_slope (self):
         '''Initial slope of the Fs(Z) polynomial.
 
-        This slope is calculated according to ref. [1], eq. 80.
+        This slope is calculated according to ref. [2], eqs. G.54 and G.55,
+        and scaled by the gap shape factor.
         '''
 
         # Load factor of the tension spring
         p = self._bolt_axial_stiffness / (self._bolt_axial_stiffness + self._flange_axial_stiffness)
-        p_max=(self.bolt_force_at_tensile_ULS - self.bolt_force_at_rest) / (self.shell_force_at_tensile_ULS - self.shell_force_at_rest)
-        
-        # Initial slope correction factor
-        #scf = min(0.5 , 0.5*(-self._total_gap_neutralization_shell_force / (0.2 * self.Fv))**2)
-        
-        #gap closing ratio
-        gap_closing_ratio=self._total_gap_neutralization_shell_force/(self.Fv)
-        
+
+        # Maximum allowable value of the slope
+        p_max = (self.bolt_force_at_tensile_ULS - self.bolt_force_at_rest) / (self.shell_force_at_tensile_ULS - self.shell_force_at_rest)
+
+        # Gap closing ratio, considering the preload of both bolts of the segment
+        gap_closing_ratio = -self._total_gap_neutralization_shell_force / (2 * self.bolt_preload * 0.5)
+
         # Initial slope
-        xi_ini=min(gap_closing_ratio*p*0.5,p_max)*self.gap.shape_factor
-        
-        return -xi_ini
+        return min(0.5 * p * gap_closing_ratio, p_max) * self.gap.shape_factor
 
 
     # ----------------------------------------------------------------------
@@ -1743,6 +1756,113 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         return self.gap.shape_factor
 
 
+
+class PolynomialTFlangeSegmentED2 (PolynomialTFlangeSegment):
+    '''A T-Flange segment modeled as it will be modified in IEC 61400-6 ED2.
+
+    This class has the same parameters and interface as `PolynomialTFlangeSegment`,
+    but it replaces the gap stiffness with the formulation that will be introduced
+    in IEC 61400-6 ED2 (ref. [5], sections 9.3.3 and 9.7, change #2). The other
+    ED2 changes of ref. [5], section 9.7 (torsional correction factor and a*)
+    only concern L-flanges.
+    '''
+
+    @cached_property
+    def _gap_stiffness (self):
+        '''Stiffness of the design gap.
+
+        Returns the gap stiffness as a spring constant per unit of flange-segment
+        arc length, as it will be modified in IEC 61400-6 ED2 (ref. [5], section 9.7,
+        change #2): the factor f_tot only applies to the shell stiffness.
+        '''
+        f_tot = min(1.4 + 0.6 * self.gap.angle/(pi/2), 2.0)
+
+        log_data(self, f_tot=f_tot)
+
+        # Total gap stiffness according to ref. [5], section 9.7
+        return f_tot * self._k_shell + self._k_flange
+
+
+
+
+def _tobinaga_lever_ratio (a, b, t):
+    '''Lever ratio (a' + b) / a' of a flange segment, according to ref. [2], section G.1.3.
+
+    The equivalent flange inner length a' is evaluated with the action point
+    correction of Tobinaga & Ishihara (ref. [9], ref. [2], eqs. G.12 to G.15).
+    The correction is only applied within the validity range of ref. [2],
+    eqs. G.16 and G.17: outside that range a' = a is used, and a warning is
+    logged when 1.25 < a/b.
+
+    Args:
+        a (float): Distance from inner flange face to bolt hole center.
+        b (float): Distance from bolt hole center to shell center-line.
+        t (float): Flange thickness.
+
+    Returns:
+        float: The lever ratio (a' + b) / a'.
+    '''
+
+    rigid_lever_ratio = (a + b) / a
+
+    # The flange is considered rigid if a/b <= 1.25: the reaction force acts
+    # at the flange edge, therefore a' = a.
+    if a/b <= 1.25:
+        return rigid_lever_ratio
+
+    # Aspect ratio of the flange section (ref. [2], eq. G.14)
+    alpha = t / (a + b)
+
+    # Out of the validity range of eqs. G.16 and G.17, a' = a
+    if a/b > 2.25:
+        logger.warning("Flange geometry out of validity range for Tobinaga & Ishihara action point correction (a/b > 2.25): a' = a is used.")
+        return rigid_lever_ratio
+    if not (0.55 - 0.12 * (a/b) <= alpha <= 1.0):
+        logger.warning("Flange geometry out of validity range for Tobinaga & Ishihara action point correction (-0.12*a/b + 0.55 <= t/(a+b) <= 1 not satisfied): a' = a is used.")
+        return rigid_lever_ratio
+
+    # Modification factor of a (ref. [2], eqs. G.13 and G.15)
+    beta = (a/b - 1.25)**0.32 + 0.45
+    lambda_ = 1 - (1 - alpha**beta)**5
+
+    # Equivalent flange inner length (ref. [2], eq. G.12)
+    a_red = lambda_ * a
+
+    return (a_red + b) / a_red
+
+
+
+def _preload_after_losses (fseg):
+    '''Bolt preload of a flange segment after settlement and plastic losses.
+
+    The preload `fseg.Fv` is reduced by the settlement loss (ref. [2],
+    section 6.7.5.1.2, eqs. 27 and 28) and by the plastic loss `fseg.PPL * fseg.Fv`
+    (ref. [2], eq. 24).
+
+    Args:
+        fseg (FlangeSegment): A flange segment with the attributes `Fv`, `PPL`,
+            `DFT` and `settlement_factor`, and the properties `_bolt_axial_stiffness`
+            and `_flange_axial_stiffness`.
+
+    Returns:
+        float: The preload after losses.
+    '''
+    from metrum.units import um, kN
+
+    # Preload losses due to settlements
+    if fseg.DFT > 0:
+        DFT_ref = 1*um
+        f_z_tot = max( (8*(fseg.DFT/DFT_ref)**(-0.6))*fseg.DFT , 50*um )
+        bolt_resilience = 1 / fseg._bolt_axial_stiffness
+        flange_resilience = 1 / fseg._flange_axial_stiffness
+        delta_Fv_z = fseg.settlement_factor * (f_z_tot / (bolt_resilience + flange_resilience))
+    else:
+        delta_Fv_z = 0*kN
+
+    # Preload losses due to plastic deformation
+    delta_Fv_pl = fseg.PPL * fseg.Fv
+
+    return fseg.Fv - delta_Fv_z - delta_Fv_pl
 
 
 
