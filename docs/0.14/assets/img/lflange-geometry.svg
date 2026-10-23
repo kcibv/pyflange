@@ -1,0 +1,60 @@
+<svg class="pf-drawing" viewBox="0 0 560 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="lflange-title">
+<title id="lflange-title">L-flange segment: cross-section with the parameters a, b, s, t, R, Do and the shell force Z</title>
+<defs>
+<marker id="lf-dim" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="pf-dim-fill"/></marker>
+<marker id="lf-force" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pf-force-fill"/></marker>
+</defs>
+<!-- upper shell and flange -->
+<path class="pf-steel" d="M362,50 H398 V230 H140 V170 H362 Z"/>
+<!-- lower shell and flange -->
+<path class="pf-steel" d="M362,410 H398 V230 H140 V290 H362 Z"/>
+<!-- contact plane -->
+<line class="pf-thin" x1="140" y1="230" x2="398" y2="230"/>
+<!-- bolt hole -->
+<rect class="pf-hole" x="257" y="170" width="26" height="120"/>
+<!-- bolt and nuts -->
+<rect class="pf-bolt" x="261" y="146" width="18" height="168"/>
+<rect class="pf-bolt" x="244" y="150" width="52" height="20"/>
+<rect class="pf-bolt" x="244" y="290" width="52" height="20"/>
+<!-- center lines -->
+<line class="pf-center" x1="270" y1="125" x2="270" y2="335"/>
+<line class="pf-center" x1="380" y1="35" x2="380" y2="425"/>
+<!-- shell force Z -->
+<line class="pf-force" x1="380" y1="50" x2="380" y2="12" marker-end="url(#lf-force)"/>
+<line class="pf-force" x1="380" y1="410" x2="380" y2="448" marker-end="url(#lf-force)"/>
+<text class="pf-force-text" x="390" y="24">Z</text>
+<text class="pf-force-text" x="390" y="446">Z</text>
+<!-- dimension a, b -->
+<line class="pf-ext" x1="140" y1="290" x2="140" y2="352"/>
+<line class="pf-ext" x1="270" y1="335" x2="270" y2="352"/>
+<line class="pf-dimline" x1="140" y1="345" x2="270" y2="345" marker-start="url(#lf-dim)" marker-end="url(#lf-dim)"/>
+<line class="pf-dimline" x1="270" y1="345" x2="380" y2="345" marker-start="url(#lf-dim)" marker-end="url(#lf-dim)"/>
+<text class="pf-dim-text" x="205" y="338" text-anchor="middle">a</text>
+<text class="pf-dim-text" x="325" y="338" text-anchor="middle">b</text>
+<!-- dimension t -->
+<line class="pf-ext" x1="140" y1="170" x2="96" y2="170"/>
+<line class="pf-ext" x1="140" y1="230" x2="96" y2="230"/>
+<line class="pf-ext" x1="140" y1="290" x2="96" y2="290"/>
+<line class="pf-dimline" x1="104" y1="170" x2="104" y2="230" marker-start="url(#lf-dim)" marker-end="url(#lf-dim)"/>
+<line class="pf-dimline" x1="104" y1="230" x2="104" y2="290" marker-start="url(#lf-dim)" marker-end="url(#lf-dim)"/>
+<text class="pf-dim-text" x="90" y="205" text-anchor="end">t</text>
+<text class="pf-dim-text" x="90" y="265" text-anchor="end">t</text>
+<!-- dimension s -->
+<line class="pf-dimline" x1="330" y1="95" x2="362" y2="95" marker-end="url(#lf-dim)"/>
+<line class="pf-dimline" x1="430" y1="95" x2="398" y2="95" marker-end="url(#lf-dim)"/>
+<text class="pf-dim-text" x="440" y="100">s</text>
+<!-- dimension Do -->
+<line class="pf-dimline" x1="225" y1="210" x2="257" y2="210" marker-end="url(#lf-dim)"/>
+<line class="pf-dimline" x1="315" y1="210" x2="283" y2="210" marker-end="url(#lf-dim)"/>
+<text class="pf-dim-text" x="222" y="205" text-anchor="end">D<tspan baseline-shift="sub" font-size="70%">o</tspan></text>
+<!-- R: outer face of the shell -->
+<line class="pf-dimline" x1="470" y1="150" x2="398" y2="150" marker-end="url(#lf-dim)"/>
+<text class="pf-dim-text" x="476" y="146">R (outer</text>
+<text class="pf-dim-text" x="476" y="166">radius)</text>
+<!-- labels -->
+<text class="pf-label" x="410" y="380">shell</text>
+<text class="pf-label" x="150" y="160">flange</text>
+<text class="pf-label" x="305" y="322">bolt</text>
+<text class="pf-label pf-muted" x="20" y="440">&#8592; tower axis (inside)</text>
+<text class="pf-label pf-muted" x="470" y="440">outside &#8594;</text>
+</svg>
