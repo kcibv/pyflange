@@ -1,0 +1,2753 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Python library for the analysis of large bolted ring-flange connections (IEC 61400-6 polynomial model).">
+      
+      
+      
+        <link rel="canonical" href="https://kcibv.github.io/pyflange/dev/json-format/">
+      
+      
+        <link rel="prev" href="../cli/">
+      
+      
+        <link rel="next" href="../apis/">
+      
+      
+      <link rel="icon" href="../assets/logo.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
+    
+    
+      
+        <title>JSON format - PyFlange</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.8608ea7d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    
+      <link rel="stylesheet" href="../assets/css/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pyflange-json-case-format" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="PyFlange" class="md-header__button md-logo" aria-label="PyFlange" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PyFlange
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              JSON format
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kcibv/pyflange" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kcibv/pyflange
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/" class="md-tabs__link">
+          
+  
+    
+  
+  Getting started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../tutorials/" class="md-tabs__link">
+          
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guide/model/" class="md-tabs__link">
+          
+  
+    
+  
+  User guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../cli/" class="md-tabs__link">
+        
+  
+    
+  
+  Command line
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+    
+  
+  JSON format
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../apis/" class="md-tabs__link">
+          
+  
+    
+  
+  API reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../references/" class="md-tabs__link">
+          
+  
+    
+  
+  About
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="PyFlange" class="md-nav__button md-logo" aria-label="PyFlange" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    PyFlange
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kcibv/pyflange" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kcibv/pyflange
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../getting-started/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Getting started
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/install/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Install PyFlange
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/first-analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    First analysis (no code)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/first-script/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    First Python script
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../tutorials/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/lflange/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    L-flange, deterministic
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/tflange/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    T-flange, deterministic
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/design-gaps/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Design gap angles and ED2
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/montecarlo-cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Monte Carlo from the command line
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/montecarlo-python/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Monte Carlo in Python
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/case-files/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Writing case files from Python
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    User guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            User guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/model/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Model overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/nomenclature/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Nomenclature
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/units/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Units and conventions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/validation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Validation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQ and troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Command line
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    JSON format
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    JSON format
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#format-versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Format versions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conventions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#top-level-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Top-level structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flangesegment" class="md-nav__link">
+    <span class="md-ellipsis">
+      FlangeSegment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FlangeSegment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bolts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bolts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#washers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Washers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nuts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nuts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gap
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#boltfatiguecurve" class="md-nav__link">
+    <span class="md-ellipsis">
+      BoltFatigueCurve
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#markovmatrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      MarkovMatrix
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stats
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#distributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Distributions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stats-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stats keys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gap-distributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gap distributions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monte-carlo-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Monte Carlo model
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Result files
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changes-from-version-010" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changes from version 0.1.0
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../apis/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    API reference
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            API reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/bolts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.bolts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/flangesegments/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.flangesegments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/fatigue/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.fatigue
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/stats/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.stats
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/io/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.io
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.cli
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/utils/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.utils
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../apis/gap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.gap (deprecated)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    About
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            About
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../references/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    References
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../license/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    License
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#format-versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Format versions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conventions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#top-level-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Top-level structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flangesegment" class="md-nav__link">
+    <span class="md-ellipsis">
+      FlangeSegment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FlangeSegment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bolts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bolts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#washers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Washers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nuts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nuts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gap
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#boltfatiguecurve" class="md-nav__link">
+    <span class="md-ellipsis">
+      BoltFatigueCurve
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#markovmatrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      MarkovMatrix
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stats
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#distributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Distributions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stats-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stats keys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gap-distributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gap distributions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monte-carlo-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Monte Carlo model
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Result files
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changes-from-version-010" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changes from version 0.1.0
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/kcibv/pyflange/edit/main/docsrc/json-format.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="pyflange-json-case-format">PyFlange JSON case format<a class="headerlink" href="#pyflange-json-case-format" title="Permanent link">&para;</a></h1>
+<p>A <em>fatigue case</em> describes a single-bolt flange segment, its fatigue loads,
+its bolt S-N curve and, optionally, the statistical parameters needed for a
+Monte Carlo simulation. PyFlange reads and writes fatigue cases as JSON files
+in the format described on this page.</p>
+<p>The format is used by the <a href="../cli/">command-line interface</a> and by the
+<a href="../apis/io/"><code>pyflange.io</code></a> module:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyflange.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_fatiguecase</span><span class="p">,</span> <span class="n">load_fatiguecase_sampler</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">fcase</span> <span class="o">=</span> <span class="n">load_fatiguecase</span><span class="p">(</span><span class="s2">"case.json"</span><span class="p">)</span>           <span class="c1"># deterministic analysis</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">print</span><span class="p">(</span><span class="n">fcase</span><span class="o">.</span><span class="n">damage</span><span class="p">,</span> <span class="n">fcase</span><span class="o">.</span><span class="n">fatigue_life</span><span class="p">)</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">samp</span> <span class="o">=</span> <span class="n">load_fatiguecase_sampler</span><span class="p">(</span><span class="s2">"case.json"</span><span class="p">)</span>    <span class="c1"># random fatigue cases</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">rnd_fcase</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">samp</span><span class="p">)</span>
+</span></code></pre></div>
+<p>A complete, working example is available here:
+<a href="../examples/fatigue-case.json">fatigue-case.json</a>.</p>
+<blockquote>
+<p><strong>Scope</strong>: the format currently supports <strong>L-flange segments only</strong>
+(<code>PolynomialLFlangeSegment</code> and <code>PolynomialLFlangeSegmentED2</code>).
+T-flange segments (<code>PolynomialTFlangeSegment</code>) are not supported yet.</p>
+</blockquote>
+<h2 id="format-versions">Format versions<a class="headerlink" href="#format-versions" title="Permanent link">&para;</a></h2>
+<p>The format version is stored in the top-level <code>format_version</code> field. The
+current version is <strong>0.2.0</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0.1.0</code></td>
+<td>Original format of the Forrester tool. Files of this version have <strong>no</strong> <code>format_version</code> field.</td>
+</tr>
+<tr>
+<td><code>0.2.0</code></td>
+<td>Current version. See <a href="#changes-from-version-010">changes from 0.1.0</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>Files of any supported version can be read: files without <code>format_version</code>
+are assumed to be version 0.1.0 and are converted to the current version on
+load (see <code>pyflange.io.upgrade_case</code>), so that they keep producing the same
+results. PyFlange always writes the current version.</p>
+<h2 id="conventions">Conventions<a class="headerlink" href="#conventions" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Units</strong>: all values are in SI units: lengths in m, forces in N, moments
+  in N·m, stresses and elastic moduli in Pa, angles in <strong>radians</strong>. The only
+  exception is the Markov matrix <code>duration</code>, whose unit is free and
+  determines the unit of the resulting fatigue life (typically years).</li>
+<li><strong>No hidden defaults</strong>: all the parameters marked as <em>required</em> must be
+  given explicitly. In particular, PyFlange does not provide default values
+  for any statistical parameter.</li>
+<li><strong>Unknown keys are ignored</strong>. This allows adding notes or extra data to a
+  case file, and allows reading back the result files written by PyFlange
+  (see <a href="#result-files">Result files</a>), which contain extra report keys.</li>
+<li>Keys are case-sensitive.</li>
+</ul>
+<h2 id="top-level-structure">Top-level structure<a class="headerlink" href="#top-level-structure" title="Permanent link">&para;</a></h2>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nt">"format_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.2.0"</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">"CaseID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My case"</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">"FlangeSegment"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">"BoltFatigueCurve"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">"MarkovMatrix"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nt">"AllowableDamage"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">"SMF"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="nt">"Stats"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>format_version</code></td>
+<td>string</td>
+<td>yes (0.2.0)</td>
+<td>Format version. If missing, the file is read as version 0.1.0.</td>
+</tr>
+<tr>
+<td><code>CaseID</code></td>
+<td>any</td>
+<td>no</td>
+<td>Case identifier. Not used by PyFlange.</td>
+</tr>
+<tr>
+<td><code>FlangeSegment</code></td>
+<td>object</td>
+<td>yes</td>
+<td>The flange segment. See <a href="#flangesegment">FlangeSegment</a>.</td>
+</tr>
+<tr>
+<td><code>BoltFatigueCurve</code></td>
+<td>object</td>
+<td>yes</td>
+<td>The bolt S-N curve of the deterministic analysis. See <a href="#boltfatiguecurve">BoltFatigueCurve</a>.</td>
+</tr>
+<tr>
+<td><code>MarkovMatrix</code></td>
+<td>object</td>
+<td>yes</td>
+<td>The flange fatigue loads. See <a href="#markovmatrix">MarkovMatrix</a>.</td>
+</tr>
+<tr>
+<td><code>AllowableDamage</code></td>
+<td>number</td>
+<td>no</td>
+<td>Allowable damage of the deterministic analysis. If omitted, 1.0.</td>
+</tr>
+<tr>
+<td><code>SMF</code></td>
+<td>number</td>
+<td>no</td>
+<td>Stress multiplication factor of the deterministic analysis, applied to the bolt stress ranges. If omitted, 1.0. The command-line option <code>--smf</code> overrides it.</td>
+</tr>
+<tr>
+<td><code>Stats</code></td>
+<td>object</td>
+<td>for Monte Carlo only</td>
+<td>Statistical parameters. See <a href="#stats">Stats</a>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="flangesegment">FlangeSegment<a class="headerlink" href="#flangesegment" title="Permanent link">&para;</a></h2>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">"FlangeSegment"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PolynomialLFlangeSegment"</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">"a"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.150</span><span class="p">,</span><span class="w"> </span><span class="nt">"b"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.122</span><span class="p">,</span><span class="w"> </span><span class="nt">"s"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.054</span><span class="p">,</span><span class="w"> </span><span class="nt">"t"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.172</span><span class="p">,</span><span class="w"> </span><span class="nt">"R"</span><span class="p">:</span><span class="w"> </span><span class="mf">4.000</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">"central_angle"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0402768</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">"Zg"</span><span class="p">:</span><span class="w"> </span><span class="mi">-115667</span><span class="p">,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">"bolt"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"StandardMetricBolt"</span><span class="p">,</span><span class="w"> </span><span class="nt">"designation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M80"</span><span class="p">,</span><span class="w"> </span><span class="nt">"material_grade"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.9"</span><span class="p">,</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">              </span><span class="nt">"shank_length"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.160</span><span class="p">,</span><span class="w"> </span><span class="nt">"shank_diameter_ratio"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pitch"</span><span class="p">,</span><span class="w"> </span><span class="nt">"stud"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">"preload_ratio"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.75301</span><span class="p">,</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="nt">"Do"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.086</span><span class="p">,</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="nt">"washer"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="nt">"nut"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RoundNut"</span><span class="p">,</span><span class="w"> </span><span class="nt">"designation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M80"</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="nt">"gap"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"height"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.00089</span><span class="p">,</span><span class="w"> </span><span class="nt">"angle"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5236</span><span class="p">,</span><span class="w"> </span><span class="nt">"shape_factor"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="nt">"tilt_angle"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.001745</span><span class="p">,</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nt">"E"</span><span class="p">:</span><span class="w"> </span><span class="mf">210e9</span><span class="p">,</span><span class="w"> </span><span class="nt">"G"</span><span class="p">:</span><span class="w"> </span><span class="mf">80.77e9</span><span class="p">,</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nt">"s_ratio"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"r"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="nt">"k_shell"</span><span class="p">:</span><span class="w"> </span><span class="s2">"interp"</span><span class="p">,</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="nt">"PPL"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="nt">"DFT"</span><span class="p">:</span><span class="w"> </span><span class="mf">300e-6</span><span class="p">,</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="nt">"settlement_factor"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="p">}</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>string</td>
+<td>-</td>
+<td><code>"PolynomialLFlangeSegment"</code> (IEC 61400-6 AMD1 model) or <code>"PolynomialLFlangeSegmentED2"</code> (IEC 61400-6 ED2 model). Optional, default <code>"PolynomialLFlangeSegment"</code>.</td>
+</tr>
+<tr>
+<td><code>a</code></td>
+<td>number</td>
+<td>m</td>
+<td>Distance between the inner face of the flange and the center of the bolt hole.</td>
+</tr>
+<tr>
+<td><code>b</code></td>
+<td>number</td>
+<td>m</td>
+<td>Distance between the center of the bolt hole and the center-line of the shell.</td>
+</tr>
+<tr>
+<td><code>s</code></td>
+<td>number</td>
+<td>m</td>
+<td>Shell thickness.</td>
+</tr>
+<tr>
+<td><code>t</code></td>
+<td>number</td>
+<td>m</td>
+<td>Flange thickness.</td>
+</tr>
+<tr>
+<td><code>R</code></td>
+<td>number</td>
+<td>m</td>
+<td>Shell outer radius.</td>
+</tr>
+<tr>
+<td><code>central_angle</code></td>
+<td>number</td>
+<td>rad</td>
+<td>Angle subtended by the flange segment (2π / number of bolts).</td>
+</tr>
+<tr>
+<td><code>Zg</code></td>
+<td>number</td>
+<td>N</td>
+<td>Shell force per segment at rest (dead weight divided by the number of bolts). Negative if compressive.</td>
+</tr>
+<tr>
+<td><code>bolt</code></td>
+<td>object</td>
+<td>-</td>
+<td>The bolt. See <a href="#bolts">Bolts</a>.</td>
+</tr>
+<tr>
+<td><code>preload_ratio</code></td>
+<td>number</td>
+<td>-</td>
+<td>Bolt preload before losses, as a fraction of the bolt tensile yield force <code>As·fy</code>, where <code>As</code> is the area of the bolt thread cross-section and <code>fy</code> the bolt yield stress. Exactly one of <code>preload_ratio</code> and <code>Fv</code> is required.</td>
+</tr>
+<tr>
+<td><code>Fv</code></td>
+<td>number</td>
+<td>N</td>
+<td>Bolt preload before losses, as absolute value. Exactly one of <code>preload_ratio</code> and <code>Fv</code> is required.</td>
+</tr>
+<tr>
+<td><code>Do</code></td>
+<td>number</td>
+<td>m</td>
+<td>Bolt hole diameter. Standard values are given by <code>pyflange.bolts.standard_hole_diameter</code>.</td>
+</tr>
+<tr>
+<td><code>washer</code></td>
+<td>object or null</td>
+<td>-</td>
+<td>The washer, or <code>null</code> (or omitted) for no washer. See <a href="#washers">Washers</a>.</td>
+</tr>
+<tr>
+<td><code>nut</code></td>
+<td>object</td>
+<td>-</td>
+<td>The nut. See <a href="#nuts">Nuts</a>.</td>
+</tr>
+<tr>
+<td><code>gap</code></td>
+<td>object</td>
+<td>-</td>
+<td>The flange gap. See <a href="#gap">Gap</a>.</td>
+</tr>
+<tr>
+<td><code>tilt_angle</code></td>
+<td>number</td>
+<td>rad</td>
+<td>Flange tilt angle.</td>
+</tr>
+<tr>
+<td><code>E</code></td>
+<td>number</td>
+<td>Pa</td>
+<td>Young's modulus of the flange.</td>
+</tr>
+<tr>
+<td><code>G</code></td>
+<td>number</td>
+<td>Pa</td>
+<td>Shear modulus of the flange.</td>
+</tr>
+<tr>
+<td><code>s_ratio</code></td>
+<td>number</td>
+<td>-</td>
+<td>Ratio of the bottom shell thickness over <code>s</code>.</td>
+</tr>
+<tr>
+<td><code>r</code></td>
+<td>number</td>
+<td>m</td>
+<td>Rounding radius between flange and shell.</td>
+</tr>
+<tr>
+<td><code>k_shell</code></td>
+<td>number, null or <code>"interp"</code></td>
+<td>N/m/m</td>
+<td>Shell stiffness. A number is used as it is; <code>null</code> selects the simplified formula of the model; <code>"interp"</code> interpolates the value from FEA data (see <code>pyflange.flangesegments.shell_stiffness</code>) for the given <code>R</code>, <code>s</code> and gap angle.</td>
+</tr>
+<tr>
+<td><code>PPL</code></td>
+<td>number</td>
+<td>-</td>
+<td>Preload loss due to plastic deformations, as a fraction of <code>Fv</code> (e.g. 0.05 for 5%).</td>
+</tr>
+<tr>
+<td><code>DFT</code></td>
+<td>number</td>
+<td>m</td>
+<td>Dry film thickness of the coatings, used to evaluate the settlement preload losses.</td>
+</tr>
+<tr>
+<td><code>settlement_factor</code></td>
+<td>number</td>
+<td>-</td>
+<td>Factor reducing the settlement preload losses (e.g. 1.0 for torque tightening, 0.5 for tension tightening).</td>
+</tr>
+</tbody>
+</table>
+<p>All keys are required, except <code>type</code>, <code>washer</code> and one of <code>preload_ratio</code> / <code>Fv</code>.</p>
+<h3 id="bolts">Bolts<a class="headerlink" href="#bolts" title="Permanent link">&para;</a></h3>
+<p>The <code>type</code> key selects one of the following bolt kinds.</p>
+<p><strong><code>StandardMetricBolt</code></strong>: a bolt with standard ISO dimensions and material
+(see <code>pyflange.bolts.StandardMetricBolt</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>designation</code></td>
+<td>string</td>
+<td>-</td>
+<td>Metric thread designation, e.g. <code>"M80"</code>.</td>
+</tr>
+<tr>
+<td><code>material_grade</code></td>
+<td>string</td>
+<td>-</td>
+<td>Material grade, e.g. <code>"10.9"</code>.</td>
+</tr>
+<tr>
+<td><code>shank_length</code></td>
+<td>number</td>
+<td>m</td>
+<td>Length of the unthreaded shank.</td>
+</tr>
+<tr>
+<td><code>shank_diameter_ratio</code></td>
+<td>number or <code>"pitch"</code></td>
+<td>-</td>
+<td>Shank diameter over nominal diameter. <code>"pitch"</code> sets the shank diameter equal to the thread basic pitch diameter (ISO 724), typical of reduced-shank studs.</td>
+</tr>
+<tr>
+<td><code>stud</code></td>
+<td>boolean</td>
+<td>-</td>
+<td><code>true</code> for stud bolts, <code>false</code> for hexagonal-head bolts.</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>MetricBolt</code></strong>: a bolt with custom properties (see <code>pyflange.bolts.MetricBolt</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nominal_diameter</code></td>
+<td>number</td>
+<td>m</td>
+<td>Nominal thread diameter.</td>
+</tr>
+<tr>
+<td><code>thread_pitch</code></td>
+<td>number</td>
+<td>m</td>
+<td>Thread pitch.</td>
+</tr>
+<tr>
+<td><code>yield_stress</code></td>
+<td>number</td>
+<td>Pa</td>
+<td>Yield stress of the bolt material.</td>
+</tr>
+<tr>
+<td><code>ultimate_tensile_stress</code></td>
+<td>number</td>
+<td>Pa</td>
+<td>Ultimate tensile stress of the bolt material.</td>
+</tr>
+<tr>
+<td><code>elastic_modulus</code></td>
+<td>number</td>
+<td>Pa</td>
+<td>Young's modulus of the bolt material.</td>
+</tr>
+<tr>
+<td><code>poissons_ratio</code></td>
+<td>number</td>
+<td>-</td>
+<td>Poisson's ratio of the bolt material.</td>
+</tr>
+<tr>
+<td><code>shank_length</code></td>
+<td>number</td>
+<td>m</td>
+<td>Length of the unthreaded shank.</td>
+</tr>
+<tr>
+<td><code>shank_diameter_ratio</code></td>
+<td>number</td>
+<td>-</td>
+<td>Shank diameter over nominal diameter.</td>
+</tr>
+<tr>
+<td><code>stud</code></td>
+<td>boolean</td>
+<td>-</td>
+<td><code>true</code> for stud bolts, <code>false</code> for hexagonal-head bolts.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="washers">Washers<a class="headerlink" href="#washers" title="Permanent link">&para;</a></h3>
+<p><strong><code>ISOFlatWasher</code></strong>: ISO 7089 flat washer. Key: <code>designation</code> (e.g. <code>"M64"</code>).</p>
+<p><strong><code>FlatWasher</code></strong>: custom flat washer (see <code>pyflange.bolts.FlatWasher</code>).
+Keys: <code>outer_diameter</code> (m), <code>inner_diameter</code> (m), <code>thickness</code> (m),
+<code>elastic_modulus</code> (Pa), <code>poissons_ratio</code>.</p>
+<h3 id="nuts">Nuts<a class="headerlink" href="#nuts" title="Permanent link">&para;</a></h3>
+<p><strong><code>ISOHexNut</code></strong>: ISO 4032 hexagonal nut. Key: <code>designation</code>.</p>
+<p><strong><code>RoundNut</code></strong>: standard flanged round nut. Key: <code>designation</code>.</p>
+<p><strong><code>HexNut</code></strong>: custom nut (see <code>pyflange.bolts.HexNut</code>). Keys:
+<code>nominal_diameter</code> (m), <code>thickness</code> (m), <code>inscribed_diameter</code> (m),
+<code>circumscribed_diameter</code> (m), <code>bearing_diameter</code> (m), <code>elastic_modulus</code> (Pa),
+<code>poissons_ratio</code>.</p>
+<h3 id="gap">Gap<a class="headerlink" href="#gap" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>height</code></td>
+<td>number</td>
+<td>m</td>
+<td>Maximum gap height.</td>
+</tr>
+<tr>
+<td><code>angle</code></td>
+<td>number</td>
+<td>rad</td>
+<td>Angle subtended by the gap.</td>
+</tr>
+<tr>
+<td><code>shape_factor</code></td>
+<td>number</td>
+<td>-</td>
+<td>Gap shape factor (1.0 for a sinusoidal gap). Optional, default 1.0.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="boltfatiguecurve">BoltFatigueCurve<a class="headerlink" href="#boltfatiguecurve" title="Permanent link">&para;</a></h2>
+<p>The S-N curve used in the deterministic analysis. The optional <code>type</code> key
+selects the curve kind; if omitted, it is <code>"BoltFatigueCurve"</code>.</p>
+<p><strong><code>BoltFatigueCurve</code></strong>: IEC 61400-6 AMD1 bolt curve, with slopes 3 and 5,
+knee point at 2·10⁶ cycles and size effect (see <code>pyflange.fatigue.BoltFatigueCurve</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BoltNominalDiameter</code></td>
+<td>number</td>
+<td>m</td>
+<td>Bolt nominal diameter, for the size effect.</td>
+</tr>
+<tr>
+<td><code>DS_ref</code></td>
+<td>number</td>
+<td>Pa</td>
+<td>Reference stress range at 2·10⁶ cycles, before size effect and material factor.</td>
+</tr>
+<tr>
+<td><code>gamma_M</code></td>
+<td>number</td>
+<td>-</td>
+<td>Material safety factor.</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>SingleSlopeFatigueCurve</code></strong>: keys <code>m</code>, <code>DS_ref</code> (Pa), <code>N_ref</code>.</p>
+<p><strong><code>DoubleSlopeFatigueCurve</code></strong>: keys <code>m1</code>, <code>m2</code>, <code>DS_ref</code> (Pa), <code>N_ref</code>,
+where (<code>DS_ref</code>, <code>N_ref</code>) is the knee point.</p>
+<p>In a Monte Carlo simulation, this section is not used: the random S-N curves
+are defined by <code>Stats.FatigueClassFactor</code>.</p>
+<h2 id="markovmatrix">MarkovMatrix<a class="headerlink" href="#markovmatrix" title="Permanent link">&para;</a></h2>
+<p>The fatigue loads, as a list of bins of <strong>flange (tower) bending moments</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>range</code></td>
+<td>list of numbers</td>
+<td>N·m</td>
+<td>Bending moment range of each bin.</td>
+</tr>
+<tr>
+<td><code>mean</code></td>
+<td>list of numbers</td>
+<td>N·m</td>
+<td>Mean bending moment of each bin.</td>
+</tr>
+<tr>
+<td><code>cycles</code></td>
+<td>list of numbers</td>
+<td>-</td>
+<td>Number of cycles of each bin.</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>number</td>
+<td>any</td>
+<td>Duration of the load history (e.g. 30 for 30 years). The fatigue life is given in the same unit.</td>
+</tr>
+</tbody>
+</table>
+<p>The three lists must have the same length. Bins with zero range are allowed
+and give no damage.</p>
+<h2 id="stats">Stats<a class="headerlink" href="#stats" title="Permanent link">&para;</a></h2>
+<p>The <code>Stats</code> section is required only for Monte Carlo simulations. It defines
+the random variables used to generate random fatigue cases.</p>
+<h3 id="distributions">Distributions<a class="headerlink" href="#distributions" title="Permanent link">&para;</a></h3>
+<p>Random variables are described by <em>distribution objects</em>, selected by the
+<code>Distribution</code> key:</p>
+<table>
+<thead>
+<tr>
+<th><code>Distribution</code></th>
+<th>Keys</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"Normal"</code></td>
+<td><code>Mean</code>, <code>CoV</code></td>
+<td>Normal distribution with given mean and coefficient of variation.</td>
+</tr>
+<tr>
+<td><code>"LogNormal"</code></td>
+<td><code>Mean</code>, <code>CoV</code></td>
+<td>Log-normal distribution with given mean and coefficient of variation.</td>
+</tr>
+<tr>
+<td><code>"Weibull"</code></td>
+<td><code>Shape</code>, <code>Scale</code></td>
+<td>Weibull distribution.</td>
+</tr>
+<tr>
+<td><code>"Beta"</code></td>
+<td><code>Alpha</code>, <code>Beta</code>, <code>x0</code>, <code>x1</code></td>
+<td>Beta distribution defined over [<code>x0</code>, <code>x1</code>]. <code>x0</code> and <code>x1</code> are optional (default 0 and 1).</td>
+</tr>
+<tr>
+<td><code>"Product"</code></td>
+<td><code>Dist1</code>, <code>Dist2</code></td>
+<td>Product of two independent variables, each described by one of the above distribution objects. Not allowed where a distribution is used as copula marginal.</td>
+</tr>
+</tbody>
+</table>
+<p><code>Mean</code> is expressed in the unit of the variable.</p>
+<h3 id="stats-keys">Stats keys<a class="headerlink" href="#stats-keys" title="Permanent link">&para;</a></h3>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">"Stats"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">"Preload"</span><span class="p">:</span><span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="nt">"Distribution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="nt">"MeanRatio"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.77</span><span class="p">,</span><span class="w"> </span><span class="nt">"CoV"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.03</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">"PlasticLoss"</span><span class="p">:</span><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"Distribution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="nt">"Mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.03</span><span class="p">,</span><span class="w"> </span><span class="nt">"CoV"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.33333</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">"DFT"</span><span class="p">:</span><span class="w">                </span><span class="p">{</span><span class="w"> </span><span class="nt">"Distribution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="nt">"Mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">250e-6</span><span class="p">,</span><span class="w"> </span><span class="nt">"CoV"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.12</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">"Gap"</span><span class="p">:</span><span class="w">                </span><span class="p">{</span><span class="w"> </span><span class="nt">"JointDistribution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IEC 61400-6:2020 AMD1"</span><span class="p">,</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">"Tilt"</span><span class="p">:</span><span class="w">               </span><span class="p">{</span><span class="w"> </span><span class="nt">"Distribution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"LogNormal"</span><span class="p">,</span><span class="w"> </span><span class="nt">"Mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.001745</span><span class="p">,</span><span class="w"> </span><span class="nt">"CoV"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">"LoadRangeFactor"</span><span class="p">:</span><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">"Distribution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"LogNormal"</span><span class="p">,</span><span class="w"> </span><span class="nt">"Mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"CoV"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.12</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nt">"FatigueClassFactor"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"Distribution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="nt">"Mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"CoV"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.10</span><span class="p">,</span><span class="w"> </span><span class="nt">"DS_ref_mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">62e6</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="nt">"AllowableDamage"</span><span class="p">:</span><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">"Distribution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"LogNormal"</span><span class="p">,</span><span class="w"> </span><span class="nt">"Mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"CoV"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.30</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="nt">"StressMultiplicationFactor"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"Distribution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Product"</span><span class="p">,</span><span class="w"> </span><span class="nt">"Dist1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="nt">"Dist2"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>All keys are required.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Preload</code></td>
+<td>Bolt preload before losses. <code>Distribution</code> is <code>"Normal"</code> or <code>"LogNormal"</code>, with <code>CoV</code> and a mean value given either as <code>MeanRatio</code> (fraction of <code>As·fy</code>, as <code>preload_ratio</code>) or as <code>Mean</code> (N, as <code>Fv</code>).</td>
+</tr>
+<tr>
+<td><code>PlasticLoss</code></td>
+<td>Preload loss due to plastic deformations, as a fraction of the preload (as <code>PPL</code>). Any distribution.</td>
+</tr>
+<tr>
+<td><code>DFT</code></td>
+<td>Coating dry film thickness, in m (as <code>DFT</code>). Any distribution.</td>
+</tr>
+<tr>
+<td><code>Gap</code></td>
+<td>Joint distribution of the gap parameters. See <a href="#gap-distributions">Gap distributions</a>.</td>
+</tr>
+<tr>
+<td><code>Tilt</code></td>
+<td>Flange tilt angle, in rad. Any distribution. Sampled values are reduced to the interval [0, π].</td>
+</tr>
+<tr>
+<td><code>LoadRangeFactor</code></td>
+<td>Factor multiplying all the ranges of the Markov matrix. <code>"LogNormal"</code> only.</td>
+</tr>
+<tr>
+<td><code>FatigueClassFactor</code></td>
+<td>Factor multiplying the reference stress range of the bolt S-N curve. <code>"Normal"</code> only, with the additional key <code>DS_ref_mean</code> (Pa): the mean reference stress range. Each random curve is a <code>BoltFatigueCurve</code> with <code>DS_ref = DS_ref_mean × factor</code> and <code>gamma_M = 1.0</code>.</td>
+</tr>
+<tr>
+<td><code>AllowableDamage</code></td>
+<td>Allowable fatigue damage. Any distribution.</td>
+</tr>
+<tr>
+<td><code>StressMultiplicationFactor</code></td>
+<td>Stress multiplication factor applied to the bolt stress ranges. Any distribution, or a plain number for a constant factor.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="gap-distributions">Gap distributions<a class="headerlink" href="#gap-distributions" title="Permanent link">&para;</a></h3>
+<p>The <code>Gap</code> object is selected by the <code>JointDistribution</code> key.</p>
+<p><strong><code>"IEC 61400-6:2020 AMD1"</code></strong>: the gap angle is sampled from the <code>Angle</code>
+distribution; the gap height is then sampled from the AMD1 log-normal
+distribution for that angle (<code>pyflange.stats.gap_height_distribution</code>) and
+capped at twice its 95% quantile (see <code>pyflange.stats.standard_gap_sampler</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FlatnessTolerance</code></td>
+<td>Flange flatness tolerance, in m/m (e.g. 0.0014 for 1.4 mm/m).</td>
+</tr>
+<tr>
+<td><code>Angle</code></td>
+<td>Distribution of the gap angle, in rad. Values outside (0, π) are discarded.</td>
+</tr>
+<tr>
+<td><code>ShapeFactor</code></td>
+<td>Distribution of the gap shape factor.</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>"IEC 61400-6:2020 ED2"</code></strong>: the gap angle is sampled from the ED2 Beta
+distribution and the gap height from the ED2 Weibull distribution
+(see <code>pyflange.stats.standard_gap_sampler_ED2</code>). The shape factor is 1.0.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FlatnessTolerance</code></td>
+<td>Flange flatness tolerance, in m/m.</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>"ClaytonCopula"</code></strong>: gap height and gap angle are correlated via a Clayton
+copula (see <code>pyflange.stats.clayton_gap_sampler</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Theta</code></td>
+<td>Clayton copula parameter (&gt; 0). Kendall's rank correlation is θ/(θ+2).</td>
+</tr>
+<tr>
+<td><code>Height</code></td>
+<td>Marginal distribution of the gap height, in m (not <code>"Product"</code>).</td>
+</tr>
+<tr>
+<td><code>Angle</code></td>
+<td>Marginal distribution of the gap angle, in rad (not <code>"Product"</code>).</td>
+</tr>
+<tr>
+<td><code>ShapeFactor</code></td>
+<td>Distribution of the gap shape factor.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="monte-carlo-model">Monte Carlo model<a class="headerlink" href="#monte-carlo-model" title="Permanent link">&para;</a></h3>
+<p>Each random fatigue case is generated as follows (see
+<code>pyflange.io.create_fatiguecase_sampler</code> and
+<code>pyflange.stats.standard_PolynomialLFlangeSegment_sampler</code>):</p>
+<ul>
+<li>The flange segment has the same <code>type</code> and deterministic parameters as
+  <code>FlangeSegment</code>, and random gap and tilt.</li>
+<li>The shell stiffness is always interpolated from FEA data for the random gap
+  angle: the <code>FlangeSegment.k_shell</code> value is not used.</li>
+<li>The preload is sampled, reduced by the sampled plastic and settlement
+  losses, and averaged over half of the bolts within the gap (at least one).
+  The resulting segment has <code>PPL = 0</code> and <code>DFT = 0</code>, because the losses are
+  already included in its preload.</li>
+<li>The Markov matrix ranges, the S-N curve, the allowable damage and the
+  stress multiplication factor are sampled independently.</li>
+</ul>
+<p>The <code>FlangeSegment.PPL</code>, <code>FlangeSegment.DFT</code>, <code>FlangeSegment.gap</code>,
+<code>FlangeSegment.tilt_angle</code>, <code>FlangeSegment.k_shell</code>, <code>BoltFatigueCurve</code>,
+<code>AllowableDamage</code> and <code>SMF</code> values are used in deterministic analyses only.</p>
+<h2 id="result-files">Result files<a class="headerlink" href="#result-files" title="Permanent link">&para;</a></h2>
+<p>The result files written by <code>pyflange determ</code> and <code>pyflange inspect</code> (and by
+<code>pyflange.io.fatiguecase_to_dict</code>) use the same format, so they can be loaded
+back as cases. They contain:</p>
+<ul>
+<li><code>format_version</code>, <code>FlangeSegment</code>, <code>BoltFatigueCurve</code> and <code>MarkovMatrix</code>
+  in the current format. The bolt, washer and nut are always written in
+  their explicit forms (<code>MetricBolt</code>, <code>FlatWasher</code>, <code>HexNut</code>), the preload as
+  <code>preload_ratio</code> and <code>k_shell</code> as a number. The <code>BoltFatigueCurve</code> section
+  of a bolt curve also reports the design knee point (<code>m1</code>, <code>m2</code>, <code>DS12</code>,
+  <code>N_ref</code>).</li>
+<li><code>damage</code>, <code>allowable_damage</code>, <code>SMF</code>: the analysis results and settings.</li>
+<li>In verbose mode (always used by the CLI), <code>FatigueLife</code>, the bolt stress
+  Markov matrix <code>BoltStressMarkovMatrix</code> (stresses in Pa) and a report of the
+  flange segment intermediate quantities, added to the <code>FlangeSegment</code>
+  section (<code>BoltPreload</code>, <code>Point1</code> to <code>Point4</code>, polynomial coefficients,
+  <code>TransferFunctions</code>, stiffnesses, etc.).</li>
+</ul>
+<h2 id="changes-from-version-010">Changes from version 0.1.0<a class="headerlink" href="#changes-from-version-010" title="Permanent link">&para;</a></h2>
+<p>Version 0.2.0 is a superset of version 0.1.0. The changes are:</p>
+<ul>
+<li>New <code>format_version</code> field (files without it are read as 0.1.0).</li>
+<li><code>FlangeSegment.Fv</code> as an alternative to <code>preload_ratio</code>.</li>
+<li><code>FlangeSegment.k_shell</code> accepts <code>"interp"</code>.</li>
+<li>Custom bolts (<code>MetricBolt</code>), washers (<code>FlatWasher</code>) and nuts (<code>HexNut</code>).</li>
+<li><code>StandardMetricBolt.shank_diameter_ratio</code> accepts <code>"pitch"</code>.</li>
+<li>Optional <code>BoltFatigueCurve.type</code>, with <code>SingleSlopeFatigueCurve</code> and
+  <code>DoubleSlopeFatigueCurve</code> curves.</li>
+<li>Optional top-level <code>AllowableDamage</code> and <code>SMF</code> for deterministic analyses.</li>
+<li><code>Stats.Preload.Mean</code> as an alternative to <code>MeanRatio</code>.</li>
+<li><code>Stats.StressMultiplicationFactor</code> accepts a plain number.</li>
+<li><strong><code>Stats.FatigueClassFactor.DS_ref_mean</code> is required.</strong> In version 0.1.0
+  the mean reference stress range of the random S-N curves was implicitly
+  62 MPa; version 0.1.0 files are upgraded with this value.</li>
+<li><code>FlangeSegment.type</code> is optional, with default <code>"PolynomialLFlangeSegment"</code>.</li>
+</ul>
+<blockquote>
+<p><strong>Note on Monte Carlo simulations of ED2 cases.</strong> The Forrester tool
+always generated random <code>PolynomialLFlangeSegment</code> (AMD1) segments, even
+for cases with <code>"type": "PolynomialLFlangeSegmentED2"</code>. PyFlange generates
+random segments of the declared type, so the Monte Carlo results of ED2
+cases differ from those computed with Forrester. Deterministic results
+and AMD1 cases are not affected.</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../cli/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Command line">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Command line
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../apis/" class="md-footer__link md-footer__link--next" aria-label="Next: API reference">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                API reference
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2024 KCI The Engineers B.V., Siemens Gamesa Renewable Energy B.V., TNO &mdash; GPL-3.0
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/kcibv/pyflange" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pyflange/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.indexes", "navigation.top", "navigation.footer", "navigation.instant", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+      
+        <script src="../assets/js/katex.js"></script>
+      
+    
+  </body>
+</html>

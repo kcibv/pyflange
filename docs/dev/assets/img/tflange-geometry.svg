@@ -1,0 +1,70 @@
+<svg class="pf-drawing" viewBox="0 0 600 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="tflange-title">
+<title id="tflange-title">T-flange segment: cross-section with the parameters a, b, s, t, R, Do and the shell force Z</title>
+<defs>
+<marker id="tf-dim" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="pf-dim-fill"/></marker>
+<marker id="tf-force" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pf-force-fill"/></marker>
+</defs>
+<!-- upper shell and flange -->
+<path class="pf-steel" d="M282,50 H318 V170 H490 V230 H110 V170 H282 Z"/>
+<!-- lower shell and flange -->
+<path class="pf-steel" d="M282,410 H318 V290 H490 V230 H110 V290 H282 Z"/>
+<line class="pf-thin" x1="110" y1="230" x2="490" y2="230"/>
+<!-- bolt holes, bolts and nuts -->
+<rect class="pf-hole" x="177" y="170" width="26" height="120"/>
+<rect class="pf-hole" x="397" y="170" width="26" height="120"/>
+<rect class="pf-bolt" x="181" y="146" width="18" height="168"/>
+<rect class="pf-bolt" x="164" y="150" width="52" height="20"/>
+<rect class="pf-bolt" x="164" y="290" width="52" height="20"/>
+<rect class="pf-bolt" x="401" y="146" width="18" height="168"/>
+<rect class="pf-bolt" x="384" y="150" width="52" height="20"/>
+<rect class="pf-bolt" x="384" y="290" width="52" height="20"/>
+<!-- center lines -->
+<line class="pf-center" x1="190" y1="125" x2="190" y2="335"/>
+<line class="pf-center" x1="410" y1="125" x2="410" y2="335"/>
+<line class="pf-center" x1="300" y1="35" x2="300" y2="425"/>
+<!-- shell force Z -->
+<line class="pf-force" x1="300" y1="50" x2="300" y2="12" marker-end="url(#tf-force)"/>
+<line class="pf-force" x1="300" y1="410" x2="300" y2="448" marker-end="url(#tf-force)"/>
+<text class="pf-force-text" x="310" y="24">Z</text>
+<text class="pf-force-text" x="310" y="446">Z</text>
+<!-- dimensions a, b (inside half) -->
+<line class="pf-ext" x1="110" y1="290" x2="110" y2="352"/>
+<line class="pf-ext" x1="190" y1="335" x2="190" y2="352"/>
+<line class="pf-dimline" x1="110" y1="345" x2="190" y2="345" marker-start="url(#tf-dim)" marker-end="url(#tf-dim)"/>
+<line class="pf-dimline" x1="190" y1="345" x2="300" y2="345" marker-start="url(#tf-dim)" marker-end="url(#tf-dim)"/>
+<text class="pf-dim-text" x="150" y="338" text-anchor="middle">a</text>
+<text class="pf-dim-text" x="245" y="338" text-anchor="middle">b</text>
+<!-- dimensions b, a (outside half) -->
+<line class="pf-ext" x1="490" y1="290" x2="490" y2="352"/>
+<line class="pf-ext" x1="410" y1="335" x2="410" y2="352"/>
+<line class="pf-dimline" x1="300" y1="345" x2="410" y2="345" marker-start="url(#tf-dim)" marker-end="url(#tf-dim)"/>
+<line class="pf-dimline" x1="410" y1="345" x2="490" y2="345" marker-start="url(#tf-dim)" marker-end="url(#tf-dim)"/>
+<text class="pf-dim-text" x="355" y="338" text-anchor="middle">b</text>
+<text class="pf-dim-text" x="450" y="338" text-anchor="middle">a</text>
+<!-- dimension t -->
+<line class="pf-ext" x1="110" y1="170" x2="66" y2="170"/>
+<line class="pf-ext" x1="110" y1="230" x2="66" y2="230"/>
+<line class="pf-ext" x1="110" y1="290" x2="66" y2="290"/>
+<line class="pf-dimline" x1="74" y1="170" x2="74" y2="230" marker-start="url(#tf-dim)" marker-end="url(#tf-dim)"/>
+<line class="pf-dimline" x1="74" y1="230" x2="74" y2="290" marker-start="url(#tf-dim)" marker-end="url(#tf-dim)"/>
+<text class="pf-dim-text" x="60" y="205" text-anchor="end">t</text>
+<text class="pf-dim-text" x="60" y="265" text-anchor="end">t</text>
+<!-- dimension s -->
+<line class="pf-dimline" x1="250" y1="95" x2="282" y2="95" marker-end="url(#tf-dim)"/>
+<line class="pf-dimline" x1="350" y1="95" x2="318" y2="95" marker-end="url(#tf-dim)"/>
+<text class="pf-dim-text" x="360" y="100">s</text>
+<!-- dimension Do -->
+<line class="pf-dimline" x1="145" y1="210" x2="177" y2="210" marker-end="url(#tf-dim)"/>
+<line class="pf-dimline" x1="235" y1="210" x2="203" y2="210" marker-end="url(#tf-dim)"/>
+<text class="pf-dim-text" x="142" y="205" text-anchor="end">D<tspan baseline-shift="sub" font-size="70%">o</tspan></text>
+<!-- R: outer face of the shell -->
+<line class="pf-dimline" x1="390" y1="120" x2="318" y2="120" marker-end="url(#tf-dim)"/>
+<text class="pf-dim-text" x="396" y="116">R (outer</text>
+<text class="pf-dim-text" x="396" y="136">radius)</text>
+<!-- labels -->
+<text class="pf-label" x="330" y="390">shell</text>
+<text class="pf-label" x="120" y="160">flange</text>
+<text class="pf-label" x="444" y="160">flange</text>
+<text class="pf-label pf-muted" x="20" y="440">&#8592; tower axis (inside)</text>
+<text class="pf-label pf-muted" x="510" y="440">outside &#8594;</text>
+</svg>
