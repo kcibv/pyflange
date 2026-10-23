@@ -123,8 +123,9 @@ mkdocs serve                                                    # documentation 
 ```
 
 The documentation source is in `docsrc/`. GitHub workflows run the tests at
-every push and publish the documentation, one version per release, to the
-`docs/` folder of `main`, served by GitHub Pages. See the
+every push, publish the documentation, one version per release, to the
+`docs/` folder of `main`, served by GitHub Pages, and publish the package on
+PyPI when a `pyflange-v<version>` tag is pushed. See the
 [developer guide](https://kcibv.github.io/pyflange/latest/contributing/#developer-guide).
 
 

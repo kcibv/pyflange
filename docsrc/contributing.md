@@ -93,3 +93,35 @@ from a clean clone.
 The *Tests* workflow runs the test suite on Linux and Windows, with the
 oldest and newest supported Python versions, at every push and pull request
 to `main` and `dev`.
+
+### Releasing on PyPI
+
+The *Publish to PyPI* workflow publishes the package on
+[PyPI](https://pypi.org/project/pyflange/) when a tag named
+`pyflange-v<version>` is pushed. To release, say, version 0.14.0:
+
+1. set `version = "0.14.0"` in `pyproject.toml`, date the release in
+   `docsrc/changelog.md` and merge into `main`;
+2. on `main`, run the tests and build the package locally:
+
+    ```doscon
+    py -m pytest
+    py -m build
+    py -m twine check --strict dist/pyflange-0.14.0*
+    ```
+
+3. push `main`, then tag the merged commit and push the tag:
+
+    ```doscon
+    git push origin main
+    git tag -a pyflange-v0.14.0 -m "PyFlange 0.14.0"
+    git push origin pyflange-v0.14.0
+    ```
+
+The workflow does not run the tests and does not check the branch: it only
+checks that the tag and `pyproject.toml` versions are equal, then builds the
+package, checks it with `twine check --strict` and uploads it. The upload
+uses PyPI
+[trusted publishing](https://docs.pypi.org/trusted-publishers/), so no API
+token is stored in GitHub. A version cannot be uploaded to PyPI twice: to fix
+a release, publish a new patch version.

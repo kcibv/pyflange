@@ -1,0 +1,76 @@
+# Publishes PyFlange on PyPI (https://pypi.org/project/pyflange/).
+#
+# It runs when a tag named pyflange-v<version> is pushed, e.g.
+#
+#     git tag -a pyflange-v0.13.0 -m "PyFlange 0.13.0"
+#     git push origin pyflange-v0.13.0
+#
+# The release is published only if the version in the tag equals the version
+# in pyproject.toml and the built packages pass "twine check --strict". The
+# tests and the build are expected to have been checked locally before
+# tagging, on a commit of the main branch.
+#
+# The upload uses PyPI trusted publishing: PyPI trusts this workflow, running
+# in the "pypi" environment of kcibv/pyflange, so no API token is stored in
+# GitHub. It must be configured once on PyPI (Manage project > Publishing).
+
+name: Publish to PyPI
+
+on:
+  push:
+    tags: ["pyflange-v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Check the version and build the release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check that the tag matches the version in pyproject.toml
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#pyflange-v}"
+          PROJECT_VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          if [ "$TAG_VERSION" != "$PROJECT_VERSION" ]; then
+            echo "::error::Tag version $TAG_VERSION differs from pyproject.toml version $PROJECT_VERSION"
+            exit 1
+          fi
+
+      - name: Build wheel and source distribution
+        run: |
+          python -m pip install --upgrade pip build twine
+          python -m build
+          python -m twine check --strict dist/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Upload to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/pyflange/
+    permissions:
+      id-token: write   # required by trusted publishing
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
