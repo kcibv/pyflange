@@ -45,7 +45,8 @@ The following *general-purpose* samplers are available:
 - `clayton_gap_sampler`
 - `fatigue_case_sampler`
 
-The following samplers are instead specific to IEC 61400-6:2020:
+The following samplers implement the stochastic model of the IEC 61400-6
+background documents (refs. [1] and [5]):
 
 - `standard_gap_sampler`
 - `standard_gap_sampler_ED2`
@@ -53,15 +54,26 @@ The following samplers are instead specific to IEC 61400-6:2020:
 - `standard_markov_matrix_sampler`
 - `standard_bolt_fatigue_curve_sampler`
 
-An example of how to use the above generators to perform a Montecarlo
-simulation, is given in [this example](../examples/montecarlo.md).
+An example of how to use the above generators to perform a Monte Carlo
+simulation is given in the
+[Monte Carlo in Python tutorial](../tutorials/montecarlo-python.md).
 
-The following references are used through this documentation:
+Random values are drawn from the numpy global random generator, so a
+simulation can be made reproducible with `numpy.random.seed`.
 
-- `[1]` IEC 61400-6 AMD1 Background document
-- `[2]` IEC 61400-6:2020
-- `[3]` IEC 61400-6 ED2 (draft)
+References:
+    The reference numbers are the same in all the PyFlange modules (see the
+    [references page](../references.md)). This module cites:
 
+    - `[1]` Seidel, M.: IEC 61400-6 AMD1 Background document. Fatigue design
+      for ring flange connections in wind turbine support structures. Rev00,
+      Siemens Gamesa, 2024. The stochastic model is given in its Table 7.
+    - `[2]` IEC 61400-6:2020+AMD1:2025 CSV. Wind energy generation systems -
+      Part 6: Tower and foundation design requirements. Consolidated version,
+      2025. The design gap height is defined in section 6.7.5.2.
+    - `[5]` Seidel, M.: IEC 61400-6 AMD1 & ED2 Background document. Rev01,
+      draft 2026-08-04, Siemens Gamesa. The ED2 gap heights are given in
+      section 2.2.4 and the stochastic model in section 6.4 (Table 8).
 '''
 
 from typing import Generator
@@ -80,16 +92,20 @@ from metrum.units import deg, MPa
 # =============================================================================
 
 def gap_height_distribution (flange_diameter, flange_flatness_tolerance, gap_length):
-    ''' Evaluates the gap height probability distribution according to ref. [1].
+    ''' Evaluates the gap height probability distribution according to IEC 61400-6 AMD1.
 
     The gap height is modeled as a log-normal random variable, whose mean value
     and coefficient of variation depend on the flange diameter, the flatness
-    tolerance and the gap length.
+    tolerance and the gap length (ref. [2], section 6.7.5.2, eqs. (32) to (38)).
+    The design gap height is the 95% quantile of this distribution
+    (ref. [2], eqs. (39) and (40)). The formulae may be used for flange
+    diameters up to 10 m.
 
     Args:
         flange_diameter (float): The outer diameter of the flange, expressed in meters.
-        flange_flatness_tolerance (float): The flatness tolerance, as defined in ref. [1],
-            expressed in mm/mm (non-dimensional).
+        flange_flatness_tolerance (float): The local flatness tolerance u_tol,1m
+            of ref. [2], expressed in mm/mm (non-dimensional, e.g. 0.0014 for
+            1.4 mm/m).
         gap_length (float): The length of the gap, expressed in meters and measured at
             the outer edge of the flange.
 
@@ -130,11 +146,12 @@ def gap_height_distribution (flange_diameter, flange_flatness_tolerance, gap_len
 
 
 def gap_height_distribution_ED2 (flange_diameter, flange_flatness_tolerance, gap_length):
-    ''' Evaluates the gap height probability distribution according to ref. [3].
+    ''' Evaluates the gap height probability distribution proposed for IEC 61400-6 ED2.
 
     The gap height is modeled as a Weibull random variable, whose shape and
     scale parameters depend on the flange diameter, the flatness tolerance and
-    the gap angle.
+    the gap angle (ref. [5], section 2.2.4, eqs. (25) to (28)). The ED2 design
+    gap height is the 75% quantile of this distribution (ref. [5], eq. (24)).
 
     Args:
         flange_diameter (float): The outer diameter of the flange, in meters.
@@ -156,7 +173,7 @@ def gap_height_distribution_ED2 (flange_diameter, flange_flatness_tolerance, gap
         u = 0.0014                       # Flatness tolerance (1.4 mm/m)
         L = pi/6 * D/2                   # Length of a 30 deg gap
         dist = gap_height_distribution_ED2(D, u, L)
-        u95 = dist.ppf(0.95)             # 95% quantile of the gap height
+        k_design = dist.ppf(0.75)        # ED2 design gap height (75% quantile)
         ```
     '''
     from math import pi
@@ -179,11 +196,13 @@ def gap_height_distribution_ED2 (flange_diameter, flange_flatness_tolerance, gap
 
 
 def gap_angle_distribution_ED2 (flange_diameter, flange_flatness_tolerance):
-    ''' Evaluates the gap angle probability distribution according to ref. [3].
+    ''' Evaluates the gap angle probability distribution used for ED2 Monte Carlo simulations.
 
     The gap angle is modeled as a Beta random variable defined over the
     interval [0, pi], whose parameters depend on the flange diameter and
-    flatness tolerance.
+    flatness tolerance. This distribution is used together with
+    `gap_height_distribution_ED2`. Note that it is not given in refs. [2]
+    and [5].
 
     Args:
         flange_diameter (float): The outer diameter of the flange, in meters.
@@ -369,14 +388,20 @@ def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
                           gap_angle_sampler = lognorm_sampler(100*deg, 1.0),
                           gap_shape_factor_sampler = norm_sampler(1.0, 0.15),
                           gap_height_cap = 2.0):
-    ''' Sampler that generates random flange gaps according to ref. [1].
+    ''' Sampler that generates random flange gaps according to IEC 61400-6 AMD1.
 
     For each realization, a gap angle is drawn from `gap_angle_sampler`, the
     gap height is then drawn from the distribution returned by
-    `gap_height_distribution` for that angle, and the gap shape factor is drawn
-    from `gap_shape_factor_sampler`. Realizations are discarded and redrawn
-    when the gap angle is not between 0 and 180 degrees, or when the gap height
-    exceeds `gap_height_cap` times the 95th percentile of its distribution.
+    `gap_height_distribution` for that angle (ref. [2], section 6.7.5.2), and
+    the gap shape factor is drawn from `gap_shape_factor_sampler`. Realizations
+    are discarded and redrawn when the gap angle is not between 0 and 180
+    degrees, or when the gap height exceeds `gap_height_cap` times the 95th
+    percentile of its distribution.
+
+    The default shape factor distribution, N(1.0, 0.15), is the one of the
+    stochastic model of ref. [1], Table 7. In ref. [5] (section 6.4.6) the
+    shape factor is no longer used, because the shape effects are included in
+    the ED2 gap height distribution (see `standard_gap_sampler_ED2`).
 
     Args:
         flange_diameter (float): The outer diameter of the flange, in meters.
@@ -423,12 +448,14 @@ def standard_gap_sampler (flange_diameter, flange_flatness_tolerance,
 
 
 def standard_gap_sampler_ED2 (flange_diameter, flange_flatness_tolerance):
-    ''' Sampler that generates random flange gaps according to ref. [3].
+    ''' Sampler that generates random flange gaps for IEC 61400-6 ED2.
 
     For each realization, a gap angle is drawn from the distribution returned
     by `gap_angle_distribution_ED2` and the gap height is then drawn from the
-    distribution returned by `gap_height_distribution_ED2` for that angle.
-    The gap shape factor is always 1.0.
+    distribution returned by `gap_height_distribution_ED2` for that angle
+    (ref. [5], section 2.2.4). The gap shape factor is always 1.0, because
+    the shape effects are included in the gap height distribution (ref. [5],
+    section 6.4.6).
 
     Args:
         flange_diameter (float): The outer diameter of the flange, in meters.
@@ -593,9 +620,16 @@ def standard_PolynomialLFlangeSegment_sampler (
     For each realization, a random gap and a random flange tilt are drawn, and
     the bolt preload is sampled and averaged over the bolts affected by the gap
     (half of the bolts subtended by the gap angle, at least one), to account
-    for the larger preload scatter at small gap angles. The returned segment
-    already includes the effect of the sampled preload losses (settlement and
-    plastic), so its `PPL` and `DFT` attributes are zero.
+    for the larger preload scatter at small gap angles (ref. [5], sections 4.4
+    and 6.4.1). The returned segment already includes the effect of the
+    sampled preload losses (settlement and plastic), so its `PPL` and `DFT`
+    attributes are zero.
+
+    The stochastic model of ref. [5], section 6.4 suggests a plastic loss
+    with mean 0.03 and standard deviation 0.01 (`norm_sampler(0.03, 1/3)`), a
+    dry film thickness with mean 250 µm and standard deviation 30 µm
+    (`norm_sampler(250e-6, 0.12)`) and an inside flange inclination
+    LN(0.1°, 0.5) (the default `tilt_sampler`).
 
     Args:
         a (float): Distance between inner face of the flange and center of the
@@ -651,7 +685,7 @@ def standard_PolynomialLFlangeSegment_sampler (
 
         ```py
         from math import pi
-        from metrum.units import mm, um, kN
+        from metrum.units import mm, um, kN, deg
 
         import pyflange.stats as stats
         from pyflange.bolts import StandardMetricBolt, RoundNut
@@ -748,11 +782,14 @@ def _shell_stiffness_interpolator (R, s):
 
 
 def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_CoV=0.12):
-    ''' Sampler that generates a random Markov matrix according to ref [2].
+    ''' Sampler that generates a random Markov matrix.
 
     Each realization has the same cycles, means and duration as the design
     Markov matrix, while its ranges are scaled by a single log-normally
-    distributed coefficient.
+    distributed coefficient: the fatigue load factor X_FLS of the stochastic
+    model of refs. [1] (Table 7) and [5] (section 6.3.1 and Table 8), with
+    mean 1.0 and CoV 0.12. As explained in ref. [5], section 6.3.1, only the
+    load ranges are scaled, not the mean values.
 
     Args:
         markov_matrix (pyflange.fatigue.MarkovMatrix): The deterministic
@@ -779,11 +816,14 @@ def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_C
 
 
 def standard_bolt_fatigue_curve_sampler (bolt_nominal_diameter, mean_stress_factor=1.0, stress_factor_CoV=0.10, DS_ref_mean=62*MPa):
-    ''' Sampler that generates random bolt S-N curves, according to ref. [2].
+    ''' Sampler that generates random bolt S-N curves.
 
     The reference stress range of each curve is the product of `DS_ref_mean`
-    and a normally distributed random coefficient. The curves have no material
-    safety factor (`gamma_M = 1.0`).
+    and a normally distributed random coefficient: with the default values,
+    this is the variable X_FAT ~ N(62 MPa, 0.10) of the stochastic model of
+    refs. [1] (Table 7) and [5] (Table 8). The curves have the slopes, knee
+    point and size effect of `pyflange.fatigue.BoltFatigueCurve` and no
+    material safety factor (`gamma_M = 1.0`).
 
     Args:
         bolt_nominal_diameter (float): The nominal diameter of the bolt, in meters.
@@ -808,6 +848,11 @@ def standard_bolt_fatigue_curve_sampler (bolt_nominal_diameter, mean_stress_fact
 
 def fatigue_case_sampler (fseg_samp, markov_matrix_samp, fatigue_curve_samp, allowable_damage_samp, SMF=1.0):
     ''' Sampler that generates random fatigue cases.
+
+    Each realization combines one realization of each of the given samplers.
+    The stochastic model of refs. [1] and [5] uses a log-normal allowable
+    damage (Miner's rule model uncertainty) with mean 1.0 and CoV 0.30, e.g.
+    `lognorm_sampler(1.0, 0.30)`.
 
     Args:
         fseg_samp (Generator): A `pyflange.flangesegments.FlangeSegment` sampler,

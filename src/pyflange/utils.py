@@ -56,7 +56,7 @@ def log_data (object, **kwargs):
 
     Args:
         object (Any): The object the data is attached to.
-        **kwargs: Named values to log.
+        **kwargs (Any): Named values to log.
 
     Example:
         ```python

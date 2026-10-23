@@ -1,0 +1,11 @@
+# Packages needed to build the documentation (mkdocs build).
+# Install with: py -m pip install -r docsrc/requirements.txt
+mkdocs==1.6.1
+mkdocs-material==9.6.7
+mkdocstrings==0.30.1
+mkdocstrings-python==1.16.5
+mkdocs-autorefs==1.4.0
+mkdocs-redirects==1.2.2
+pymdown-extensions==10.20
+griffe==1.5.1
+mike==2.2.0

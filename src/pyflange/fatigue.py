@@ -28,8 +28,8 @@ Key components provided by this module:
   ranges, mean values, cycle counts, and duration) obtained from rainflow counting
   or design load spectra.
 - `FatigueCurve`: Abstract base class defining the S-N curve interface and
-  Palmgren-Miner linear cumulative damage accumulation:
-  $$D = \sum_{i} \frac{n_i}{N(\Delta S_i)}$$
+  Palmgren-Miner linear cumulative damage accumulation
+  $D = \sum_{i} n_i / N(\Delta S_i)$.
 - `SingleSlopeFatigueCurve`: Represents a Wöhler curve with a single logarithmic
   slope exponent $m$, defined by the power law $N \cdot \Delta S^m = a$.
 - `MultiSlopeFatigueCurve`: Represents a composite multi-slope S-N curve
@@ -52,6 +52,21 @@ Units:
     - Bending moments: newton-meters (N·m)
     - Stresses and pressures: pascals (Pa)
     - Duration and fatigue life: consistent time units (e.g., seconds or years)
+
+References:
+    The reference numbers are the same in all the PyFlange modules (see the
+    [references page](../references.md)). This module cites:
+
+    - `[1]` Seidel, M.: IEC 61400-6 AMD1 Background document. Fatigue design
+      for ring flange connections in wind turbine support structures. Rev00,
+      Siemens Gamesa, 2024. Section 3 explains the selection of the bolt
+      S-N curve.
+    - `[2]` IEC 61400-6:2020+AMD1:2025 CSV. Wind energy generation systems -
+      Part 6: Tower and foundation design requirements. Consolidated version,
+      2025. The bolt damage calculation is given in section 6.7.5.4.
+    - `[5]` Seidel, M.: IEC 61400-6 AMD1 & ED2 Background document. Rev01,
+      draft 2026-08-04, Siemens Gamesa. Section 3 explains the selection of
+      the bolt S-N curve.
 """
 
 from __future__ import annotations
@@ -313,30 +328,36 @@ class BoltFatigueCurve(DoubleSlopeFatigueCurve):
 
     Constructs a design bilinear S-N curve for threaded bolts with logarithmic slopes
     $m_1 = 3$ (for $N \le 2 \times 10^6$) and $m_2 = 5$ (for $N > 2 \times 10^6$), with a
-    knee point located at $N_{12} = 2 \times 10^6$ cycles.
+    knee point located at $N_{12} = 2 \times 10^6$ cycles (ref. [2], section 6.7.5.4).
 
     The characteristic reference stress range $\Delta \sigma_c$ at 2 million cycles
-    is adjusted for bolt size effects according to IEC 61400-6 AMD1:
+    is adjusted for bolt size effects with the factor $k_s$ of ref. [2], eq. (44):
 
     - For $d \le 30\text{ mm}$:
-      $$\Delta \sigma_c = \Delta S_{\text{ref}}$$
+      $\Delta \sigma_c = \Delta S_{\text{ref}}$
     - For $30\text{ mm} < d \le 72\text{ mm}$:
-      $$\Delta \sigma_c = \Delta S_{\text{ref}} \cdot \left(\frac{0.030}{d}\right)^{0.1}$$
+      $\Delta \sigma_c = \Delta S_{\text{ref}} \cdot \left(\frac{0.030}{d}\right)^{0.1}$
     - For $d > 72\text{ mm}$:
-      $$\Delta \sigma_c = \Delta S_{\text{ref}} \cdot \left(\frac{0.030}{d}\right)^{0.1} \cdot \left(\frac{0.072}{d}\right)^{0.25}$$
+      $\Delta \sigma_c = \Delta S_{\text{ref}} \cdot \left(\frac{0.030}{d}\right)^{0.1} \cdot \left(\frac{0.072}{d}\right)^{0.25}$
 
     The knee point stress range for the design curve is obtained by dividing the
     characteristic strength by the material partial safety factor:
 
     $$\Delta S_{12} = \frac{\Delta \sigma_c}{\gamma_M}$$
 
+    The curve has no endurance limit. With the default parameters (detail
+    category 50, $\gamma_M = 1.1$) it is the design curve of ref. [2],
+    section 6.7.5.4. In Monte Carlo simulations, random curves are generated
+    with $\gamma_M = 1.0$ and a random $\Delta S_{\text{ref}}$ (see
+    `pyflange.stats.standard_bolt_fatigue_curve_sampler`).
+
     Args:
         diameter (float): Nominal bolt diameter $d$ in meters.
         DS_ref (float, optional): Reference characteristic stress range $\Delta S_{\text{ref}}$
             at $2 \times 10^6$ cycles before size and material factor corrections (in Pa).
-            Defaults to 50 MPa (`50e6` Pa).
+            Defaults to 50 MPa (`50e6` Pa), i.e. detail category 50 of ref. [2].
         gamma_M (float, optional): Material partial safety factor $\gamma_M$ for fatigue design.
-            Defaults to 1.1.
+            Defaults to 1.1 (ref. [2], section 6.7.5.4).
 
     Attributes:
         diameter (float): The nominal bolt diameter passed to the constructor.
@@ -390,6 +411,9 @@ class BoltFatigueAnalysis:
     The analysis transforms the flange shell moment Markov matrix into a bolt stress
     Markov matrix using the segment's non-linear transfer functions, accounting for
     axial force, bolt bending, bolt diameter effects, and dynamic stress multiplication.
+    The bolt stress range is the axial stress range plus the bending stress range
+    reduced by the factor $\kappa_b$ (ref. [2], eqs. (42) and (43)), and the
+    damage is evaluated with Miner's rule (ref. [2], section 6.7.5.4).
 
     Attributes:
         fseg (FlangeSegment): The flange segment model containing geometry, bolt
@@ -400,9 +424,24 @@ class BoltFatigueAnalysis:
             If `None`, an IEC 61400-6 AMD1 compliant `BoltFatigueCurve` is automatically
             constructed from the bolt nominal diameter. Defaults to `None`.
         allowable_damage (float): Maximum allowable cumulative fatigue damage limit
-            $D_{\text{allow}}$. Defaults to 1.0.
+            $D_{\text{allow}}$. Defaults to 1.0 (ref. [2], section 6.7.5.4).
         SMF (float): Stress Multiplication Factor applied to the bolt stress ranges to
-            account for dynamic amplification or geometric uncertainties. Defaults to 1.0.
+            account for the model uncertainty of the analytical model (ref. [5],
+            section 6.5). Defaults to 1.0.
+
+    Example:
+        ```python
+        import numpy as np
+        from pyflange.fatigue import MarkovMatrix, BoltFatigueAnalysis
+
+        # fseg is a flange segment, e.g. a PolynomialLFlangeSegment
+        mkvm = MarkovMatrix(range=np.array([20e6, 40e6]),     # N·m
+                            mean=np.array([30e6, 30e6]),      # N·m
+                            cycles=np.array([1e7, 1e5]),
+                            duration=25)                      # years
+        analysis = BoltFatigueAnalysis(fseg, mkvm)
+        print(analysis.damage, analysis.fatigue_life)
+        ```
     """
 
     fseg: FlangeSegment
@@ -418,7 +457,13 @@ class BoltFatigueAnalysis:
 
     @functools.cached_property
     def bolt_mkvm(self) -> MarkovMatrix:
-        """MarkovMatrix: The bolt stress Markov matrix including axial and bending stresses."""
+        r"""MarkovMatrix: The bolt stress Markov matrix including axial and bending stresses.
+
+        The bending stresses are reduced by the factor
+        $\kappa_b = 0.5 + 0.5 \cdot \log(d/36) / \log(150/36) \ge 0.5$, with $d$
+        the bolt nominal diameter in mm (ref. [2], eq. (43)). The stress ranges
+        are multiplied by `SMF`.
+        """
         from math import log
         from .flangesegments import bolt_markov_matrix
         bending_factor = max(0.5, 0.5 + 0.5*log(self.fseg.bolt.nominal_diameter/0.036) / log(150/36))

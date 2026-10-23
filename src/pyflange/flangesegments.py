@@ -68,21 +68,28 @@ Example:
     Fs = fseg.bolt_axial_force(500e3)           # bolt force for a shell pull of 500 kN
     ```
 
-The models implemented in this module are based on the following references:
+References:
+    The reference numbers are the same in all the PyFlange modules (see the
+    [references page](../references.md)). This module cites:
 
-- `[1]` Marc Seidel, SGRE TE TF PST: IEC 61400-6 AMD1 Background Document
-  Fatigue design for ring flange connections in wind turbine support structures. Rev00, 2024.
-- `[2]` IEC 61400-6:2020+AMD1:2025 - Wind energy generation systems - Part 6: Tower and foundation
-  design requirements. Consolidated version, 2025. Equation numbers G.xx refer to its Annex G.
-- `[5]` Marc Seidel, SGRE: IEC 61400-6 AMD1 & ED2 Background Document. Rev01, draft 2026-08-04.
-  The changes of the polynomial model from AMD1 to ED2 are summarised in its section 9.7.
-- `[3]` Petersen, C.: Nachweis der Betriebsfestigkeit exzentrisch beanspruchter Ringflansch-verbindungen
-  (Fatigue assessment of eccentrically loaded ring flange connections).
-  Stahlbau 67 (1998), S. 191-203. <https://onlinelibrary.wiley.com/doi/abs/10.1002/stab.199800690>
-- `[4]` Petersen, C.: Stahlbau (Steel construction), 4. Auflage Braunschweig: Wiesbaden: Springer Vieweg 2012.
-  <https://link.springer.com/book/10.1007%2F978-3-8348-8610-1>
-- `[9]` Tobinaga, I.; Ishihara, T.: A study of action point correction factor for L-type flanges of wind turbine towers.
-  Wind Energy 21 (2018), p. 801-806. <https://doi.org/10.1002/we.2193>
+    - `[1]` Seidel, M.: IEC 61400-6 AMD1 Background document. Fatigue design
+      for ring flange connections in wind turbine support structures. Rev00,
+      Siemens Gamesa, 2024.
+    - `[2]` IEC 61400-6:2020+AMD1:2025 CSV. Wind energy generation systems -
+      Part 6: Tower and foundation design requirements. Consolidated version,
+      2025. Equation numbers G.xx refer to its Annex G.
+    - `[3]` Petersen, C.: Nachweis der Betriebsfestigkeit exzentrisch
+      beanspruchter Ringflanschverbindungen. Stahlbau 67 (1998), pp. 191-203.
+      <https://doi.org/10.1002/stab.199800690>
+    - `[4]` Petersen, C.: Stahlbau. 4th edition, Springer Vieweg, 2012.
+      <https://doi.org/10.1007/978-3-8348-8610-1>
+    - `[5]` Seidel, M.: IEC 61400-6 AMD1 & ED2 Background document. Fatigue
+      design for ring flange connections in wind turbine support structures.
+      Rev01, draft 2026-08-04, Siemens Gamesa. The changes of the polynomial
+      model from AMD1 to ED2 are summarised in its section 9.7.
+    - `[6]` Tobinaga, I.; Ishihara, T.: A study of action point correction
+      factor for L-type flanges of wind turbine towers. Wind Energy 21 (2018),
+      pp. 801-806. <https://doi.org/10.1002/we.2193>
 '''
 
 
@@ -108,6 +115,11 @@ import pandas as pd
 @dataclass
 class Gap:
     '''A flange gap due to imperfections.
+
+    The design gap height of IEC 61400-6 AMD1 is the 95% quantile of the
+    log-normal distribution of ref. [2], section 6.7.5.2 (see
+    `pyflange.stats.gap_height_distribution`). The gap angles to be checked
+    are 30°, 60°, 90° and 120° (ref. [2], section 6.7.5.3).
 
     Attributes:
         height (float): Maximum longitudinal gap height.
@@ -1789,7 +1801,7 @@ def _tobinaga_lever_ratio (a, b, t):
     '''Lever ratio (a' + b) / a' of a flange segment, according to ref. [2], section G.1.3.
 
     The equivalent flange inner length a' is evaluated with the action point
-    correction of Tobinaga & Ishihara (ref. [9], ref. [2], eqs. G.12 to G.15).
+    correction of Tobinaga & Ishihara (ref. [6]; ref. [2], eqs. G.12 to G.15).
     The correction is only applied within the validity range of ref. [2],
     eqs. G.16 and G.17: outside that range a' = a is used, and a warning is
     logged when 1.25 < a/b.
@@ -1873,7 +1885,13 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
     forces acting on the flange segment, and then into minimum and maximum bolt
     stresses through the transfer functions of the flange segment. The bolt
     stress is the sum of the axial stress and of the bending stress scaled by
-    `bending_factor`, evaluated on the bolt thread cross-section.
+    `bending_factor`, evaluated on the bolt thread cross-section, according
+    to ref. [2], section 6.7.5.4, eq. (42).
+
+    The flange bending moment M is converted into the segment shell force
+    as Z = M / W * A_seg (ref. [2], eq. G.33), where W is the section modulus
+    of the tower shell, evaluated at the shell mid-surface, and A_seg the
+    shell cross-section area of the segment.
 
     Args:
         fseg (PolynomialFlangeSegment): The flange segment containing the
@@ -1882,9 +1900,11 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
         flange_markov_matrix (pyflange.fatigue.MarkovMatrix): The Markov
             matrix of bending moments on the flange.
         bending_factor (float, optional): Factor for the bending portion of the total
-            stress range. Defaults to 0.0 (axial stress only).
-        macro_geometric_factor (float, optional): Factor for macro geometric influences,
-            affecting dead weight, mean, and range values. If omitted, it defaults to 1.0.
+            stress range (kappa_b of ref. [2], eq. (43)). Defaults to 0.0
+            (axial stress only).
+        macro_geometric_factor (float, optional): Factor for macro geometric influences
+            (the SCF of ref. [2], section 6.7.5.3), affecting dead weight, mean,
+            and range values. If omitted, it defaults to 1.0.
         mean_factor (float, optional): Factor for the mean values of the tower's
             bending moments. If omitted, it defaults to 1.0.
         range_factor (float, optional): Factor for the range of the tower's bending
@@ -1928,9 +1948,21 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
 def shell_stiffness (shell_radius, shell_thickness, gap_angle):
     '''Calculates the axial stiffness of a flange-segment shell via interpolation.
 
-    This function interpolates shell stiffness from a dataset of 2160 FEA results.
+    This function interpolates shell stiffness from a dataset of 2160 FEA results,
+    covering 8 diameters (3 m to 10 m), 15 shell thicknesses (10 mm to 150 mm)
+    and 18 gap angles (10° to 180°). This is the database of pre-computed
+    stiffness values described in ref. [5], section 9.3.1, as an alternative
+    to the simplified formula of ref. [2], eqs. G.43 and G.44.
     Values outside the range covered by the dataset are not extrapolated, and
     `nan` is returned instead.
+
+    Example:
+        ```python
+        from math import pi
+        from pyflange.flangesegments import shell_stiffness
+
+        k_shell = shell_stiffness(4.0, 0.054, pi/6)   # R = 4 m, s = 54 mm, 30° gap
+        ```
 
     Args:
         shell_radius (float): Outer radius of the shell.

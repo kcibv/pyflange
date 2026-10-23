@@ -1,117 +1,164 @@
+---
+hide:
+  - navigation
+---
 
-> This software is part of the Bolt and Beautiful project funded with subsidy 
-> from the Top Sector Energy of the Dutch Ministry of Economic Affairs.
+<div class="pf-hero" markdown>
 
-PyFlange API documentation
-==========================
-This package has the ambitious goal of providing all the tools engineers
-need for the design of large bolted flanges such as the flanges used in
-offshore wind for connecting the turbine tower to the foundation.
+# PyFlange
 
-Far from achieving its goal, this package currently contains only an
-implementation of Marc Seidel's polynomial model for predicting bolt
-forces and moments due to the tower shell force.
+<p class="pf-tagline">Open-source Python library for the fatigue analysis of large bolted
+ring-flange connections, implementing the polynomial flange segment model of
+IEC 61400-6 AMD1.</p>
 
-This package has beend developed within the Bolt and Beoutiful GROW
-project by KCI, Siemens Gamesa and TNO.
+</div>
 
-The rest of this documentation will show how to get started and where to
-find extra documentation.
+PyFlange computes the **bolt axial force and bolt bending moment** of a
+flange segment as a function of the tower shell force, including the effect of
+flange **gaps** (flatness imperfections) and **flange inclination**. On top of
+this model it provides the **bolt fatigue assessment** of IEC 61400-6 and the
+tools for **probabilistic (Monte Carlo) analyses**.
 
-
-Installation
-------------
-PyFlange can be installed via pip as follows:
-PyFlange can be installed via pip as follows:
-
-```bash
-pip install pyflange
-```
-
-
-Usage instructions
-------------------
-After installing the package, you can import it in your python code as start
-using it. First of all, you need to create a `FlangeSegment` object as shown
-below.
+It is meant for engineers who design or check the L-flanges and T-flanges of
+wind turbine towers, monopiles and transition pieces, and who need a fast,
+transparent and verifiable implementation of the standard.
 
 ```python
-# Create the bolt object
-from pyflange.bolts import StandardMetricBolt, ISOFlatWasher, ISOHexNut
-M80_bolt   = StandardMetricBolt("M80", "10.9", shank_length=0.270, stud=True)
-M80_washer = ISOFlatWasher("M80")
-M80_nut    = ISOHexNut("M80")
+from pyflange.flangesegments import PolynomialLFlangeSegment
 
-# Define the gap parameters
-from pyflange.gap import gap_height_distribution
-D = 7.50                        # meters, flange outer diameter
-gap_angle = pi/6                # 30 deg gap angle
-gap_length = gap_angle * D/2    # outer length of the gap
-u_tol = 0.0014                  # flatness tolerance in mm/mm
-gap_dist = gap_height_distribution(D, u_tol, gap_length)    # lognormal distribution
-
-# Create the FlangeSegment model
-from pyflange.flangesegments import PolynomialLFlangeSegment, Gap
-Nb = 120    # number of bolts
-fseg = PolynomialLFlangeSegment(
-    a = 0.2325,              # distance between inner face of the flange and center of the bolt hole
-    b = 0.1665,              # distance between center of the bolt hole and center-line of the shell
-    s = 0.0720,              # shell thickness
-    t = 0.2000,              # flange thickness
-    R = D/2,                 # shell outer curvature radius
-    central_angle = 2*pi/Nb, # angle subtented by the flange segment arc
-
-    Zg = -14795000 / Nb,     # load applied to the flange segment shell at rest
-                             # (normally dead weight of tower + RNA, divided by the number of bolts)
-
-    bolt = M80_bolt,         # bolt object created above
-    Fv = 2876000,            # design bolt preload, after preload losses
-
-    Do = 0.086,              # bolt hole diameter
-    washer = M80_washer,     # washer object created above
-    nut = M80_nut,           # nut object created above
-
-    gap = Gap(height = gap_dist.ppf(0.95),    # maximum longitudinal gap height, 95% quantile
-              angle  = gap_angle)             # longitudinal gap length
-    )
-
-# Assert if the flange-segment fails with failure mode B.
-# If not, an exception will be raised. 
-fseg.validate(325e6, 295e6)
+fseg = PolynomialLFlangeSegment(a=0.150, b=0.122, s=0.054, t=0.172, R=4.0, ...)
+Fs = fseg.bolt_axial_force(500e3)       # bolt force for a 500 kN shell force
 ```
 
-Notice that a consistent set of units of measurements has been used for inputs, namely:
-meter for distances, radians for angles and newton for forces. It is not required to
-always use these units (meter, newton), but you should choose your units and always
-apply them consistently.
+## Where to start
 
-Once you have your `fseg` object, you can obtain the bolt forces and moments as follows:
+<div class="grid cards" markdown>
 
-```python
-Fs = fseg.bolt_axial_force(3500)    # bolt force corresponding to the tower shell force Z = 3500 N
-Ms = fseg.bolt_bending_moment(2000) # bolt bending moment corresponding to the tower shell force Z = 2000 N
-```
+-   :material-rocket-launch-outline:{ .lg .middle } **Getting started**
 
-The argumment `Z`, passed to `bolt_axial_force` and `bolt_bending_moment` can also be a
-numpy array. In that case an array of Fs and Ms value will be returned.
+    ---
 
-```python
-import numpy as np
-Z = np.array([2000, 2500, 3000])
-Fs = fseg.bolt_axial_force(Z)       # return the numpy array (Fs(2000), Fs(2500), Fs(3000))
-Ms = fseg.bolt_bending_moment(Z)    # return the numpy array (Ms(2000), Ms(2500), Ms(3000))
-```
+    New to Python? Install PyFlange step by step on Windows and run your first
+    analysis, with or without writing code.
 
+    [:octicons-arrow-right-24: Install PyFlange](getting-started/index.md)
 
-Command-line usage
-------------------
-Bolt fatigue analyses can also be run without writing any code, by describing
-the flange case in a JSON file (see the [JSON case format](json-format.md))
-and using the `pyflange` [command-line tool](cli.md):
+-   :material-school-outline:{ .lg .middle } **Tutorials**
 
-```bash
-pyflange determ case.json               # deterministic fatigue analysis
-pyflange sample case.json --seed 1      # Monte Carlo simulation
-pyflange stats case-sample.csv          # statistics of the Monte Carlo sample
-```
+    ---
 
+    Worked examples: deterministic L- and T-flange analyses, design gap
+    angles, AMD1 versus ED2, Monte Carlo simulations.
+
+    [:octicons-arrow-right-24: Tutorials](tutorials/index.md)
+
+-   :material-console:{ .lg .middle } **Command line**
+
+    ---
+
+    Run deterministic and Monte Carlo fatigue analyses of a JSON case file,
+    without programming.
+
+    [:octicons-arrow-right-24: Command line](cli.md)
+
+-   :material-code-json:{ .lg .middle } **JSON case format**
+
+    ---
+
+    The file format that describes a flange fatigue case: geometry, bolt,
+    gap, loads, S-N curve and statistics.
+
+    [:octicons-arrow-right-24: JSON format](json-format.md)
+
+-   :material-book-open-variant:{ .lg .middle } **User guide**
+
+    ---
+
+    How the model works, symbols, units and sign conventions, validation
+    against reference results, troubleshooting.
+
+    [:octicons-arrow-right-24: Model overview](guide/model.md)
+
+-   :material-api:{ .lg .middle } **API reference**
+
+    ---
+
+    Every module, class and function, generated from the source code, with
+    references to the IEC equations.
+
+    [:octicons-arrow-right-24: API reference](apis/index.md)
+
+</div>
+
+## What PyFlange can do
+
+| Task | Where |
+|------|-------|
+| Bolt force and bolt moment curves of L-flanges and T-flanges (IEC 61400-6 AMD1, Annex G.2) | [`flangesegments`](apis/flangesegments.md), [L-flange tutorial](tutorials/lflange.md), [T-flange tutorial](tutorials/tflange.md) |
+| The changes of the model proposed for IEC 61400-6 ED2 | [Design gaps and ED2 tutorial](tutorials/design-gaps.md) |
+| Check that the polynomial model is applicable (governing ULS failure mode) | [`failure_mode`, `validate`](apis/flangesegments.md) |
+| Design gap heights (log-normal AMD1, Weibull ED2) | [`stats.gap_height_distribution`](apis/stats.md) |
+| Shell stiffness from a database of 2160 FEA results | [`flangesegments.shell_stiffness`](apis/flangesegments.md) |
+| Preload losses due to settlement and plastic strain | [`PolynomialLFlangeSegment`](apis/flangesegments.md) |
+| Bolt S-N curve, size effect, Miner's rule, fatigue life | [`fatigue`](apis/fatigue.md) |
+| Standard metric bolts, nuts and washers | [`bolts`](apis/bolts.md) |
+| Monte Carlo simulation of the bolt fatigue damage | [Monte Carlo tutorials](tutorials/montecarlo-cli.md), [`stats`](apis/stats.md) |
+| Case files, batch runs, results in Excel | [Command line](cli.md), [`io`](apis/io.md) |
+
+## Background
+
+### The Bolt & Beautiful project
+
+PyFlange has been developed within **Bolt & Beautiful**, a
+[GROW](https://grow-offshorewind.nl/project/bolt-beautiful) research project
+on the bolted connections of offshore wind turbine support structures, by
+**KCI**, **Siemens Gamesa**, **JBO** and **TNO**. The project is funded with
+subsidy from the Top Sector Energy of the Dutch Ministry of Economic Affairs.
+
+Within the project, extensive finite element studies were carried out. They
+supported the calibration of the safety factors and small improvements of
+the analytical flange model, which are proposed for the next edition of
+IEC 61400-6 (ref. [5], section 1.1).
+
+### The link with IEC 61400-6
+
+IEC 61400-6 is the international standard for the design of wind turbine
+towers and foundations. Its amendment 1 (**AMD1**, published in June 2025)
+replaced the former Schmidt/Neuper approach for the fatigue design of flange
+bolts with a new analytical model, developed by Marc Seidel (Siemens Gamesa),
+which covers the effect of flange gaps of the size allowed by the
+manufacturing tolerances (ref. [1]). The model is given in Annex G.2 of the
+standard (ref. [2]), and the use of AMD1 becomes mandatory for IEC
+certification from December 2026 (ref. [5], section 9.2).
+
+The model is considerably more complex than the previous one. To help the
+industry implement it, PyFlange was developed as an open-source reference
+implementation, and it is referred to in the background document of the
+standard (ref. [5], section 9.2). The results of PyFlange are verified against
+the reference spreadsheets of Siemens Gamesa (see
+[Validation](guide/validation.md)).
+
+The revision of the standard towards Edition 2 (**ED2**) introduces some small
+changes to the model and new design gap heights (ref. [5], section 9.7).
+PyFlange implements them in separate classes (`PolynomialLFlangeSegmentED2`,
+`PolynomialTFlangeSegmentED2`, `gap_height_distribution_ED2`), so that both
+versions can be compared.
+
+!!! warning "ED2 is a draft"
+    The ED2 implementation follows the draft background document of
+    2026-08-04 (ref. [5]). It may change before ED2 is published. Use the AMD1
+    classes for certified designs.
+
+The documents cited as `ref. [n]` throughout this documentation are listed on
+the [References](references.md) page.
+
+## License and disclaimer
+
+PyFlange is free software, released under the
+[GNU General Public License v3](license.md). It is provided without any
+warranty: the user remains responsible for the verification of the results
+and for their use in design.
+
+Questions, bug reports and suggestions are welcome as
+[GitHub issues](https://github.com/kcibv/pyflange/issues). See
+[Contributing](contributing.md).

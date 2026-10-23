@@ -49,6 +49,25 @@ Example:
     nut = RoundNut("M80")
     k = bolt.axial_stiffness(0.35)    # axial stiffness for a 350 mm clamped length
     ```
+
+References:
+    The reference numbers are the same in all the PyFlange modules (see the
+    [references page](../references.md)). This module cites:
+
+    - `[2]` IEC 61400-6:2020+AMD1:2025 CSV. Wind energy generation systems -
+      Part 6: Tower and foundation design requirements. Consolidated version,
+      2025. The bolt tensile resistance is given by its eq. G.6.
+
+    and the following product and design standards:
+
+    - ISO 68-1:1998, ISO general purpose screw threads - Basic profile.
+    - ISO 724, ISO general-purpose metric screw threads - Basic dimensions.
+    - ISO 898-1:2013, Mechanical properties of fasteners - Part 1: Bolts,
+      screws and studs.
+    - ISO 4032, Hexagon regular nuts (style 1).
+    - ISO 7089, Plain washers - Normal series.
+    - EN 1993-1-8:2005, Eurocode 3 - Design of joints.
+    - VDI 2230 Part 1, Systematic calculation of highly stressed bolted joints.
 """
 
 from dataclasses import dataclass
@@ -227,6 +246,11 @@ class MetricBolt(Bolt):
 
     def ultimate_tensile_capacity(self, standard="Eurocode"):
         """Evaluate the ultimate tensile force that the bolt can sustain.
+
+        According to EN 1993-1-8, the tensile resistance is
+        `0.9 * fub * As / 1.25`, where `fub` is the ultimate tensile stress and
+        `As` the area of `thread_cross_section`. This is also the tensile
+        resistance F_t,R used by the flange segment models (ref. [2], eq. G.6).
 
         Args:
             standard (str): Standard according to which the ultimate tensile force

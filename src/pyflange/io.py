@@ -164,7 +164,7 @@ def create_bolt(**params):
     """Creates a bolt object from a dictionary of parameters.
 
     Args:
-        **params: The bolt parameters. The `type` key selects the bolt
+        **params (Any): The bolt parameters. The `type` key selects the bolt
             kind: `"StandardMetricBolt"` (keys `designation`, `material_grade`,
             `shank_length`, `shank_diameter_ratio`, `stud`) or `"MetricBolt"`
             (keys `nominal_diameter`, `thread_pitch`, `yield_stress`,
@@ -239,7 +239,7 @@ def create_nut(**params):
     """Creates a nut object from a dictionary of parameters.
 
     Args:
-        **params: The nut parameters. The `type` key selects the nut kind:
+        **params (Any): The nut parameters. The `type` key selects the nut kind:
             `"ISOHexNut"` or `"RoundNut"` (key `designation`), or `"HexNut"`
             (keys `nominal_diameter`, `thickness`, `inscribed_diameter`,
             `circumscribed_diameter`, `bearing_diameter`, `elastic_modulus`,
@@ -283,7 +283,7 @@ def create_flangesegment(**params):
     tensile yield force, `As * fy`) or as an absolute force `Fv`, but not both.
 
     Args:
-        **params: Flange segment parameters. Expected keys are 'a', 'b', 's',
+        **params (Any): Flange segment parameters. Expected keys are 'a', 'b', 's',
             't', 'R', 'central_angle', 'Zg', 'bolt', 'preload_ratio' or 'Fv',
             'Do', 'washer', 'nut', 'gap', 'tilt_angle', 'E', 'G', 's_ratio',
             'r', 'k_shell', 'PPL', 'DFT', 'settlement_factor' and, optionally,
@@ -359,7 +359,7 @@ def create_fatiguecurve(**params):
     """Creates a fatigue curve object from a dictionary of parameters.
 
     Args:
-        **params: Fatigue curve parameters (`BoltFatigueCurve` section). The
+        **params (Any): Fatigue curve parameters (`BoltFatigueCurve` section). The
             optional `type` key selects the curve kind:
 
             - `"BoltFatigueCurve"` (default): keys `BoltNominalDiameter`,
@@ -397,7 +397,7 @@ def create_markovmatrix(**params):
     """Creates a Markov matrix object from a dictionary of parameters.
 
     Args:
-        **params: Markov matrix parameters (`MarkovMatrix` section).
+        **params (Any): Markov matrix parameters (`MarkovMatrix` section).
             Expected keys are 'range', 'mean', 'cycles', 'duration'.
 
     Returns:
@@ -452,7 +452,7 @@ def create_distribution(**params):
     """Creates a scipy distribution from a dictionary of parameters.
 
     Args:
-        **params: Distribution parameters. The `Distribution` key selects
+        **params (Any): Distribution parameters. The `Distribution` key selects
             the distribution kind:
 
             - `"Normal"`: keys `Mean`, `CoV`.
@@ -494,7 +494,7 @@ def create_sampler(**params):
     """Creates a pyflange sampler from a dictionary of parameters.
 
     Args:
-        **params: Sampler parameters. All the distributions supported by
+        **params (Any): Sampler parameters. All the distributions supported by
             `create_distribution` are accepted, plus `"Product"`, which
             samples the product of two independent variables described by
             the `Dist1` and `Dist2` keys.
@@ -519,7 +519,7 @@ def create_gap_sampler(flange_diameter, **params):
 
     Args:
         flange_diameter (float): The outer diameter of the flange.
-        **params: Gap sampler parameters (`Stats.Gap` section). The
+        **params (Any): Gap sampler parameters (`Stats.Gap` section). The
             `JointDistribution` key selects the kind of sampler:
 
             - `"IEC 61400-6:2020 AMD1"`: keys `FlatnessTolerance`, `Angle`
@@ -570,7 +570,7 @@ def create_fatiguecase_sampler(fseg, markov_matrix, **params):
     Args:
         fseg (PolynomialLFlangeSegment): The base flange segment object.
         markov_matrix (MarkovMatrix): The base Markov matrix object.
-        **params: Statistical parameters (`Stats` section, current format
+        **params (Any): Statistical parameters (`Stats` section, current format
             version), for preload, plastic loss, DFT, gap, tilt, load range
             factor, fatigue class factor, allowable damage and stress
             multiplication factor.

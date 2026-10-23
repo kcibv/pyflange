@@ -103,7 +103,7 @@ FlangeSegment
     "Do": 0.086,
     "washer": null,
     "nut": { "type": "RoundNut", "designation": "M80" },
-    "gap": { "height": 0.0013, "angle": 0.5236, "shape_factor": 1.0 },
+    "gap": { "height": 0.00089, "angle": 0.5236, "shape_factor": 1.0 },
     "tilt_angle": 0.001745,
     "E": 210e9, "G": 80.77e9,
     "s_ratio": 1.0, "r": 0.01,
