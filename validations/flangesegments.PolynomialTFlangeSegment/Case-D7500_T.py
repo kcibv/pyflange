@@ -1,5 +1,5 @@
    
-from pyflange.logger import Logger, log_data
+from pyflange.utils import Logger
 logger = Logger(__name__)
 
 from pyflange.flangesegments import PolynomialTFlangeSegment, bolt_markov_matrix, shell_stiffness
@@ -109,9 +109,6 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0, macro_
     gap_length = gap_angle * D/2
     gap = gap_height_distribution(D, 0.0014, gap_length)
 
-    k_mean = gap.mean()
-    COV_k = gap.std() / k_mean
-
     fseg = PolynomialTFlangeSegment(
 
         a = 62.5*mm,           # distance between inner face of the flange and center of the bolt hole
@@ -143,8 +140,6 @@ def create_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0, macro_
 
     # Assert that failure mode is B.
     #fseg.validate(335*MPa, 285*MPa)
-
-    log_data(fseg, k_mean=k_mean, COV_k=COV_k)
 
     return fseg    
 

@@ -1,5 +1,5 @@
 import sys
-from pyflange.utils import Logger, log_data
+from pyflange.utils import Logger
 logger = Logger(__name__)
 
 from pyflange.flangesegments import PolynomialLFlangeSegment, shell_stiffness, Gap
@@ -79,9 +79,6 @@ def create_D4600_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0, 
     gap_length = gap_angle * D/2
     gap = gap_height_distribution(D, 0.0014, gap_length)
 
-    k_mean = gap.mean()
-    COV_k = gap.std() / k_mean
-
     fseg = PolynomialLFlangeSegment(
 
         a = 160*mm,           # distance between inner face of the flange and center of the bolt hole
@@ -115,8 +112,6 @@ def create_D4600_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0, 
     # Assert that failure mode is B.
     #fseg.validate(335*MPa, 285*MPa)
 
-    log_data(fseg, k_mean=k_mean, COV_k=COV_k)
-
     return fseg
 
 
@@ -127,9 +122,6 @@ def create_D7500_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0, 
     n = 120 # number of bolts
     gap_length = gap_angle * D/2
     gap = gap_height_distribution(D, 0.0014, gap_length)
-
-    k_mean = gap.mean()
-    COV_k = gap.std() / k_mean
 
     fseg = PolynomialLFlangeSegment(
 
@@ -163,8 +155,6 @@ def create_D7500_flange_segment (gap_angle, gap_shape_factor=1.0, tilt_angle=0, 
 
     # Assert that failure mode is B.
     #fseg.validate(335*MPa, 285*MPa)
-
-    log_data(fseg, k_mean=k_mean, COV_k=COV_k)
 
     return fseg
 

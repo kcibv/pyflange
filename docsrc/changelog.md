@@ -24,6 +24,12 @@ available in the [GitHub repository](https://github.com/kcibv/pyflange/commits/m
   `shank_diameter_ratio="pitch"`.
 - Automated validation against the SGRE reference workbooks.
 - New documentation website.
+- Removed `utils.log_data` and `utils.read_data_log`: the intermediate
+  quantities of the flange segment models (k<sub>fac</sub>, f<sub>tot</sub>,
+  A<sub>cf</sub>, I<sub>cf</sub>, u, k<sub>seg</sub>, I<sub>tg</sub>,
+  F<sub>V,c</sub>, ...) are now private cached properties, computed on
+  demand. The verbose JSON output no longer contains the `gap_k_mean` and
+  `gap_COV` keys, which were always `null`.
 
 ## 0.12.0 (2026-10-09)
 

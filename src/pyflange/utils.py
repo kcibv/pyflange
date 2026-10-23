@@ -2,7 +2,7 @@
 
 This module collects small helpers that are used throughout the library:
 
-- Logging helpers: `Logger`, `log_data` and `read_data_log`.
+- `Logger`, a logger configured with the PyFlange logging level.
 - `load_csv_database`, which loads the tabular data (bolt dimensions, material
   properties, shell stiffness results, etc.) shipped with the package.
 - `reduce_to_pi`, an angle reduction function.
@@ -45,46 +45,6 @@ def Logger (id):
     logger = logging.getLogger(id)
     logger.setLevel(LEVEL)
     return logger
-
-
-def log_data (object, **kwargs):
-    """Attach intermediate calculation values to an object.
-
-    The values are stored in a private dictionary on the object (created on
-    first use), so that intermediate results of a calculation can be inspected
-    afterwards with `read_data_log`. Existing keys are overwritten.
-
-    Args:
-        object (Any): The object the data is attached to.
-        **kwargs (Any): Named values to log.
-
-    Example:
-        ```python
-        from pyflange.utils import log_data, read_data_log
-
-        class Calc: pass
-        calc = Calc()
-        log_data(calc, k_shell=1.5e9, f_tot=2.0)
-        read_data_log(calc, "f_tot")    # 2.0
-        ```
-    """
-    if not hasattr(object, "_data_log"):
-        object._data_log = {}
-    object._data_log.update(kwargs)
-
-
-def read_data_log (object, key):
-    """Read a value previously stored with `log_data`.
-
-    Args:
-        object (Any): The object the data was attached to.
-        key (str): Name of the logged value.
-
-    Returns:
-        Any: The logged value, or `None` if nothing has been logged on the
-            object or if the key is unknown.
-    """
-    return object._data_log.get(key) if hasattr(object, "_data_log") else None
 
 
 

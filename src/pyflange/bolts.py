@@ -73,7 +73,7 @@ References:
 from dataclasses import dataclass
 from functools import cached_property
 
-from .utils import Logger, log_data
+from .utils import Logger
 logger = Logger(__name__)
 
 from .utils import load_csv_database
@@ -367,8 +367,6 @@ class MetricBolt(Bolt):
         # Bending resilience of hex head
         LSK = 0.5 * self.nominal_diameter
         bSK = LSK / (E * In)
-
-        log_data(self, beta_sk=bSK, beta_1=b1, beta_Gew=bGew, beta_G=bG, beta_M=bM)
 
         # Total bending stiffness
         if self.stud:

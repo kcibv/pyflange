@@ -911,8 +911,6 @@ def flangesegment_to_dict(fseg, verbose=False):
     Raises:
         ValueError: If the flange segment type is not supported.
     """
-    from .utils import read_data_log
-
     type_name = type(fseg).__name__
     if type_name not in FLANGE_SEGMENT_TYPES:
         raise ValueError(f"Unknown flange segment type: '{type(fseg)}'")
@@ -1004,18 +1002,16 @@ def flangesegment_to_dict(fseg, verbose=False):
         d["polynomial_initial_slope"] = fseg._polynomial_initial_slope
         d["true_force_initial_slope"] = fseg._tensile_force_polynomial.deriv()(d["Point1"]["Z"])
         d["true_moment_initial_slope"] = fseg._tensile_moment_polynomial.deriv()(d["Point1"]["Z"])
-        d["gap_k_mean"] = read_data_log(fseg, "k_mean")
-        d["gap_COV"] = read_data_log(fseg, "COV_k")
-        d["gap_k_fac"] = read_data_log(fseg, "k_fac")
+        d["gap_k_fac"] = fseg._k_fac
         d["gap_k_shell"] = fseg._k_shell
-        d["gap_stiffness_correction_factor"] = read_data_log(fseg, "f_tot")
-        d["flange_A_cf"] = read_data_log(fseg, "A_cf")
-        d["flange_I_cf"] = read_data_log(fseg, "I_cf")
-        d["gap_k_fl"] = read_data_log(fseg, "k_fl")
-        d["u"] = read_data_log(fseg, "u")
-        d["k_seg"] = read_data_log(fseg, "k_seg")
+        d["gap_stiffness_correction_factor"] = fseg._f_tot
+        d["flange_A_cf"] = fseg._A_cf
+        d["flange_I_cf"] = fseg._I_cf
+        d["gap_k_fl"] = fseg._k_flange
+        d["u"] = fseg._u
+        d["k_seg"] = fseg._k_seg
         d["a_star"] = fseg._a_star
-        d["I_tg"] = read_data_log(fseg, "I_tg")
+        d["I_tg"] = fseg._I_tg
 
     return _plain(d)
 

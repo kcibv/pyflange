@@ -48,7 +48,6 @@ from pyflange.flangesegments import (PolynomialLFlangeSegment, PolynomialTFlange
 from pyflange.bolts import MetricBolt, HexNut, FlatWasher
 from pyflange.fatigue import MarkovMatrix, BoltFatigueCurve, BoltFatigueAnalysis
 from pyflange.stats import gap_height_distribution
-from pyflange.utils import read_data_log
 
 
 # Units of measurement
@@ -161,17 +160,10 @@ def evaluate_quantities (fseg, gap_dist, case):
     Fs_poly = fseg._tensile_force_polynomial
     Ms_poly = fseg._tensile_moment_polynomial
 
-    # Some intermediate values are only stored in the data log while the
-    # transfer functions are evaluated: evaluate them all before reading the log.
     M1 = fseg.bolt_moment_at_rest
     M2 = fseg.bolt_moment_at_tensile_ULS
     M3 = fseg.bolt_moment_at_small_displacement
     Ms_min = fseg.bolt_bending_moment(Z4)
-    def logged (key):
-        value = read_data_log(fseg, key)
-        if value is None:
-            raise KeyError(f"'{key}' not found in the flange segment data log")
-        return value
 
     q = {
         "bolt.fy":              fseg.bolt.yield_stress / MPa,
@@ -196,26 +188,26 @@ def evaluate_quantities (fseg, gap_dist, case):
         "Fs_poly.a1":           Fs_poly.coef[1],
         "Fs_poly.a0":           Fs_poly.coef[0] / kN,
         "DZ_gap":               -fseg._parallel_gap_neutralization_shell_force / kN,
-        "I_tg":                 logged("I_tg") / mm**4,
-        "A_cf":                 logged("A_cf") / mm**2,
-        "I_cf":                 logged("I_cf") / mm**4,
+        "I_tg":                 fseg._I_tg / mm**4,
+        "A_cf":                 fseg._A_cf / mm**2,
+        "I_cf":                 fseg._I_cf / mm**4,
         "k_gap_tot":            fseg._gap_stiffness / 1e6,
-        "f_tot":                logged("f_tot"),
-        "k_shell":              (fseg._k_shell if is_L else logged("k_shell_ini")) / 1e6,
-        "k_fac":                logged("k_fac"),
-        "k_fl":                 logged("k_fl") / 1e6,
+        "f_tot":                fseg._f_tot,
+        "k_shell":              fseg._k_shell / 1e6,
+        "k_fac":                fseg._k_fac,
+        "k_fl":                 fseg._k_flange / 1e6,
         "DZ_gap_inclination":   fseg._tilt_neutralization_shell_force / kN,
         "DZ_gap_tot":           -fseg._total_gap_neutralization_shell_force / kN,
         "Z0":                   fseg._ideal_shell_force_at_tensile_ULS / kN,
         "ak":                   fseg._stiffness_correction_factor,
-        "k_seg":                logged("k_seg") / 1e6,
-        "u":                    logged("u") / mm,
+        "k_seg":                fseg._k_seg / 1e6,
+        "u":                    fseg._u / mm,
         "Z_dw":                 fseg.Zg / kN,
         "Z_close":              Z4 / kN,
         "c_ini_true":           Fs_poly.deriv()(Z1),
         "Fs_min":               fseg.bolt_axial_force(Z4) / kN,
         "c_ini_mod":            fseg._polynomial_initial_slope,
-        "a_star":               (fseg._a_star if is_L else logged("a_star")) / mm,
+        "a_star":               fseg._a_star / mm,
         "bolt.bS":              1 / (fseg._bolt_bending_stiffness * 1000),
         "c_ini_M":              Ms_poly.deriv()(Z1) * kN,
         "Ms_min":               Ms_min,
@@ -243,7 +235,7 @@ def evaluate_quantities (fseg, gap_dist, case):
         # reduction, like DZgap and DZgap,tot (the L-flange sheets keep the sign).
         q["DZ_gap_inclination"] = -q["DZ_gap_inclination"]
         q["DZ_gap_c"] = -fseg._early_prying_neutralization_shell_force / kN
-        q["Fv_c"] = logged("Fv_c") / kN
+        q["Fv_c"] = fseg._Fv_c / kN
         q["Ms_T.at_rest"] = fseg._bolt_moment(Z1, fseg.bolt_axial_force(Z1))
         q["Ms_T.at_rest+100N"] = fseg._bolt_moment(Z1 + 100, fseg.bolt_axial_force(Z1 + 100))
 
