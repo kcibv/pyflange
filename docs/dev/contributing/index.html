@@ -1496,6 +1496,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#releasing-on-pypi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Releasing on PyPI
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1647,6 +1656,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#releasing-on-pypi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Releasing on PyPI
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1789,6 +1807,39 @@ from a clean clone.</p>
 <p>The <em>Tests</em> workflow runs the test suite on Linux and Windows, with the
 oldest and newest supported Python versions, at every push and pull request
 to <code>main</code> and <code>dev</code>.</p>
+<h3 id="releasing-on-pypi">Releasing on PyPI<a class="headerlink" href="#releasing-on-pypi" title="Permanent link">&para;</a></h3>
+<p>The <em>Publish to PyPI</em> workflow publishes the package on
+<a href="https://pypi.org/project/pyflange/">PyPI</a> when a tag named
+<code>pyflange-v&lt;version&gt;</code> is pushed. To release, say, version 0.14.0:</p>
+<ol>
+<li>set <code>version = "0.14.0"</code> in <code>pyproject.toml</code>, date the release in
+   <code>docsrc/changelog.md</code> and merge into <code>main</code>;</li>
+<li>
+<p>on <code>main</code>, run the tests and build the package locally:</p>
+<div class="language-doscon highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">py -m pytest</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">py -m build</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="go">py -m twine check --strict dist/pyflange-0.14.0*</span>
+</span></code></pre></div>
+</li>
+<li>
+<p>push <code>main</code>, then tag the merged commit and push the tag:</p>
+<div class="language-doscon highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="go">git push origin main</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="go">git tag -a pyflange-v0.14.0 -m "PyFlange 0.14.0"</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="go">git push origin pyflange-v0.14.0</span>
+</span></code></pre></div>
+</li>
+</ol>
+<p>The workflow does not run the tests and does not check the branch: it only
+checks that the tag and <code>pyproject.toml</code> versions are equal, then builds the
+package, checks it with <code>twine check --strict</code> and uploads it. The upload
+uses PyPI
+<a href="https://docs.pypi.org/trusted-publishers/">trusted publishing</a>, so no API
+token is stored in GitHub. After the upload, the workflow creates the GitHub
+release of the tag, with the packages attached and the changelog section of
+the version (<code>## 0.14.0 (...)</code>) as release notes; the version shown next to
+the repository link at the top of this site is the one of the latest GitHub
+release. A version cannot be uploaded to PyPI twice: to fix
+a release, publish a new patch version.</p>
 
 
 
