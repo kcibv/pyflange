@@ -1,0 +1,3528 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Python library for the analysis of large bolted ring-flange connections (IEC 61400-6 polynomial model).">
+      
+      
+      
+        <link rel="canonical" href="https://kcibv.github.io/pyflange/0.14/apis/fatigue/">
+      
+      
+        <link rel="prev" href="../flangesegments/">
+      
+      
+        <link rel="next" href="../stats/">
+      
+      
+      <link rel="icon" href="../../assets/logo.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
+    
+    
+      
+        <title>pyflange.fatigue - PyFlange</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.8608ea7d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    
+      <link rel="stylesheet" href="../../assets/css/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pyflange.fatigue" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PyFlange" class="md-header__button md-logo" aria-label="PyFlange" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PyFlange
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              pyflange.fatigue
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kcibv/pyflange" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kcibv/pyflange
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+    
+  
+  Getting started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/" class="md-tabs__link">
+          
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guide/model/" class="md-tabs__link">
+          
+  
+    
+  
+  User guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../cli/" class="md-tabs__link">
+        
+  
+    
+  
+  Command line
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../json-format/" class="md-tabs__link">
+        
+  
+    
+  
+  JSON format
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+    
+  
+  API reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../references/" class="md-tabs__link">
+          
+  
+    
+  
+  About
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PyFlange" class="md-nav__button md-logo" aria-label="PyFlange" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    PyFlange
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kcibv/pyflange" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kcibv/pyflange
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../getting-started/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Getting started
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/install/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Install PyFlange
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first-analysis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    First analysis (no code)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first-script/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    First Python script
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../tutorials/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/lflange/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    L-flange, deterministic
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/tflange/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    T-flange, deterministic
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/design-gaps/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Design gap angles and ED2
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/montecarlo-cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Monte Carlo from the command line
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/montecarlo-python/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Monte Carlo in Python
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/case-files/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Writing case files from Python
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    User guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            User guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/model/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Model overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/nomenclature/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Nomenclature
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/units/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Units and conventions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/validation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Validation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQ and troubleshooting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Command line
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../json-format/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    JSON format
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    API reference
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            API reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bolts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.bolts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../flangesegments/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.flangesegments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    pyflange.fatigue
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.fatigue
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.MarkovMatrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MarkovMatrix
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.FatigueCurve" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;FatigueCurve
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" FatigueCurve">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.FatigueCurve.N" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;N
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.FatigueCurve.DS" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;DS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.FatigueCurve.damage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;damage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.FatigueCurve.cumulated_damage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;cumulated_damage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.SingleSlopeFatigueCurve" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SingleSlopeFatigueCurve
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" SingleSlopeFatigueCurve">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.SingleSlopeFatigueCurve.a" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;a
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.SingleSlopeFatigueCurve.N" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;N
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.SingleSlopeFatigueCurve.DS" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;DS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.MultiSlopeFatigueCurve" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MultiSlopeFatigueCurve
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" MultiSlopeFatigueCurve">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.MultiSlopeFatigueCurve.N" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;N
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.MultiSlopeFatigueCurve.DS" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;DS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.DoubleSlopeFatigueCurve" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;DoubleSlopeFatigueCurve
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.BoltFatigueCurve" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;BoltFatigueCurve
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.BoltFatigueAnalysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;BoltFatigueAnalysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" BoltFatigueAnalysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.BoltFatigueAnalysis.fatigue_curve" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;fatigue_curve
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.BoltFatigueAnalysis.bolt_mkvm" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;bolt_mkvm
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.BoltFatigueAnalysis.damage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;damage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.BoltFatigueAnalysis.fatigue_life" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;fatigue_life
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stats/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.stats
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../io/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.io
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.cli
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.utils
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pyflange.gap (deprecated)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    About
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            About
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    References
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    License
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.MarkovMatrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MarkovMatrix
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.FatigueCurve" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;FatigueCurve
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" FatigueCurve">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.FatigueCurve.N" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;N
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.FatigueCurve.DS" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;DS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.FatigueCurve.damage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;damage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.FatigueCurve.cumulated_damage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;cumulated_damage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.SingleSlopeFatigueCurve" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SingleSlopeFatigueCurve
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" SingleSlopeFatigueCurve">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.SingleSlopeFatigueCurve.a" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;a
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.SingleSlopeFatigueCurve.N" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;N
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.SingleSlopeFatigueCurve.DS" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;DS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.MultiSlopeFatigueCurve" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;MultiSlopeFatigueCurve
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" MultiSlopeFatigueCurve">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.MultiSlopeFatigueCurve.N" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;N
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.MultiSlopeFatigueCurve.DS" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;DS
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.DoubleSlopeFatigueCurve" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;DoubleSlopeFatigueCurve
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.BoltFatigueCurve" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;BoltFatigueCurve
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pyflange.fatigue.BoltFatigueAnalysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;BoltFatigueAnalysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" BoltFatigueAnalysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.BoltFatigueAnalysis.fatigue_curve" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;fatigue_curve
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.BoltFatigueAnalysis.bolt_mkvm" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;bolt_mkvm
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.BoltFatigueAnalysis.damage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;damage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyflange.fatigue.BoltFatigueAnalysis.fatigue_life" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;fatigue_life
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/kcibv/pyflange/edit/main/docsrc/apis/fatigue.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h1 id="pyflange.fatigue" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <span class="doc doc-object-name doc-module-name">pyflange.fatigue</span>
+
+
+<a href="#pyflange.fatigue" class="headerlink" title="Permanent link">&para;</a></h1>
+
+    <div class="doc doc-contents first">
+
+        <p>Fatigue calculation and S-N curve tools for flanged connections.</p>
+<p>This module provides data structures, fatigue (Wöhler) curve representations,
+and analysis classes to evaluate structural fatigue damage and fatigue life
+for large bolted flanges.</p>
+<p>Key components provided by this module:</p>
+<ul>
+<li><code>MarkovMatrix</code>: Encapsulates a discrete cyclic load or stress history (load
+  ranges, mean values, cycle counts, and duration) obtained from rainflow counting
+  or design load spectra.</li>
+<li><code>FatigueCurve</code>: Abstract base class defining the S-N curve interface and
+  Palmgren-Miner linear cumulative damage accumulation
+  <span class="arithmatex">\(D = \sum_{i} n_i / N(\Delta S_i)\)</span>.</li>
+<li><code>SingleSlopeFatigueCurve</code>: Represents a Wöhler curve with a single logarithmic
+  slope exponent <span class="arithmatex">\(m\)</span>, defined by the power law <span class="arithmatex">\(N \cdot \Delta S^m = a\)</span>.</li>
+<li><code>MultiSlopeFatigueCurve</code>: Represents a composite multi-slope S-N curve
+  constructed as the upper envelope of multiple single-slope curve segments.</li>
+<li><code>DoubleSlopeFatigueCurve</code>: Represents a bilinear S-N curve with two slopes
+  (<span class="arithmatex">\(m_1, m_2\)</span>) intersecting at a transition knee point <span class="arithmatex">\((\Delta S_{12}, N_{12})\)</span>.</li>
+<li><code>BoltFatigueCurve</code>: Specialized bilinear S-N curve for threaded bolts conforming
+  to IEC 61400-6 AMD1, incorporating nominal diameter size-effect corrections
+  and a material partial safety factor <span class="arithmatex">\(\gamma_M\)</span>.</li>
+<li><code>BoltFatigueAnalysis</code>: End-to-end fatigue analysis pipeline that evaluates bolt
+  stress spectra from flange bending moment histories, calculates total cumulative
+  damage, and predicts bolt fatigue life.</li>
+</ul>
+
+
+<details class="units" open>
+  <summary>Units</summary>
+  <p>All parameters must be supplied in a consistent system of units. When using
+SI units:</p>
+<ul>
+<li>Distances and diameters: meters (m)</li>
+<li>Forces: newtons (N)</li>
+<li>Bending moments: newton-meters (N·m)</li>
+<li>Stresses and pressures: pascals (Pa)</li>
+<li>Duration and fatigue life: consistent time units (e.g., seconds or years)</li>
+</ul>
+</details>
+
+<details class="references" open>
+  <summary>References</summary>
+  <p>The reference numbers are the same in all the PyFlange modules (see the
+<a href="../../references/">references page</a>). This module cites:</p>
+<ul>
+<li><code>[1]</code> Seidel, M.: IEC 61400-6 AMD1 Background document. Fatigue design
+  for ring flange connections in wind turbine support structures. Rev00,
+  Siemens Gamesa, 2024. Section 3 explains the selection of the bolt
+  S-N curve.</li>
+<li><code>[2]</code> IEC 61400-6:2020+AMD1:2025 CSV. Wind energy generation systems -
+  Part 6: Tower and foundation design requirements. Consolidated version,</li>
+<li>The bolt damage calculation is given in section 6.7.5.4.</li>
+<li><code>[5]</code> Seidel, M.: IEC 61400-6 AMD1 &amp; ED2 Background document. Rev01,
+  draft 2026-08-04, Siemens Gamesa. Section 3 explains the selection of
+  the bolt S-N curve.</li>
+</ul>
+</details>
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Classes:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><a class="autorefs autorefs-internal" title="            MarkovMatrix
+
+
+  
+      dataclass
+   (pyflange.fatigue.MarkovMatrix)" href="#pyflange.fatigue.MarkovMatrix">MarkovMatrix</a></code></b>
+          –
+          <div class="doc-md-description">
+            <p>A Markov matrix representation of a cyclic load history.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><a class="autorefs autorefs-internal" title="            FatigueCurve (pyflange.fatigue.FatigueCurve)" href="#pyflange.fatigue.FatigueCurve">FatigueCurve</a></code></b>
+          –
+          <div class="doc-md-description">
+            <p>Abstract base class for Wöhler (S-N) fatigue strength curves.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><a class="autorefs autorefs-internal" title="            SingleSlopeFatigueCurve
+
+
+  
+      dataclass
+   (pyflange.fatigue.SingleSlopeFatigueCurve)" href="#pyflange.fatigue.SingleSlopeFatigueCurve">SingleSlopeFatigueCurve</a></code></b>
+          –
+          <div class="doc-md-description">
+            <p>Wöhler (S-N) fatigue curve with a single logarithmic slope.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><a class="autorefs autorefs-internal" title="            MultiSlopeFatigueCurve (pyflange.fatigue.MultiSlopeFatigueCurve)" href="#pyflange.fatigue.MultiSlopeFatigueCurve">MultiSlopeFatigueCurve</a></code></b>
+          –
+          <div class="doc-md-description">
+            <p>Multi-slope composite Wöhler (S-N) fatigue curve.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><a class="autorefs autorefs-internal" title="            DoubleSlopeFatigueCurve (pyflange.fatigue.DoubleSlopeFatigueCurve)" href="#pyflange.fatigue.DoubleSlopeFatigueCurve">DoubleSlopeFatigueCurve</a></code></b>
+          –
+          <div class="doc-md-description">
+            <p>Bilinear (double-slope) Wöhler (S-N) fatigue curve.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><a class="autorefs autorefs-internal" title="            BoltFatigueCurve (pyflange.fatigue.BoltFatigueCurve)" href="#pyflange.fatigue.BoltFatigueCurve">BoltFatigueCurve</a></code></b>
+          –
+          <div class="doc-md-description">
+            <p>Bolt fatigue S-N curve according to IEC 61400-6 AMD1.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><a class="autorefs autorefs-internal" title="            BoltFatigueAnalysis
+
+
+  
+      dataclass
+   (pyflange.fatigue.BoltFatigueAnalysis)" href="#pyflange.fatigue.BoltFatigueAnalysis">BoltFatigueAnalysis</a></code></b>
+          –
+          <div class="doc-md-description">
+            <p>Fatigue analysis pipeline for a flange bolt.</p>
+          </div>
+        </li>
+    </ul>
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.MarkovMatrix" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">MarkovMatrix</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#pyflange.fatigue.MarkovMatrix" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">MarkovMatrix</span><span class="p">(</span><span class="nb">range</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+        <p>A Markov matrix representation of a cyclic load history.</p>
+<p>Encapsulates a discrete load or stress spectrum resulting from cycle counting
+(e.g., rainflow counting). The load history is characterized by arrays of cycle
+ranges, mean values, and associated cycle counts, along with an overall duration.</p>
+<p>The physical quantity represented can be stress (Pa), force (N), bending
+moment (N·m), etc., provided that consistent units are maintained throughout
+downstream calculations.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.MarkovMatrix.range">range</span></code></b>
+              (<code><span title="numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Array of cycle load or stress ranges (<span class="arithmatex">\(\Delta S\)</span> or <span class="arithmatex">\(\Delta L\)</span>).</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.MarkovMatrix.mean">mean</span></code></b>
+              (<code><span title="numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Array of mean load or stress values (<span class="arithmatex">\(S_m\)</span> or <span class="arithmatex">\(L_m\)</span>).</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.MarkovMatrix.cycles">cycles</span></code></b>
+              (<code><span title="numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Array containing the number of applied cycles (<span class="arithmatex">\(n\)</span>) for
+each (range, mean) bin.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.MarkovMatrix.duration">duration</span></code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Time duration represented by the load history (e.g., in
+seconds or years). Defaults to 1.0.</p>
+          </div>
+        </li>
+    </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.FatigueCurve" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">FatigueCurve</span>
+
+
+<a href="#pyflange.fatigue.FatigueCurve" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+
+        <p>Abstract base class for Wöhler (S-N) fatigue strength curves.</p>
+<p>This class provides the interface for evaluating fatigue endurance (number of
+cycles to failure <span class="arithmatex">\(N\)</span> as a function of stress range <span class="arithmatex">\(\Delta S\)</span>, and vice versa),
+as well as calculating fatigue damage and cumulative damage using the
+Palmgren-Miner linear cumulative damage hypothesis:</p>
+<div class="arithmatex">\[D = \sum_{i} \frac{n_i}{N(\Delta S_i)}\]</div>
+<p>This class should not be instantiated directly; use one of its concrete
+subclasses such as <code>SingleSlopeFatigueCurve</code>, <code>DoubleSlopeFatigueCurve</code>, or
+<code>BoltFatigueCurve</code>.</p>
+
+
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Methods:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            N (pyflange.fatigue.FatigueCurve.N)" href="#pyflange.fatigue.FatigueCurve.N">N</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Calculates the number of cycles to failure for a given stress range.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            DS (pyflange.fatigue.FatigueCurve.DS)" href="#pyflange.fatigue.FatigueCurve.DS">DS</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Calculates the allowable stress range for a given number of cycles.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            damage (pyflange.fatigue.FatigueCurve.damage)" href="#pyflange.fatigue.FatigueCurve.damage">damage</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Calculates fatigue damage according to the Palmgren-Miner rule.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            cumulated_damage (pyflange.fatigue.FatigueCurve.cumulated_damage)" href="#pyflange.fatigue.FatigueCurve.cumulated_damage">cumulated_damage</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Calculates cumulative fatigue damage according to Miner's sum.</p>
+            </div>
+          </li>
+    </ul>
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.fatigue.FatigueCurve.N" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">N</span>
+
+
+<a href="#pyflange.fatigue.FatigueCurve.N" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">N</span><span class="p">(</span><span class="n">DS</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Calculates the number of cycles to failure for a given stress range.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>DS</code></b>
+              (<code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Applied stress range(s) <span class="arithmatex">\(\Delta S\)</span>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>
+          –
+          <div class="doc-md-description">
+            <p>Number of cycles to fatigue failure <span class="arithmatex">\(N(\Delta S)\)</span>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.fatigue.FatigueCurve.DS" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">DS</span>
+
+
+<a href="#pyflange.fatigue.FatigueCurve.DS" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">DS</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Calculates the allowable stress range for a given number of cycles.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>N</code></b>
+              (<code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Number of cycles to failure <span class="arithmatex">\(N\)</span>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>
+          –
+          <div class="doc-md-description">
+            <p>Allowable stress range(s) <span class="arithmatex">\(\Delta S(N)\)</span> producing
+fatigue failure at <span class="arithmatex">\(N\)</span> cycles.</p>
+          </div>
+        </li>
+    </ul>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.fatigue.FatigueCurve.damage" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">damage</span>
+
+
+<a href="#pyflange.fatigue.FatigueCurve.damage" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">damage</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">DS</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Calculates fatigue damage according to the Palmgren-Miner rule.</p>
+<p>Computes the elementary fatigue damage ratio:</p>
+<div class="arithmatex">\[D = \frac{n}{N(\Delta S)}\]</div>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>n</code></b>
+              (<code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Number of applied load cycles.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>DS</code></b>
+              (<code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Applied stress range(s) <span class="arithmatex">\(\Delta S\)</span>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>
+          –
+          <div class="doc-md-description">
+            <p>The resulting fatigue damage ratio(s).</p>
+          </div>
+        </li>
+    </ul>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.fatigue.FatigueCurve.cumulated_damage" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">cumulated_damage</span>
+
+
+<a href="#pyflange.fatigue.FatigueCurve.cumulated_damage" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">cumulated_damage</span><span class="p">(</span><span class="n">markov_matrix</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Calculates cumulative fatigue damage according to Miner's sum.</p>
+<p>Evaluates the total cumulative damage over all bins in the load spectrum:</p>
+<div class="arithmatex">\[D_{\text{total}} = \sum_{i} \frac{n_i}{N(\Delta S_i)}\]</div>
+<p>Bins producing <code>NaN</code> damage values (e.g., zero stress or invalid evaluations)
+are ignored in the summation via <code>numpy.nansum</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>markov_matrix</code></b>
+              (<code><a class="autorefs autorefs-internal" title="            MarkovMatrix
+
+
+  
+      dataclass
+   (pyflange.fatigue.MarkovMatrix)" href="#pyflange.fatigue.MarkovMatrix">MarkovMatrix</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>Load history represented as a Markov matrix
+containing arrays of cycle counts and stress ranges.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="float">float</span></code>
+          –
+          <div class="doc-md-description">
+            <p>Total cumulative fatigue damage index <span class="arithmatex">\(D_{\text{total}}\)</span>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.SingleSlopeFatigueCurve" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">SingleSlopeFatigueCurve</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#pyflange.fatigue.SingleSlopeFatigueCurve" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">SingleSlopeFatigueCurve</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">DS_ref</span><span class="p">,</span> <span class="n">N_ref</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            FatigueCurve (pyflange.fatigue.FatigueCurve)" href="#pyflange.fatigue.FatigueCurve">FatigueCurve</a></code></p>
+
+
+        <p>Wöhler (S-N) fatigue curve with a single logarithmic slope.</p>
+<p>Represents a linear S-N relationship in log-log space governed by the power-law
+equation:</p>
+<div class="arithmatex">\[N \cdot \Delta S^m = a = \Delta S_{\text{ref}}^m \cdot N_{\text{ref}}\]</div>
+<p>where <span class="arithmatex">\(m\)</span> is the inverse slope exponent, <span class="arithmatex">\(\Delta S_{\text{ref}}\)</span> is a reference
+stress range, and <span class="arithmatex">\(N_{\text{ref}}\)</span> is the corresponding cycle count at failure.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.SingleSlopeFatigueCurve.m">m</span></code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Negative inverse slope of the S-N curve in log-log coordinates
+(<span class="arithmatex">\(-\frac{\mathrm{d}\log N}{\mathrm{d}\log \Delta S}\)</span>).</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.SingleSlopeFatigueCurve.DS_ref">DS_ref</span></code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Reference stress range <span class="arithmatex">\(\Delta S_{\text{ref}}\)</span> (e.g., in Pa).</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.SingleSlopeFatigueCurve.N_ref">N_ref</span></code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Reference number of cycles to failure <span class="arithmatex">\(N_{\text{ref}}\)</span> at
+stress range <code>DS_ref</code>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Methods:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            N (pyflange.fatigue.SingleSlopeFatigueCurve.N)" href="#pyflange.fatigue.SingleSlopeFatigueCurve.N">N</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Calculates the number of cycles to failure for given stress range(s).</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            DS (pyflange.fatigue.SingleSlopeFatigueCurve.DS)" href="#pyflange.fatigue.SingleSlopeFatigueCurve.DS">DS</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Calculates the allowable stress range for given cycle count(s).</p>
+            </div>
+          </li>
+    </ul>
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.fatigue.SingleSlopeFatigueCurve.a" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">a</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#pyflange.fatigue.SingleSlopeFatigueCurve.a" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">a</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>float: Curve capacity constant <span class="arithmatex">\(a = \Delta S_{\text{ref}}^m \cdot N_{\text{ref}}\)</span>.</p>
+
+    </div>
+
+</div>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.fatigue.SingleSlopeFatigueCurve.N" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">N</span>
+
+
+<a href="#pyflange.fatigue.SingleSlopeFatigueCurve.N" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">N</span><span class="p">(</span><span class="n">DS</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Calculates the number of cycles to failure for given stress range(s).</p>
+<p>Evaluates:</p>
+<div class="arithmatex">\[N = \frac{a}{\Delta S^m}\]</div>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>DS</code></b>
+              (<code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Applied stress range(s) <span class="arithmatex">\(\Delta S\)</span>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>
+          –
+          <div class="doc-md-description">
+            <p>Number of cycles to failure <span class="arithmatex">\(N\)</span>. A zero stress
+range in an array returns <code>inf</code> (infinite endurance).</p>
+          </div>
+        </li>
+    </ul>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.fatigue.SingleSlopeFatigueCurve.DS" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">DS</span>
+
+
+<a href="#pyflange.fatigue.SingleSlopeFatigueCurve.DS" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">DS</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Calculates the allowable stress range for given cycle count(s).</p>
+<p>Evaluates:</p>
+<div class="arithmatex">\[\Delta S = \left(\frac{a}{N}\right)^{1/m}\]</div>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>N</code></b>
+              (<code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Number of cycles to failure <span class="arithmatex">\(N\)</span>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>
+          –
+          <div class="doc-md-description">
+            <p>Allowable stress range(s) <span class="arithmatex">\(\Delta S\)</span>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.MultiSlopeFatigueCurve" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">MultiSlopeFatigueCurve</span>
+
+
+<a href="#pyflange.fatigue.MultiSlopeFatigueCurve" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">MultiSlopeFatigueCurve</span><span class="p">(</span><span class="o">*</span><span class="n">fatigue_curves</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            FatigueCurve (pyflange.fatigue.FatigueCurve)" href="#pyflange.fatigue.FatigueCurve">FatigueCurve</a></code></p>
+
+
+        <p>Multi-slope composite Wöhler (S-N) fatigue curve.</p>
+<p>Represents an S-N curve formed by combining multiple <code>SingleSlopeFatigueCurve</code>
+segments. For any given stress range or cycle count, the effective capacity is
+evaluated as the upper envelope (maximum endurance / maximum allowable stress
+range) among all constituent curve segments.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.MultiSlopeFatigueCurve.curves">curves</span></code></b>
+              (<code><span title="tuple">tuple</span>[<a class="autorefs autorefs-internal" title="            SingleSlopeFatigueCurve
+
+
+  
+      dataclass
+   (pyflange.fatigue.SingleSlopeFatigueCurve)" href="#pyflange.fatigue.SingleSlopeFatigueCurve">SingleSlopeFatigueCurve</a>, ...]</code>)
+          –
+          <div class="doc-md-description">
+            <p>Tuple of constituent single-slope
+fatigue curve segments.</p>
+          </div>
+        </li>
+    </ul>
+
+        <p>Initializes the MultiSlopeFatigueCurve.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>*fatigue_curves</code></b>
+              (<code><a class="autorefs autorefs-internal" title="            SingleSlopeFatigueCurve
+
+
+  
+      dataclass
+   (pyflange.fatigue.SingleSlopeFatigueCurve)" href="#pyflange.fatigue.SingleSlopeFatigueCurve">SingleSlopeFatigueCurve</a></code>, default:
+                  <code>()</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>One or more single-slope
+fatigue curve segments composing the multi-slope curve.</p>
+          </div>
+        </li>
+    </ul>
+
+
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Methods:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            N (pyflange.fatigue.MultiSlopeFatigueCurve.N)" href="#pyflange.fatigue.MultiSlopeFatigueCurve.N">N</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Calculates the maximum number of cycles to failure among all curve segments.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            DS (pyflange.fatigue.MultiSlopeFatigueCurve.DS)" href="#pyflange.fatigue.MultiSlopeFatigueCurve.DS">DS</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Calculates the maximum allowable stress range among all curve segments.</p>
+            </div>
+          </li>
+    </ul>
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.fatigue.MultiSlopeFatigueCurve.N" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">N</span>
+
+
+<a href="#pyflange.fatigue.MultiSlopeFatigueCurve.N" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">N</span><span class="p">(</span><span class="n">DS</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Calculates the maximum number of cycles to failure among all curve segments.</p>
+<p>Evaluates:</p>
+<div class="arithmatex">\[N(\Delta S) = \max_{i} N_i(\Delta S)\]</div>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>DS</code></b>
+              (<code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Applied stress range(s) <span class="arithmatex">\(\Delta S\)</span>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>
+          –
+          <div class="doc-md-description">
+            <p>Maximum number of cycles to failure across all component
+curves.</p>
+          </div>
+        </li>
+    </ul>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyflange.fatigue.MultiSlopeFatigueCurve.DS" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">DS</span>
+
+
+<a href="#pyflange.fatigue.MultiSlopeFatigueCurve.DS" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">DS</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Calculates the maximum allowable stress range among all curve segments.</p>
+<p>Evaluates:</p>
+<div class="arithmatex">\[\Delta S(N) = \max_{i} \Delta S_i(N)\]</div>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>N</code></b>
+              (<code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Number of cycles <span class="arithmatex">\(N\)</span>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="float">float</span> | <span title="numpy.ndarray">ndarray</span></code>
+          –
+          <div class="doc-md-description">
+            <p>Maximum allowable stress range across all component
+curves.</p>
+          </div>
+        </li>
+    </ul>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.DoubleSlopeFatigueCurve" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">DoubleSlopeFatigueCurve</span>
+
+
+<a href="#pyflange.fatigue.DoubleSlopeFatigueCurve" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">DoubleSlopeFatigueCurve</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">DS12</span><span class="p">,</span> <span class="n">N12</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            MultiSlopeFatigueCurve (pyflange.fatigue.MultiSlopeFatigueCurve)" href="#pyflange.fatigue.MultiSlopeFatigueCurve">MultiSlopeFatigueCurve</a></code></p>
+
+
+        <p>Bilinear (double-slope) Wöhler (S-N) fatigue curve.</p>
+<p>Implements a two-slope S-N curve commonly used in structural design standards
+(e.g., Eurocode 3, DNV, IEC standards). The curve transitions from slope <span class="arithmatex">\(m_1\)</span>
+in the lower-cycle / higher-stress regime (<span class="arithmatex">\(N \le N_{12}\)</span>) to slope <span class="arithmatex">\(m_2\)</span> in the
+higher-cycle / lower-stress regime (<span class="arithmatex">\(N &gt; N_{12}\)</span>) at an intersection knee point
+<span class="arithmatex">\((\Delta S_{12}, N_{12})\)</span>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>m1</code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Logarithmic slope exponent for the lower-cycle regime (<span class="arithmatex">\(N \le N_{12}\)</span>).</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>m2</code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Logarithmic slope exponent for the higher-cycle regime (<span class="arithmatex">\(N &gt; N_{12}\)</span>).</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>DS12</code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Stress range <span class="arithmatex">\(\Delta S_{12}\)</span> at the knee point where the two slopes meet.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>N12</code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Number of cycles <span class="arithmatex">\(N_{12}\)</span> at the knee point where the two slopes meet.</p>
+          </div>
+        </li>
+    </ul>
+
+        <p>Initializes the DoubleSlopeFatigueCurve (see the class documentation).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.BoltFatigueCurve" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">BoltFatigueCurve</span>
+
+
+<a href="#pyflange.fatigue.BoltFatigueCurve" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">BoltFatigueCurve</span><span class="p">(</span><span class="n">diameter</span><span class="p">,</span> <span class="n">DS_ref</span><span class="o">=</span><span class="mf">50000000.0</span><span class="p">,</span> <span class="n">gamma_M</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            DoubleSlopeFatigueCurve (pyflange.fatigue.DoubleSlopeFatigueCurve)" href="#pyflange.fatigue.DoubleSlopeFatigueCurve">DoubleSlopeFatigueCurve</a></code></p>
+
+
+        <p>Bolt fatigue S-N curve according to IEC 61400-6 AMD1.</p>
+<p>Constructs a design bilinear S-N curve for threaded bolts with logarithmic slopes
+<span class="arithmatex">\(m_1 = 3\)</span> (for <span class="arithmatex">\(N \le 2 \times 10^6\)</span>) and <span class="arithmatex">\(m_2 = 5\)</span> (for <span class="arithmatex">\(N &gt; 2 \times 10^6\)</span>), with a
+knee point located at <span class="arithmatex">\(N_{12} = 2 \times 10^6\)</span> cycles (ref. [2], section 6.7.5.4).</p>
+<p>The characteristic reference stress range <span class="arithmatex">\(\Delta \sigma_c\)</span> at 2 million cycles
+is adjusted for bolt size effects with the factor <span class="arithmatex">\(k_s\)</span> of ref. [2], eq. (44):</p>
+<ul>
+<li>For <span class="arithmatex">\(d \le 30\text{ mm}\)</span>:
+  <span class="arithmatex">\(\Delta \sigma_c = \Delta S_{\text{ref}}\)</span></li>
+<li>For <span class="arithmatex">\(30\text{ mm} &lt; d \le 72\text{ mm}\)</span>:
+  <span class="arithmatex">\(\Delta \sigma_c = \Delta S_{\text{ref}} \cdot \left(\frac{0.030}{d}\right)^{0.1}\)</span></li>
+<li>For <span class="arithmatex">\(d &gt; 72\text{ mm}\)</span>:
+  <span class="arithmatex">\(\Delta \sigma_c = \Delta S_{\text{ref}} \cdot \left(\frac{0.030}{d}\right)^{0.1} \cdot \left(\frac{0.072}{d}\right)^{0.25}\)</span></li>
+</ul>
+<p>The knee point stress range for the design curve is obtained by dividing the
+characteristic strength by the material partial safety factor:</p>
+<div class="arithmatex">\[\Delta S_{12} = \frac{\Delta \sigma_c}{\gamma_M}\]</div>
+<p>The curve has no endurance limit. With the default parameters (detail
+category 50, <span class="arithmatex">\(\gamma_M = 1.1\)</span>) it is the design curve of ref. [2],
+section 6.7.5.4. In Monte Carlo simulations, random curves are generated
+with <span class="arithmatex">\(\gamma_M = 1.0\)</span> and a random <span class="arithmatex">\(\Delta S_{\text{ref}}\)</span> (see
+<code>pyflange.stats.standard_bolt_fatigue_curve_sampler</code>).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>diameter</code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Nominal bolt diameter <span class="arithmatex">\(d\)</span> in meters.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>DS_ref</code></b>
+              (<code><span title="float">float</span></code>, default:
+                  <code>50000000.0</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Reference characteristic stress range <span class="arithmatex">\(\Delta S_{\text{ref}}\)</span>
+at <span class="arithmatex">\(2 \times 10^6\)</span> cycles before size and material factor corrections (in Pa).
+Defaults to 50 MPa (<code>50e6</code> Pa), i.e. detail category 50 of ref. [2].</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>gamma_M</code></b>
+              (<code><span title="float">float</span></code>, default:
+                  <code>1.1</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Material partial safety factor <span class="arithmatex">\(\gamma_M\)</span> for fatigue design.
+Defaults to 1.1 (ref. [2], section 6.7.5.4).</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.BoltFatigueCurve.diameter">diameter</span></code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The nominal bolt diameter passed to the constructor.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.BoltFatigueCurve.DS_ref">DS_ref</span></code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The reference stress range passed to the constructor.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.BoltFatigueCurve.gamma_M">gamma_M</span></code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The material safety factor passed to the constructor.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<details class="example" open>
+  <summary>Example</summary>
+  <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyflange.fatigue</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoltFatigueCurve</span><span class="p">,</span> <span class="n">MarkovMatrix</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">curve</span> <span class="o">=</span> <span class="n">BoltFatigueCurve</span><span class="p">(</span><span class="mf">0.080</span><span class="p">)</span>       <span class="c1"># M80 bolt, default fatigue class</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">N</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">N</span><span class="p">(</span><span class="mf">40e6</span><span class="p">)</span>                     <span class="c1"># cycles to failure at a 40 MPa range</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">mkvm</span> <span class="o">=</span> <span class="n">MarkovMatrix</span><span class="p">(</span><span class="nb">range</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">20e6</span><span class="p">,</span> <span class="mf">40e6</span><span class="p">]),</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                    <span class="n">mean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">300e6</span><span class="p">,</span> <span class="mf">300e6</span><span class="p">]),</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                    <span class="n">cycles</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1e6</span><span class="p">,</span> <span class="mf">1e4</span><span class="p">]),</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                    <span class="n">duration</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>      <span class="c1"># e.g. 20 years</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">D</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">cumulated_damage</span><span class="p">(</span><span class="n">mkvm</span><span class="p">)</span>      <span class="c1"># Miner's sum</span>
+</span></code></pre></div>
+</details>
+        <p>Initializes the BoltFatigueCurve (see the class documentation).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="pyflange.fatigue.BoltFatigueAnalysis" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">BoltFatigueAnalysis</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#pyflange.fatigue.BoltFatigueAnalysis" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">BoltFatigueAnalysis</span><span class="p">(</span><span class="n">fseg</span><span class="p">,</span> <span class="n">flange_mkvm</span><span class="p">,</span> <span class="n">custom_fatigue_curve</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allowable_damage</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">SMF</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+        <p>Fatigue analysis pipeline for a flange bolt.</p>
+<p>Evaluates the cyclic stress history, total cumulative fatigue damage, and expected
+fatigue life for a bolt in a flanged connection under external bending moment
+histories.</p>
+<p>The analysis transforms the flange shell moment Markov matrix into a bolt stress
+Markov matrix using the segment's non-linear transfer functions, accounting for
+axial force, bolt bending, bolt diameter effects, and dynamic stress multiplication.
+The bolt stress range is the axial stress range plus the bending stress range
+reduced by the factor <span class="arithmatex">\(\kappa_b\)</span> (ref. [2], eqs. (42) and (43)), and the
+damage is evaluated with Miner's rule (ref. [2], section 6.7.5.4).</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.BoltFatigueAnalysis.fseg">fseg</span></code></b>
+              (<code><a class="autorefs autorefs-internal" title="            FlangeSegment (pyflange.flangesegments.FlangeSegment)" href="../flangesegments/#pyflange.flangesegments.FlangeSegment">FlangeSegment</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>The flange segment model containing geometry, bolt
+properties, preloads, and transfer functions.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.BoltFatigueAnalysis.flange_mkvm">flange_mkvm</span></code></b>
+              (<code><a class="autorefs autorefs-internal" title="            MarkovMatrix
+
+
+  
+      dataclass
+   (pyflange.fatigue.MarkovMatrix)" href="#pyflange.fatigue.MarkovMatrix">MarkovMatrix</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>The Markov matrix representing the external bending
+moment load history acting on the flange connection.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.BoltFatigueAnalysis.custom_fatigue_curve">custom_fatigue_curve</span></code></b>
+              (<code><a class="autorefs autorefs-internal" title="            FatigueCurve (pyflange.fatigue.FatigueCurve)" href="#pyflange.fatigue.FatigueCurve">FatigueCurve</a> | None</code>)
+          –
+          <div class="doc-md-description">
+            <p>Optional custom S-N curve for the bolt.
+If <code>None</code>, an IEC 61400-6 AMD1 compliant <code>BoltFatigueCurve</code> is automatically
+constructed from the bolt nominal diameter. Defaults to <code>None</code>.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.BoltFatigueAnalysis.allowable_damage">allowable_damage</span></code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Maximum allowable cumulative fatigue damage limit
+<span class="arithmatex">\(D_{\text{allow}}\)</span>. Defaults to 1.0 (ref. [2], section 6.7.5.4).</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="pyflange.fatigue.BoltFatigueAnalysis.SMF">SMF</span></code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Stress Multiplication Factor applied to the bolt stress ranges to
+account for the model uncertainty of the analytical model (ref. [5],
+section 6.5). Defaults to 1.0.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<details class="example" open>
+  <summary>Example</summary>
+  <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyflange.fatigue</span><span class="w"> </span><span class="kn">import</span> <span class="n">MarkovMatrix</span><span class="p">,</span> <span class="n">BoltFatigueAnalysis</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># fseg is a flange segment, e.g. a PolynomialLFlangeSegment</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">mkvm</span> <span class="o">=</span> <span class="n">MarkovMatrix</span><span class="p">(</span><span class="nb">range</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">20e6</span><span class="p">,</span> <span class="mf">40e6</span><span class="p">]),</span>     <span class="c1"># N·m</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                    <span class="n">mean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">30e6</span><span class="p">,</span> <span class="mf">30e6</span><span class="p">]),</span>      <span class="c1"># N·m</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                    <span class="n">cycles</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1e7</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">]),</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                    <span class="n">duration</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>                      <span class="c1"># years</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">analysis</span> <span class="o">=</span> <span class="n">BoltFatigueAnalysis</span><span class="p">(</span><span class="n">fseg</span><span class="p">,</span> <span class="n">mkvm</span><span class="p">)</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="nb">print</span><span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">damage</span><span class="p">,</span> <span class="n">analysis</span><span class="o">.</span><span class="n">fatigue_life</span><span class="p">)</span>
+</span></code></pre></div>
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.fatigue.BoltFatigueAnalysis.fatigue_curve" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">fatigue_curve</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#pyflange.fatigue.BoltFatigueAnalysis.fatigue_curve" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">fatigue_curve</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>FatigueCurve: The S-N fatigue curve used for bolt damage evaluation.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.fatigue.BoltFatigueAnalysis.bolt_mkvm" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">bolt_mkvm</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#pyflange.fatigue.BoltFatigueAnalysis.bolt_mkvm" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">bolt_mkvm</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>MarkovMatrix: The bolt stress Markov matrix including axial and bending stresses.</p>
+<p>The bending stresses are reduced by the factor
+<span class="arithmatex">\(\kappa_b = 0.5 + 0.5 \cdot \log(d/36) / \log(150/36) \ge 0.5\)</span>, with <span class="arithmatex">\(d\)</span>
+the bolt nominal diameter in mm (ref. [2], eq. (43)). The stress ranges
+are multiplied by <code>SMF</code>.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.fatigue.BoltFatigueAnalysis.damage" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">damage</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#pyflange.fatigue.BoltFatigueAnalysis.damage" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">damage</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>float: Total cumulative fatigue damage <span class="arithmatex">\(D = \sum \frac{n_i}{N(\Delta S_i)}\)</span>.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="pyflange.fatigue.BoltFatigueAnalysis.fatigue_life" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">fatigue_life</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-cached"><code>cached</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#pyflange.fatigue.BoltFatigueAnalysis.fatigue_life" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">fatigue_life</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>float: Predicted fatigue life in the same time units as <code>flange_mkvm.duration</code>.</p>
+
+    </div>
+
+</div>
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../flangesegments/" class="md-footer__link md-footer__link--prev" aria-label="Previous: pyflange.flangesegments">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                pyflange.flangesegments
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../stats/" class="md-footer__link md-footer__link--next" aria-label="Next: pyflange.stats">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                pyflange.stats
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2024 KCI The Engineers B.V., Siemens Gamesa Renewable Energy B.V., TNO &mdash; GPL-3.0
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/kcibv/pyflange" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/pyflange/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.indexes", "navigation.top", "navigation.footer", "navigation.instant", "navigation.tracking", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.action.edit"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+      
+        <script src="../../assets/js/katex.js"></script>
+      
+    
+  </body>
+</html>
