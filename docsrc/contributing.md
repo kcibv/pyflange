@@ -123,5 +123,9 @@ checks that the tag and `pyproject.toml` versions are equal, then builds the
 package, checks it with `twine check --strict` and uploads it. The upload
 uses PyPI
 [trusted publishing](https://docs.pypi.org/trusted-publishers/), so no API
-token is stored in GitHub. A version cannot be uploaded to PyPI twice: to fix
+token is stored in GitHub. After the upload, the workflow creates the GitHub
+release of the tag, with the packages attached and the changelog section of
+the version (`## 0.14.0 (...)`) as release notes; the version shown next to
+the repository link at the top of this site is the one of the latest GitHub
+release. A version cannot be uploaded to PyPI twice: to fix
 a release, publish a new patch version.

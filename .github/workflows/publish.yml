@@ -13,6 +13,11 @@
 # The upload uses PyPI trusted publishing: PyPI trusts this workflow, running
 # in the "pypi" environment of kcibv/pyflange, so no API token is stored in
 # GitHub. It must be configured once on PyPI (Manage project > Publishing).
+#
+# After the upload, a GitHub release is created from the tag, with the built
+# packages attached and the changelog section of the version as notes. The
+# documentation site shows the latest GitHub release next to the repository
+# link.
 
 name: Publish to PyPI
 
@@ -74,3 +79,26 @@ jobs:
           path: dist/
 
       - uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    name: Create the GitHub release
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # required to create the release
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Create the release from the tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#pyflange-v}"
+          awk -v v="$VERSION" '/^## /{p = ($2 == v); next} p' docsrc/changelog.md > notes.md
+          echo "Full changelog: https://kcibv.github.io/pyflange/latest/changelog/" >> notes.md
+          gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --title "PyFlange $VERSION" --notes-file notes.md
