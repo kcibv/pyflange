@@ -3,6 +3,13 @@
 The notable changes of each PyFlange version. The complete history is
 available in the [GitHub repository](https://github.com/kcibv/pyflange/commits/main).
 
+## 0.14.1 (unreleased)
+
+- `PolynomialLFlangeSegmentED2` validated against the SGRE ED2 reference
+  workbook (case L15, D8000 L-flange with ED2 design gap heights).
+- Validation script: without case files it runs all the cases; new options
+  `--model`, `--flange-type` and `--list`.
+
 ## 0.14.0 (2026-10-23)
 
 - **Model aligned with the published IEC 61400-6:2020+AMD1:2025**: docstrings

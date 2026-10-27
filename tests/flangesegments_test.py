@@ -9,22 +9,16 @@ import numpy as np
 
 import os
 import sys
-import json
-import glob
 
 VALIDATIONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "validations")
 sys.path.insert(0, VALIDATIONS_DIR)
-from validate import validate
+from validate import validate, find_cases
 
 
-def validation_cases (flange_type):
-    '''Paths of the validation case files in validations/references for the given flange type ("L" or "T").'''
-    paths = []
-    for path in sorted(glob.glob(os.path.join(VALIDATIONS_DIR, "references", "*.json"))):
-        with open(path, encoding="utf-8") as f:
-            if json.load(f)["segment"]["flange_type"] == flange_type:
-                paths.append(path)
-    return paths
+def validation_cases (flange_type, model="AMD1"):
+    '''Paths of the validation case files in validations/references for the given
+    flange type ("L" or "T") and model version ("AMD1" or "ED2").'''
+    return find_cases(flange_type=flange_type, model=model)
 
 
 def check_validation_case (path):
@@ -564,6 +558,10 @@ class TestPolynomialLFlangeSegmentED2:
         fseg_ed1 = TestPolynomialLFlangeSegment().fseg(30*deg)
         fseg_ed2 = self.fseg(30*deg)
         assert fseg_ed2.shell_force_at_closed_gap != pytest.approx(fseg_ed1.shell_force_at_closed_gap)
+
+    @pytest.mark.parametrize("path", validation_cases("L", "ED2"), ids=os.path.basename)
+    def test_validation_cases (self, path):
+        check_validation_case(path)
 
 
 

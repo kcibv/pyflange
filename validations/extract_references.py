@@ -8,7 +8,9 @@ For each validation workbook it writes a case file `references/<case-id>.json`
 containing:
 
 - the flange segment input parameters (taken from the scripts that originally
-  generated the PyFlange results: `gen-cases.py` and `Case-D7500_T.py`),
+  generated the PyFlange results: `gen-cases.py` and `Case-D7500_T.py`; for
+  the ED2 case, back-calculated from the intermediate values of its workbook),
+- the model version and the gap height distribution (only for the ED2 cases),
 - the fatigue analysis parameters,
 - the SGRE reference values for each gap angle, read from the `SGRE` sheet
   (L-flange workbooks) or from the `AMD1` sheet (T-flange workbooks).
@@ -19,10 +21,15 @@ that use the same one.
 When a case file already exists, its `tolerances` object is preserved.
 
 Usage:
+    py validations/extract_references.py [CASE_ID ...]
+
+Without arguments, all the cases are extracted. Examples:
     py validations/extract_references.py
+    py validations/extract_references.py L15-interp
 '''
 
 import os
+import sys
 import json
 import hashlib
 
@@ -31,6 +38,7 @@ import openpyxl
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 L_DIR = os.path.join(HERE, "flangesegments.PolynomialLFlangeSegment")
+L_ED2_DIR = os.path.join(HERE, "flangesegments.PolynomialLFlangeSegmentED2")
 T_DIR = os.path.join(HERE, "flangesegments.PolynomialTFlangeSegment")
 OUT_DIR = os.path.join(HERE, "references")
 
@@ -104,6 +112,16 @@ L_QUANTITIES = {
     "Ms_min":               (120, "MS,min",             "Nm"),
 }
 
+# In the ED2 workbooks, kdesign (row 60) is still the 95% quantile of the AMD1
+# log-normal distribution, while the gap height used by the model is kused (row 61),
+# and the kfl row reports the flange stiffness divided by ftot (see validate.py).
+L_ED2_QUANTITIES = {
+    **{key: value for key, value in L_QUANTITIES.items() if key != "k_fl"},
+    "gap.k_design":         (60,  "kdesign",            "mm"),
+    "gap.height":           (61,  "kused",              "mm"),
+    "k_fl/f_tot":           (90,  "kfl",                "N/mm/mm"),
+}
+
 T_QUANTITIES = {
     **COMMON_QUANTITIES,
     "DZ_gap_c":             (91,  "DZgap,c",            "kN"),
@@ -159,6 +177,22 @@ M48_L_hex_nut = dict(
     circumscribed_diameter = 82.6*mm,
     bearing_diameter = 69.4*mm)
 
+M64 = dict(
+    nominal_diameter = 64*mm,
+    thread_pitch = 6*mm,
+    shank_diameter_ratio = 60.103/64,   # shank diameter = pitch diameter
+    shank_length = 230*mm,
+    yield_stress = 900*MPa,
+    ultimate_tensile_stress = 1000*MPa,
+    stud = True)
+
+M64_round_nut = dict(      # RoundNut("M64")
+    nominal_diameter = 64*mm,
+    thickness = 64*mm,
+    inscribed_diameter = 95*mm,
+    circumscribed_diameter = 104.86*mm,
+    bearing_diameter = 115*mm)
+
 M48_T = dict(
     nominal_diameter = 48*mm,
     thread_pitch = 5*mm,
@@ -208,6 +242,28 @@ D4600_L = dict(
     nut = M48_L_hex_nut,
     washer = dict(outer_diameter=92*mm, inner_diameter=49.4*mm, thickness=8*mm))
 
+# Geometry from the flange sketch sent with the ED2 workbook (the sketch in the
+# workbook itself is a leftover of case 1). The bolt, hole and nut data are not
+# in the sketch: they have been back-calculated from the intermediate values of
+# the workbook. The clamp length lsh + lGew = 362 mm = 2t shows that there is no
+# washer and Do = 70 mm gives exactly Dw = 115 mm (dP). The preload is the one of
+# the sheet, Fp,C' = 1688 kN, although the workbook name reads 1682 kN.
+D8000_L = dict(
+    flange_type = "L",
+    D = 8000*mm,
+    n_bolts = 192,
+    a = 202.5*mm,
+    b = 134.9*mm,
+    s = 37.2*mm,
+    t = 181*mm,
+    Zg = -101.466015625*kN,     # includes the macro-geometric factor 1.45
+    Fv = 1688*kN,
+    Do = 70*mm,
+    s_ratio = 80.0/37.2,
+    bolt = M64,
+    nut = M64_round_nut,
+    washer = None)
+
 D7500_T = dict(
     flange_type = "T",
     D = 7500*mm,
@@ -229,6 +285,10 @@ D7500_T = dict(
 # T-flanges: as in Case-D7500_T.py, with macro-geometric factor 1.3.
 L_FATIGUE = dict(bending_factor="IEC", mean_factor=1.0, range_factor=1.0)
 T_FATIGUE = dict(bending_factor=0.601, mean_factor=1.3, range_factor=1.19*1.3)
+# L-flanges ED2: bending factor according to IEC 61400-6 and material safety factor 1.25.
+# The Markov matrix of the ED2 workbook already includes its load factors (range
+# factor 0.961 and macro-geometric factor 1.45), so it is used as it is.
+L_ED2_FATIGUE = dict(bending_factor="IEC", mean_factor=1.0, range_factor=1.0, gamma_M=1.25)
 
 
 STIFF_TAG = {"simplified": "simpl", "interpolated": "interp"}
@@ -254,6 +314,26 @@ def L_case (num, segment, shape_factor, tilt_deg, stiff, title):
         tilt_angle_deg = tilt_deg,
         shell_stiffness = stiff,
         fatigue = L_FATIGUE)
+
+
+def L_ED2_case (num, segment, shape_factor, tilt_deg, stiff, title):
+    suffix = STIFF_TAG[stiff].capitalize()
+    fname = {
+        15: "Case_15_D8000_L_Tilt-0p00deg_ShapeFactor-1p00_Fv1682kN_ShellStiff-{}.xlsx",
+    }[num].format(suffix)
+    return dict(
+        id = f"L{num}-{STIFF_TAG[stiff]}",
+        title = f"Case {num} - {title}, {stiff} shell stiffness",
+        workbook = os.path.join(L_ED2_DIR, fname),
+        sheet = "SGRE",
+        first_col = 12,     # column L
+        quantities = L_ED2_QUANTITIES,
+        model = "ED2",
+        segment = segment,
+        gap = dict(distribution="ED2", flatness_tolerance=0.0014, fractile=0.75, shape_factor=shape_factor),
+        tilt_angle_deg = tilt_deg,
+        shell_stiffness = stiff,
+        fatigue = L_ED2_FATIGUE)
 
 
 def T_case (num, shape_factor, tilt_deg, stiff, title):
@@ -292,6 +372,9 @@ for stiff in ("simplified", "interpolated"):
         T_case(7, 1.5, 1.0, stiff, "D7500 T-flange, gap shape factor 1.5, 1 deg tilt"),
         T_case(8, 1.0, 1.0, stiff, "D7500 T-flange, sinusoidal gap, 1 deg tilt"),
     ]
+CASES += [
+    L_ED2_case(15, D8000_L, 1.0, 0.00, "interpolated", "D8000 L-flange (ED2), sinusoidal gap, no tilt"),
+]
 
 
 
@@ -380,12 +463,19 @@ def read_references (ws, quantities, first_col):
     return references
 
 
-def main ():
+def main (case_ids=None):
+    known_ids = [case["id"] for case in CASES]
+    unknown_ids = sorted(set(case_ids or []) - set(known_ids))
+    if unknown_ids:
+        raise SystemExit(f"Unknown case id(s): {', '.join(unknown_ids)}. Known ids: {', '.join(known_ids)}")
+
     os.makedirs(OUT_DIR, exist_ok=True)
     markov_registry = {}
     t_markov = read_mkv_markov_matrix(os.path.join(T_DIR, "tflange-example-markov.mkv"))
 
     for case in CASES:
+        if case_ids and case["id"] not in case_ids:
+            continue
         print(f"Extracting {case['id']} from {os.path.relpath(case['workbook'], HERE)}")
         wb = openpyxl.load_workbook(case["workbook"], data_only=True)
         ws = wb[case["sheet"]]
@@ -404,7 +494,10 @@ def main ():
         data = dict(
             id = case["id"],
             title = case["title"],
-            source = os.path.relpath(case["workbook"], HERE).replace(os.sep, "/"),
+            source = os.path.relpath(case["workbook"], HERE).replace(os.sep, "/"))
+        if "model" in case:     # the AMD1 case files have no model key (AMD1 is the default)
+            data["model"] = case["model"]
+        data.update(
             segment = case["segment"],
             gap = case["gap"],
             tilt_angle_deg = case["tilt_angle_deg"],
@@ -426,4 +519,4 @@ def main ():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

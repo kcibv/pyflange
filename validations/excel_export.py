@@ -1,8 +1,8 @@
 '''Export of the validation results to the SGRE validation workbooks.
 
-For each validation case, the original workbook referenced by the case file is
-copied to the output directory and the PyFlange results are written into its
-PyFlange sheets (`PyFlange_Gap<angle>deg` in the L-flange workbooks,
+For each validation case, the PyFlange results are written into the PyFlange
+sheets of the workbook referenced by the case file (in place, or into a copy
+saved in an output directory) (`PyFlange_Gap<angle>deg` in the L-flange workbooks,
 `Gap<angle>deg` in the T-flange workbooks), exactly as the original scripts
 `gen-cases.py` and `Case-D7500_T.py` did. Excel then recalculates the
 comparison sheets (`Comparison` or `AMD1`) and the charts.
@@ -10,6 +10,14 @@ comparison sheets (`Comparison` or `AMD1`) and the charts.
 In addition, a `Validation` sheet is appended to each workbook, listing every
 compared quantity with its mismatch, tolerance and pass/fail status, as
 reported by `validate.py`.
+
+The ED2 workbooks are copies of the AMD1 L-flange workbooks, whose `Comparison`
+sheet compares both kdesign and kused with the PyFlange gap height and kfl with
+the PyFlange flange stiffness. For the ED2 cases, the exporter adds the AMD1
+design gap height (95% quantile of the log-normal distribution) to the PyFlange
+sheets as `gap.k_design` and redirects the kdesign and kfl rows of the
+`Comparison` sheet to `gap.k_design` and to kfl / ftot (the quantity reported
+by the ED2 workbooks, see `validate.py`).
 
 The workbooks are edited through Excel (via xlwings), so that charts and form
 controls are preserved: Excel must be installed.
@@ -123,6 +131,7 @@ def pyflange_sheet_values (fseg, q):
         # Model internal parameters
         "gap.k_mean":               q["gap.k_mean"],
         "gap.COV":                  q["gap.COV"],
+        "gap.k_design":             q["gap.k_design"],      # ED2 workbooks (added by the exporter)
         "gap.k_fac":                q["k_fac"],
         "gap.k_shell":              q["k_shell"],
         "gap.stiffness_correction_factor": q["f_tot"],     # L-flange workbooks
@@ -164,15 +173,18 @@ def pyflange_sheet_values (fseg, q):
 
 
 class ExcelExporter:
-    '''Writes the validation results into copies of the SGRE validation workbooks.
+    '''Writes the validation results into the SGRE validation workbooks.
 
     Args:
-        out_dir (str): Directory where the workbooks are saved. Created if missing.
+        out_dir (str | None): Directory where copies of the workbooks are saved,
+            created if missing. If None, the workbooks referenced by the case
+            files are updated in place.
     '''
 
-    def __init__ (self, out_dir):
+    def __init__ (self, out_dir=None):
         self.out_dir = out_dir
-        os.makedirs(out_dir, exist_ok=True)
+        if out_dir:
+            os.makedirs(out_dir, exist_ok=True)
         self.app = xw.App(visible=False, add_book=False)
         self.app.display_alerts = False
         self.app.screen_updating = False
@@ -183,14 +195,22 @@ class ExcelExporter:
     def export (self, case, results):
         '''Exports the results of a case. Returns the path of the saved workbook.'''
         src = os.path.join(HERE, case["source"])
-        dst = os.path.join(self.out_dir, os.path.basename(src))
-        shutil.copyfile(src, dst)
+        if self.out_dir:
+            dst = os.path.join(self.out_dir, os.path.basename(src))
+            shutil.copyfile(src, dst)
+        else:
+            dst = src
 
+        is_ED2 = case.get("model", "AMD1") == "ED2"
         book = self.app.books.open(dst)
         try:
             for res in results:
                 sheet = self._pyflange_sheet(book, res["angle"])
+                if is_ED2:
+                    self._add_k_design_cell(sheet)
                 self._write_named_cells(sheet, pyflange_sheet_values(res["fseg"], res["values"]))
+            if is_ED2:
+                self._redirect_ED2_comparisons(book)
             self._write_validation_sheet(book, case, results)
             self.app.calculate()
             book.save()
@@ -205,6 +225,37 @@ class ExcelExporter:
             if name in names:
                 return book.sheets[name]
         raise KeyError(f"No PyFlange sheet for gap angle {angle} deg in {book.name}")
+
+    # Free cell of the PyFlange sheets, below the COV of the gap height (gap.COV, J129)
+    K_DESIGN_ROW = 130
+
+    @classmethod
+    def _add_k_design_cell (cls, sheet):
+        '''Adds the sheet-level name `gap.k_design` to a PyFlange sheet of an ED2 workbook.'''
+        row = cls.K_DESIGN_ROW
+        sheet.range(f"A{row}").value = "d)"
+        sheet.range(f"B{row}").value = "AMD1 design gap height (95% quantile):"
+        sheet.range(f"I{row}").value = "kdesign ="
+        sheet.range(f"K{row}").value = "mm"
+        sheet.api.Names.Add("gap.k_design", f"='{sheet.name}'!$J${row}")
+
+    @staticmethod
+    def _redirect_ED2_comparisons (book):
+        '''Points the kdesign and kfl rows of the Comparison sheet to the ED2 PyFlange values.'''
+        sheet = book.sheets["Comparison"]
+        formulas = {
+            "kdesign":  '=INDIRECT(sheet_name&"!gap.k_design")',
+            "kfl":      '=INDIRECT(sheet_name&"!gap.k_fl")/INDIRECT(sheet_name&"!gap.stiffness_correction_factor")',
+        }
+        notes = {
+            "kdesign":  "AMD1 log-normal 95% quantile (not used by ED2)",
+            "kfl":      "ED2 sheet reports kfl / ftot",
+        }
+        symbols = sheet.range("C1:C200").value
+        for row, symbol in enumerate(symbols, start=1):
+            if symbol in formulas:
+                sheet.range(f"F{row}").formula = formulas[symbol]
+                sheet.range(f"H{row}").value = notes[symbol]
 
     @staticmethod
     def _write_named_cells (sheet, values):
