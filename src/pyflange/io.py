@@ -164,7 +164,7 @@ def create_bolt(**params):
     """Creates a bolt object from a dictionary of parameters.
 
     Args:
-        **params: The bolt parameters. The `type` key selects the bolt
+        **params (Any): The bolt parameters. The `type` key selects the bolt
             kind: `"StandardMetricBolt"` (keys `designation`, `material_grade`,
             `shank_length`, `shank_diameter_ratio`, `stud`) or `"MetricBolt"`
             (keys `nominal_diameter`, `thread_pitch`, `yield_stress`,
@@ -239,7 +239,7 @@ def create_nut(**params):
     """Creates a nut object from a dictionary of parameters.
 
     Args:
-        **params: The nut parameters. The `type` key selects the nut kind:
+        **params (Any): The nut parameters. The `type` key selects the nut kind:
             `"ISOHexNut"` or `"RoundNut"` (key `designation`), or `"HexNut"`
             (keys `nominal_diameter`, `thickness`, `inscribed_diameter`,
             `circumscribed_diameter`, `bearing_diameter`, `elastic_modulus`,
@@ -283,7 +283,7 @@ def create_flangesegment(**params):
     tensile yield force, `As * fy`) or as an absolute force `Fv`, but not both.
 
     Args:
-        **params: Flange segment parameters. Expected keys are 'a', 'b', 's',
+        **params (Any): Flange segment parameters. Expected keys are 'a', 'b', 's',
             't', 'R', 'central_angle', 'Zg', 'bolt', 'preload_ratio' or 'Fv',
             'Do', 'washer', 'nut', 'gap', 'tilt_angle', 'E', 'G', 's_ratio',
             'r', 'k_shell', 'PPL', 'DFT', 'settlement_factor' and, optionally,
@@ -359,7 +359,7 @@ def create_fatiguecurve(**params):
     """Creates a fatigue curve object from a dictionary of parameters.
 
     Args:
-        **params: Fatigue curve parameters (`BoltFatigueCurve` section). The
+        **params (Any): Fatigue curve parameters (`BoltFatigueCurve` section). The
             optional `type` key selects the curve kind:
 
             - `"BoltFatigueCurve"` (default): keys `BoltNominalDiameter`,
@@ -397,7 +397,7 @@ def create_markovmatrix(**params):
     """Creates a Markov matrix object from a dictionary of parameters.
 
     Args:
-        **params: Markov matrix parameters (`MarkovMatrix` section).
+        **params (Any): Markov matrix parameters (`MarkovMatrix` section).
             Expected keys are 'range', 'mean', 'cycles', 'duration'.
 
     Returns:
@@ -452,7 +452,7 @@ def create_distribution(**params):
     """Creates a scipy distribution from a dictionary of parameters.
 
     Args:
-        **params: Distribution parameters. The `Distribution` key selects
+        **params (Any): Distribution parameters. The `Distribution` key selects
             the distribution kind:
 
             - `"Normal"`: keys `Mean`, `CoV`.
@@ -494,7 +494,7 @@ def create_sampler(**params):
     """Creates a pyflange sampler from a dictionary of parameters.
 
     Args:
-        **params: Sampler parameters. All the distributions supported by
+        **params (Any): Sampler parameters. All the distributions supported by
             `create_distribution` are accepted, plus `"Product"`, which
             samples the product of two independent variables described by
             the `Dist1` and `Dist2` keys.
@@ -519,7 +519,7 @@ def create_gap_sampler(flange_diameter, **params):
 
     Args:
         flange_diameter (float): The outer diameter of the flange.
-        **params: Gap sampler parameters (`Stats.Gap` section). The
+        **params (Any): Gap sampler parameters (`Stats.Gap` section). The
             `JointDistribution` key selects the kind of sampler:
 
             - `"IEC 61400-6:2020 AMD1"`: keys `FlatnessTolerance`, `Angle`
@@ -570,7 +570,7 @@ def create_fatiguecase_sampler(fseg, markov_matrix, **params):
     Args:
         fseg (PolynomialLFlangeSegment): The base flange segment object.
         markov_matrix (MarkovMatrix): The base Markov matrix object.
-        **params: Statistical parameters (`Stats` section, current format
+        **params (Any): Statistical parameters (`Stats` section, current format
             version), for preload, plastic loss, DFT, gap, tilt, load range
             factor, fatigue class factor, allowable damage and stress
             multiplication factor.
@@ -911,8 +911,6 @@ def flangesegment_to_dict(fseg, verbose=False):
     Raises:
         ValueError: If the flange segment type is not supported.
     """
-    from .utils import read_data_log
-
     type_name = type(fseg).__name__
     if type_name not in FLANGE_SEGMENT_TYPES:
         raise ValueError(f"Unknown flange segment type: '{type(fseg)}'")
@@ -1004,18 +1002,16 @@ def flangesegment_to_dict(fseg, verbose=False):
         d["polynomial_initial_slope"] = fseg._polynomial_initial_slope
         d["true_force_initial_slope"] = fseg._tensile_force_polynomial.deriv()(d["Point1"]["Z"])
         d["true_moment_initial_slope"] = fseg._tensile_moment_polynomial.deriv()(d["Point1"]["Z"])
-        d["gap_k_mean"] = read_data_log(fseg, "k_mean")
-        d["gap_COV"] = read_data_log(fseg, "COV_k")
-        d["gap_k_fac"] = read_data_log(fseg, "k_fac")
+        d["gap_k_fac"] = fseg._k_fac
         d["gap_k_shell"] = fseg._k_shell
-        d["gap_stiffness_correction_factor"] = read_data_log(fseg, "f_tot")
-        d["flange_A_cf"] = read_data_log(fseg, "A_cf")
-        d["flange_I_cf"] = read_data_log(fseg, "I_cf")
-        d["gap_k_fl"] = read_data_log(fseg, "k_fl")
-        d["u"] = read_data_log(fseg, "u")
-        d["k_seg"] = read_data_log(fseg, "k_seg")
+        d["gap_stiffness_correction_factor"] = fseg._f_tot
+        d["flange_A_cf"] = fseg._A_cf
+        d["flange_I_cf"] = fseg._I_cf
+        d["gap_k_fl"] = fseg._k_flange
+        d["u"] = fseg._u
+        d["k_seg"] = fseg._k_seg
         d["a_star"] = fseg._a_star
-        d["I_tg"] = read_data_log(fseg, "I_tg")
+        d["I_tg"] = fseg._I_tg
 
     return _plain(d)
 

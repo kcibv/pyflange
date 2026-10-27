@@ -1,33 +1,184 @@
-site_name: PyFlange Documentation
+site_name: PyFlange
+site_description: Python library for the analysis of large bolted ring-flange connections (IEC 61400-6 polynomial model).
+site_url: https://kcibv.github.io/pyflange/
+repo_url: https://github.com/kcibv/pyflange
+repo_name: kcibv/pyflange
+edit_uri: edit/main/docsrc/
+copyright: Copyright &copy; 2024 KCI The Engineers B.V., Siemens Gamesa Renewable Energy B.V., TNO &mdash; GPL-3.0
+
 docs_dir: docsrc
-site_dir: docs
+
+# Local builds (mkdocs build / mkdocs serve) go to site/, which is not under
+# version control. The published, versioned site lives in docs/ on the main
+# branch and is written only by mike (see .github/workflows/docs.yml):
+# docs/<major.minor>/ for each release, docs/latest/ for the newest one.
+site_dir: site
+exclude_docs: |
+  requirements.txt
+  assets/img/make_figures.py
+
 nav:
-    - Home: index.md
-    - Command-line interface: cli.md
-    - JSON case format: json-format.md
-    - API's:
-      - bolts: apis/bolts.md
-      - flangesegments: apis/flangesegments.md
-      - fatigue: apis/fatigue.md
-      - stats: apis/stats.md
-      - io: apis/io.md
-    - Deprecated API's:
-      - gap: apis/gap.md
-    - Examples:
-      - Montecarlo Simulation: examples/montecarlo.md
+  - Home: index.md
+  - Getting started:
+      - getting-started/index.md
+      - Install PyFlange: getting-started/install.md
+      - First analysis (no code): getting-started/first-analysis.md
+      - First Python script: getting-started/first-script.md
+  - Tutorials:
+      - tutorials/index.md
+      - L-flange, deterministic: tutorials/lflange.md
+      - T-flange, deterministic: tutorials/tflange.md
+      - Design gap angles and ED2: tutorials/design-gaps.md
+      - Monte Carlo from the command line: tutorials/montecarlo-cli.md
+      - Monte Carlo in Python: tutorials/montecarlo-python.md
+      - Writing case files from Python: tutorials/case-files.md
+  - User guide:
+      - Model overview: guide/model.md
+      - Nomenclature: guide/nomenclature.md
+      - Units and conventions: guide/units.md
+      - Validation: guide/validation.md
+      - FAQ and troubleshooting: guide/faq.md
+  - Command line: cli.md
+  - JSON format: json-format.md
+  - API reference:
+      - apis/index.md
+      - pyflange.bolts: apis/bolts.md
+      - pyflange.flangesegments: apis/flangesegments.md
+      - pyflange.fatigue: apis/fatigue.md
+      - pyflange.stats: apis/stats.md
+      - pyflange.io: apis/io.md
+      - pyflange.cli: apis/cli.md
+      - pyflange.utils: apis/utils.md
+      - pyflange.gap (deprecated): apis/gap.md
+  - About:
+      - References: references.md
+      - Changelog: changelog.md
+      - Contributing: contributing.md
+      - License: license.md
+
 theme:
-    name: readthedocs
-    logo: assets/logo.svg
-    favicon: assets/logo.ico
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/logo.ico
+  icon:
+    repo: fontawesome/brands/github
+  font:
+    text: Inter
+    code: JetBrains Mono
+  palette:
+    # Dark is the default because it is listed first. The choice of the
+    # reader is remembered by the browser.
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - navigation.instant
+    - navigation.tracking
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+
+extra_css:
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css
+  - assets/css/extra.css
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js
+  - assets/js/katex.js
+
+extra:
+  version:
+    provider: mike      # version selector in the header, from docs/versions.json
+    default: latest
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/kcibv/pyflange
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pyflange/
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.snippets:
+      base_path: [".", docsrc]   # repository root first: on Windows "CONTRIBUTING.md" would also match docsrc/contributing.md
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 plugins:
-- mkdocstrings:
-    default_handler: python
-    handlers:
-      python:
-        options:
-          show_root_heading: true
-          heading_level: 1
-          show_source: false
-          docstring_style: google
-
+  - search
+  - autorefs
+  - redirects:
+      redirect_maps:
+        examples/montecarlo.md: tutorials/montecarlo-python.md
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            docstring_options:
+              # "Returns:" and "Yields:" entries are written as "type: description"
+              returns_named_value: false
+            docstring_section_style: list
+            heading_level: 1
+            show_root_heading: true
+            show_root_full_path: true
+            show_source: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            show_signature_annotations: false
+            separate_signature: true
+            signature_crossrefs: true
+            members_order: source
+            merge_init_into_class: true
+            summary: true
+            filters: ["!^_"]

@@ -3,16 +3,34 @@ Command-line interface
 
 PyFlange includes a command-line tool that performs deterministic and Monte
 Carlo bolt fatigue analyses of flange cases described in the
-[PyFlange JSON format](json-format.md). After installing PyFlange, it can be
-invoked either as `pyflange` or as `python -m pyflange`:
+[PyFlange JSON format](json-format.md), without writing any code. After
+[installing PyFlange](getting-started/install.md), it can be invoked either
+as `pyflange` or as `py -m pyflange` (`python -m pyflange` on Linux and
+macOS):
 
-```bash
-pyflange --help
-pyflange COMMAND --help
+```doscon
+py -m pyflange --help
+py -m pyflange COMMAND --help
+py -m pyflange --version
 ```
 
+!!! tip
+    `py -m pyflange` always works. The shorter `pyflange` works only if the
+    folder of the Python scripts is in your `PATH`. The examples below use
+    the short form.
+
 A complete example case file is available here:
-[fatigue-case.json](examples/fatigue-case.json).
+[fatigue-case.json](examples/fatigue-case.json){ download="fatigue-case.json" }.
+For a guided introduction, see
+[First analysis without code](getting-started/first-analysis.md) and
+[Monte Carlo from the command line](tutorials/montecarlo-cli.md).
+
+| Command | Purpose |
+|---------|---------|
+| [`determ`](#determ) | Deterministic fatigue analysis of a case. |
+| [`sample`](#sample) | Monte Carlo simulation of a case. |
+| [`inspect`](#inspect) | Detailed report of one realization of a Monte Carlo sample. |
+| [`stats`](#stats) | Summary statistics of a Monte Carlo sample. |
 
 
 Commands
@@ -38,6 +56,10 @@ pyflange determ case.json --gap-angle 45 --gap-height 1.5 --tilt-angle 0.2 --smf
 | `--odir` | Output folder. Defaults to the current folder. |
 | `--oname` | Output file name. Defaults to `<case>-res[<overrides>].json`. |
 | `--xlsx` | Also write the report to an Excel file, as a key/value table with a named cell per value. |
+
+The main results in the report are `damage`, `FatigueLife` and, in the
+`FlangeSegment` section, `BoltPreload`, the polynomial points `Point1` to
+`Point4` and the curves `TransferFunctions`.
 
 ### sample
 
@@ -74,6 +96,9 @@ The CSV columns are:
 | `SMF` | - | Stress multiplication factor. |
 | `Utilization` | - | `Damage / AllowableDamage`. |
 
+The first column (without header) is the number of the realization, starting
+from 0, to be used with `inspect`.
+
 ### inspect
 
 Rebuilds a single realization of a sample and writes its detailed report,
@@ -98,6 +123,30 @@ deviation and coefficient of variation of each column of a sample.
 ```bash
 pyflange stats case-sample.csv
 ```
+
+
+Running batches
+---------------
+
+To analyze all the case files of a folder, use a loop of the Windows command
+prompt:
+
+```doscon
+for %f in (*.json) do pyflange determ "%f" --odir results
+```
+
+(In a `.bat` file, write `%%f` instead of `%f`.) The `results` folder must
+exist; create it with `mkdir results`. Note that the loop also picks up the
+result files if they are written in the same folder as the cases.
+
+In PowerShell:
+
+```powershell
+Get-ChildItem *.json | ForEach-Object { pyflange determ $_.FullName --odir results }
+```
+
+For more complex batches, for example to collect the results in one table,
+use Python: see [Writing case files from Python](tutorials/case-files.md).
 
 
 Migrating from Forrester

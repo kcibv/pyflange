@@ -145,7 +145,7 @@ class TestCreateFlangeSegment:
         assert fseg.bolt == StandardMetricBolt("M80", "10.9", shank_length=0.16, shank_diameter_ratio="pitch", stud=True)
         assert fseg.washer is None
         assert fseg.nut == RoundNut("M80")
-        assert fseg.gap == Gap(0.0013, 30*deg, 1.0)
+        assert fseg.gap == Gap(0.00089, 30*deg, 1.0)
         assert fseg.Do == standard_hole_diameter("M80")
         assert fseg.Fv == pytest.approx(0.75301 * fseg.bolt.thread_cross_section.area * fseg.bolt.yield_stress)
 

@@ -5,7 +5,7 @@ import numpy as np
 import os
 from xlwings import Book
 
-from pyflange.utils import read_data_log
+from pyflange.stats import gap_height_distribution
 
 # Units of measurement
 m = 1
@@ -57,7 +57,7 @@ def load_markov_matrix (book, name):
     )
 
 
-def flangesegment_to_excel (book, sheet_name, fseg):
+def flangesegment_to_excel (book, sheet_name, fseg, flatness_tolerance=0.0014):
 
     # Write input values to excel
     set_cell_value(book, f"{sheet_name}!a", fseg.a/mm)
@@ -150,16 +150,17 @@ def flangesegment_to_excel (book, sheet_name, fseg):
     set_cell_value(book, f"{sheet_name}!true_moment_initial_slope", fseg._tensile_moment_polynomial.deriv()(Z1)*1000)
 
     # Model internal parameters
-    set_cell_value(book, f"{sheet_name}!gap.k_mean", read_data_log(fseg, "k_mean")/mm)
-    set_cell_value(book, f"{sheet_name}!gap.COV", read_data_log(fseg, "COV_k"))
-    set_cell_value(book, f"{sheet_name}!gap.k_fac", read_data_log(fseg, "k_fac"))
-    set_cell_value(book, f"{sheet_name}!gap.k_shell", read_data_log(fseg, "k_shell_ini")/(kN/mm/m))
-    set_cell_value(book, f"{sheet_name}!gap.stiffness_correction_factor", read_data_log(fseg, "f_tot"))
-    set_cell_value(book, f"{sheet_name}!flange.A_cf", read_data_log(fseg, "A_cf")/(mm**2))
-    set_cell_value(book, f"{sheet_name}!flange.I_cf", read_data_log(fseg, "I_cf")/(mm**4))
-    set_cell_value(book, f"{sheet_name}!gap.k_fl", read_data_log(fseg, "k_fl")/(kN/mm/m))
-    set_cell_value(book, f"{sheet_name}!u", read_data_log(fseg, "u")/mm)
-    set_cell_value(book, f"{sheet_name}!k_seg", read_data_log(fseg, "k_seg")/(kN/mm/m))
-    set_cell_value(book, f"{sheet_name}!a_star", read_data_log(fseg, "a_star")/mm)
-    set_cell_value(book, f"{sheet_name}!I_tg", read_data_log(fseg, "I_tg")/(mm**4))
+    gap_dist = gap_height_distribution(2*fseg.R, flatness_tolerance, fseg.gap.angle*fseg.R)
+    set_cell_value(book, f"{sheet_name}!gap.k_mean", gap_dist.mean()/mm)
+    set_cell_value(book, f"{sheet_name}!gap.COV", gap_dist.std()/gap_dist.mean())
+    set_cell_value(book, f"{sheet_name}!gap.k_fac", fseg._k_fac)
+    set_cell_value(book, f"{sheet_name}!gap.k_shell", fseg._k_shell/(kN/mm/m))
+    set_cell_value(book, f"{sheet_name}!gap.stiffness_correction_factor", fseg._f_tot)
+    set_cell_value(book, f"{sheet_name}!flange.A_cf", fseg._A_cf/(mm**2))
+    set_cell_value(book, f"{sheet_name}!flange.I_cf", fseg._I_cf/(mm**4))
+    set_cell_value(book, f"{sheet_name}!gap.k_fl", fseg._k_flange/(kN/mm/m))
+    set_cell_value(book, f"{sheet_name}!u", fseg._u/mm)
+    set_cell_value(book, f"{sheet_name}!k_seg", fseg._k_seg/(kN/mm/m))
+    set_cell_value(book, f"{sheet_name}!a_star", fseg._a_star/mm)
+    set_cell_value(book, f"{sheet_name}!I_tg", fseg._I_tg/(mm**4))
     set_cell_value(book, f"{sheet_name}!fatigue.damage", fseg._damage)

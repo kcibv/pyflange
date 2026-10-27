@@ -68,21 +68,28 @@ Example:
     Fs = fseg.bolt_axial_force(500e3)           # bolt force for a shell pull of 500 kN
     ```
 
-The models implemented in this module are based on the following references:
+References:
+    The reference numbers are the same in all the PyFlange modules (see the
+    [references page](../references.md)). This module cites:
 
-- `[1]` Marc Seidel, SGRE TE TF PST: IEC 61400-6 AMD1 Background Document
-  Fatigue design for ring flange connections in wind turbine support structures. Rev00, 2024.
-- `[2]` IEC 61400-6:2020+AMD1:2025 - Wind energy generation systems - Part 6: Tower and foundation
-  design requirements. Consolidated version, 2025. Equation numbers G.xx refer to its Annex G.
-- `[5]` Marc Seidel, SGRE: IEC 61400-6 AMD1 & ED2 Background Document. Rev01, draft 2026-08-04.
-  The changes of the polynomial model from AMD1 to ED2 are summarised in its section 9.7.
-- `[3]` Petersen, C.: Nachweis der Betriebsfestigkeit exzentrisch beanspruchter Ringflansch-verbindungen
-  (Fatigue assessment of eccentrically loaded ring flange connections).
-  Stahlbau 67 (1998), S. 191-203. <https://onlinelibrary.wiley.com/doi/abs/10.1002/stab.199800690>
-- `[4]` Petersen, C.: Stahlbau (Steel construction), 4. Auflage Braunschweig: Wiesbaden: Springer Vieweg 2012.
-  <https://link.springer.com/book/10.1007%2F978-3-8348-8610-1>
-- `[9]` Tobinaga, I.; Ishihara, T.: A study of action point correction factor for L-type flanges of wind turbine towers.
-  Wind Energy 21 (2018), p. 801-806. <https://doi.org/10.1002/we.2193>
+    - `[1]` Seidel, M.: IEC 61400-6 AMD1 Background document. Fatigue design
+      for ring flange connections in wind turbine support structures. Rev00,
+      Siemens Gamesa, 2024.
+    - `[2]` IEC 61400-6:2020+AMD1:2025 CSV. Wind energy generation systems -
+      Part 6: Tower and foundation design requirements. Consolidated version,
+      2025. Equation numbers G.xx refer to its Annex G.
+    - `[3]` Petersen, C.: Nachweis der Betriebsfestigkeit exzentrisch
+      beanspruchter Ringflanschverbindungen. Stahlbau 67 (1998), pp. 191-203.
+      <https://doi.org/10.1002/stab.199800690>
+    - `[4]` Petersen, C.: Stahlbau. 4th edition, Springer Vieweg, 2012.
+      <https://doi.org/10.1007/978-3-8348-8610-1>
+    - `[5]` Seidel, M.: IEC 61400-6 AMD1 & ED2 Background document. Fatigue
+      design for ring flange connections in wind turbine support structures.
+      Rev01, draft 2026-08-04, Siemens Gamesa. The changes of the polynomial
+      model from AMD1 to ED2 are summarised in its section 9.7.
+    - `[6]` Tobinaga, I.; Ishihara, T.: A study of action point correction
+      factor for L-type flanges of wind turbine towers. Wind Energy 21 (2018),
+      pp. 801-806. <https://doi.org/10.1002/we.2193>
 '''
 
 
@@ -91,7 +98,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cache, cached_property
 
-from .utils import Logger, log_data
+from .utils import Logger
 logger = Logger(__name__)
 
 import numpy as np
@@ -108,6 +115,11 @@ import pandas as pd
 @dataclass
 class Gap:
     '''A flange gap due to imperfections.
+
+    The design gap height of IEC 61400-6 AMD1 is the 95% quantile of the
+    log-normal distribution of ref. [2], section 6.7.5.2 (see
+    `pyflange.stats.gap_height_distribution`). The gap angles to be checked
+    are 30°, 60°, 90° and 120° (ref. [2], section 6.7.5.3).
 
     Attributes:
         height (float): Maximum longitudinal gap height.
@@ -734,15 +746,18 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         Returns:
             float: The bolt bending moment.
         '''
-        s_avg = self.s * (1 + self.s_ratio) / 2
-        c = self.central_angle * (self.R - s_avg/2)
-        I_tg = c * self.t**3 / 12
         ak = self._stiffness_correction_factor
-        bolt_rotation = Z*self.b*self._a_star / (3*self.E*I_tg*ak) + (Fs - self.bolt_preload) / (2*self._a_star*self._bolt_axial_stiffness)
-
-        log_data(self, I_tg=I_tg)
+        bolt_rotation = Z*self.b*self._a_star / (3*self.E*self._I_tg*ak) + (Fs - self.bolt_preload) / (2*self._a_star*self._bolt_axial_stiffness)
 
         return bolt_rotation * 2*self._bolt_bending_stiffness
+
+
+    @cached_property
+    def _I_tg (self):
+        '''Second moment of area I_tg of the flange segment, used in ref. [2], eqs. G.51 and G.59.'''
+        s_avg = self.s * (1 + self.s_ratio) / 2
+        c = self.central_angle * (self.R - s_avg/2)
+        return c * self.t**3 / 12
 
 
     @cached_property
@@ -980,33 +995,57 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
 
 
     @cached_property
+    def _L_gap (self):
+        '''Gap length L_gap, measured on the outer radius of the shell (ref. [2], eq. G.44).'''
+        return self.R * self.gap.angle
+
+
+    @cached_property
+    def _k_fac (self):
+        '''Factor k_fac of the initial shell stiffness, according to ref. [2], eq. G.44.'''
+        return max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (self._L_gap*1000))
+
+
+    @cached_property
     def _k_shell (self):
         '''Initial shell stiffness k_shell,ini, according to ref. [2], eqs. G.43 and G.44.'''
         s_avg = (self.s + self.s_ratio * self.s) / 2    # Average shell thickness
-        L_gap = self.R * self.gap.angle                 # Gap lenght measured on the outer radius of the shell
-        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [2], eq. G.44
         try:
-            k_shell = float(self.k_shell)
+            return float(self.k_shell)
         except Exception:
-            k_shell = self.k_shell(self) if callable(self.k_shell) else self.E * s_avg / (k_fac * L_gap)
+            return self.k_shell(self) if callable(self.k_shell) else self.E * s_avg / (self._k_fac * self._L_gap)
 
-        log_data(self, L_gap=L_gap, k_fac=k_fac)
-        return k_shell
+
+    @cached_property
+    def _A_cf (self):
+        '''Longitudinal cross-section area A_cf of the flange segment, used in ref. [2], eq. G.46.'''
+        w = self.a + self.b + self.s/2      # flange segment length
+        return w * self.t
+
+
+    @cached_property
+    def _I_cf (self):
+        '''Longitudinal cross-section second moment of area I_cf of the flange segment, used in ref. [2], eq. G.46.'''
+        w = self.a + self.b + self.s/2      # flange segment length
+        return w * self.t**3 / 12
 
 
     @cached_property
     def _k_flange (self):
         '''Flange bending stiffness k_fl, according to ref. [2], eq. G.46.'''
-        L_gap = self.R * self.gap.angle                 # Gap lenght measured on the outer radius of the shell
-        w = self.a + self.b + self.s/2      # flange segment length
-        A = w * self.t                      # flange segment longitudinal cross-section area
-        I = w * self.t**3 / 12              # flange segment longitudinal corss-section second moment of area
-        EI = self.E * I
-        GA = self.G * A
-        L2 = L_gap**2
-        k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [2], eq. G.46
-        log_data(self, A_cf=A, I_cf=I, k_fl=k_flange)
-        return k_flange
+        EI = self.E * self._I_cf
+        GA = self.G * self._A_cf
+        L2 = self._L_gap**2
+        return 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [2], eq. G.46
+
+
+    @cached_property
+    def _f_tot (self):
+        '''Gap stiffness correction factor f_tot, according to ref. [2], eq. G.42.
+
+        The factor is further reduced for gap angles smaller than 30 deg.
+        '''
+        return min(1.0 + 1.5 * self.gap.angle/(pi/2), 2.5) * min(self.gap.angle/(pi/6), 1)**2
 
 
     @cached_property
@@ -1017,14 +1056,24 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         arc length, calculated according to ref. [2], eqs. G.41 and G.42. The factor
         f_tot of eq. G.42 is further reduced for gap angles smaller than 30 deg.
         '''
-
-        # Stiffness correction factor
-        f_tot = min(1.0 + 1.5 * self.gap.angle/(pi/2), 2.5) * min(self.gap.angle/(pi/6), 1)**2
-
-        log_data(self, f_tot=f_tot)
-
         # Total gap stiffness according to ref. [2], eq. G.41
-        return f_tot * (self._k_shell + self._k_flange)
+        return self._f_tot * (self._k_shell + self._k_flange)
+
+
+    @cached_property
+    def _u (self):
+        '''Displacement u in the ultimate prying state, according to ref. [2], eq. G.51.'''
+        Z0 = self._ideal_shell_force_at_tensile_ULS
+        Fs0 = self._ideal_bolt_force_at_tensile_ULS
+        return (Z0 * self.b**2 / (3 * self.E * self._I_tg) + (Fs0 - self.bolt_preload) / (2 * self._bolt_axial_stiffness * self._a_red)) * (self._a_red + self.b)
+
+
+    @cached_property
+    def _k_seg (self):
+        '''Segment stiffness k_seg, according to ref. [2], eq. G.50.'''
+        s_avg = (self.s + self.s_ratio * self.s) / 2
+        c = self.central_angle * (self.R - s_avg/2)
+        return self._ideal_shell_force_at_tensile_ULS / (self._u * c)
 
 
     @cached_property
@@ -1034,28 +1083,8 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
         This factor modifies the segment force to account for the effect of
         the gap spring, evaluated according to ref. [2], eqs. G.49 to G.51.
         '''
-
-        from math import pi
-
-        # Retrieve point P0
-        Z0 = self._ideal_shell_force_at_tensile_ULS
-        Fs0 = self._ideal_bolt_force_at_tensile_ULS
-
-        # Evaluate the displacement u in the ultimate prying state.
-        s_avg = self.s * (1 + self.s_ratio) / 2
-        c = self.central_angle * (self.R - s_avg/2)
-        I = c * self.t**3 / 12
-        u = (Z0 * self.b**2 / (3 * self.E * I) + (Fs0 - self.bolt_preload) / (2 * self._bolt_axial_stiffness * self._a_red)) * (self._a_red + self.b)   # ref. [2], eq. G.51
-
-        # Evaluate the segment stiffness
-        s_avg = (self.s + self.s_ratio * self.s) / 2
-        c = self.central_angle * (self.R - s_avg/2)
-        k_seg = Z0 / (u * c)
-
-        log_data(self, u=u, k_seg=k_seg)
-
         # Return the stiffness correction factor, acc. ref. [2], eq. G.49
-        return min(1 + self._gap_stiffness / k_seg,
+        return min(1 + self._gap_stiffness / self._k_seg,
                    4 * pi/3 / self.gap.angle)
 
 
@@ -1143,6 +1172,19 @@ class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
         # Return ED2 gap closing force
         return f_kgap * super()._parallel_gap_neutralization_shell_force
 
+    @cached_property
+    def _f_red (self):
+        return min(self.gap.angle/(pi/6), 1)
+
+
+    @cached_property
+    def _f_tot (self):
+        '''Gap stiffness correction factor f_tot, as modified in IEC 61400-6 ED2 (ref. [5], section 9.7, change #2).
+
+        As for AMD1, the factor is further reduced for gap angles smaller than 30 deg.
+        '''
+        return min(1.4 + 0.6 * self.gap.angle/(pi/2), 2.0) * self._f_red**2
+
 
     @cached_property
     def _gap_stiffness (self):
@@ -1153,13 +1195,9 @@ class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
         change #2): the factor f_tot only applies to the shell stiffness. As for
         AMD1, f_tot is further reduced for gap angles smaller than 30 deg.
         '''
-
         # Stiffness correction factor
-        r = min(self.gap.angle/(pi/6), 1)
-        f_tot = min(1.4 + 0.6 * self.gap.angle/(pi/2), 2.0) * r**2
-        f_flg = r**3
-
-        log_data(self, f_tot=f_tot)
+        f_tot = self._f_tot
+        f_flg = self._f_red**3
 
         # Total gap stiffness according to ref. [5], section 9.7
         return f_tot * self._k_shell + f_flg * self._k_flange
@@ -1405,8 +1443,6 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
         bolt_rotation=phi_T_low+(phi_T_high-phi_T_low)/(Z0-Z_close)*(Z-Z_close)
 
-        log_data(self, a_star=self._a_star)
-
         return bolt_rotation * 2*self._bolt_bending_stiffness
 
 
@@ -1546,7 +1582,7 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
 
     @cached_property
     def _a_star (self):
-        '''Parameter a* (ref. [2], eq. G.60). Not used by the T-flange model, only logged.'''
+        '''Parameter a* (ref. [2], eq. G.60). Not used by the T-flange model, only reported.'''
         return max(0.4, min((self.t / (self._a_red + self.b))**2 , 1)) * self._a_red
 
     @cached_property
@@ -1573,12 +1609,21 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     def _tilt_neutralization_shell_force (self):
         '''Force that neutralizes the flange tilt (DZ_gap,incl).
 
-        This solves equation G.66 of ref. [2] in closed form and converts the
-        resulting moment into a shell force with equation G.69.
+        This converts the moment M_tilt of equation G.66 of ref. [2] into a
+        shell force with equation G.69.
+        '''
+        c_m=self.central_angle*(self.R - self.s/2)
+        w=2*(self.a+self.b)
+        return -self._M_tilt*c_m/(w/2+self.b)
+
+    @cached_property
+    def _M_tilt (self):
+        '''Moment M that neutralizes the flange tilt.
+
+        This solves equation G.66 of ref. [2] in closed form.
         '''
         # Calculate geometric properties
         Rm= self.R - self.s/2
-        c_m=self.central_angle*Rm
         w=2*(self.a+self.b)
 
         # Shell parameters (ref. [2], eqs. G.67 and G.68)
@@ -1593,37 +1638,40 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         c22=1/(K*n)
 
         d02=self.tilt_angle * (d11*d22-c12**2)/(c22*d11-c12**2)
-        M_tilt=d02*(self.E*w*self.t**3)/(12*Rm**2)
-        delta_Z_gap_incl=-M_tilt*c_m/(w/2+self.b)
-
-        log_data(self, M_tilt=M_tilt)
-
-        return delta_Z_gap_incl
+        return d02*(self.E*w*self.t**3)/(12*Rm**2)
 
     @cached_property
     def _early_prying_neutralization_shell_force (self):
         '''Increase of the gap closing force due to early prying at the edges (DZ_gap,c).
 
-        Evaluated according to ref. [2], eqs. G.47 and G.48.
+        Evaluated according to ref. [2], eq. G.47.
         '''
-        # Calculate geometric properties
-        Rm= self.R - self.s/2
-        c_m=self.central_angle*Rm
-        A_tg= c_m *self.t
-        I_tg = c_m * self.t**3 / 12
+        # Reduction due to early prying (ref. [2], eq. G.47)
+        return -max((self.bolt_preload-self._Fv_c) * ((3*self.a+2*self.b)*self.b**2/(2*(self.a+self.b)**3)),0)
+
+    @cached_property
+    def _A_tg (self):
+        '''Cross-section area A_tg of the flange segment, used in ref. [2], eq. G.48.'''
+        c_m=self.central_angle*(self.R - self.s/2)
+        return c_m *self.t
+
+    @cached_property
+    def _I_tg (self):
+        '''Second moment of area I_tg of the flange segment, used in ref. [2], eq. G.48.'''
+        c_m=self.central_angle*(self.R - self.s/2)
+        return c_m * self.t**3 / 12
+
+    @cached_property
+    def _Fv_c (self):
+        '''Preload force Fv_c at which edge contact occurs, according to ref. [2], eq. G.48.'''
+        c_m=self.central_angle*(self.R - self.s/2)
+        A_tg = self._A_tg
+        I_tg = self._I_tg
 
         # Initial linear gap stiffness, without the factor f_tot
         k_gap = self._k_shell + self._k_flange
 
-        # Preload force at which edge contact occurs (ref. [2], eq. G.48)
-        Fv_c=0.5*self.gap.height/( self.b**3/(3*self.E*I_tg) + self.b**2*self.a/(2*self.E*I_tg) + 1.2*self.b/(self.G*A_tg) + 1/(c_m*(k_gap)) )
-
-        # Reduction due to early prying (ref. [2], eq. G.47)
-        delta_Z_gap_c=-max((self.bolt_preload-Fv_c) * ((3*self.a+2*self.b)*self.b**2/(2*(self.a+self.b)**3)),0)
-
-        log_data(self, Fv_c=Fv_c, A_tg=A_tg, I_tg=I_tg)
-
-        return delta_Z_gap_c
+        return 0.5*self.gap.height/( self.b**3/(3*self.E*I_tg) + self.b**2*self.a/(2*self.E*I_tg) + 1.2*self.b/(self.G*A_tg) + 1/(c_m*(k_gap)) )
 
     @cached_property
     def _ideal_bolt_force_at_tensile_ULS (self):
@@ -1644,32 +1692,48 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         return _tobinaga_lever_ratio(self.a, self.b, self.t)
 
     @cached_property
+    def _L_gap (self):
+        '''Gap length L_gap, measured on the outer radius of the shell (ref. [2], eq. G.44).'''
+        return self.R * self.gap.angle
+
+    @cached_property
+    def _k_fac (self):
+        '''Factor k_fac of the initial shell stiffness, according to ref. [2], eq. G.44.'''
+        return max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (self._L_gap*1000))
+
+    @cached_property
     def _k_shell (self):
         '''Initial shell stiffness k_shell,ini, according to ref. [2], eqs. G.43 and G.44.'''
         s_avg = (self.s + self.s_ratio * self.s) / 2    # Average shell thickness
-        L_gap = self.R * self.gap.angle                 # Gap lenght measured on the outer radius of the shell
-        k_fac = max(1.8, 1.3 + (8.0e-4 - 1.6e-7 * (self.R*1000)) * (L_gap*1000))    # ref. [2], eq. G.44
         try:
-            k_shell = float(self.k_shell)
+            return float(self.k_shell)
         except Exception:
-            k_shell = self.k_shell(self) if callable(self.k_shell) else self.E * s_avg / (k_fac * L_gap)
+            return self.k_shell(self) if callable(self.k_shell) else self.E * s_avg / (self._k_fac * self._L_gap)
 
-        log_data(self, L_gap=L_gap, k_fac=k_fac, k_shell_ini=k_shell)
-        return k_shell
+    @cached_property
+    def _A_cf (self):
+        '''Longitudinal cross-section area A_cf of the flange segment, used in ref. [2], eq. G.46.'''
+        w = (self.a + self.b)*2             # flange segment length
+        return w * self.t
+
+    @cached_property
+    def _I_cf (self):
+        '''Longitudinal cross-section second moment of area I_cf of the flange segment, used in ref. [2], eq. G.46.'''
+        w = (self.a + self.b)*2             # flange segment length
+        return w * self.t**3 / 12
 
     @cached_property
     def _k_flange (self):
         '''Flange bending stiffness k_fl, according to ref. [2], eq. G.46.'''
-        L_gap = self.R * self.gap.angle     # Gap lenght measured on the outer radius of the shell
-        w = (self.a + self.b)*2             # flange segment length
-        A = w * self.t                      # flange segment longitudinal cross-section area
-        I = w * self.t**3 / 12              # flange segment longitudinal corss-section second moment of area
-        EI = self.E * I
-        GA = self.G * A
-        L2 = L_gap**2
-        k_flange = 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [2], eq. G.46
-        log_data(self, A_cf=A, I_cf=I, k_fl=k_flange)
-        return k_flange
+        EI = self.E * self._I_cf
+        GA = self.G * self._A_cf
+        L2 = self._L_gap**2
+        return 384 * EI * GA / (L2 * (GA*L2 + 48*EI))   # ref. [2], eq. G.46
+
+    @cached_property
+    def _f_tot (self):
+        '''Gap stiffness correction factor f_tot, according to ref. [2], eq. G.42.'''
+        return min(1.0 + 1.5 * self.gap.angle/(pi/2), 2.5)
 
     @cached_property
     def _gap_stiffness (self):
@@ -1678,12 +1742,20 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         Returns the gap stiffness as a spring constant per unit of flange-segment
         arc length, calculated according to ref. [2], eqs. G.41 and G.42.
         '''
-        f_tot = min(1.0 + 1.5 * self.gap.angle/(pi/2), 2.5)
-
-        log_data(self, f_tot=f_tot)
-
         # Total gap stiffness according to ref. [2], eq. G.41
-        return f_tot * (self._k_shell + self._k_flange)
+        return self._f_tot * (self._k_shell + self._k_flange)
+
+    @cached_property
+    def _u (self):
+        '''Displacement u in the ultimate prying state, according to ref. [2], eq. G.52.'''
+        Fs0 = self._ideal_bolt_force_at_tensile_ULS
+        return (Fs0 - self.bolt_preload) / (2*self._bolt_axial_stiffness)
+
+    @cached_property
+    def _k_seg (self):
+        '''Segment stiffness k_seg, according to ref. [2], eq. G.50.'''
+        cm=self.central_angle*(self.R - self.s/2)
+        return self._ideal_shell_force_at_tensile_ULS / (self._u * cm)
 
     @cached_property
     def _stiffness_correction_factor (self):
@@ -1692,26 +1764,8 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
         This factor modifies the segment force to account for the effect of
         the gap spring, evaluated according to ref. [2], eqs. G.49, G.50 and G.52.
         '''
-
-        from math import pi
-
-        Rm= self.R - self.s/2
-        cm=self.central_angle*Rm
-
-        # Retrieve point 0
-        Z0 = self._ideal_shell_force_at_tensile_ULS
-        Fs0 = self._ideal_bolt_force_at_tensile_ULS
-
-        # Evaluate the displacement u in the ultimate prying state (ref. [2], eq. G.52)
-        u = (Fs0 - self.bolt_preload) / (2*self._bolt_axial_stiffness)
-
-        # Evaluate the segment stiffness (ref. [2], eq. G.50)
-        k_seg = Z0 / (u * cm)
-
-        log_data(self, u=u, k_seg=k_seg)
-
         # Return the stiffness correction factor, acc. ref. [2], eq. G.49
-        return min(1 + self._gap_stiffness / k_seg,
+        return min(1 + self._gap_stiffness / self._k_seg,
                    4 * pi/3 / self.gap.angle)
 
     @cached_property
@@ -1770,6 +1824,11 @@ class PolynomialTFlangeSegmentED2 (PolynomialTFlangeSegment):
     '''
 
     @cached_property
+    def _f_tot (self):
+        '''Gap stiffness correction factor f_tot, as modified in IEC 61400-6 ED2 (ref. [5], section 9.7, change #2).'''
+        return min(1.4 + 0.6 * self.gap.angle/(pi/2), 2.0)
+
+    @cached_property
     def _gap_stiffness (self):
         '''Stiffness of the design gap.
 
@@ -1777,12 +1836,8 @@ class PolynomialTFlangeSegmentED2 (PolynomialTFlangeSegment):
         arc length, as it will be modified in IEC 61400-6 ED2 (ref. [5], section 9.7,
         change #2): the factor f_tot only applies to the shell stiffness.
         '''
-        f_tot = min(1.4 + 0.6 * self.gap.angle/(pi/2), 2.0)
-
-        log_data(self, f_tot=f_tot)
-
         # Total gap stiffness according to ref. [5], section 9.7
-        return f_tot * self._k_shell + self._k_flange
+        return self._f_tot * self._k_shell + self._k_flange
 
 
 
@@ -1791,7 +1846,7 @@ def _tobinaga_lever_ratio (a, b, t):
     '''Lever ratio (a' + b) / a' of a flange segment, according to ref. [2], section G.1.3.
 
     The equivalent flange inner length a' is evaluated with the action point
-    correction of Tobinaga & Ishihara (ref. [9], ref. [2], eqs. G.12 to G.15).
+    correction of Tobinaga & Ishihara (ref. [6]; ref. [2], eqs. G.12 to G.15).
     The correction is only applied within the validity range of ref. [2],
     eqs. G.16 and G.17: outside that range a' = a is used, and a warning is
     logged when 1.25 < a/b.
@@ -1875,7 +1930,13 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
     forces acting on the flange segment, and then into minimum and maximum bolt
     stresses through the transfer functions of the flange segment. The bolt
     stress is the sum of the axial stress and of the bending stress scaled by
-    `bending_factor`, evaluated on the bolt thread cross-section.
+    `bending_factor`, evaluated on the bolt thread cross-section, according
+    to ref. [2], section 6.7.5.4, eq. (42).
+
+    The flange bending moment M is converted into the segment shell force
+    as Z = M / W * A_seg (ref. [2], eq. G.33), where W is the section modulus
+    of the tower shell, evaluated at the shell mid-surface, and A_seg the
+    shell cross-section area of the segment.
 
     Args:
         fseg (PolynomialFlangeSegment): The flange segment containing the
@@ -1884,9 +1945,11 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
         flange_markov_matrix (pyflange.fatigue.MarkovMatrix): The Markov
             matrix of bending moments on the flange.
         bending_factor (float, optional): Factor for the bending portion of the total
-            stress range. Defaults to 0.0 (axial stress only).
-        macro_geometric_factor (float, optional): Factor for macro geometric influences,
-            affecting dead weight, mean, and range values. If omitted, it defaults to 1.0.
+            stress range (kappa_b of ref. [2], eq. (43)). Defaults to 0.0
+            (axial stress only).
+        macro_geometric_factor (float, optional): Factor for macro geometric influences
+            (the SCF of ref. [2], section 6.7.5.3), affecting dead weight, mean,
+            and range values. If omitted, it defaults to 1.0.
         mean_factor (float, optional): Factor for the mean values of the tower's
             bending moments. If omitted, it defaults to 1.0.
         range_factor (float, optional): Factor for the range of the tower's bending
@@ -1930,9 +1993,21 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
 def shell_stiffness (shell_radius, shell_thickness, gap_angle):
     '''Calculates the axial stiffness of a flange-segment shell via interpolation.
 
-    This function interpolates shell stiffness from a dataset of 2160 FEA results.
+    This function interpolates shell stiffness from a dataset of 2160 FEA results,
+    covering 8 diameters (3 m to 10 m), 15 shell thicknesses (10 mm to 150 mm)
+    and 18 gap angles (10° to 180°). This is the database of pre-computed
+    stiffness values described in ref. [5], section 9.3.1, as an alternative
+    to the simplified formula of ref. [2], eqs. G.43 and G.44.
     Values outside the range covered by the dataset are not extrapolated, and
     `nan` is returned instead.
+
+    Example:
+        ```python
+        from math import pi
+        from pyflange.flangesegments import shell_stiffness
+
+        k_shell = shell_stiffness(4.0, 0.054, pi/6)   # R = 4 m, s = 54 mm, 30° gap
+        ```
 
     Args:
         shell_radius (float): Outer radius of the shell.

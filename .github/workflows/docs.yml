@@ -1,0 +1,85 @@
+# Builds and publishes the versioned documentation website.
+#
+# The site is published by GitHub Pages from the docs/ folder of the main
+# branch (Settings > Pages > Deploy from a branch > main, /docs), with this
+# layout, managed by mike (https://github.com/jimporter/mike):
+#
+#     docs/<major.minor>/   documentation of each release, e.g. docs/0.13/
+#     docs/latest/          redirects to the newest release
+#     docs/dev/             documentation of the dev branch (unreleased)
+#     docs/versions.json    list of versions, read by the version selector
+#     docs/index.html       redirects to latest/
+#
+# - Push to main: the docs are published as version <major.minor> (from the
+#   version in pyproject.toml) and "latest" is moved to it. Docs of older
+#   versions are kept.
+# - Push to dev: the docs are published as version "dev".
+# - Pull requests: the docs are only built, to find errors before merging.
+#
+# mike commits the built site directly to the main branch and pushes it.
+
+name: Documentation
+
+on:
+  push:
+    branches: [main, dev]
+    paths-ignore: ["docs/**"]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # One deployment at a time, since all of them push to the main branch
+  group: docs-deploy
+  cancel-in-progress: false
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install PyFlange and the documentation tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install . pytest -r docsrc/requirements.txt
+
+      - name: Run the tutorial examples
+        run: python -m pytest tests/docs_test.py
+
+      - name: Build the documentation
+        run: python -m mkdocs build --strict
+
+      - name: Configure git
+        if: github.event_name != 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Publish the release documentation
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: |
+          VERSION=$(python -c "import tomllib; v = tomllib.load(open('pyproject.toml', 'rb'))['project']['version']; print('.'.join(v.split('.')[:2]))")
+          echo "Publishing the documentation of version $VERSION"
+          mike deploy --branch main --deploy-prefix docs --push \
+                      --update-aliases --alias-type redirect "$VERSION" latest
+          if ! git cat-file -e main:docs/index.html 2>/dev/null; then
+            mike set-default --branch main --deploy-prefix docs --push latest
+          fi
+
+      - name: Publish the dev documentation
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/dev'
+        run: |
+          git fetch origin main:main
+          mike deploy --branch main --deploy-prefix docs --push \
+                      --title "dev (unreleased)" dev

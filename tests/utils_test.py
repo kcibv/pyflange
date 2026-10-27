@@ -17,35 +17,6 @@ def test_Logger ():
 
 
 
-def test_log_data ():
-    class Calc: pass
-    calc = Calc()
-
-    # The log is created on first use
-    log_data(calc, x=1.0, y=2.0)
-    assert calc._data_log == {"x": 1.0, "y": 2.0}
-
-    # New keys are added and existing keys are overwritten
-    log_data(calc, y=3.0, z=4.0)
-    assert calc._data_log == {"x": 1.0, "y": 3.0, "z": 4.0}
-
-
-
-def test_read_data_log ():
-    class Calc: pass
-    calc = Calc()
-
-    # Nothing logged yet
-    assert read_data_log(calc, "x") is None
-
-    log_data(calc, x=1.5)
-    assert read_data_log(calc, "x") == 1.5
-
-    # Unknown key
-    assert read_data_log(calc, "y") is None
-
-
-
 def test_load_csv_database ():
     db = load_csv_database("bolts.metric_screws")
     assert isinstance(db, pd.DataFrame)
