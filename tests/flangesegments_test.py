@@ -527,8 +527,9 @@ class TestPolynomialLFlangeSegmentED2:
     def test_gap_stiffness (self):
         for gap_angle in (20*deg, 30*deg, 60*deg, 120*deg):
             fseg = self.fseg(gap_angle)
-            f_tot = min(1.4 + 0.6 * gap_angle/(pi/2), 2.0) * min(gap_angle/(pi/6), 1)**2
-            assert fseg._gap_stiffness == pytest.approx(f_tot * fseg._k_shell + fseg._k_flange)
+            f_red = min(gap_angle/(pi/6), 1)
+            f_tot = min(1.4 + 0.6 * gap_angle/(pi/2), 2.0) * f_red**2
+            assert fseg._gap_stiffness == pytest.approx(f_tot * fseg._k_shell + f_red**3 * fseg._k_flange)
 
     def test_parallel_gap_neutralization_shell_force (self):
         for gap_angle in (30*deg, 60*deg, 120*deg):

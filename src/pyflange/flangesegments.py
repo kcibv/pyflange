@@ -1193,7 +1193,10 @@ class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
         Returns the gap stiffness as a spring constant per unit of flange-segment
         arc length, as it will be modified in IEC 61400-6 ED2 (ref. [5], section 9.7,
         change #2): the factor f_tot only applies to the shell stiffness. As for
-        AMD1, f_tot is further reduced for gap angles smaller than 30 deg.
+        AMD1, f_tot is further reduced for gap angles smaller than 30 deg, and
+        for those angles the flange stiffness is reduced by the factor f_red^3,
+        with f_red = min(gap angle / 30 deg, 1), as in the SGRE ED2 validation
+        workbook.
         '''
         # Stiffness correction factor
         f_tot = self._f_tot
