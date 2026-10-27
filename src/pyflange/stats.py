@@ -781,14 +781,14 @@ def _shell_stiffness_interpolator (R, s):
 
 
 
-def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_CoV=0.12):
+def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_CoV=0.168):
     ''' Sampler that generates a random Markov matrix.
 
     Each realization has the same cycles, means and duration as the design
     Markov matrix, while its ranges are scaled by a single log-normally
     distributed coefficient: the fatigue load factor X_FLS of the stochastic
     model of refs. [1] (Table 7) and [5] (section 6.3.1 and Table 8), with
-    mean 1.0 and CoV 0.12. As explained in ref. [5], section 6.3.1, only the
+    mean 1.0 and CoV 0.168. As explained in ref. [5], section 6.3.1, only the
     load ranges are scaled, not the mean values.
 
     Args:
