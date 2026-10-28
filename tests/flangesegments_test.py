@@ -1158,6 +1158,12 @@ def test_shell_stiffness ():
 
 
 
+def test_average_shell_thickness ():
+    assert average_shell_thickness(0.04) == 0.04
+    assert average_shell_thickness(0.04, 1.5) == pytest.approx(0.05)
+
+
+
 def test_load_shell_stiffness_interpolator ():
     from pyflange.flangesegments import _load_shell_stiffness_interpolator
     from scipy.interpolate import LinearNDInterpolator

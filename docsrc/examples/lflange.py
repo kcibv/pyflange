@@ -29,7 +29,7 @@ Do = standard_hole_diameter("M80")      # 86 mm bolt hole
 
 # --8<-- [start:gap]
 from pyflange.stats import gap_height_distribution
-from pyflange.flangesegments import Gap, shell_stiffness
+from pyflange.flangesegments import Gap, shell_stiffness, average_shell_thickness
 
 D = 8000*mm                 # flange (tower) outer diameter
 u_tol = 1.4*mm / 1.0        # flatness tolerance: 1.4 mm/m
@@ -48,6 +48,7 @@ from pyflange.flangesegments import PolynomialLFlangeSegment
 n_bolts = 156               # number of bolts in the flange
 R = D/2                     # shell outer radius
 s = 54*mm                   # shell thickness
+s_ratio = 1.0               # bottom shell thickness over s
 
 fseg = PolynomialLFlangeSegment(
     a = 150*mm,             # inner face of the flange to bolt axis
@@ -68,7 +69,8 @@ fseg = PolynomialLFlangeSegment(
     gap = gap,
     tilt_angle = 0.1*deg,               # inside flange inclination
 
-    k_shell = shell_stiffness(R, s, gap_angle),   # shell stiffness from FEA data
+    s_ratio = s_ratio,
+    k_shell = shell_stiffness(R, average_shell_thickness(s, s_ratio), gap_angle),   # from FEA data
     PPL = 0.05,                         # 5% preload loss due to plastic strain
     DFT = 300e-6,                       # 300 um coating thickness
     settlement_factor = 0.5)            # tension tightening with re-tightening

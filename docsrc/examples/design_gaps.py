@@ -20,12 +20,13 @@ from pyflange.fatigue import MarkovMatrix, BoltFatigueAnalysis
 D = 8000*mm                 # tower outer diameter
 R = D/2
 s = 54*mm
+s_ratio = 1.0               # bottom shell thickness over s
 u_tol = 0.0014              # flatness tolerance, 1.4 mm/m
 n_bolts = 156
 
 # Parameters shared by all the flange segments of this study
 common = dict(
-    a = 150*mm, b = 122*mm, s = s, t = 172*mm, R = R,
+    a = 150*mm, b = 122*mm, s = s, s_ratio = s_ratio, t = 172*mm, R = R,
     central_angle = 2*pi / n_bolts,
     Zg = -18044*kN / n_bolts,
     bolt = StandardMetricBolt("M80", "10.9", shank_length=160*mm,
@@ -46,8 +47,10 @@ mkvm = MarkovMatrix(
 
 
 # --8<-- [start:amd1]
-from pyflange.flangesegments import PolynomialLFlangeSegment, Gap, shell_stiffness
+from pyflange.flangesegments import PolynomialLFlangeSegment, Gap, shell_stiffness, average_shell_thickness
 from pyflange.stats import gap_height_distribution
+
+s_avg = average_shell_thickness(s, s_ratio)   # thickness for the shell stiffness database
 
 print("AMD1: design gap = 95% quantile of the log-normal distribution")
 amd1_damage = {}
@@ -56,7 +59,7 @@ for angle_deg in (30, 60, 90, 120):
     k_design = gap_height_distribution(D, u_tol, angle * D/2).ppf(0.95)
     fseg = PolynomialLFlangeSegment(**common,
                                     gap = Gap(height=k_design, angle=angle),
-                                    k_shell = shell_stiffness(R, s, angle))
+                                    k_shell = shell_stiffness(R, s_avg, angle))
     amd1_damage[angle_deg] = BoltFatigueAnalysis(fseg, mkvm).damage
     print(f"  gap angle {angle_deg:3d} deg   gap height {k_design/mm:4.2f} mm   damage {amd1_damage[angle_deg]:.3f}")
 
@@ -75,7 +78,7 @@ for angle_deg in (30, 60, 90, 120):
     k_design = gap_height_distribution_ED2(D, u_tol, angle * D/2).ppf(0.75)
     fseg = PolynomialLFlangeSegmentED2(**common,
                                        gap = Gap(height=k_design, angle=angle),
-                                       k_shell = shell_stiffness(R, s, angle))
+                                       k_shell = shell_stiffness(R, s_avg, angle))
     damage = BoltFatigueAnalysis(fseg, mkvm).damage
     print(f"  gap angle {angle_deg:3d} deg   gap height {k_design/mm:4.2f} mm   damage {damage:.3f}")
 # --8<-- [end:ed2]

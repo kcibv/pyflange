@@ -8,7 +8,21 @@ available in the [GitHub repository](https://github.com/kcibv/pyflange/commits/m
 - `PolynomialLFlangeSegmentED2` validated against the SGRE ED2 reference
   workbook (case L15, D8000 L-flange with ED2 design gap heights).
 - Validation script: without case files it runs all the cases; new options
-  `--model`, `--flange-type` and `--list`.
+  `--model`, `--flange-type` and `--list`. The L-flange segments are built
+  through `pyflange.io`, so the validation covers the JSON case code path.
+- **Fixed: interpolated shell stiffness for `s_ratio != 1`.** With
+  `"k_shell": "interp"` in a JSON case (`create_flangesegment`, the Monte
+  Carlo sampler, `create_realization`, `pyflange determ --gap-angle`) and in
+  `standard_PolynomialLFlangeSegment_sampler`, the shell stiffness is now
+  interpolated for the average thickness of the top and bottom shell,
+  `s * (1 + s_ratio) / 2`, as in the simplified formula (eqs. G.43/G.44)
+  and in the SGRE validation workbooks, instead of `s`. **This changes the
+  results whenever `s_ratio != 1`**: k<sub>shell</sub> is higher and the
+  damages differ (e.g. D 8 m, s = 37.2 mm, s_ratio = 2.15: k<sub>shell</sub>
+  at 30° from 1853 to 2942 MN/m, ED2 damage at 90°–120° up to 28 % higher).
+  Results with `s_ratio = 1` are unchanged.
+- New `flangesegments.average_shell_thickness`, the thickness to pass to
+  `shell_stiffness`.
 
 ## 0.14.0 (2026-10-23)
 

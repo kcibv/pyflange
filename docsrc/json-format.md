@@ -135,7 +135,7 @@ FlangeSegment
 | `G` | number | Pa | Shear modulus of the flange. |
 | `s_ratio` | number | - | Ratio of the bottom shell thickness over `s`. |
 | `r` | number | m | Rounding radius between flange and shell. |
-| `k_shell` | number, null or `"interp"` | N/m/m | Shell stiffness. A number is used as it is; `null` selects the simplified formula of the model; `"interp"` interpolates the value from FEA data (see `pyflange.flangesegments.shell_stiffness`) for the given `R`, `s` and gap angle. |
+| `k_shell` | number, null or `"interp"` | N/m/m | Shell stiffness. A number is used as it is; `null` selects the simplified formula of the model; `"interp"` interpolates the value from FEA data (see `pyflange.flangesegments.shell_stiffness`) for the given `R`, gap angle and average shell thickness `s * (1 + s_ratio) / 2` (the average of the top and bottom shell thickness). |
 | `PPL` | number | - | Preload loss due to plastic deformations, as a fraction of `Fv` (e.g. 0.05 for 5%). |
 | `DFT` | number | m | Dry film thickness of the coatings, used to evaluate the settlement preload losses. |
 | `settlement_factor` | number | - | Factor reducing the settlement preload losses (e.g. 1.0 for torque tightening, 0.5 for tension tightening). |

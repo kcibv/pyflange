@@ -49,7 +49,7 @@ pyflange determ case.json --gap-angle 45 --gap-height 1.5 --tilt-angle 0.2 --smf
 
 | Option | Description |
 |--------|-------------|
-| `--gap-angle` | Override of the gap angle, in **degrees**. The shell stiffness is re-interpolated for the new angle. |
+| `--gap-angle` | Override of the gap angle, in **degrees**. The shell stiffness is re-interpolated for the new angle (and the average shell thickness `s * (1 + s_ratio) / 2`). |
 | `--gap-height` | Override of the gap height, in **mm**. |
 | `--tilt-angle` | Override of the tilt angle, in **degrees**. |
 | `--smf` | Stress multiplication factor. Defaults to the case `SMF`, or 1.0. |

@@ -664,8 +664,9 @@ def standard_PolynomialLFlangeSegment_sampler (
         r (float, optional): Rounding between flange and shell. Defaults to 0.01.
         k_shell (str | float | None, optional): Custom shell stiffness.
             If `'interp'` (default), the stiffness is interpolated from the
-            tabulated FEA results, as a function of the gap angle (see
-            `pyflange.flangesegments.shell_stiffness`).
+            tabulated FEA results, as a function of the gap angle, for the
+            average thickness of the top and bottom shell, `s * (1 + s_ratio) / 2`
+            (see `pyflange.flangesegments.shell_stiffness`).
             If a number, it's used as the stiffness.
             If `None`, a simplified formula is used.
         settlement_factor (float, optional): Factor reducing the amount of bolt 
@@ -734,14 +735,14 @@ def standard_PolynomialLFlangeSegment_sampler (
     '''
 
     from math import pi
-    from .flangesegments import PolynomialLFlangeSegment
+    from .flangesegments import PolynomialLFlangeSegment, average_shell_thickness
     from .utils import reduce_to_pi
     import numpy as np
 
     segment_class = segment_class or PolynomialLFlangeSegment
 
-    # stiffness interpolaion
-    interp_shell_stiffness = _shell_stiffness_interpolator(R, s)
+    # stiffness interpolaion, for the average thickness of top and bottom shell
+    interp_shell_stiffness = _shell_stiffness_interpolator(R, average_shell_thickness(s, s_ratio))
 
     # generate random flange segments
     while True:
@@ -770,7 +771,7 @@ def standard_PolynomialLFlangeSegment_sampler (
 
 def _shell_stiffness_interpolator (R, s):
     # Returns a fast function gap_angle -> shell stiffness, for the given shell
-    # radius and thickness, by tabulating `shell_stiffness` over 1000 angles.
+    # radius and (average) thickness, by tabulating `shell_stiffness` over 1000 angles.
     # It is also used by pyflange.io to rebuild sampled segments exactly.
     import numpy as np
     from .flangesegments import shell_stiffness

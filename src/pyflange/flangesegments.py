@@ -1993,6 +1993,34 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
 
 
 
+def average_shell_thickness (s, s_ratio=1.0):
+    '''Average of the top and bottom shell thickness of a flange segment.
+
+    This is the shell thickness to pass to `shell_stiffness`, the same
+    average used by the simplified shell stiffness formula of ref. [2],
+    eqs. G.43 and G.44.
+
+    Example:
+        ```python
+        from math import pi
+        from pyflange.flangesegments import average_shell_thickness, shell_stiffness
+
+        s_avg = average_shell_thickness(0.0372, 80/37.2)   # 37.2 mm over 80 mm: 58.6 mm
+        k_shell = shell_stiffness(4.0, s_avg, pi/6)        # R = 4 m, 30° gap
+        ```
+
+    Args:
+        s (float): Thickness of the shell above the flange.
+        s_ratio (float, optional): Ratio of the bottom shell thickness over
+            `s`. Defaults to 1.0.
+
+    Returns:
+        float: The average shell thickness `s * (1 + s_ratio) / 2`.
+    '''
+    return s * (1 + s_ratio) / 2
+
+
+
 def shell_stiffness (shell_radius, shell_thickness, gap_angle):
     '''Calculates the axial stiffness of a flange-segment shell via interpolation.
 
@@ -2004,17 +2032,23 @@ def shell_stiffness (shell_radius, shell_thickness, gap_angle):
     Values outside the range covered by the dataset are not extrapolated, and
     `nan` is returned instead.
 
+    The shell thickness to pass is the average of the top and bottom shell
+    thickness of the flange segment, `s * (1 + s_ratio) / 2` (see
+    `average_shell_thickness`), as in the simplified formula: passing `s`
+    underestimates the stiffness when `s_ratio > 1`.
+
     Example:
         ```python
         from math import pi
         from pyflange.flangesegments import shell_stiffness
 
-        k_shell = shell_stiffness(4.0, 0.054, pi/6)   # R = 4 m, s = 54 mm, 30° gap
+        k_shell = shell_stiffness(4.0, 0.054, pi/6)   # R = 4 m, s_avg = 54 mm, 30° gap
         ```
 
     Args:
         shell_radius (float): Outer radius of the shell.
-        shell_thickness (float): Thickness of the shell.
+        shell_thickness (float): Average thickness of the top and bottom
+            shell (see `average_shell_thickness`).
         gap_angle (float): Angular length of the flange gap in radians.
 
     Returns:

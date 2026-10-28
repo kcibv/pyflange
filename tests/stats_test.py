@@ -1,6 +1,6 @@
 import pytest
 import pyflange.stats as stats
-from pyflange.flangesegments import Gap, PolynomialLFlangeSegment, shell_stiffness
+from pyflange.flangesegments import Gap, PolynomialLFlangeSegment, shell_stiffness, average_shell_thickness
 from pyflange.fatigue import MarkovMatrix, BoltFatigueCurve, BoltFatigueAnalysis
 from pyflange.bolts import MetricBolt, HexNut
 from math import pi, gamma
@@ -245,7 +245,10 @@ def test_standard_PolynomialLFlangeSegment_sampler ():
     assert isinstance(fseg, PolynomialLFlangeSegment)
     assert fseg.gap is gap
     assert fseg.tilt_angle == pytest.approx(0.5*deg)    # reduced to [0, pi]
-    assert fseg.k_shell == pytest.approx(shell_stiffness(params['R'], params['s'], gap.angle), rel=1e-2)
+    # Interpolated for the average thickness of the top and bottom shell (s_ratio = 100/72)
+    s_avg = average_shell_thickness(params['s'], params['s_ratio'])
+    assert fseg.k_shell == pytest.approx(shell_stiffness(params['R'], s_avg, gap.angle), rel=1e-2)
+    assert fseg.k_shell > 1.1 * shell_stiffness(params['R'], params['s'], gap.angle)
 
     # The preload losses are already included in the sampled preload
     assert fseg.PPL == 0

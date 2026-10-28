@@ -282,6 +282,10 @@ def create_flangesegment(**params):
     The bolt preload is given either as `preload_ratio` (fraction of the bolt
     tensile yield force, `As * fy`) or as an absolute force `Fv`, but not both.
 
+    With `k_shell = "interp"`, the shell stiffness is interpolated from the
+    FEA database (`pyflange.flangesegments.shell_stiffness`) for the average
+    thickness of the top and bottom shell, `s * (1 + s_ratio) / 2`.
+
     Args:
         **params (Any): Flange segment parameters. Expected keys are 'a', 'b', 's',
             't', 'R', 'central_angle', 'Zg', 'bolt', 'preload_ratio' or 'Fv',
@@ -298,7 +302,7 @@ def create_flangesegment(**params):
         ValueError: If an unsupported type is provided, or if the preload is
             not specified exactly once.
     """
-    from .flangesegments import Gap, shell_stiffness
+    from .flangesegments import Gap, shell_stiffness, average_shell_thickness
 
     segment_class = _flangesegment_class(params.get('type', DEFAULT_FLANGE_SEGMENT_TYPE))
     gap = Gap(**params['gap'])
@@ -312,10 +316,12 @@ def create_flangesegment(**params):
     else:
         Fv = params['preload_ratio'] * bolt.thread_cross_section.area * bolt.yield_stress
 
-    # Shell stiffness: value, None (simplified formula) or "interp"
+    # Shell stiffness: value, None (simplified formula) or "interp" (for the
+    # average thickness of the top and bottom shell)
     k_shell = params['k_shell']
     if k_shell == "interp":
-        k_shell = float(shell_stiffness(params['R'], params['s'], gap.angle))
+        s_avg = average_shell_thickness(params['s'], params['s_ratio'])
+        k_shell = float(shell_stiffness(params['R'], s_avg, gap.angle))
 
     return segment_class(
         a = params['a'],
@@ -739,6 +745,7 @@ def create_realization(data, record):
         pyflange.fatigue.BoltFatigueAnalysis: The rebuilt fatigue case.
     """
     from .fatigue import BoltFatigueAnalysis, DoubleSlopeFatigueCurve
+    from .flangesegments import average_shell_thickness
     from .stats import _shell_stiffness_interpolator
 
     data = upgrade_case(data)
@@ -758,7 +765,8 @@ def create_realization(data, record):
         'shape_factor': float(record['GapShapeFactor'])
     }
     fseg_params['tilt_angle'] = float(record['TiltAngle'])
-    fseg_params['k_shell'] = float(_shell_stiffness_interpolator(fseg_params['R'], fseg_params['s'])(gap_angle))
+    s_avg = average_shell_thickness(fseg_params['s'], fseg_params['s_ratio'])
+    fseg_params['k_shell'] = float(_shell_stiffness_interpolator(fseg_params['R'], s_avg)(gap_angle))
 
     # Sampled loads and bolt S-N curve (FatigueClass is the knee-point stress range)
     mkvm_params = data['MarkovMatrix']

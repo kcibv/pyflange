@@ -13,7 +13,11 @@ height is the `gap.fractile` quantile of the gap height distribution selected
 by the optional `gap.distribution` key: `"AMD1"` (default, log-normal,
 `gap_height_distribution`) or `"ED2"` (Weibull, `gap_height_distribution_ED2`).
 The optional `fatigue.gamma_M` key sets the material safety factor of the bolt
-S-N curve (default 1.1).
+S-N curve (default 1.1). The L-flange segments are built through
+`pyflange.io.create_flangesegment` (with `k_shell = "interp"` for the
+interpolated shell stiffness), so that the validation covers the code path of
+the JSON cases; the T-flange segments, not supported by `pyflange.io`, are
+built directly.
 
 A quantity passes when its relative mismatch `(pyflange - sgre) / |sgre|` does
 not exceed the allowable mismatch in absolute value. The allowable mismatch is
@@ -63,10 +67,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), "src"))
 
 from pyflange.flangesegments import (PolynomialLFlangeSegment, PolynomialTFlangeSegment,
                                      PolynomialLFlangeSegmentED2, PolynomialTFlangeSegmentED2,
-                                     Gap, shell_stiffness, bolt_markov_matrix)
+                                     Gap, shell_stiffness, average_shell_thickness,
+                                     bolt_markov_matrix)
 from pyflange.bolts import MetricBolt, HexNut, FlatWasher
 from pyflange.fatigue import MarkovMatrix, BoltFatigueCurve, BoltFatigueAnalysis
 from pyflange.stats import gap_height_distribution, gap_height_distribution_ED2
+import pyflange.io
 
 
 # Units of measurement
@@ -126,7 +132,7 @@ def create_flange_segment (case, gap_angle):
               shape_factor = case["gap"]["shape_factor"])
 
     if case["shell_stiffness"] == "interpolated":
-        k_shell = float(shell_stiffness(R, seg["s"] * (1 + seg["s_ratio"]) / 2, gap_angle))
+        k_shell = float(shell_stiffness(R, average_shell_thickness(seg["s"], seg["s_ratio"]), gap_angle))
     elif case["shell_stiffness"] == "simplified":
         k_shell = None
     else:
@@ -150,6 +156,16 @@ def create_flange_segment (case, gap_angle):
         tilt_angle = case["tilt_angle_deg"] * deg,
         s_ratio = seg["s_ratio"],
         k_shell = k_shell)
+
+    # L-flanges: rebuild the segment from its JSON case dictionary, as the
+    # production code does
+    if seg["flange_type"] == "L":
+        params = pyflange.io.flangesegment_to_dict(fseg)
+        del params["preload_ratio"]
+        params["Fv"] = fseg.Fv
+        if case["shell_stiffness"] == "interpolated":
+            params["k_shell"] = "interp"
+        fseg = pyflange.io.create_flangesegment(**params)
 
     return fseg, gap_dist
 

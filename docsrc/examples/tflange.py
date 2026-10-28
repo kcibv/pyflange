@@ -16,12 +16,13 @@ deg = pi/180    # rad
 
 # --8<-- [start:segment]
 from pyflange.bolts import StandardMetricBolt, ISOHexNut, standard_hole_diameter
-from pyflange.flangesegments import PolynomialTFlangeSegment, Gap, shell_stiffness
+from pyflange.flangesegments import PolynomialTFlangeSegment, Gap, shell_stiffness, average_shell_thickness
 from pyflange.stats import gap_height_distribution
 
 D = 7500*mm                 # tower outer diameter
 n_pairs = 200               # number of bolt pairs (one inside and one outside the shell)
 s = 90*mm                   # shell thickness
+s_ratio = 1.0               # bottom shell thickness over s
 
 gap_angle = 30*deg
 gap_dist = gap_height_distribution(D, 0.0014, gap_angle * D/2)
@@ -46,7 +47,8 @@ fseg = PolynomialTFlangeSegment(
     gap = Gap(height = gap_dist.ppf(0.95), angle = gap_angle),
     tilt_angle = 0.0,       # required: no taper effect for this flange
 
-    k_shell = shell_stiffness(D/2, s, gap_angle))
+    s_ratio = s_ratio,
+    k_shell = shell_stiffness(D/2, average_shell_thickness(s, s_ratio), gap_angle))
 # --8<-- [end:segment]
 
 

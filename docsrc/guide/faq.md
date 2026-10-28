@@ -38,8 +38,12 @@
 ??? question "Which shell stiffness should I use?"
     By default (`k_shell=None`) the simplified formula of ref. [2], eq. G.43
     is used, which is conservative. A better estimate is the FEA database
-    of ref. [5], 9.3.1: pass `k_shell=shell_stiffness(R, s, gap_angle)`, or
-    `"k_shell": "interp"` in a JSON case. The database covers diameters of 3
+    of ref. [5], 9.3.1: pass
+    `k_shell=shell_stiffness(R, average_shell_thickness(s, s_ratio), gap_angle)`,
+    or `"k_shell": "interp"` in a JSON case. The thickness to pass is the
+    average of the top and bottom shell thickness, as in the simplified
+    formula; with `s` alone the stiffness is underestimated when
+    `s_ratio > 1`. The database covers diameters of 3
     to 10 m, shell thicknesses of 10 to 150 mm and gap angles of 10° to 180°;
     outside this range `shell_stiffness` returns `nan`.
 
