@@ -102,12 +102,15 @@ The *Publish to PyPI* workflow publishes the package on
 
 1. set `version = "0.14.0"` in `pyproject.toml`, date the release in
    `docsrc/changelog.md` and merge into `main`;
-2. on `main`, run the tests and build the package locally:
+2. on `main`, run the tests and build the package locally (`dist/` is
+   not committed: the workflow builds the packages it publishes from the
+   tag, the local build only checks that they build cleanly):
 
     ```doscon
     py -m pytest
+    rmdir /s /q dist
     py -m build
-    py -m twine check --strict dist/pyflange-0.14.0*
+    py -m twine check --strict dist/*
     ```
 
 3. push `main`, then tag the merged commit and push the tag:
