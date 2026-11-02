@@ -269,7 +269,7 @@ Random variables are described by *distribution objects*, selected by the
     "DFT":                { "Distribution": "Normal", "Mean": 250e-6, "CoV": 0.12 },
     "Gap":                { "JointDistribution": "IEC 61400-6:2020 AMD1", ... },
     "Tilt":               { "Distribution": "LogNormal", "Mean": 0.001745, "CoV": 0.5 },
-    "LoadRangeFactor":    { "Distribution": "LogNormal", "Mean": 1.0, "CoV": 0.12 },
+    "LoadRangeFactor":    { "Distribution": "LogNormal", "Mean": 1.0, "CoV": 0.168 },
     "FatigueClassFactor": { "Distribution": "Normal", "Mean": 1.0, "CoV": 0.10, "DS_ref_mean": 62e6 },
     "AllowableDamage":    { "Distribution": "LogNormal", "Mean": 1.0, "CoV": 0.30 },
     "StressMultiplicationFactor": { "Distribution": "Product", "Dist1": { ... }, "Dist2": { ... } }

@@ -30,7 +30,7 @@ deterministic data, it contains a `Stats` section with the random variables:
         "ShapeFactor": { "Distribution": "Normal", "Mean": 1.0, "CoV": 0.15 }
     },
     "Tilt":               { "Distribution": "LogNormal", "Mean": 0.001745, "CoV": 0.5 },
-    "LoadRangeFactor":    { "Distribution": "LogNormal", "Mean": 1.0, "CoV": 0.12 },
+    "LoadRangeFactor":    { "Distribution": "LogNormal", "Mean": 1.0, "CoV": 0.168 },
     "FatigueClassFactor": { "Distribution": "Normal", "Mean": 1.0, "CoV": 0.10, "DS_ref_mean": 62e6 },
     "AllowableDamage":    { "Distribution": "LogNormal", "Mean": 1.0, "CoV": 0.30 },
     "StressMultiplicationFactor": { ... }
@@ -77,8 +77,8 @@ C:\Users\yourname\flange-analyses>py -m pyflange stats fatigue-case-sample.csv
 ... ... BoltPreload             2.741725e+06  2.812730e+06  2.861887e+06  2.908429e+06  3.044514e+06  2.906781e+04  0.010157
 ... ... GapAngle                3.637145e-02  3.154774e-01  1.235215e+00  2.712764e+00  3.131882e+00  7.338239e-01  0.594086
 ... ... GapHeight               1.509402e-08  3.809575e-05  1.148028e-03  3.626949e-03  9.676416e-03  1.224387e-03  1.066514
-... ... Damage                  1.453893e-03  8.273311e-03  1.175896e-01  3.978284e-01  1.148680e+01  3.077050e-01  2.616772
-... ... Utilization             8.771545e-04  8.206894e-03  1.296999e-01  4.197863e-01  1.498221e+01  3.874562e-01  2.987328
+... ... Damage                  6.659651e-04  5.634207e-03  1.393092e-01  5.048274e-01  1.989381e+01  4.972546e-01  3.569431
+... ... Utilization             4.017863e-04  6.051023e-03  1.542847e-01  5.398973e-01  2.594745e+01  6.338361e-01  4.108223
 
 ... ... sample size: 2000
 ```
@@ -88,11 +88,11 @@ radians, gap heights in m, preloads in N.
 
 To compute other statistics, open the CSV file in Excel or in Python. For
 example, the fraction of realizations with `Utilization > 1` estimates the
-probability of failure; in this sample it is 16 out of 2000 (0.8%).
+probability of failure; in this sample it is 32 out of 2000 (1.6%).
 
 ## 4. Inspect a realization
 
-The largest utilization of the sample, about 15, belongs to realization 928.
+The largest utilization of the sample, about 26, belongs to realization 928.
 To see why, rebuild it and write its complete report, as `determ` does for
 the deterministic case:
 

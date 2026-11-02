@@ -3,7 +3,7 @@
 The notable changes of each PyFlange version. The complete history is
 available in the [GitHub repository](https://github.com/kcibv/pyflange/commits/main).
 
-## 0.14.1 (unreleased)
+## 0.15.0 (2026-11-02)
 
 - `PolynomialLFlangeSegmentED2` validated against the SGRE ED2 reference
   workbook (case L15, D8000 L-flange with ED2 design gap heights).
@@ -23,6 +23,11 @@ available in the [GitHub repository](https://github.com/kcibv/pyflange/commits/m
   Results with `s_ratio = 1` are unchanged.
 - New `flangesegments.average_shell_thickness`, the thickness to pass to
   `shell_stiffness`.
+- `stats.standard_markov_matrix_sampler`: the default CoV of the load range
+  factor X<sub>FLS</sub> is now 0.168 instead of 0.12 (refs. [1], Table 7,
+  and [5], Table 8). Calls passing `range_CoV` explicitly and JSON cases
+  (which always give the `LoadRangeFactor` CoV) are unchanged. The example
+  case `fatigue-case.json` and the Monte Carlo tutorials now use 0.168 too.
 
 ## 0.14.0 (2026-10-23)
 

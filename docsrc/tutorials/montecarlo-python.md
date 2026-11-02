@@ -77,7 +77,7 @@ The four samplers are combined into a sampler of complete fatigue analyses:
 ```
 
 ```
-One realization: gap angle 46 deg, gap height 0.19 mm, damage 0.0397
+One realization: gap angle 46 deg, gap height 0.19 mm, damage 0.0289
 ```
 
 Each realization is a [`BoltFatigueAnalysis`][pyflange.fatigue.BoltFatigueAnalysis]:
@@ -106,16 +106,16 @@ table:
 GapAngle         2000.0  1.236226e+00      0.723843  6.096265e-02  2.983545e-01  1.087546e+00  2.675680e+00  3.140577e+00
 GapHeight        2000.0  1.143269e-03      0.001238  9.070261e-08  4.384932e-05  7.442454e-04  3.596016e-03  1.128285e-02
 BoltPreload      2000.0  2.732521e+06  27989.062233  2.600771e+06  2.688598e+06  2.732288e+06  2.777531e+06  2.916772e+06
-Damage           2000.0  1.432734e-01      0.231241  1.589216e-03  1.232016e-02  7.530805e-02  4.771642e-01  4.232725e+00
+Damage           2000.0  1.687801e-01      0.325536  1.064036e-03  9.191024e-03  7.350302e-02  6.188371e-01  6.291572e+00
 AllowableDamage  2000.0  9.917610e-01      0.294008  2.884288e-01  5.983693e-01  9.423795e-01  1.534146e+00  2.654757e+00
-FatigueLife      2000.0  7.505789e+02   1285.993299  8.399722e+00  5.808260e+01  3.838157e+02  2.471174e+03  2.216393e+04
-Probability of failure over 30 years: 1.55e-02
+FatigueLife      2000.0  9.610687e+02   2078.438532  4.435604e+00  4.375475e+01  3.860122e+02  3.360051e+03  3.976499e+04
+Probability of failure over 30 years: 2.55e-02
 ```
 
 !!! warning "Sample size"
     With 2000 realizations the estimate of a small probability is very
-    uncertain: 31 failures out of 2000 give a coefficient of variation of
-    about 18% on the estimate. For a target probability of failure of
+    uncertain: 51 failures out of 2000 give a coefficient of variation of
+    about 14% on the estimate. For a target probability of failure of
     10<sup>-4</sup>, use at least 10<sup>6</sup> realizations, or a
     variance reduction technique.
 

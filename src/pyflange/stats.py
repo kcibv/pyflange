@@ -799,7 +799,7 @@ def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_C
             multiplying the load ranges of *markov_matrix*, assumed
             log-normally distributed. Defaults to 1.0.
         range_CoV (float, optional): The coefficient of variation of the
-            coefficient multiplying the load ranges. Defaults to 0.12.
+            coefficient multiplying the load ranges. Defaults to 0.168.
 
     Yields:
         pyflange.fatigue.MarkovMatrix: A random Markov matrix.
