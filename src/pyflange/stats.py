@@ -664,8 +664,9 @@ def standard_PolynomialLFlangeSegment_sampler (
         r (float, optional): Rounding between flange and shell. Defaults to 0.01.
         k_shell (str | float | None, optional): Custom shell stiffness.
             If `'interp'` (default), the stiffness is interpolated from the
-            tabulated FEA results, as a function of the gap angle (see
-            `pyflange.flangesegments.shell_stiffness`).
+            tabulated FEA results, as a function of the gap angle, for the
+            average thickness of the top and bottom shell, `s * (1 + s_ratio) / 2`
+            (see `pyflange.flangesegments.shell_stiffness`).
             If a number, it's used as the stiffness.
             If `None`, a simplified formula is used.
         settlement_factor (float, optional): Factor reducing the amount of bolt 
@@ -734,14 +735,14 @@ def standard_PolynomialLFlangeSegment_sampler (
     '''
 
     from math import pi
-    from .flangesegments import PolynomialLFlangeSegment
+    from .flangesegments import PolynomialLFlangeSegment, average_shell_thickness
     from .utils import reduce_to_pi
     import numpy as np
 
     segment_class = segment_class or PolynomialLFlangeSegment
 
-    # stiffness interpolaion
-    interp_shell_stiffness = _shell_stiffness_interpolator(R, s)
+    # stiffness interpolaion, for the average thickness of top and bottom shell
+    interp_shell_stiffness = _shell_stiffness_interpolator(R, average_shell_thickness(s, s_ratio))
 
     # generate random flange segments
     while True:
@@ -770,7 +771,7 @@ def standard_PolynomialLFlangeSegment_sampler (
 
 def _shell_stiffness_interpolator (R, s):
     # Returns a fast function gap_angle -> shell stiffness, for the given shell
-    # radius and thickness, by tabulating `shell_stiffness` over 1000 angles.
+    # radius and (average) thickness, by tabulating `shell_stiffness` over 1000 angles.
     # It is also used by pyflange.io to rebuild sampled segments exactly.
     import numpy as np
     from .flangesegments import shell_stiffness
@@ -781,14 +782,14 @@ def _shell_stiffness_interpolator (R, s):
 
 
 
-def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_CoV=0.12):
+def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_CoV=0.168):
     ''' Sampler that generates a random Markov matrix.
 
     Each realization has the same cycles, means and duration as the design
     Markov matrix, while its ranges are scaled by a single log-normally
     distributed coefficient: the fatigue load factor X_FLS of the stochastic
     model of refs. [1] (Table 7) and [5] (section 6.3.1 and Table 8), with
-    mean 1.0 and CoV 0.12. As explained in ref. [5], section 6.3.1, only the
+    mean 1.0 and CoV 0.168. As explained in ref. [5], section 6.3.1, only the
     load ranges are scaled, not the mean values.
 
     Args:
@@ -798,7 +799,7 @@ def standard_markov_matrix_sampler (markov_matrix, mean_range_coeff=1.0, range_C
             multiplying the load ranges of *markov_matrix*, assumed
             log-normally distributed. Defaults to 1.0.
         range_CoV (float, optional): The coefficient of variation of the
-            coefficient multiplying the load ranges. Defaults to 0.12.
+            coefficient multiplying the load ranges. Defaults to 0.168.
 
     Yields:
         pyflange.fatigue.MarkovMatrix: A random Markov matrix.

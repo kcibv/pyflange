@@ -10,7 +10,8 @@ import openpyxl
 
 import pyflange.io as io
 from pyflange.bolts import StandardMetricBolt, ISOFlatWasher, ISOHexNut, RoundNut, MetricBolt, FlatWasher, HexNut, standard_hole_diameter
-from pyflange.flangesegments import PolynomialLFlangeSegment, PolynomialLFlangeSegmentED2, Gap, shell_stiffness
+from pyflange.flangesegments import (PolynomialLFlangeSegment, PolynomialLFlangeSegmentED2, Gap,
+                                     shell_stiffness, average_shell_thickness)
 from pyflange.fatigue import (MarkovMatrix, BoltFatigueCurve, SingleSlopeFatigueCurve,
                               DoubleSlopeFatigueCurve, BoltFatigueAnalysis)
 
@@ -185,13 +186,24 @@ class TestCreateFlangeSegment:
     def test_shell_stiffness (self, case):
         params = case['FlangeSegment']
         fseg = io.create_flangesegment(**params)
-        assert fseg.k_shell == pytest.approx(float(shell_stiffness(params['R'], params['s'], params['gap']['angle'])))
+        s_avg = average_shell_thickness(params['s'], params['s_ratio'])
+        assert fseg.k_shell == pytest.approx(float(shell_stiffness(params['R'], s_avg, params['gap']['angle'])))
 
         params['k_shell'] = 3e9
         assert io.create_flangesegment(**params).k_shell == 3e9
 
         params['k_shell'] = None
         assert io.create_flangesegment(**params).k_shell is None
+
+    def test_shell_stiffness_average_thickness (self, case):
+        # The shell stiffness is interpolated for the average thickness of the
+        # top and bottom shell, not for s
+        params = case['FlangeSegment']
+        params['s_ratio'] = 1.5
+        fseg = io.create_flangesegment(**params)
+        R, s, angle = params['R'], params['s'], params['gap']['angle']
+        assert fseg.k_shell == pytest.approx(float(shell_stiffness(R, 1.25*s, angle)))
+        assert fseg.k_shell > 1.2 * float(shell_stiffness(R, s, angle))
 
     def test_extra_keys_ignored (self, case):
         params = case['FlangeSegment']
@@ -411,6 +423,18 @@ class TestFatigueCaseSampler:
         assert fcase.fatigue_curve.DS_ref == pytest.approx(70*MPa)
         assert fcase.fatigue_curve.gamma_M == 1.0
 
+    def test_shell_stiffness (self, case):
+        # Interpolated for the average thickness of the top and bottom shell
+        data = io.upgrade_case(case)
+        data['FlangeSegment']['s_ratio'] = 1.5
+        fseg = io.create_flangesegment(**data['FlangeSegment'])
+        mkvm = io.create_markovmatrix(**data['MarkovMatrix'])
+        samp = io.create_fatiguecase_sampler(fseg, mkvm, **data['Stats'])
+        for i in range(5):
+            sampled_fseg = next(samp).fseg
+            k_shell = shell_stiffness(fseg.R, 1.25*fseg.s, sampled_fseg.gap.angle)
+            assert sampled_fseg.k_shell == pytest.approx(k_shell, rel=1e-2)
+
 
 
 class TestMonteCarlo:
@@ -441,9 +465,11 @@ class TestMonteCarlo:
         sample = io.sample_fatiguecase(case, 3, seed=1)
         assert np.all(np.isfinite(sample.MomentRangeCoefficient))
 
-    @pytest.mark.parametrize("model", ["AMD1", "ED2", "Clayton"])
+    @pytest.mark.parametrize("model", ["AMD1", "ED2", "Clayton", "s_ratio"])
     def test_create_realization (self, case, model):
-        if model == "ED2":
+        if model == "s_ratio":
+            case['FlangeSegment']['s_ratio'] = 1.5
+        elif model == "ED2":
             case['FlangeSegment']['type'] = "PolynomialLFlangeSegmentED2"
             case['Stats']['Gap'] = {"JointDistribution": "IEC 61400-6:2020 ED2", "FlatnessTolerance": 0.0014}
         elif model == "Clayton":
@@ -458,6 +484,11 @@ class TestMonteCarlo:
             fcase = io.create_realization(case, sample.loc[i])
             assert fcase.fseg.bolt_preload == pytest.approx(sample.BoltPreload[i], rel=1e-12)
             assert fcase.damage == pytest.approx(sample.Damage[i], rel=1e-9)
+
+            # Shell stiffness interpolated for the average shell thickness
+            s_avg = average_shell_thickness(fcase.fseg.s, fcase.fseg.s_ratio)
+            k_shell = shell_stiffness(fcase.fseg.R, s_avg, fcase.fseg.gap.angle)
+            assert fcase.fseg.k_shell == pytest.approx(k_shell, rel=1e-2)
             assert fcase.fatigue_life == pytest.approx(sample.FatigueLife[i], rel=1e-9)
 
 

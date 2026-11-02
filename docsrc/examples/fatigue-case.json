@@ -101,7 +101,7 @@
         "LoadRangeFactor": {
             "Distribution": "LogNormal",
             "Mean": 1.0,
-            "CoV": 0.12
+            "CoV": 0.168
         },
         "FatigueClassFactor": {
             "Distribution": "Normal",

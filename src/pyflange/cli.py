@@ -94,11 +94,11 @@ def determ(
 
     Some of the input parameters can be overridden directly from the
     command-line. When the gap angle is overridden, the shell stiffness is
-    re-interpolated for the new angle.
+    re-interpolated for the new angle (and the average shell thickness).
     """
     from math import pi
     from .io import load_inputfile, upgrade_case, create_fatiguecase, fatiguecase_to_dict
-    from .flangesegments import shell_stiffness
+    from .flangesegments import shell_stiffness, average_shell_thickness
 
     deg = pi/180
     mm = 0.001
@@ -113,7 +113,8 @@ def determ(
 
     if gap_angle is not None:
         fseg_params['gap']['angle'] = gap_angle*deg
-        fseg_params['k_shell'] = float(shell_stiffness(fseg_params['R'], fseg_params['s'], fseg_params['gap']['angle']))
+        s_avg = average_shell_thickness(fseg_params['s'], fseg_params['s_ratio'])
+        fseg_params['k_shell'] = float(shell_stiffness(fseg_params['R'], s_avg, fseg_params['gap']['angle']))
         suffix += f"-GapA{gap_angle}deg"
 
     if gap_height is not None:

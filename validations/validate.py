@@ -6,6 +6,19 @@ every gap angle of the case, `validate` builds the corresponding PyFlange
 flange segment, evaluates the quantities listed in the case file, compares
 them with the SGRE reference values and yields the result of each comparison.
 
+The model version of a case is set by its optional `model` key: `"AMD1"`
+(default, `PolynomialLFlangeSegment` / `PolynomialTFlangeSegment`) or `"ED2"`
+(`PolynomialLFlangeSegmentED2` / `PolynomialTFlangeSegmentED2`). The design gap
+height is the `gap.fractile` quantile of the gap height distribution selected
+by the optional `gap.distribution` key: `"AMD1"` (default, log-normal,
+`gap_height_distribution`) or `"ED2"` (Weibull, `gap_height_distribution_ED2`).
+The optional `fatigue.gamma_M` key sets the material safety factor of the bolt
+S-N curve (default 1.1). The L-flange segments are built through
+`pyflange.io.create_flangesegment` (with `k_shell = "interp"` for the
+interpolated shell stiffness), so that the validation covers the code path of
+the JSON cases; the T-flange segments, not supported by `pyflange.io`, are
+built directly.
+
 A quantity passes when its relative mismatch `(pyflange - sgre) / |sgre|` does
 not exceed the allowable mismatch in absolute value. The allowable mismatch is
 `rtol` (default 1%), unless the case file overrides it in its optional
@@ -13,23 +26,32 @@ not exceed the allowable mismatch in absolute value. The allowable mismatch is
 relative tolerance or to a list of relative tolerances, one per gap angle.
 
 From the command line, the script displays the comparisons of the given case
-files and exits with code 0 if all of them pass, 1 otherwise. With `--excel`,
-the results are also exported to copies of the original SGRE validation
-workbooks (see `excel_export.py`, requires xlwings and Excel).
+files (all the cases in `validations/references/` if none is given, optionally
+filtered with `--model` and `--flange-type`) and exits with code 0 if all of
+them pass, 1 otherwise. With `--list`, it only lists the cases. With `--excel`,
+the results are also written into the PyFlange sheets of the SGRE validation
+workbooks of the cases, which are updated in place (with `--excel DIR`, into
+copies saved in DIR). See `excel_export.py`; requires xlwings and Excel.
 
 Usage:
-    py validations/validate.py PATH [PATH ...] [--rtol RTOL] [--failed] [--excel [DIR]]
+    py validations/validate.py [PATH ...] [--model {AMD1,ED2}] [--flange-type {L,T}]
+                               [--list] [--rtol RTOL] [--failed] [--excel [DIR]]
 
 Examples:
+    py validations/validate.py                               # all the cases
     py validations/validate.py validations/references/L1-interp.json
     py validations/validate.py references/L1-interp.json     # also relative to validations/
-    py validations/validate.py validations/references/*.json --failed
+    py validations/validate.py --failed
+    py validations/validate.py --model ED2                   # only the ED2 cases
+    py validations/validate.py --model AMD1 --flange-type T  # only the AMD1 T-flange cases
+    py validations/validate.py --list
     py validations/validate.py validations/references/T5-simpl.json --rtol 0.005
-    py validations/validate.py validations/references/*.json --excel
+    py validations/validate.py --model ED2 --excel
 '''
 
 import os
 import sys
+import glob
 import json
 import logging
 import argparse
@@ -38,16 +60,19 @@ from math import pi, inf
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_EXCEL_DIR = os.path.join(HERE, "results")
+REFERENCES_DIR = os.path.join(HERE, "references")
 
 # Make sure the pyflange in this repository is the one being validated
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "src"))
 
 from pyflange.flangesegments import (PolynomialLFlangeSegment, PolynomialTFlangeSegment,
-                                     Gap, shell_stiffness, bolt_markov_matrix)
+                                     PolynomialLFlangeSegmentED2, PolynomialTFlangeSegmentED2,
+                                     Gap, shell_stiffness, average_shell_thickness,
+                                     bolt_markov_matrix)
 from pyflange.bolts import MetricBolt, HexNut, FlatWasher
 from pyflange.fatigue import MarkovMatrix, BoltFatigueCurve, BoltFatigueAnalysis
-from pyflange.stats import gap_height_distribution
+from pyflange.stats import gap_height_distribution, gap_height_distribution_ED2
+import pyflange.io
 
 
 # Units of measurement
@@ -57,6 +82,18 @@ MPa = 1e6
 deg = pi/180
 
 DEFAULT_RTOL = 0.01
+
+MODELS = ("AMD1", "ED2")
+FLANGE_SEGMENT_CLASSES = {
+    ("L", "AMD1"): PolynomialLFlangeSegment,
+    ("T", "AMD1"): PolynomialTFlangeSegment,
+    ("L", "ED2"):  PolynomialLFlangeSegmentED2,
+    ("T", "ED2"):  PolynomialTFlangeSegmentED2,
+}
+GAP_HEIGHT_DISTRIBUTIONS = {
+    "AMD1": gap_height_distribution,        # log-normal, IEC 61400-6 AMD1
+    "ED2":  gap_height_distribution_ED2,    # Weibull, IEC 61400-6 ED2
+}
 
 
 
@@ -82,24 +119,26 @@ def load_markov_matrix (path):
 def create_flange_segment (case, gap_angle):
     '''Creates the flange segment of a validation case, for the given gap angle (rad).
 
-    Returns the flange segment and the gap height distribution.
+    Returns the flange segment and the distribution of the gap height, whose
+    `case["gap"]["fractile"]` quantile is the design gap height.
     '''
     seg = case["segment"]
     R = seg["D"] / 2
 
-    gap_dist = gap_height_distribution(seg["D"], case["gap"]["flatness_tolerance"], gap_angle * R)
+    distribution = GAP_HEIGHT_DISTRIBUTIONS[case["gap"].get("distribution", "AMD1")]
+    gap_dist = distribution(seg["D"], case["gap"]["flatness_tolerance"], gap_angle * R)
     gap = Gap(height = gap_dist.ppf(case["gap"]["fractile"]),
               angle = gap_angle,
               shape_factor = case["gap"]["shape_factor"])
 
     if case["shell_stiffness"] == "interpolated":
-        k_shell = float(shell_stiffness(R, seg["s"] * (1 + seg["s_ratio"]) / 2, gap_angle))
+        k_shell = float(shell_stiffness(R, average_shell_thickness(seg["s"], seg["s_ratio"]), gap_angle))
     elif case["shell_stiffness"] == "simplified":
         k_shell = None
     else:
         raise ValueError(f"Unknown shell stiffness option '{case['shell_stiffness']}'")
 
-    FlangeSegment = {"L": PolynomialLFlangeSegment, "T": PolynomialTFlangeSegment}[seg["flange_type"]]
+    FlangeSegment = FLANGE_SEGMENT_CLASSES[seg["flange_type"], case.get("model", "AMD1")]
     fseg = FlangeSegment(
         a = seg["a"],
         b = seg["b"],
@@ -118,6 +157,16 @@ def create_flange_segment (case, gap_angle):
         s_ratio = seg["s_ratio"],
         k_shell = k_shell)
 
+    # L-flanges: rebuild the segment from its JSON case dictionary, as the
+    # production code does
+    if seg["flange_type"] == "L":
+        params = pyflange.io.flangesegment_to_dict(fseg)
+        del params["preload_ratio"]
+        params["Fv"] = fseg.Fv
+        if case["shell_stiffness"] == "interpolated":
+            params["k_shell"] = "interp"
+        fseg = pyflange.io.create_flangesegment(**params)
+
     return fseg, gap_dist
 
 
@@ -126,20 +175,21 @@ def fatigue_damage (fseg, case):
     fat = case["fatigue"]
     # The Markov matrix path is relative to the case file
     flange_mkvm = load_markov_matrix(os.path.join(case["_dir"], fat["markov_matrix"]))
+    fatigue_curve = BoltFatigueCurve(fseg.bolt.nominal_diameter, gamma_M=fat.get("gamma_M", 1.1))
 
     # Markov matrix bins with zero range give a harmless division by zero in the S-N curve
     with np.errstate(divide="ignore"):
         if fat["bending_factor"] == "IEC":
-            # Standard IEC 61400-6 AMD1 analysis
+            # Standard IEC 61400-6 analysis
             if fat["mean_factor"] != 1.0 or fat["range_factor"] != 1.0:
                 raise ValueError("Mean and range factors are not supported with the 'IEC' bending factor")
-            return BoltFatigueAnalysis(fseg, flange_mkvm).damage
+            return BoltFatigueAnalysis(fseg, flange_mkvm, custom_fatigue_curve=fatigue_curve).damage
 
         bolt_mkvm = bolt_markov_matrix(fseg, flange_mkvm,
                                        bending_factor = fat["bending_factor"],
                                        mean_factor = fat["mean_factor"],
                                        range_factor = fat["range_factor"])
-        return BoltFatigueCurve(fseg.bolt.nominal_diameter).cumulated_damage(bolt_mkvm)
+        return fatigue_curve.cumulated_damage(bolt_mkvm)
 
 
 
@@ -152,6 +202,14 @@ def fatigue_damage (fseg, case):
 def evaluate_quantities (fseg, gap_dist, case):
     '''Returns a dict with the value of each quantity known to the validation.'''
     is_L = isinstance(fseg, PolynomialLFlangeSegment)
+
+    # The SGRE sheets report the mean, CoV and 95% quantile of the AMD1 log-normal
+    # gap height distribution (kmean, COVk, kdesign) also for the ED2 cases, where
+    # the gap height used (kused) is the 75% quantile of the ED2 Weibull distribution.
+    if case["gap"].get("distribution", "AMD1") == "AMD1":
+        amd1_gap_dist = gap_dist
+    else:
+        amd1_gap_dist = gap_height_distribution(2 * fseg.R, case["gap"]["flatness_tolerance"], fseg.gap.angle * fseg.R)
 
     Z1 = fseg.shell_force_at_rest
     Z4 = fseg.shell_force_at_closed_gap
@@ -175,8 +233,9 @@ def evaluate_quantities (fseg, gap_dist, case):
         "gap.angle":            fseg.gap.angle / deg,
         "gap.L":                fseg.gap.angle * fseg.R,
         "D":                    2 * fseg.R,
-        "gap.k_mean":           gap_dist.mean() / mm,
-        "gap.COV":              gap_dist.std() / gap_dist.mean(),
+        "gap.k_mean":           amd1_gap_dist.mean() / mm,
+        "gap.COV":              amd1_gap_dist.std() / amd1_gap_dist.mean(),
+        "gap.k_design":         amd1_gap_dist.ppf(0.95) / mm,
         "gap.height":           fseg.gap.height / mm,
         "Z1":                   Z1 / kN,
         "Fs1":                  fseg.bolt_force_at_rest / kN,
@@ -239,6 +298,12 @@ def evaluate_quantities (fseg, gap_dist, case):
         q["Ms_T.at_rest"] = fseg._bolt_moment(Z1, fseg.bolt_axial_force(Z1))
         q["Ms_T.at_rest+100N"] = fseg._bolt_moment(Z1 + 100, fseg.bolt_axial_force(Z1 + 100))
 
+    if isinstance(fseg, PolynomialLFlangeSegmentED2):
+        # The SGRE ED2 sheets keep kgap,tot = ftot * (kshell + kfl) and report
+        # in the kfl row the reduced flange stiffness kfl * f_red^3 / ftot that
+        # gives the ED2 gap stiffness ftot * kshell + f_red^3 * kfl.
+        q["k_fl/f_tot"] = fseg._f_red**3 * fseg._k_flange / fseg._f_tot / 1e6
+
     return q
 
 
@@ -274,6 +339,32 @@ def load_case (path):
         case = json.load(f)
     case["_dir"] = os.path.dirname(os.path.abspath(path))
     return case
+
+
+def find_cases (paths=None, model=None, flange_type=None):
+    '''Paths of the validation cases, optionally filtered by model and flange type.
+
+    Args:
+        paths (list[str] | None): Case files to select from. If empty or None,
+            all the case files in `validations/references/` are used.
+        model (str | None): If given, only the cases of this model version
+            (`"AMD1"` or `"ED2"`) are returned.
+        flange_type (str | None): If given, only the cases of this flange type
+            (`"L"` or `"T"`) are returned.
+
+    Returns:
+        list[str]: The paths of the selected case files.
+    '''
+    paths = paths or sorted(glob.glob(os.path.join(REFERENCES_DIR, "*.json")))
+    selected = []
+    for path in paths:
+        case = load_case(path)
+        if model and case.get("model", "AMD1") != model:
+            continue
+        if flange_type and case["segment"]["flange_type"] != flange_type:
+            continue
+        selected.append(path)
+    return selected
 
 
 def run_case (case, rtol=DEFAULT_RTOL):
@@ -338,6 +429,14 @@ def validate (path, rtol=DEFAULT_RTOL):
             }
 
 
+def display_path (path):
+    '''The path relative to the current directory, if possible (e.g. not on another drive).'''
+    try:
+        return os.path.relpath(path)
+    except ValueError:
+        return path
+
+
 def fmt_pct (x):
     return "inf" if x in (inf, -inf) else f"{x:+.3%}"
 
@@ -357,16 +456,23 @@ def print_comparison (c):
 def main (argv=None):
     parser = argparse.ArgumentParser(
         description="Validate PyFlange against the SGRE reference values of validation cases.")
-    parser.add_argument("paths", nargs="+", metavar="PATH",
-                        help="validation case JSON file(s), e.g. 'references/L1-interp.json'")
+    parser.add_argument("paths", nargs="*", metavar="PATH",
+                        help="validation case JSON file(s), e.g. 'references/L1-interp.json' "
+                             "(default: all the cases in validations/references/)")
+    parser.add_argument("--model", choices=MODELS,
+                        help="run only the cases of this IEC 61400-6 model version")
+    parser.add_argument("--flange-type", choices=("L", "T"),
+                        help="run only the cases of this flange type")
+    parser.add_argument("--list", action="store_true",
+                        help="list the selected cases without running them")
     parser.add_argument("--rtol", type=float, default=DEFAULT_RTOL,
                         help=f"allowable relative mismatch of the quantities without a tolerance "
                              f"in the case file (default: {DEFAULT_RTOL})")
     parser.add_argument("--failed", action="store_true",
                         help="display only the failed comparisons")
-    parser.add_argument("--excel", nargs="?", const=DEFAULT_EXCEL_DIR, metavar="DIR",
-                        help="also export the results to copies of the SGRE validation workbooks "
-                             f"in DIR (default: {os.path.relpath(DEFAULT_EXCEL_DIR)}). Requires Excel.")
+    parser.add_argument("--excel", nargs="?", const=True, default=False, metavar="DIR",
+                        help="also write the results into the SGRE validation workbooks of the cases, "
+                             "in place, or into copies saved in DIR if given. Requires Excel.")
     parser.add_argument("--show-warnings", action="store_true",
                         help="show the warnings logged by pyflange")
     args = parser.parse_args(argv)
@@ -374,8 +480,20 @@ def main (argv=None):
     if not args.show_warnings:
         logging.disable(logging.WARNING)
 
+    paths = find_cases(args.paths, args.model, args.flange_type)
+    if not paths:
+        print("No validation case selected.")
+        return 1
+
+    if args.list:
+        for path in paths:
+            case = load_case(path)
+            print(f"{case['id']:<12s} {case.get('model', 'AMD1'):<5s} {case['title']}")
+        return 0
+
+    paths = [display_path(path) for path in paths]
     summary = []
-    for path in args.paths:
+    for path in paths:
         print(f"\n{path}")
         n_total = n_failed = 0
         for c in validate(path, args.rtol):
@@ -388,9 +506,9 @@ def main (argv=None):
 
     if args.excel:
         from excel_export import ExcelExporter
-        exporter = ExcelExporter(args.excel)
+        exporter = ExcelExporter(None if args.excel is True else args.excel)
         try:
-            for path in args.paths:
+            for path in paths:
                 case = load_case(path)
                 print(f"{case['id']} exported to {exporter.export(case, run_case(case, args.rtol))}")
         finally:

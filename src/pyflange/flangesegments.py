@@ -1172,6 +1172,10 @@ class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
         # Return ED2 gap closing force
         return f_kgap * super()._parallel_gap_neutralization_shell_force
 
+    @cached_property
+    def _f_red (self):
+        return min(self.gap.angle/(pi/6), 1)
+
 
     @cached_property
     def _f_tot (self):
@@ -1179,7 +1183,7 @@ class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
 
         As for AMD1, the factor is further reduced for gap angles smaller than 30 deg.
         '''
-        return min(1.4 + 0.6 * self.gap.angle/(pi/2), 2.0) * min(self.gap.angle/(pi/6), 1)**2
+        return min(1.4 + 0.6 * self.gap.angle/(pi/2), 2.0) * self._f_red**2
 
 
     @cached_property
@@ -1189,10 +1193,17 @@ class PolynomialLFlangeSegmentED2 (PolynomialLFlangeSegment):
         Returns the gap stiffness as a spring constant per unit of flange-segment
         arc length, as it will be modified in IEC 61400-6 ED2 (ref. [5], section 9.7,
         change #2): the factor f_tot only applies to the shell stiffness. As for
-        AMD1, f_tot is further reduced for gap angles smaller than 30 deg.
+        AMD1, f_tot is further reduced for gap angles smaller than 30 deg, and
+        for those angles the flange stiffness is reduced by the factor f_red^3,
+        with f_red = min(gap angle / 30 deg, 1), as in the SGRE ED2 validation
+        workbook.
         '''
+        # Stiffness correction factor
+        f_tot = self._f_tot
+        f_flg = self._f_red**3
+
         # Total gap stiffness according to ref. [5], section 9.7
-        return self._f_tot * self._k_shell + self._k_flange
+        return f_tot * self._k_shell + f_flg * self._k_flange
 
 
 
@@ -1982,6 +1993,34 @@ def bolt_markov_matrix (fseg, flange_markov_matrix, bending_factor=0.0, macro_ge
 
 
 
+def average_shell_thickness (s, s_ratio=1.0):
+    '''Average of the top and bottom shell thickness of a flange segment.
+
+    This is the shell thickness to pass to `shell_stiffness`, the same
+    average used by the simplified shell stiffness formula of ref. [2],
+    eqs. G.43 and G.44.
+
+    Example:
+        ```python
+        from math import pi
+        from pyflange.flangesegments import average_shell_thickness, shell_stiffness
+
+        s_avg = average_shell_thickness(0.0372, 80/37.2)   # 37.2 mm over 80 mm: 58.6 mm
+        k_shell = shell_stiffness(4.0, s_avg, pi/6)        # R = 4 m, 30° gap
+        ```
+
+    Args:
+        s (float): Thickness of the shell above the flange.
+        s_ratio (float, optional): Ratio of the bottom shell thickness over
+            `s`. Defaults to 1.0.
+
+    Returns:
+        float: The average shell thickness `s * (1 + s_ratio) / 2`.
+    '''
+    return s * (1 + s_ratio) / 2
+
+
+
 def shell_stiffness (shell_radius, shell_thickness, gap_angle):
     '''Calculates the axial stiffness of a flange-segment shell via interpolation.
 
@@ -1993,17 +2032,23 @@ def shell_stiffness (shell_radius, shell_thickness, gap_angle):
     Values outside the range covered by the dataset are not extrapolated, and
     `nan` is returned instead.
 
+    The shell thickness to pass is the average of the top and bottom shell
+    thickness of the flange segment, `s * (1 + s_ratio) / 2` (see
+    `average_shell_thickness`), as in the simplified formula: passing `s`
+    underestimates the stiffness when `s_ratio > 1`.
+
     Example:
         ```python
         from math import pi
         from pyflange.flangesegments import shell_stiffness
 
-        k_shell = shell_stiffness(4.0, 0.054, pi/6)   # R = 4 m, s = 54 mm, 30° gap
+        k_shell = shell_stiffness(4.0, 0.054, pi/6)   # R = 4 m, s_avg = 54 mm, 30° gap
         ```
 
     Args:
         shell_radius (float): Outer radius of the shell.
-        shell_thickness (float): Thickness of the shell.
+        shell_thickness (float): Average thickness of the top and bottom
+            shell (see `average_shell_thickness`).
         gap_angle (float): Angular length of the flange gap in radians.
 
     Returns:

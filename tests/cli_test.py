@@ -12,6 +12,7 @@ from typer.testing import CliRunner
 
 from pyflange.cli import app
 import pyflange.io as io
+from pyflange.flangesegments import shell_stiffness
 
 EXAMPLE_CASE_PATH = os.path.join(os.path.dirname(__file__), "..", "docsrc", "examples", "fatigue-case.json")
 
@@ -62,6 +63,20 @@ class TestDeterm:
         assert res['FlangeSegment']['tilt_angle'] == pytest.approx(0.2*np.pi/180)
         assert res['SMF'] == 1.1
         assert os.path.exists(tmp_path / f"{name}.xlsx")
+
+    def test_gap_angle_shell_stiffness (self, case_path, tmp_path):
+        # The shell stiffness is re-interpolated for the average shell thickness
+        with open(case_path) as file:
+            case = json.load(file)
+        case['FlangeSegment']['s_ratio'] = 1.5
+        with open(case_path, "w") as file:
+            json.dump(case, file)
+        invoke("determ", case_path, "--odir", tmp_path, "--gap-angle", 45)
+        with open(tmp_path / "case-res-GapA45.0deg.json") as file:
+            res = json.load(file)
+        fseg = case['FlangeSegment']
+        k_shell = shell_stiffness(fseg['R'], 1.25*fseg['s'], np.pi/4)
+        assert res['FlangeSegment']['k_shell'] == pytest.approx(k_shell)
 
     def test_custom_name (self, case_path, tmp_path):
         invoke("determ", case_path, "--odir", tmp_path, "--oname", "out.json")

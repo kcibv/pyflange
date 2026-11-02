@@ -9,22 +9,16 @@ import numpy as np
 
 import os
 import sys
-import json
-import glob
 
 VALIDATIONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "validations")
 sys.path.insert(0, VALIDATIONS_DIR)
-from validate import validate
+from validate import validate, find_cases
 
 
-def validation_cases (flange_type):
-    '''Paths of the validation case files in validations/references for the given flange type ("L" or "T").'''
-    paths = []
-    for path in sorted(glob.glob(os.path.join(VALIDATIONS_DIR, "references", "*.json"))):
-        with open(path, encoding="utf-8") as f:
-            if json.load(f)["segment"]["flange_type"] == flange_type:
-                paths.append(path)
-    return paths
+def validation_cases (flange_type, model="AMD1"):
+    '''Paths of the validation case files in validations/references for the given
+    flange type ("L" or "T") and model version ("AMD1" or "ED2").'''
+    return find_cases(flange_type=flange_type, model=model)
 
 
 def check_validation_case (path):
@@ -533,8 +527,9 @@ class TestPolynomialLFlangeSegmentED2:
     def test_gap_stiffness (self):
         for gap_angle in (20*deg, 30*deg, 60*deg, 120*deg):
             fseg = self.fseg(gap_angle)
-            f_tot = min(1.4 + 0.6 * gap_angle/(pi/2), 2.0) * min(gap_angle/(pi/6), 1)**2
-            assert fseg._gap_stiffness == pytest.approx(f_tot * fseg._k_shell + fseg._k_flange)
+            f_red = min(gap_angle/(pi/6), 1)
+            f_tot = min(1.4 + 0.6 * gap_angle/(pi/2), 2.0) * f_red**2
+            assert fseg._gap_stiffness == pytest.approx(f_tot * fseg._k_shell + f_red**3 * fseg._k_flange)
 
     def test_parallel_gap_neutralization_shell_force (self):
         for gap_angle in (30*deg, 60*deg, 120*deg):
@@ -564,6 +559,10 @@ class TestPolynomialLFlangeSegmentED2:
         fseg_ed1 = TestPolynomialLFlangeSegment().fseg(30*deg)
         fseg_ed2 = self.fseg(30*deg)
         assert fseg_ed2.shell_force_at_closed_gap != pytest.approx(fseg_ed1.shell_force_at_closed_gap)
+
+    @pytest.mark.parametrize("path", validation_cases("L", "ED2"), ids=os.path.basename)
+    def test_validation_cases (self, path):
+        check_validation_case(path)
 
 
 
@@ -1156,6 +1155,12 @@ def test_shell_stiffness ():
 
     # No extrapolation outside the dataset range
     assert isnan(shell_stiffness(1000.0, 0.01, 135*deg))
+
+
+
+def test_average_shell_thickness ():
+    assert average_shell_thickness(0.04) == 0.04
+    assert average_shell_thickness(0.04, 1.5) == pytest.approx(0.05)
 
 
 

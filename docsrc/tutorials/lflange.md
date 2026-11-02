@@ -77,13 +77,16 @@ Some parameters deserve attention:
   includes all losses, leave `PPL` and `DFT` at their default value of zero.
 - **`k_shell`** is the shell stiffness. Here it is interpolated from a
   database of FEA results with
-  [`shell_stiffness`][pyflange.flangesegments.shell_stiffness]. If omitted,
+  [`shell_stiffness`][pyflange.flangesegments.shell_stiffness], for the
+  average of the top and bottom shell thickness
+  ([`average_shell_thickness`][pyflange.flangesegments.average_shell_thickness]):
+  passing `s` underestimates the stiffness when `s_ratio > 1`. If omitted,
   the simplified formula of ref. [2], eq. G.43 is used, which is
   conservative.
 - **`tilt_angle`** is the inclination of the flange contact surface. A
   positive value (inclination towards the inside) reduces the bolt forces.
-- `E`, `G`, `s_ratio` (bottom shell thickness over `s`) and `r` (fillet
-  radius) have default values; see
+- `s_ratio` (bottom shell thickness over `s`, here 1.0), `E`, `G` and `r`
+  (fillet radius) have default values; see
   [`PolynomialLFlangeSegment`][pyflange.flangesegments.PolynomialLFlangeSegment].
 
 ## 5. Check that the model is applicable
