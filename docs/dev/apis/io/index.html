@@ -2991,6 +2991,9 @@ in the PyFlange JSON format (<code>FlangeSegment</code> section), returns the
 corresponding flange segment. Only L-flange segments are supported.</p>
 <p>The bolt preload is given either as <code>preload_ratio</code> (fraction of the bolt
 tensile yield force, <code>As * fy</code>) or as an absolute force <code>Fv</code>, but not both.</p>
+<p>With <code>k_shell = "interp"</code>, the shell stiffness is interpolated from the
+FEA database (<code>pyflange.flangesegments.shell_stiffness</code>) for the average
+thickness of the top and bottom shell, <code>s * (1 + s_ratio) / 2</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>

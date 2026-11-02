@@ -1742,8 +1742,8 @@ except the gap angle, which the reference does not give.</p>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">cycles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3e8</span><span class="p">,</span> <span class="mf">1e8</span><span class="p">,</span> <span class="mf">3e7</span><span class="p">,</span> <span class="mf">8e6</span><span class="p">,</span> <span class="mf">2e6</span><span class="p">,</span> <span class="mf">5e5</span><span class="p">,</span> <span class="mf">1.5e5</span><span class="p">,</span> <span class="mf">4e4</span><span class="p">,</span> <span class="mf">8e3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">]),</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">duration</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span>
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># Load ranges scaled by X_FLS ~ LN(1.0, 0.12)</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">mkvm_sampler</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">standard_markov_matrix_sampler</span><span class="p">(</span><span class="n">design_mkvm</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">)</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># Load ranges scaled by X_FLS ~ LN(1.0, 0.168)</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">mkvm_sampler</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">standard_markov_matrix_sampler</span><span class="p">(</span><span class="n">design_mkvm</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.168</span><span class="p">)</span>
 </span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
 </span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1"># Bolt S-N curve with DS_ref = X_FAT ~ N(62 MPa, 0.10)</span>
 </span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="n">sn_sampler</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">standard_bolt_fatigue_curve_sampler</span><span class="p">(</span><span class="n">bolt</span><span class="o">.</span><span class="n">nominal_diameter</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mi">62</span><span class="o">*</span><span class="n">MPa</span><span class="p">)</span>
@@ -1762,7 +1762,7 @@ except the gap angle, which the reference does not give.</p>
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"One realization: gap angle </span><span class="si">{</span><span class="n">fcase</span><span class="o">.</span><span class="n">fseg</span><span class="o">.</span><span class="n">gap</span><span class="o">.</span><span class="n">angle</span><span class="o">/</span><span class="n">deg</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> deg, "</span>
 </span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>      <span class="sa">f</span><span class="s2">"gap height </span><span class="si">{</span><span class="n">fcase</span><span class="o">.</span><span class="n">fseg</span><span class="o">.</span><span class="n">gap</span><span class="o">.</span><span class="n">height</span><span class="o">/</span><span class="n">mm</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> mm, damage </span><span class="si">{</span><span class="n">fcase</span><span class="o">.</span><span class="n">damage</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>One realization: gap angle 46 deg, gap height 0.19 mm, damage 0.0397
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>One realization: gap angle 46 deg, gap height 0.19 mm, damage 0.0289
 </span></code></pre></div>
 <p>Each realization is a <a class="autorefs autorefs-internal" title="            BoltFatigueAnalysis
 
@@ -1808,16 +1808,16 @@ table:</p>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>GapAngle         2000.0  1.236226e+00      0.723843  6.096265e-02  2.983545e-01  1.087546e+00  2.675680e+00  3.140577e+00
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>GapHeight        2000.0  1.143269e-03      0.001238  9.070261e-08  4.384932e-05  7.442454e-04  3.596016e-03  1.128285e-02
 </span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>BoltPreload      2000.0  2.732521e+06  27989.062233  2.600771e+06  2.688598e+06  2.732288e+06  2.777531e+06  2.916772e+06
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>Damage           2000.0  1.432734e-01      0.231241  1.589216e-03  1.232016e-02  7.530805e-02  4.771642e-01  4.232725e+00
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>Damage           2000.0  1.687801e-01      0.325536  1.064036e-03  9.191024e-03  7.350302e-02  6.188371e-01  6.291572e+00
 </span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>AllowableDamage  2000.0  9.917610e-01      0.294008  2.884288e-01  5.983693e-01  9.423795e-01  1.534146e+00  2.654757e+00
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>FatigueLife      2000.0  7.505789e+02   1285.993299  8.399722e+00  5.808260e+01  3.838157e+02  2.471174e+03  2.216393e+04
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>Probability of failure over 30 years: 1.55e-02
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>FatigueLife      2000.0  9.610687e+02   2078.438532  4.435604e+00  4.375475e+01  3.860122e+02  3.360051e+03  3.976499e+04
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>Probability of failure over 30 years: 2.55e-02
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Sample size</p>
 <p>With 2000 realizations the estimate of a small probability is very
-uncertain: 31 failures out of 2000 give a coefficient of variation of
-about 18% on the estimate. For a target probability of failure of
+uncertain: 51 failures out of 2000 give a coefficient of variation of
+about 14% on the estimate. For a target probability of failure of
 10<sup>-4</sup>, use at least 10<sup>6</sup> realizations, or a
 variance reduction technique.</p>
 </div>

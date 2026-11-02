@@ -1577,14 +1577,15 @@
 <h1 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h1>
 <p>PyFlange is verified against the reference implementation of the polynomial
 model by Siemens Gamesa (SGRE): a set of Excel workbooks that compute the
-model of IEC 61400-6 AMD1 step by step. The comparison is automated and runs
-as part of the test suite, so every change to the code is checked against
-the reference values.</p>
+model of IEC 61400-6 AMD1, and of the coming ED2, step by step. The
+comparison is automated and runs as part of the test suite, so every change
+to the code is checked against the reference values.</p>
 <h2 id="validation-cases">Validation cases<a class="headerlink" href="#validation-cases" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th>Case</th>
+<th>Model</th>
 <th>Flange</th>
 <th>Diameter</th>
 <th>Gap</th>
@@ -1595,6 +1596,7 @@ the reference values.</p>
 <tbody>
 <tr>
 <td>L1</td>
+<td>AMD1</td>
 <td>L, 120 × M80</td>
 <td>7.5 m</td>
 <td>sinusoidal</td>
@@ -1603,6 +1605,7 @@ the reference values.</p>
 </tr>
 <tr>
 <td>L2</td>
+<td>AMD1</td>
 <td>L, 120 × M80</td>
 <td>7.5 m</td>
 <td>sinusoidal</td>
@@ -1611,6 +1614,7 @@ the reference values.</p>
 </tr>
 <tr>
 <td>L3</td>
+<td>AMD1</td>
 <td>L, 120 × M80</td>
 <td>7.5 m</td>
 <td>shape factor 1.2</td>
@@ -1619,6 +1623,7 @@ the reference values.</p>
 </tr>
 <tr>
 <td>L4</td>
+<td>AMD1</td>
 <td>L</td>
 <td>4.6 m</td>
 <td>sinusoidal</td>
@@ -1627,6 +1632,7 @@ the reference values.</p>
 </tr>
 <tr>
 <td>T5</td>
+<td>AMD1</td>
 <td>T</td>
 <td>7.5 m</td>
 <td>sinusoidal</td>
@@ -1635,6 +1641,7 @@ the reference values.</p>
 </tr>
 <tr>
 <td>T6</td>
+<td>AMD1</td>
 <td>T</td>
 <td>7.5 m</td>
 <td>shape factor 1.5</td>
@@ -1643,6 +1650,7 @@ the reference values.</p>
 </tr>
 <tr>
 <td>T7</td>
+<td>AMD1</td>
 <td>T</td>
 <td>7.5 m</td>
 <td>shape factor 1.5</td>
@@ -1651,19 +1659,34 @@ the reference values.</p>
 </tr>
 <tr>
 <td>T8</td>
+<td>AMD1</td>
 <td>T</td>
 <td>7.5 m</td>
 <td>sinusoidal</td>
 <td>1°</td>
 <td>interpolated / simplified</td>
 </tr>
+<tr>
+<td>L15</td>
+<td>ED2</td>
+<td>L, 192 × M64</td>
+<td>8.0 m</td>
+<td>sinusoidal</td>
+<td>0°</td>
+<td>interpolated</td>
+</tr>
 </tbody>
 </table>
-<p>Each case is computed for the gap angles 30°, 60°, 90° and 120°, with the
-AMD1 design gap heights. The 16 case files contain 3264 comparisons in total:
-the bolt and flange stiffnesses, the gap height distribution, the points and
-coefficients of the bolt force and moment polynomials, the gap closing forces
-and the fatigue damage.</p>
+<p>Each case is computed for the gap angles 30°, 60°, 90° and 120°. The AMD1
+cases use the AMD1 design gap heights (95% quantile of the log-normal
+distribution) and the classes <code>PolynomialLFlangeSegment</code> and
+<code>PolynomialTFlangeSegment</code>. The ED2 case uses the ED2 design gap heights (75%
+quantile of the Weibull distribution of <code>gap_height_distribution_ED2</code>), the
+class <code>PolynomialLFlangeSegmentED2</code> and the S-N curve with material safety
+factor γ<sub>M</sub> = 1.25. The 17 case files contain 3452 comparisons in
+total: the bolt and flange stiffnesses, the gap height distribution, the
+points and coefficients of the bolt force and moment polynomials, the gap
+closing forces and the fatigue damage.</p>
 <p>A quantity passes when it differs from the reference value by less than 1%.
 For some quantities, each case file sets a larger tolerance, listed in its
 <code>tolerances</code> object:</p>
@@ -1676,6 +1699,9 @@ For some quantities, each case file sets a larger tolerance, listed in its
 <li>the bolt moment curve of T-flanges (initial slope <code>c_ini_M</code> and closed-gap
   moment <code>Ms_min</code>): up to 7%, because the reference workbooks fit a
   quadratic where PyFlange uses the exact cubic (see below);</li>
+<li>the initial slope of the bolt moment curve of the ED2 case (<code>c_ini_M</code>) for
+  the 120° gap: 1.5%, because its reference value is small (about 25 times
+  smaller than in the AMD1 cases);</li>
 <li>the slope of the bolt force polynomial at P1 (<code>c_ini_true</code>), a diagnostic
   quantity that is very sensitive to the polynomial coefficients: up to
   30%, and more in two cases where the reference value is close to zero.</li>
@@ -1694,6 +1720,7 @@ differences.</p>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    PASS  gap  30 deg  Z2        [kN]   expected  1909.43   obtained  1920.17   mismatch +0.562%   (allowable 1.00%)
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    ...
 </span></code></pre></div>
+<p>Without case files, all the cases are run: <code>py validations/validate.py</code>.</p>
 <p>Useful options:</p>
 <table>
 <thead>
@@ -1704,6 +1731,18 @@ differences.</p>
 </thead>
 <tbody>
 <tr>
+<td><code>--model ED2</code></td>
+<td>Run only the cases of a model version (<code>AMD1</code> or <code>ED2</code>).</td>
+</tr>
+<tr>
+<td><code>--flange-type T</code></td>
+<td>Run only the cases of a flange type (<code>L</code> or <code>T</code>).</td>
+</tr>
+<tr>
+<td><code>--list</code></td>
+<td>List the selected cases without running them.</td>
+</tr>
+<tr>
 <td><code>--failed</code></td>
 <td>Show only the comparisons that fail.</td>
 </tr>
@@ -1713,11 +1752,12 @@ differences.</p>
 </tr>
 <tr>
 <td><code>--excel</code></td>
-<td>Also write the results to copies of the SGRE workbooks in <code>validations/results/</code> (requires Excel and xlwings).</td>
+<td>Also write the results into the PyFlange sheets of the SGRE workbooks of the cases, which then show the comparison in their <code>Comparison</code> sheet and the full list of checks in a <code>Validation</code> sheet (requires Excel and xlwings). The workbooks are updated in place; with <code>--excel DIR</code>, copies are saved in <code>DIR</code> instead.</td>
 </tr>
 </tbody>
 </table>
-<p>To run all the cases: <code>py validations/validate.py validations/references/*.json</code>.</p>
+<p>For example, <code>py validations/validate.py --model ED2 --excel</code> checks the ED2
+case and writes its results to the ED2 workbook.</p>
 <h2 id="known-differences">Known differences<a class="headerlink" href="#known-differences" title="Permanent link">&para;</a></h2>
 <ul>
 <li>The reference workbooks fit a quadratic polynomial through three points for
@@ -1725,8 +1765,19 @@ differences.</p>
   cubic of ref. [2], eq. G.61. The validation compares the quadratic
   coefficients of the workbooks with the quadratic through the PyFlange
   points.</li>
-<li>The ED2 classes are not covered by the reference workbooks. They are
-  tested against the formulas of ref. [5] in the unit tests.</li>
+<li>The ED2 workbooks still report the mean, coefficient of variation and 95%
+  quantile of the AMD1 log-normal gap height distribution (k<sub>mean</sub>,
+  COV<sub>k</sub>, k<sub>design</sub>), which are compared with the AMD1
+  distribution of PyFlange, while the gap height used by the model is
+  k<sub>used</sub>, the 75% quantile of the ED2 Weibull distribution.</li>
+<li>The ED2 workbooks report in the k<sub>fl</sub> row the flange stiffness
+  divided by f<sub>tot</sub>, so that k<sub>gap,tot</sub> =
+  f<sub>tot</sub> · (k<sub>shell,ini</sub> + k<sub>fl</sub>) gives the ED2 gap
+  stiffness f<sub>tot</sub> · k<sub>shell,ini</sub> + k<sub>fl</sub>: the
+  validation compares that row with k<sub>fl</sub> / f<sub>tot</sub>.</li>
+<li>The <code>PolynomialTFlangeSegmentED2</code> class is not covered by the reference
+  workbooks yet. It is tested against the formulas of ref. [5] in the unit
+  tests.</li>
 </ul>
 <h2 id="unit-tests">Unit tests<a class="headerlink" href="#unit-tests" title="Permanent link">&para;</a></h2>
 <p>Besides the validation, the test suite (<code>py -m pytest</code>) contains unit tests

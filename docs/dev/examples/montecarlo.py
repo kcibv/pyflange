@@ -73,8 +73,8 @@ design_mkvm = MarkovMatrix(
     cycles = np.array([3e8, 1e8, 3e7, 8e6, 2e6, 5e5, 1.5e5, 4e4, 8e3, 1e3]),
     duration = 30)
 
-# Load ranges scaled by X_FLS ~ LN(1.0, 0.12)
-mkvm_sampler = stats.standard_markov_matrix_sampler(design_mkvm, 1.0, 0.12)
+# Load ranges scaled by X_FLS ~ LN(1.0, 0.168)
+mkvm_sampler = stats.standard_markov_matrix_sampler(design_mkvm, 1.0, 0.168)
 
 # Bolt S-N curve with DS_ref = X_FAT ~ N(62 MPa, 0.10)
 sn_sampler = stats.standard_bolt_fatigue_curve_sampler(bolt.nominal_diameter, 1.0, 0.10, 62*MPa)

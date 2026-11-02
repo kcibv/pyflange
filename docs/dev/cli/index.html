@@ -1701,7 +1701,7 @@ the case and its results to a JSON file (see <a href="../json-format/#result-fil
 <tbody>
 <tr>
 <td><code>--gap-angle</code></td>
-<td>Override of the gap angle, in <strong>degrees</strong>. The shell stiffness is re-interpolated for the new angle.</td>
+<td>Override of the gap angle, in <strong>degrees</strong>. The shell stiffness is re-interpolated for the new angle (and the average shell thickness <code>s * (1 + s_ratio) / 2</code>).</td>
 </tr>
 <tr>
 <td><code>--gap-height</code></td>

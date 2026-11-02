@@ -1393,6 +1393,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#0150-2026-11-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.15.0 (2026-11-02)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#0140-2026-10-23" class="md-nav__link">
     <span class="md-ellipsis">
       0.14.0 (2026-10-23)
@@ -1659,6 +1668,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#0150-2026-11-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.15.0 (2026-11-02)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#0140-2026-10-23" class="md-nav__link">
     <span class="md-ellipsis">
       0.14.0 (2026-10-23)
@@ -1865,6 +1883,32 @@
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
 <p>The notable changes of each PyFlange version. The complete history is
 available in the <a href="https://github.com/kcibv/pyflange/commits/main">GitHub repository</a>.</p>
+<h2 id="0150-2026-11-02">0.15.0 (2026-11-02)<a class="headerlink" href="#0150-2026-11-02" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>PolynomialLFlangeSegmentED2</code> validated against the SGRE ED2 reference
+  workbook (case L15, D8000 L-flange with ED2 design gap heights).</li>
+<li>Validation script: without case files it runs all the cases; new options
+  <code>--model</code>, <code>--flange-type</code> and <code>--list</code>. The L-flange segments are built
+  through <code>pyflange.io</code>, so the validation covers the JSON case code path.</li>
+<li><strong>Fixed: interpolated shell stiffness for <code>s_ratio != 1</code>.</strong> With
+  <code>"k_shell": "interp"</code> in a JSON case (<code>create_flangesegment</code>, the Monte
+  Carlo sampler, <code>create_realization</code>, <code>pyflange determ --gap-angle</code>) and in
+  <code>standard_PolynomialLFlangeSegment_sampler</code>, the shell stiffness is now
+  interpolated for the average thickness of the top and bottom shell,
+  <code>s * (1 + s_ratio) / 2</code>, as in the simplified formula (eqs. G.43/G.44)
+  and in the SGRE validation workbooks, instead of <code>s</code>. <strong>This changes the
+  results whenever <code>s_ratio != 1</code></strong>: k<sub>shell</sub> is higher and the
+  damages differ (e.g. D 8 m, s = 37.2 mm, s_ratio = 2.15: k<sub>shell</sub>
+  at 30° from 1853 to 2942 MN/m, ED2 damage at 90°–120° up to 28 % higher).
+  Results with <code>s_ratio = 1</code> are unchanged.</li>
+<li>New <code>flangesegments.average_shell_thickness</code>, the thickness to pass to
+  <code>shell_stiffness</code>.</li>
+<li><code>stats.standard_markov_matrix_sampler</code>: the default CoV of the load range
+  factor X<sub>FLS</sub> is now 0.168 instead of 0.12 (refs. [1], Table 7,
+  and [5], Table 8). Calls passing <code>range_CoV</code> explicitly and JSON cases
+  (which always give the <code>LoadRangeFactor</code> CoV) are unchanged. The example
+  case <code>fatigue-case.json</code> and the Monte Carlo tutorials now use 0.168 too.</li>
+</ul>
 <h2 id="0140-2026-10-23">0.14.0 (2026-10-23)<a class="headerlink" href="#0140-2026-10-23" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Model aligned with the published IEC 61400-6:2020+AMD1:2025</strong>: docstrings

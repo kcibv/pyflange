@@ -3251,8 +3251,9 @@ Defaults to 1.0.</p>
           <div class="doc-md-description">
             <p>Custom shell stiffness.
 If <code>'interp'</code> (default), the stiffness is interpolated from the
-tabulated FEA results, as a function of the gap angle (see
-<code>pyflange.flangesegments.shell_stiffness</code>).
+tabulated FEA results, as a function of the gap angle, for the
+average thickness of the top and bottom shell, <code>s * (1 + s_ratio) / 2</code>
+(see <code>pyflange.flangesegments.shell_stiffness</code>).
 If a number, it's used as the stiffness.
 If <code>None</code>, a simplified formula is used.</p>
           </div>
@@ -3366,7 +3367,7 @@ three random flange segments.</p>
 
 
 <a href="#pyflange.stats.standard_markov_matrix_sampler" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">standard_markov_matrix_sampler</span><span class="p">(</span><span class="n">markov_matrix</span><span class="p">,</span> <span class="n">mean_range_coeff</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">range_CoV</span><span class="o">=</span><span class="mf">0.12</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">standard_markov_matrix_sampler</span><span class="p">(</span><span class="n">markov_matrix</span><span class="p">,</span> <span class="n">mean_range_coeff</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">range_CoV</span><span class="o">=</span><span class="mf">0.168</span><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3376,7 +3377,7 @@ three random flange segments.</p>
 Markov matrix, while its ranges are scaled by a single log-normally
 distributed coefficient: the fatigue load factor X_FLS of the stochastic
 model of refs. [1] (Table 7) and [5] (section 6.3.1 and Table 8), with
-mean 1.0 and CoV 0.12. As explained in ref. [5], section 6.3.1, only the
+mean 1.0 and CoV 0.168. As explained in ref. [5], section 6.3.1, only the
 load ranges are scaled, not the mean values.</p>
 
 
@@ -3411,12 +3412,12 @@ log-normally distributed. Defaults to 1.0.</p>
         <li class="doc-section-item field-body">
             <b><code>range_CoV</code></b>
               (<code><span title="float">float</span></code>, default:
-                  <code>0.12</code>
+                  <code>0.168</code>
 )
           –
           <div class="doc-md-description">
             <p>The coefficient of variation of the
-coefficient multiplying the load ranges. Defaults to 0.12.</p>
+coefficient multiplying the load ranges. Defaults to 0.168.</p>
           </div>
         </li>
     </ul>
