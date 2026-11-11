@@ -84,12 +84,32 @@ class TestPolynomialFlangeSegment:
         bolt_moment_at_tensile_ULS = 30.0
         shell_force_at_closed_gap = -50.0
 
+        # Quantities provided by the child classes, not used by the polynomials
+        _w = _I_tg = _bolt_moment = _ideal_shell_force_at_tensile_ULS = None
+        _total_gap_neutralization_shell_force = _u = _k_seg = _f_tot = None
+        _polynomial_initial_slope = _b_BD = _b_E = _M_pl3 = None
+
+    @classmethod
+    def stub (cls):
+        # The dataclass fields are not used by the polynomials
+        fields = ("a", "b", "s", "t", "R", "central_angle", "Zg", "bolt", "Fv",
+                  "Do", "washer", "nut", "gap", "tilt_angle")
+        return cls.StubFlangeSegment(**{name: None for name in fields})
+
     def test_abstract (self):
         with pytest.raises(TypeError):
             PolynomialFlangeSegment()
 
+    def test_abstract_hooks (self):
+        # The reference points are implemented by PolynomialFlangeSegment, but the
+        # quantities that differ between L- and T-flanges must be provided by the child classes
+        assert PolynomialFlangeSegment.__abstractmethods__ == {
+            "_w", "_I_tg", "_bolt_moment", "_ideal_shell_force_at_tensile_ULS",
+            "_total_gap_neutralization_shell_force", "_u", "_k_seg", "_f_tot",
+            "_polynomial_initial_slope", "_b_BD", "_b_E", "_M_pl3"}
+
     def test_bolt_axial_force (self):
-        fseg = self.StubFlangeSegment()
+        fseg = self.stub()
 
         # The tensile branch passes through the points P1, P3 and P2
         assert fseg.bolt_axial_force(0.0) == pytest.approx(100.0)
@@ -115,7 +135,7 @@ class TestPolynomialFlangeSegment:
         np.testing.assert_allclose(fseg.bolt_axial_force(Z), [Fs4, Fs4, 100.0, 110.0, 300.0])
 
     def test_bolt_bending_moment (self):
-        fseg = self.StubFlangeSegment()
+        fseg = self.stub()
 
         # The tensile branch passes through the points P1, P3 and P2
         assert fseg.bolt_bending_moment(0.0) == pytest.approx(1.0)

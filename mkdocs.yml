@@ -179,6 +179,9 @@ plugins:
             separate_signature: true
             signature_crossrefs: true
             members_order: source
+            # show the members inherited from the base classes (e.g. the reference
+            # points of PolynomialFlangeSegment on the L- and T-flange pages)
+            inherited_members: true
             merge_init_into_class: true
             summary: true
             filters: ["!^_"]

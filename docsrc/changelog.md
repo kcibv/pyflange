@@ -71,6 +71,17 @@ available in the [GitHub repository](https://github.com/kcibv/pyflange/commits/m
       (`s_ratio < 1`), as G.2.1 a).
     - The fixed-point equations are solved by bisection instead of `fsolve`,
       which is robust to the kink of the interaction formula.
+- The code shared by `PolynomialLFlangeSegment` and
+  `PolynomialTFlangeSegment` has been moved to `PolynomialFlangeSegment`,
+  with no change in the results (all the quantities of the L-, T- and ED2
+  segments were verified to be bit-identical before and after). This only
+  matters for code that subclasses `PolynomialFlangeSegment` directly: it is
+  now a dataclass with the fields common to L- and T-flanges, it implements
+  the reference points of the polynomials (ref. [2], Table G.1), and the
+  child classes must implement the abstract quantities listed in its
+  docstring.
+- The API pages show the members inherited from the base classes (e.g.
+  `bolt_axial_force`, `Zu` and `validate` on the L- and T-flange pages).
 
 ## 0.15.0 (2026-11-02)
 
