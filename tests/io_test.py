@@ -205,6 +205,22 @@ class TestCreateFlangeSegment:
         assert fseg.k_shell == pytest.approx(float(shell_stiffness(R, 1.25*s, angle)))
         assert fseg.k_shell > 1.2 * float(shell_stiffness(R, s, angle))
 
+    def test_steel_grade (self, case):
+        params = case['FlangeSegment']
+        fseg = io.create_flangesegment(**params)
+        assert fseg.steel_grade == "S355" and fseg.gamma_M0 == 1.1
+
+        # Optional keys: defaults
+        del params['steel_grade'], params['gamma_M0']
+        fseg = io.create_flangesegment(**params)
+        assert fseg.steel_grade == "S355" and fseg.gamma_M0 == 1.1
+
+        params['steel_grade'] = "S460"
+        params['gamma_M0'] = 1.0
+        fseg = io.create_flangesegment(**params)
+        assert fseg.steel_grade == "S460" and fseg.gamma_M0 == 1.0
+        assert fseg.fy_fl == pytest.approx(390e6)
+
     def test_extra_keys_ignored (self, case):
         params = case['FlangeSegment']
         params['BoltPreload'] = 1.0
@@ -363,6 +379,14 @@ class TestFatigueCaseSampler:
         assert type(fcase.fseg) is PolynomialLFlangeSegment
         assert fcase.fseg.PPL == 0 and fcase.fseg.DFT == 0
         assert 0 < fcase.damage < np.inf
+
+    def test_steel_grade (self, case):
+        # The random segments inherit the ULS material parameters of the case
+        case['FlangeSegment']['steel_grade'] = "S460"
+        case['FlangeSegment']['gamma_M0'] = 1.0
+        fseg = io.create_flangesegment(**case['FlangeSegment'])
+        rnd = next(io.create_fatiguecase_sampler(fseg, io.create_markovmatrix(**case['MarkovMatrix']), **case['Stats'])).fseg
+        assert rnd.steel_grade == "S460" and rnd.gamma_M0 == 1.0
 
     def test_segment_type (self, case):
         # ED2 cases generate ED2 flange segments
@@ -548,9 +572,16 @@ class TestExport:
         assert d['type'] == "PolynomialLFlangeSegmentED2"
         assert 'Point1' not in d
 
+        assert d['steel_grade'] == "S355" and d['gamma_M0'] == 1.1
+        assert 'ULS' not in d
+
         d = io.flangesegment_to_dict(fseg, verbose=True)
         assert d['BoltPreload'] == pytest.approx(fseg.bolt_preload)
         assert len(d['TransferFunctions']['Z']) == 100
+        assert d['ULS']['fy_fl'] == pytest.approx(fseg.fy_fl)
+        assert d['ULS']['Zu_B'] == pytest.approx(fseg.Zu_B)
+        assert d['ULS']['Zu'] == pytest.approx(fseg.Zu)
+        assert d['ULS']['FailureMode'] == fseg.failure_mode == "B"
 
         with pytest.raises(ValueError):
             io.flangesegment_to_dict(None)

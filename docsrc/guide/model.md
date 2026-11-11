@@ -93,10 +93,34 @@ mode at the ultimate limit state (ref. [2], G.1.2 and G.2.1):
   flange and shell, eq. G.30);
 - **T-flanges**: failure mode A (bolt failure, eq. G.31).
 
-`failure_mode(fy_sh, fy_fl)` computes the ultimate shell force of the modes
-A, B, D and E and returns the governing one; `validate(fy_sh, fy_fl)` raises
-an error if it is not the required mode. PyFlange does **not** call
-`validate` automatically: call it in your scripts.
+The flange segments compute the ultimate limit state of ref. [2], section
+G.1 (Petersen/Seidel method):
+
+- `Zu_A`, `Zu_B`, `Zu_D`, `Zu_E`: the ultimate shell force of each failure
+  mode (eqs. G.2 to G.11 for L-flanges and G.24 to G.29 for T-flanges, per
+  bolt pair). For L-flanges, mode B uses the equivalent flange length a' of
+  Tobinaga and Ishihara (G.1.3).
+- `Zu`: the ultimate shell force of the segment, F<sub>u</sub>, the lowest of
+  the four, for the ULS check Z ≤ F<sub>u</sub> (eq. G.1).
+- `failure_mode`: the governing mode, `"A"`, `"B"`, `"D"` or `"E"`.
+
+The yield stresses `fy_sh` and `fy_fl` are derived from the `steel_grade` of
+the segment (default `"S355"`) and from the thickness of the thinner shell
+and of the flange (see `steel_yield_stress`), and divided by the material
+factor `gamma_M0` (default 1.1). The bolt resistance F<sub>t,R</sub>
+(eq. G.6) already includes its own factor 1.25.
+
+Beyond ref. [2]:
+
+- the shell thickness is the thinner of the top and bottom shell, as
+  required by G.2.1 a) for the fatigue model;
+- the ultimate forces of modes B, D and E are limited to the plastic
+  resistance of the shell in tension and of the flange in shear, beyond which
+  the interaction formula G.11 is not defined.
+
+`validate()` raises an error if the governing mode is not the required one.
+PyFlange does **not** call `validate` automatically: call it in your
+scripts.
 
 Other limits of the model, given in ref. [2], are not checked by PyFlange,
 for example the flatness tolerance of 1.4 mm/m for the analytical design gap

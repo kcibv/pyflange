@@ -35,6 +35,8 @@ behavior of a flange sector containing one bolt only. The module provides:
 - `bolt_markov_matrix`: conversion of a flange bending-moment Markov matrix into
   a bolt stress Markov matrix, via the segment transfer functions.
 - `shell_stiffness`: shell stiffness interpolated from tabulated FEA results.
+- `steel_yield_stress`: yield stress of structural steels as a function of the
+  thickness, used for the ULS failure modes of the flange segments.
 
 The only types of FlangeSegment currently available are an L-Flange segment
 and a T-Flange segment, implementing a polynomial relation between tower shell
@@ -190,6 +192,16 @@ class PolynomialFlangeSegment (FlangeSegment):
     between P4 and P1 in the compressive domain, and a constant below P4.
     Child classes may override the tensile polynomials when the reference
     defines them differently (e.g. the cubic bolt moment of T-flanges).
+
+    This class also implements the ultimate limit state of ref. [2],
+    section G.1 (Petersen/Seidel method), common to L- and T-flanges: the
+    ultimate shell forces of the failure modes A, B, D and E (`Zu_A`, `Zu_B`,
+    `Zu_D`, `Zu_E`), the ultimate shell force of the segment (`Zu`), the
+    governing failure mode (`failure_mode`) and the applicability check of
+    the polynomial model (`validate`). The yield stresses `fy_sh` and `fy_fl`
+    are derived from the `steel_grade` of the child class and the thickness
+    of shell and flange. All of them are cached: create a new segment (e.g.
+    with `dataclasses.replace`) to change its parameters.
     '''
 
     def bolt_axial_force (self, shell_pull):
@@ -520,6 +532,270 @@ class PolynomialFlangeSegment (FlangeSegment):
         pass
 
 
+    # -------------------------------------------------------------------------
+    #   ULTIMATE LIMIT STATE (ref. [2], section 6.7.4 and Annex G.1)
+    # -------------------------------------------------------------------------
+    #
+    # The ultimate shell forces of the failure modes are evaluated here for
+    # both L- and T-flanges. Each child class provides:
+    # - the dataclass fields `steel_grade` and `gamma_M0`;
+    # - `_bolts_per_segment`: 1 for L-flanges, 2 for T-flanges (the factor 2
+    #   of ref. [2], eqs. G.24 to G.27);
+    # - `_required_failure_mode`: the mode that must govern for the polynomial
+    #   model to be applicable;
+    # - `_b_BD` and `_b_E`: the distances between plastic hinges of the modes
+    #   B, D and E;
+    # - `_M_pl3(Z)`: the resistance of the plastic hinge in/close to the tower
+    #   shell for a given segment force Z (ref. [2], eq. G.11).
+
+    @cached_property
+    def fy_sh (self):
+        '''Yield stress of the shell.
+
+        It depends on `steel_grade` and on the thinner of the top and bottom
+        shell, `s * min(1, s_ratio)`, as given by `steel_yield_stress`.
+        '''
+        return steel_yield_stress(self.steel_grade, self._s_min)
+
+
+    @cached_property
+    def fy_fl (self):
+        '''Yield stress of the flange.
+
+        It depends on `steel_grade` and on the flange thickness `t`, as given
+        by `steel_yield_stress`.
+        '''
+        return steel_yield_stress(self.steel_grade, self.t)
+
+
+    @cached_property
+    def Zu_A (self):
+        '''Ultimate shell force of failure mode A, bolt failure.
+
+        Ref. [2], eq. G.2 for L-flanges (`F_t,R`) and eq. G.24 for T-flanges
+        (`2 F_t,R`).
+        '''
+        return self._bolts_per_segment * self._F_tR
+
+
+    @cached_property
+    def Zu_B (self):
+        '''Ultimate shell force of failure mode B, bolt failure with a plastic hinge in/close to the shell.
+
+        Ref. [2], eq. G.3 for L-flanges and eq. G.25 for T-flanges. The flange
+        inner length is the equivalent length `a'` of ref. [2], section G.1.3
+        (equal to `a` outside the validity range of eqs. G.16 and G.17).
+        Since the resistance of the plastic hinge depends on the segment force
+        (ref. [2], eq. G.11), the ultimate force is found iteratively. It is
+        limited to the plastic resistance of the shell in tension and of the
+        flange in shear (see `Zu`).
+        '''
+        a = self._a_red
+        return self._ultimate_shell_force(self._F_tR * a, a + self._b_BD)
+
+
+    @cached_property
+    def Zu_D (self):
+        '''Ultimate shell force of failure mode D, plastic hinges in the bolt hole plane and in/close to the shell.
+
+        Ref. [2], eq. G.4 for L-flanges and eq. G.26 for T-flanges, with the
+        resistances of eqs. G.7 and G.9. Since the resistance of the plastic
+        hinge in/close to the shell depends on the segment force (ref. [2],
+        eq. G.11), the ultimate force is found iteratively. It is limited to
+        the plastic resistance of the shell in tension and of the flange in
+        shear (see `Zu`).
+        '''
+        return self._ultimate_shell_force(self._M_pl2_hole + self._DM_pl2, self._b_BD)
+
+
+    @cached_property
+    def Zu_E (self):
+        '''Ultimate shell force of failure mode E, plastic hinges next to the bolt hole and in/close to the shell.
+
+        Ref. [2], eq. G.5 for L-flanges and eq. G.27 for T-flanges, with the
+        resistance of eq. G.8. Since the resistance of the plastic hinge
+        in/close to the shell depends on the segment force (ref. [2],
+        eq. G.11), the ultimate force is found iteratively. It is limited to
+        the plastic resistance of the shell in tension and of the flange in
+        shear (see `Zu`).
+        '''
+        return self._ultimate_shell_force(self._M_pl_fl, self._b_E)
+
+
+    @cached_property
+    def Zu (self):
+        '''Ultimate shell force of the flange segment.
+
+        This is the resistance `F_u` of the ULS check `Z <= F_u` of ref. [2],
+        eq. G.1: the lowest of `Zu_A`, `Zu_B`, `Zu_D` and `Zu_E`.
+
+        In addition to ref. [2], the ultimate forces of modes B, D and E are
+        limited to the plastic resistance of the shell in tension
+        (`fy_sh / gamma_M0 * c * s`) and of the flange in shear
+        (`fy_fl / gamma_M0 * c * t / sqrt(3)` per bolt), above which eq. G.11
+        is not defined.
+        '''
+        return min(self.Zu_A, self.Zu_B, self.Zu_D, self.Zu_E)
+
+
+    @cached_property
+    def failure_mode (self):
+        '''Governing ULS failure mode: "A", "B", "D" or "E".
+
+        This is the mode with the lowest ultimate shell force (ref. [2],
+        section G.1.2). In case of ties, the first mode in alphabetical order
+        is returned.
+        '''
+        Zu = {"A": self.Zu_A, "B": self.Zu_B, "D": self.Zu_D, "E": self.Zu_E}
+        return min(Zu, key=Zu.get)
+
+
+    def validate (self):
+        '''Verifies the applicability of the polynomial model.
+
+        The polynomial model is valid only if the flange fails at ULS in
+        failure mode B for L-flanges (ref. [2], eq. G.30) and in failure mode A
+        for T-flanges (ref. [2], eq. G.31). The governing mode is
+        `failure_mode`.
+
+        Raises:
+            ValueError: If the governing failure mode is not the required one.
+        '''
+        if self.failure_mode != self._required_failure_mode:
+            raise ValueError(f"Failure mode {self.failure_mode} detected, while only failure mode {self._required_failure_mode} is supported.")
+
+
+    def _ultimate_shell_force (self, M, lever_arm):
+        '''Ultimate shell force of a failure mode with a plastic hinge in/close to the shell.
+
+        Solves `Fu = n * (M + M_pl3(Fu)) / lever_arm` (ref. [2], eqs. G.3 to
+        G.5, G.11 and G.25 to G.27), where `n` is the number of bolts of the
+        segment. The right-hand side decreases with `Fu`, so the solution is
+        unique and is found by bisection. The result is limited to `_Zu_cap`.
+
+        Args:
+            M (float): Resisting moment of the mode, excluding `M_pl3`.
+            lever_arm (float): Distance between the plastic hinges.
+
+        Returns:
+            float: The ultimate shell force of the mode.
+        '''
+        from scipy.optimize import brentq
+
+        if lever_arm <= 0:
+            raise ValueError(f"Non-positive lever arm ({lever_arm}) in the ULS failure mode evaluation: check the flange geometry.")
+
+        n = self._bolts_per_segment
+        Zu = lambda Z: n * (M + self._M_pl3(Z)) / lever_arm
+        Z_cap = self._Zu_cap
+        if Zu(Z_cap) >= Z_cap:
+            return Z_cap
+        return brentq(lambda Z: Zu(Z) - Z, 0.0, Z_cap, xtol=1e-12*Z_cap, rtol=1e-12)
+
+
+    @cached_property
+    def _Zu_cap (self):
+        '''Upper limit of the ultimate shell force of modes B, D and E.
+
+        The plastic resistance of the shell in tension and of the flange in
+        shear, beyond which ref. [2], eq. G.11 is not defined.
+        '''
+        return min(self._N_pl_sh, self._bolts_per_segment * self._V_pl_fl)
+
+
+    def _M_pl_N_sh (self, N):
+        '''Plastic moment of the shell under the axial force N (ref. [2], eq. G.11).'''
+        return self._M_pl_sh * max(0.0, 1 - (N / self._N_pl_sh)**2)
+
+
+    def _M_pl_V_fl (self, V):
+        '''Plastic moment of the flange under the shear force V (ref. [2], eq. G.11).'''
+        return self._M_pl_fl * max(0.0, 1 - (V / self._V_pl_fl)**2)**0.5
+
+
+    @cached_property
+    def _s_min (self):
+        '''Thinner of the top and bottom shell thickness (ref. [2], section G.2.1 a).'''
+        return self.s * min(1.0, self.s_ratio)
+
+
+    @cached_property
+    def _fd_sh (self):
+        '''Design yield stress of the shell, `fy_sh / gamma_M0`.'''
+        return self.fy_sh / self.gamma_M0
+
+
+    @cached_property
+    def _fd_fl (self):
+        '''Design yield stress of the flange, `fy_fl / gamma_M0`.'''
+        return self.fy_fl / self.gamma_M0
+
+
+    @cached_property
+    def _F_tR (self):
+        '''Ultimate axial resistance of the bolt (ref. [2], eq. G.6).'''
+        return self.bolt.ultimate_tensile_capacity()
+
+
+    @cached_property
+    def _c (self):
+        '''Segment width at the middle surface of the shell (ref. [2], section 4.1).'''
+        return self.central_angle * (self.R - self._s_min/2)
+
+
+    @cached_property
+    def _D_washer (self):
+        '''Washer diameter D of ref. [2], Figure G.3, used in eqs. G.9 and G.29.
+
+        It is the outer diameter of the washer, limited to "width across flats
+        of the nut + 2 * height of the washer" when "outer diameter of washer -
+        width across flats of nut" is less than 2 * "height of the washer".
+        Without washer, it is the bearing diameter of the nut.
+        '''
+        if self.washer is None:
+            return self.nut.bearing_diameter
+        Dw = self.washer.outer_diameter
+        s_nut = self.nut.inscribed_diameter
+        h_w = self.washer.thickness
+        return Dw if Dw - s_nut >= 2*h_w else s_nut + 2*h_w
+
+
+    @cached_property
+    def _N_pl_sh (self):
+        '''Plastic axial resistance of the shell segment, `N_pl,Bl` of ref. [2], eq. G.11.'''
+        return self._fd_sh * self._c * self._s_min
+
+
+    @cached_property
+    def _M_pl_sh (self):
+        '''Plastic moment of the shell segment, `M_pl,Bl` of ref. [2], eq. G.10.'''
+        return self._fd_sh * self._c * self._s_min**2 / 4
+
+
+    @cached_property
+    def _V_pl_fl (self):
+        '''Plastic shear resistance of the flange segment, `V_pl,Fl` of ref. [2], eq. G.11.'''
+        return self._fd_fl * self._c * self.t / 3**0.5
+
+
+    @cached_property
+    def _M_pl_fl (self):
+        '''Plastic moment of the flange segment, `M_pl,Fl` of ref. [2], eq. G.10 (equal to `M_pl,2` of eq. G.8).'''
+        return self._fd_fl * self._c * self.t**2 / 4
+
+
+    @cached_property
+    def _M_pl2_hole (self):
+        '''Plastic moment of the flange in the bolt hole plane, `M'_pl,2` of ref. [2], eq. G.7.'''
+        return self._fd_fl * (self._c - self.Do) * self.t**2 / 4
+
+
+    @cached_property
+    def _DM_pl2 (self):
+        '''Moment increment due to the washer bearing, `ΔM_pl,2` of ref. [2], eq. G.9.'''
+        return self._F_tR / 2 * (self._D_washer + self.Do) / 4
+
+
 
 @dataclass
 class PolynomialLFlangeSegment (PolynomialFlangeSegment):
@@ -532,6 +808,12 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     The transfer functions are available through the `bolt_axial_force` and
     `bolt_bending_moment` methods, which accept either a scalar or a NumPy
     array of shell pull forces.
+
+    The ultimate limit state of ref. [2], section G.1 is available through the
+    properties `Zu_A`, `Zu_B`, `Zu_D`, `Zu_E` (ultimate shell force of each
+    failure mode), `Zu` (the lowest of them) and `failure_mode` (the governing
+    mode). The polynomial model is valid only if failure mode B governs, which
+    is checked by `validate()`.
 
     Attributes:
         a (float): Distance from inner flange face to bolt hole center.
@@ -561,6 +843,13 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
             area between washers and flange [m]. Defaults to 0.0 m.
         settlement_factor (float): Factor reducing the amount of bolt settlement, to be
             taken as 1.0 for torque tightening and 0.5 for tension tightening. Defaults to 1.0.
+        steel_grade (str): Steel grade of shell and flange ("S235", "S275", "S355",
+            "S460" or "S500"), from which the yield stresses `fy_sh` and `fy_fl` are
+            derived (see `steel_yield_stress`). Defaults to "S355".
+        gamma_M0 (float): Material partial safety factor for the plastic resistance
+            of shell and flange in the ULS failure modes. It does not apply to the
+            bolt resistance, which already includes the factor 1.25 of ref. [2],
+            eq. G.6. Defaults to 1.1.
     '''
 
     a: float        # distance between inner face of the flange and center of the bolt hole
@@ -600,111 +889,33 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
                                      # taken as 1.0 for torque tightening and 0.5 for tension tightening.
 
 
-    def failure_mode (self, fy_sh, fy_fl, gamma_0=1.1):
-        '''Determines the failure mode of the flange.
+    steel_grade: str = "S355"   # Steel grade of shell and flange, for the yield stresses fy_sh and fy_fl
+    gamma_M0: float = 1.1       # Material partial safety factor for the plastic resistance of shell and flange
 
-        The ultimate shell force is evaluated for each of the failure modes
-        A, B, D and E of ref. [2], and the governing mode is the one with the
-        lowest ultimate shell force.
 
-        Args:
-            fy_sh (float): Yield stress of the shell material.
-            fy_fl (float): Yield stress of the flange material.
-            gamma_0 (float, optional): Material factor. Defaults to 1.1.
+    _bolts_per_segment = 1          # number of bolts in the segment (ULS)
+    _required_failure_mode = "B"    # ULS mode required by the polynomial model (ref. [2], eq. G.30)
 
-        Returns:
-            tuple: A tuple containing:
 
-                - str: The failure mode ("A", "B", "D", or "E").
-                - list: A list of the shell force limits for each failure mode [Zu_A, Zu_B, Zu_D, Zu_E].
+    @cached_property
+    def _b_BD (self):
+        '''Distance between the plastic hinges of failure modes B and D (ref. [2], eqs. G.3 and G.4).'''
+        return self.b
+
+
+    @cached_property
+    def _b_E (self):
+        '''Distance between the plastic hinges of failure mode E (ref. [2], eq. G.5 and Figure G.3).'''
+        return self.b - (self._D_washer + self.Do)/4
+
+
+    def _M_pl3 (self, Z):
+        '''Resistance of the plastic hinge in the flange or tower shell, for a segment force Z (ref. [2], eq. G.11).
+
+        The axial force in the shell and the shear force in the flange are
+        both equal to Z.
         '''
-
-        from scipy.optimize import fsolve
-
-        fd_sh = fy_sh / gamma_0
-        fd_fl = fy_fl / gamma_0
-        
-        Dw = self.washer.outer_diameter if self.washer else self.nut.bearing_diameter
-        b_red = self.b-self.s/2-0.8*self.r
-
-        # Segment width at the middle surface of the shell (ref. [2], eq. G.34)
-        # and segment width reduced by the bolt hole (ref. [2], eq. G.7)
-        c = self.central_angle * (self.R - self.s/2)
-        c_hole = c - self.Do
-
-        # Failure mode A
-        F_tRd = self.bolt.ultimate_tensile_capacity()   # Bolt ultimate tensile capacity
-        Zu_A = F_tRd                                    # Ultimate tower shell force for failure mode A
-
-        # Shell cross-section ultimate capacities
-        Nu_sh = fd_sh * c * self.s                 # Pure axial ultimate capacity
-        Mu_sh = fd_sh * c * self.s**2 / 4          # Pure bending ultimate capacity
-        MNu_sh = lambda N: Mu_sh * (1 - (N / Nu_sh)**2) if N < Nu_sh else 0 # Bending ultimate capacity, concurrent with axial force
-
-        # Flange cross-section ultimate capacity, ref. [2], eqs. G.8, G.10 and G.11
-        Vu_fl = fd_fl * c * self.t / 3**0.5                # Pure shear ultimate capacity
-        Mu_fl = fd_fl * c * self.t**2 / 4                  # Pure bending ultimate capacity
-        MVu_fl = lambda V: Mu_fl * (1 - (V / Vu_fl)**2)**0.5 if V < Vu_fl else 0    # Bending ultimate capacity, concurrent with shear
-
-        # Iterative calculation of the ultimate shell force, given the two functions:
-        # - Zu_sh(Mu_pl3), returning the shell force at shell axial ULS, for a given value of Mu_pl3
-        # - Zu_fl(Mu_pl3), returning the shell force at slange shear ULS, for a given value of Mu_pl3
-        # Ref. [2], eq. G.11.
-        def find_Zu (Zu_sh, Zu_fl):
-            target_Zu_sh = fsolve(lambda Z: Zu_sh(MNu_sh(Z)) - Z, Zu_sh(Mu_sh))[0]
-            target_Zu_fl = fsolve(lambda Z: Zu_fl(MVu_fl(Z)) - Z, Zu_fl(Mu_fl))[0]
-            return min(target_Zu_sh, target_Zu_fl)
-
-        # Failure mode B, ref. [2], eqs. G.3 and G.12
-        Zu_sh_B = lambda Mu_pl3: (F_tRd * self._a_red + Mu_pl3) / (self._a_red + self.b)
-        Zu_fl_B = lambda Mu_pl3: (F_tRd * self._a_red + Mu_pl3) / (self._a_red + b_red)
-        Zu_B = find_Zu(Zu_sh_B, Zu_fl_B)
-
-        # Failure mode D, ref. [2], eqs. G.4, G.7 and G.9
-        Mu_pl2 = fd_fl * c_hole * self.t**2 / 4
-        DMu_pl2 = F_tRd/2 * (self.Do/2 + Dw/2)/2
-        Zu_sh_D = lambda Mu_pl3: (Mu_pl2 + DMu_pl2 + Mu_pl3) / self.b
-        Zu_fl_D = lambda Mu_pl3: (Mu_pl2 + DMu_pl2 + Mu_pl3) / b_red
-        Zu_D = find_Zu(Zu_sh_D, Zu_fl_D) 
-
-        # Failure mode E, ref. [2], eq. G.5
-        b_E = self.b - (self.Do+Dw)/4
-        b_E_red = b_E - self.s/2 - 0.8*self.r
-        Zu_sh_E = lambda Mu_pl3: (Mu_fl + Mu_pl3) / b_E
-        Zu_fl_E = lambda Mu_pl3: (Mu_fl + Mu_pl3) / b_E_red
-        Zu_E = find_Zu(Zu_sh_E, Zu_fl_E) 
-
-        # Determine the governing failure mode
-        Zu_min = min(Zu_A, Zu_B, Zu_D, Zu_E)
-
-        if Zu_min == Zu_A:
-            return "A",[Zu_A, Zu_B, Zu_D, Zu_E]
-        elif Zu_min == Zu_B:
-            return "B",[Zu_A, Zu_B, Zu_D, Zu_E]
-        elif Zu_min == Zu_D:
-            return "D",[Zu_A, Zu_B, Zu_D, Zu_E]
-        elif Zu_min == Zu_E:
-            return "E",[Zu_A, Zu_B, Zu_D, Zu_E]
-
-
-    def validate (self, fy_sh, fy_fl, gamma_0=1.1):
-        '''Verifies the applicability of the polynomial model.
-
-        Checks if this L-Flange Segment fails according to failure mode B.
-
-        Args:
-            fy_sh (float): Yield stress of the shell material.
-            fy_fl (float): Yield stress of the flange material.
-            gamma_0 (float, optional): Material factor. Defaults to 1.1.
-
-        Raises:
-            ValueError: If the failure mode is not "B".
-        '''
-
-        failure_mode, failure_shellforces = self.failure_mode(fy_sh, fy_fl, gamma_0=gamma_0)
-
-        if failure_mode != "B":
-            raise ValueError(f"Failure mode {failure_mode} detected, while only failure mode B is supported.")
+        return min(self._M_pl_N_sh(Z), self._M_pl_V_fl(Z))
 
 
     @cached_property
@@ -1222,6 +1433,12 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     bending moment in the tensile domain is a cubic polynomial (ref. [2],
     eq. G.61).
 
+    The ultimate limit state of ref. [2], section G.1 is available through the
+    properties `Zu_A`, `Zu_B`, `Zu_D`, `Zu_E` (ultimate shell force of each
+    failure mode, per bolt pair), `Zu` (the lowest of them) and `failure_mode`
+    (the governing mode). The polynomial model is valid only if failure mode A
+    governs, which is checked by `validate()`.
+
     Attributes:
         a (float): Distance from inner flange face to bolt hole center.
         b (float): Distance from bolt hole center to shell center-line.
@@ -1255,6 +1472,13 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
             area between washers and flange [m]. Defaults to 0.0 m.
         settlement_factor (float): Factor reducing the amount of bolt settlement, to be
             taken as 1.0 for torque tightening and 0.5 for tension tightening. Defaults to 1.0.
+        steel_grade (str): Steel grade of shell and flange ("S235", "S275", "S355",
+            "S460" or "S500"), from which the yield stresses `fy_sh` and `fy_fl` are
+            derived (see `steel_yield_stress`). Defaults to "S355".
+        gamma_M0 (float): Material partial safety factor for the plastic resistance
+            of shell and flange in the ULS failure modes. It does not apply to the
+            bolt resistance, which already includes the factor 1.25 of ref. [2],
+            eq. G.6. Defaults to 1.1.
     '''
 
     a: float        # distance between inner face of the flange and center of the bolt hole
@@ -1294,102 +1518,33 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
                                      # taken as 1.0 for torque tightening and 0.5 for tension tightening.
 
 
-    def failure_mode (self, fy_sh, fy_fl, gamma_0=1.1):
-        '''Determines the failure mode of the flange.
+    steel_grade: str = "S355"   # Steel grade of shell and flange, for the yield stresses fy_sh and fy_fl
+    gamma_M0: float = 1.1       # Material partial safety factor for the plastic resistance of shell and flange
 
-        The ultimate shell force is evaluated for each of the failure modes
-        A, B, D and E of ref. [2] (eqs. G.24 to G.29), and the governing mode
-        is the one with the lowest ultimate shell force.
 
-        Args:
-            fy_sh (float): Yield stress of the shell material. Not used, since the
-                plastic hinge of T-flanges is in the flange (ref. [2], Figure G.6).
-            fy_fl (float): Yield stress of the flange material.
-            gamma_0 (float, optional): Material factor. Defaults to 1.1.
+    _bolts_per_segment = 2          # number of bolts in the segment (ULS)
+    _required_failure_mode = "A"    # ULS mode required by the polynomial model (ref. [2], eq. G.31)
 
-        Returns:
-            tuple: A tuple containing:
 
-                - str: The failure mode ("A", "B", "D", or "E").
-                - tuple: The shell force limits for each failure mode (Zu_A, Zu_B, Zu_D, Zu_E).
+    @cached_property
+    def _b_BD (self):
+        '''Distance between the plastic hinges of failure modes B and D (ref. [2], eq. G.28).'''
+        return self.b - self._s_min/2 - 0.8*self.r
+
+
+    @cached_property
+    def _b_E (self):
+        '''Distance between the plastic hinges of failure mode E (ref. [2], eq. G.29).'''
+        return self.b - (self._D_washer + self.Do)/4 - self._s_min/2 - 0.8*self.r
+
+
+    def _M_pl3 (self, Z):
+        '''Resistance of the plastic hinge in the flange, for a segment force Z (ref. [2], eq. G.11).
+
+        For T-flanges the hinge is in the flange (ref. [2], Figure G.6), and
+        each half of the flange carries the shear force Z/2.
         '''
-
-        from scipy.optimize import fsolve
-
-        fd_fl = fy_fl / gamma_0
-
-        Dw = self.washer.outer_diameter if self.washer else self.nut.bearing_diameter
-
-        # Reduced distances between plastic hinges (ref. [2], eqs. G.28 and G.29)
-        b_red = self.b - self.s/2 - 0.8*self.r
-        b_E = self.b - (Dw + self.Do)/4 - self.s/2 - 0.8*self.r
-
-        # Segment width at the middle surface of the shell (ref. [2], eq. G.34)
-        # and segment width reduced by the bolt hole (ref. [2], eq. G.7)
-        c = self.central_angle * (self.R - self.s/2)
-        c_hole = c - self.Do
-
-        # Failure mode A (ref. [2], eq. G.24)
-        F_tRd = self.bolt.ultimate_tensile_capacity()   # Bolt ultimate tensile capacity
-        Zu_A = 2*F_tRd                                  # Ultimate tower shell force for failure mode A
-
-        # Flange cross-section ultimate capacity, ref. [2], eqs. G.8, G.10 and G.11
-        Vu_fl = fd_fl * c * self.t / 3**0.5                # Pure shear ultimate capacity
-        Mu_fl = fd_fl * c * self.t**2 / 4                  # Pure bending ultimate capacity
-        MVu_fl = lambda V: Mu_fl * (1 - (V / Vu_fl)**2)**0.5 if V < Vu_fl else 0    # Bending ultimate capacity, concurrent with shear
-
-        # Each half of the T-flange segment carries half of the shell force Z.
-        # The iterative calculation of ref. [2], eq. G.11 is therefore done
-        # for the half segment, given the function Zu_half(Mu_pl3) returning
-        # the half shell force at flange shear ULS for a given value of Mu_pl3,
-        # and the result is doubled (factor 2 of eqs. G.25 to G.27).
-        def find_Zu (Zu_half):
-            return 2 * fsolve(lambda Z: Zu_half(MVu_fl(Z)) - Z, Zu_half(Mu_fl))[0]
-
-        # Failure mode B (ref. [2], eq. G.25)
-        a_red = self._a_red
-        Zu_B = find_Zu(lambda Mu_pl3: (F_tRd * a_red + Mu_pl3) / (a_red + b_red))
-
-        # Failure mode D (ref. [2], eqs. G.7, G.9 and G.26)
-        Mu_pl2 = fd_fl * c_hole * self.t**2 / 4
-        DMu_pl2 = F_tRd/2 * (self.Do/2 + Dw/2)/2
-        Zu_D = find_Zu(lambda Mu_pl3: (Mu_pl2 + DMu_pl2 + Mu_pl3) / b_red)
-
-        # Failure mode E (ref. [2], eq. G.27)
-        Zu_E = find_Zu(lambda Mu_pl3: (Mu_fl + Mu_pl3) / b_E)
-
-        # Determine the governing failure mode
-        Zu_min = min(Zu_A, Zu_B, Zu_D, Zu_E)
-
-        if Zu_min == Zu_A:
-            return "A",(Zu_A, Zu_B, Zu_D, Zu_E)
-        elif Zu_min == Zu_B:
-            return "B",(Zu_A, Zu_B, Zu_D, Zu_E)
-        elif Zu_min == Zu_D:
-            return "D",(Zu_A, Zu_B, Zu_D, Zu_E)
-        elif Zu_min == Zu_E:
-            return "E",(Zu_A, Zu_B, Zu_D, Zu_E)
-
-
-    def validate (self, fy_sh, fy_fl, gamma_0=1.1):
-        '''Verifies the applicability of the polynomial model.
-
-        Checks if this T-Flange Segment fails according to failure mode A
-        (ref. [2], eq. G.31).
-
-        Args:
-            fy_sh (float): Yield stress of the shell material.
-            fy_fl (float): Yield stress of the flange material.
-            gamma_0 (float, optional): Material factor. Defaults to 1.1.
-
-        Raises:
-            ValueError: If the failure mode is not "A".
-        '''
-
-        failure_mode, failure_shellforces = self.failure_mode(fy_sh, fy_fl, gamma_0=gamma_0)
-
-        if failure_mode != "A":
-            raise ValueError(f"Failure mode {failure_mode} detected, while only failure mode A is supported.")
+        return self._M_pl_V_fl(Z/2)
 
 
     @cached_property
@@ -2018,6 +2173,58 @@ def average_shell_thickness (s, s_ratio=1.0):
         float: The average shell thickness `s * (1 + s_ratio) / 2`.
     '''
     return s * (1 + s_ratio) / 2
+
+
+
+def steel_yield_stress (grade, thickness):
+    '''Yield stress of a structural steel, as a function of the thickness.
+
+    The values are those of EN 10025-2, in Pa, for the thickness classes
+    up to 16, 40, 63, 80, 100, 150, 200, 250 and 400 mm:
+
+    | Grade | ≤ 16 | ≤ 40 | ≤ 63 | ≤ 80 | ≤ 100 | ≤ 150 | ≤ 200 | ≤ 250 | ≤ 400 |
+    |-------|------|------|------|------|-------|-------|-------|-------|-------|
+    | S235  | 235  | 225  | 215  | 215  | 215   | 195   | 185   | 175   | 165   |
+    | S275  | 275  | 265  | 255  | 245  | 235   | 225   | 215   | 205   | 195   |
+    | S355  | 355  | 345  | 335  | 325  | 315   | 295   | 285   | 275   | 265   |
+    | S460  | 460  | 440  | 420  | 400  | 390   | 390   | 390   | 390   | 390   |
+    | S500  | 500  | 480  | 460  | 450  | 450   | 450   | 450   | 450   | 450   |
+
+    (values in MPa). The table is stored in the package database
+    `flangesegments.steel_yield_stress`. Unlike the rest of the module, this
+    function requires SI units: thickness in m, result in Pa.
+
+    Example:
+        ```python
+        from pyflange.flangesegments import steel_yield_stress
+
+        fy = steel_yield_stress("S355", 0.200)   # 200 mm thick flange: 285e6 Pa
+        ```
+
+    Args:
+        grade (str): Steel grade: "S235", "S275", "S355", "S460" or "S500".
+        thickness (float): Thickness of the steel plate or forging, in m.
+
+    Returns:
+        float: The yield stress, in Pa.
+
+    Raises:
+        ValueError: If the grade is not in the table, or if the thickness is
+            not positive or exceeds 400 mm.
+    '''
+    from .utils import load_csv_database
+    table = load_csv_database("flangesegments.steel_yield_stress")
+
+    if grade not in table.index:
+        raise ValueError(f"Unknown steel grade '{grade}'. Available grades: {', '.join(table.index)}.")
+    if not thickness > 0:
+        raise ValueError(f"The thickness must be positive (got {thickness}).")
+
+    for max_thickness in table.columns:
+        if thickness <= float(max_thickness) + 1e-9:
+            return float(table.loc[grade, max_thickness])
+
+    raise ValueError(f"The thickness {thickness} m exceeds the maximum thickness ({float(table.columns[-1])} m) of the yield stress table.")
 
 
 

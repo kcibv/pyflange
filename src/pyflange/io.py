@@ -291,7 +291,8 @@ def create_flangesegment(**params):
             't', 'R', 'central_angle', 'Zg', 'bolt', 'preload_ratio' or 'Fv',
             'Do', 'washer', 'nut', 'gap', 'tilt_angle', 'E', 'G', 's_ratio',
             'r', 'k_shell', 'PPL', 'DFT', 'settlement_factor' and, optionally,
-            'type' (default `DEFAULT_FLANGE_SEGMENT_TYPE`). Other keys are
+            'type' (default `DEFAULT_FLANGE_SEGMENT_TYPE`), 'steel_grade'
+            (default "S355") and 'gamma_M0' (default 1.1). Other keys are
             ignored.
 
     Returns:
@@ -345,7 +346,9 @@ def create_flangesegment(**params):
         k_shell = k_shell,
         PPL = params['PPL'],
         DFT = params['DFT'],
-        settlement_factor = params['settlement_factor'])
+        settlement_factor = params['settlement_factor'],
+        steel_grade = params.get('steel_grade', "S355"),
+        gamma_M0 = params.get('gamma_M0', 1.1))
 
 
 def _flangesegment_class(type_name):
@@ -619,6 +622,8 @@ def create_fatiguecase_sampler(fseg, markov_matrix, **params):
         E = fseg.E, G = fseg.G, s_ratio = fseg.s_ratio, r = fseg.r,
         k_shell = "interp",
         settlement_factor = fseg.settlement_factor,
+        steel_grade = fseg.steel_grade,
+        gamma_M0 = fseg.gamma_M0,
         segment_class = type(fseg))
 
     # Uncertainty in load ranges
@@ -954,7 +959,10 @@ def flangesegment_to_dict(fseg, verbose=False):
 
         "PPL": fseg.PPL,
         "DFT": fseg.DFT,
-        "settlement_factor": fseg.settlement_factor
+        "settlement_factor": fseg.settlement_factor,
+
+        "steel_grade": fseg.steel_grade,
+        "gamma_M0": fseg.gamma_M0
     }
 
     if verbose:
@@ -1020,6 +1028,16 @@ def flangesegment_to_dict(fseg, verbose=False):
         d["k_seg"] = fseg._k_seg
         d["a_star"] = fseg._a_star
         d["I_tg"] = fseg._I_tg
+        d["ULS"] = {
+            "fy_sh": fseg.fy_sh,
+            "fy_fl": fseg.fy_fl,
+            "Zu_A": fseg.Zu_A,
+            "Zu_B": fseg.Zu_B,
+            "Zu_D": fseg.Zu_D,
+            "Zu_E": fseg.Zu_E,
+            "Zu": fseg.Zu,
+            "FailureMode": fseg.failure_mode
+        }
 
     return _plain(d)
 

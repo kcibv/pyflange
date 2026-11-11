@@ -612,6 +612,8 @@ def standard_PolynomialLFlangeSegment_sampler (
                                         # settlement, to be taken as 1.0 for
                                         # torque tightening and 0.5 for tension
                                         # tightening.
+        steel_grade: str = "S355",      # Steel grade of shell and flange
+        gamma_M0: float = 1.1,          # Material factor of shell and flange (ULS)
         segment_class: type = None      # Class of the generated segments.
                                         # Default PolynomialLFlangeSegment.
     ):
@@ -672,6 +674,10 @@ def standard_PolynomialLFlangeSegment_sampler (
         settlement_factor (float, optional): Factor reducing the amount of bolt 
             settlement, to be taken as 1.0 for torque tightening and 0.5 for
             tension tightening. If omitted, it defaults to 1.0.
+        steel_grade (str, optional): Steel grade of shell and flange, for the
+            ULS failure modes (see `PolynomialLFlangeSegment`). Defaults to "S355".
+        gamma_M0 (float, optional): Material partial safety factor of shell
+            and flange, for the ULS failure modes. Defaults to 1.1.
         segment_class (type, optional): The class of the generated flange
             segments: `PolynomialLFlangeSegment` or one of its subclasses,
             such as `PolynomialLFlangeSegmentED2`. If omitted, it defaults to
@@ -753,6 +759,7 @@ def standard_PolynomialLFlangeSegment_sampler (
                 Do=Do, washer=washer, nut=nut, gap=gap, tilt_angle=tilt,
                 E=E, G=G, s_ratio=s_ratio, r=r,
                 Fv=Fv, PPL=PPL, DFT=DFT, settlement_factor=settlement_factor,
+                steel_grade=steel_grade, gamma_M0=gamma_M0,
                 k_shell = interp_shell_stiffness(gap.angle) if k_shell=='interp' else k_shell
             )
 

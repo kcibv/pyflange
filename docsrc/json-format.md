@@ -109,7 +109,8 @@ FlangeSegment
     "s_ratio": 1.0, "r": 0.01,
     "k_shell": "interp",
     "PPL": 0.05, "DFT": 300e-6,
-    "settlement_factor": 0.5
+    "settlement_factor": 0.5,
+    "steel_grade": "S355", "gamma_M0": 1.1
 }
 ```
 
@@ -139,8 +140,13 @@ FlangeSegment
 | `PPL` | number | - | Preload loss due to plastic deformations, as a fraction of `Fv` (e.g. 0.05 for 5%). |
 | `DFT` | number | m | Dry film thickness of the coatings, used to evaluate the settlement preload losses. |
 | `settlement_factor` | number | - | Factor reducing the settlement preload losses (e.g. 1.0 for torque tightening, 0.5 for tension tightening). |
+| `steel_grade` | string | - | Steel grade of shell and flange (`"S235"`, `"S275"`, `"S355"`, `"S460"` or `"S500"`), from which the yield stresses of the ULS failure modes are derived (see `pyflange.flangesegments.steel_yield_stress`). Optional, default `"S355"`. |
+| `gamma_M0` | number | - | Material partial safety factor for the plastic resistance of shell and flange in the ULS failure modes. Optional, default 1.1. |
 
-All keys are required, except `type`, `washer` and one of `preload_ratio` / `Fv`.
+All keys are required, except `type`, `washer`, `steel_grade`, `gamma_M0` and
+one of `preload_ratio` / `Fv`. `steel_grade` and `gamma_M0` were added in
+PyFlange 0.16.0 without changing the format version: older PyFlange versions
+ignore them.
 
 ### Bolts
 
@@ -363,7 +369,9 @@ back as cases. They contain:
   Markov matrix `BoltStressMarkovMatrix` (stresses in Pa) and a report of the
   flange segment intermediate quantities, added to the `FlangeSegment`
   section (`BoltPreload`, `Point1` to `Point4`, polynomial coefficients,
-  `TransferFunctions`, stiffnesses, etc.).
+  `TransferFunctions`, stiffnesses, etc.), including the `ULS` object with the
+  yield stresses `fy_sh` and `fy_fl` (Pa), the ultimate shell forces `Zu_A`,
+  `Zu_B`, `Zu_D`, `Zu_E` and `Zu` (N) and the governing `FailureMode`.
 
 
 Changes from version 0.1.0

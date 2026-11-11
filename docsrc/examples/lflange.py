@@ -73,16 +73,17 @@ fseg = PolynomialLFlangeSegment(
     k_shell = shell_stiffness(R, average_shell_thickness(s, s_ratio), gap_angle),   # from FEA data
     PPL = 0.05,                         # 5% preload loss due to plastic strain
     DFT = 300e-6,                       # 300 um coating thickness
-    settlement_factor = 0.5)            # tension tightening with re-tightening
+    settlement_factor = 0.5,            # tension tightening with re-tightening
+    steel_grade = "S355")               # shell and flange material (default)
 # --8<-- [end:segment]
 
 
 # --8<-- [start:validate]
-mode, Zu = fseg.failure_mode(fy_sh=355*MPa, fy_fl=335*MPa)
-print(f"Governing failure mode: {mode}")
-print(f"Ultimate shell forces A, B, D, E [kN]: {[round(Z/kN) for Z in Zu]}")
+print(f"Yield stress of shell and flange [MPa]: {fseg.fy_sh/MPa:.0f}, {fseg.fy_fl/MPa:.0f}")
+print(f"Ultimate shell forces A, B, D, E [kN]: {[round(Z/kN) for Z in (fseg.Zu_A, fseg.Zu_B, fseg.Zu_D, fseg.Zu_E)]}")
+print(f"Governing failure mode: {fseg.failure_mode}, Zu = {fseg.Zu/kN:.0f} kN")
 
-fseg.validate(fy_sh=355*MPa, fy_fl=335*MPa)    # raises ValueError if mode B does not govern
+fseg.validate()     # raises ValueError if mode B does not govern
 # --8<-- [end:validate]
 
 

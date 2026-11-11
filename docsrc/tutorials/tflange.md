@@ -46,11 +46,15 @@ manufacturing specification.
 ```
 
 ```
-Governing failure mode: A
-Ultimate shell forces A, B, D, E [kN]: [2121, 2950, 4843, 9790]
+Yield stress of shell and flange [MPa]: 315, 295
+Ultimate shell forces A, B, D, E [kN]: [2121, 2593, 3000, 3000]
+Governing failure mode: A, Zu = 2121 kN
 ```
 
 For T-flanges the polynomial model requires bolt failure (mode A) to govern.
+The ultimate forces are per bolt pair. Here modes D and E reach the plastic
+resistance of the shell in tension (3000 kN), the upper limit PyFlange
+applies to the modes with plastic hinges.
 
 ## 3. Bolt force and moment
 

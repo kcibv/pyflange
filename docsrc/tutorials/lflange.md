@@ -100,9 +100,15 @@ mode (ref. [2], eq. G.30):
 ```
 
 ```
-Governing failure mode: B
-Ultimate shell forces A, B, D, E [kN]: [3128, 1805, 2206, 5503]
+Yield stress of shell and flange [MPa]: 335, 285
+Ultimate shell forces A, B, D, E [kN]: [3128, 1795, 2008, 2632]
+Governing failure mode: B, Zu = 1795 kN
 ```
+
+The yield stresses follow from the steel grade (`steel_grade`, default
+`"S355"`) and the thickness of shell and flange; the material factor
+`gamma_M0` defaults to 1.1. `Zu` is the ultimate shell force of the segment
+for the ULS check Z ≤ F<sub>u</sub> (ref. [2], eq. G.1).
 
 `validate()` raises a `ValueError` if another mode governs, so a script
 stops before producing results outside the validity range of the model.

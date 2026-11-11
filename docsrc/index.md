@@ -96,7 +96,8 @@ Fs = fseg.bolt_axial_force(500e3)       # bolt force for a 500 kN shell force
 |------|-------|
 | Bolt force and bolt moment curves of L-flanges and T-flanges (IEC 61400-6 AMD1, Annex G.2) | [`flangesegments`](apis/flangesegments.md), [L-flange tutorial](tutorials/lflange.md), [T-flange tutorial](tutorials/tflange.md) |
 | The changes of the model proposed for IEC 61400-6 ED2 | [Design gaps and ED2 tutorial](tutorials/design-gaps.md) |
-| Check that the polynomial model is applicable (governing ULS failure mode) | [`failure_mode`, `validate`](apis/flangesegments.md) |
+| ULS resistance of the flange segment and governing failure mode | [`Zu`, `Zu_A` … `Zu_E`, `failure_mode`](apis/flangesegments.md) |
+| Check that the polynomial model is applicable (governing ULS failure mode) | [`validate`](apis/flangesegments.md) |
 | Design gap heights (log-normal AMD1, Weibull ED2) | [`stats.gap_height_distribution`](apis/stats.md) |
 | Shell stiffness from a database of 2160 FEA results | [`flangesegments.shell_stiffness`](apis/flangesegments.md) |
 | Preload losses due to settlement and plastic strain | [`PolynomialLFlangeSegment`](apis/flangesegments.md) |

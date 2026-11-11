@@ -441,31 +441,6 @@ class TestPolynomialLFlangeSegment:
         test(self.fseg(120*deg, 1.0, 1*deg), -24.4)
 
 
-    def test_failure_mode (self):
-        from scipy.optimize import fsolve
-
-        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
-        fy_sh, fy_fl, gamma_0 = 335e6, 285e6, 1.1
-        fm, (Zu_A, Zu_B, Zu_D, Zu_E) = fseg.failure_mode(fy_sh, fy_fl, gamma_0)
-        assert fm == "B"
-
-        # Independent check of failure mode D (IEC 61400-6, eqs. G.4, G.7, G.9 and G.11),
-        # with the segment width c at the middle surface of the shell and c' = c - dB.
-        fd_sh, fd_fl = fy_sh / gamma_0, fy_fl / gamma_0
-        F_tR = fseg.bolt.ultimate_tensile_capacity()
-        Dw = fseg.nut.bearing_diameter
-        c = fseg.central_angle * (fseg.R - fseg.s/2)
-        M_pl2_hole = fd_fl * (c - fseg.Do) * fseg.t**2 / 4
-        DM_pl2 = F_tR/2 * (Dw + fseg.Do)/4
-        M_pl_sh = lambda N: fd_sh * c * fseg.s**2 / 4 * (1 - (N / (fd_sh * c * fseg.s))**2)
-        M_pl_fl = lambda V: fd_fl * c * fseg.t**2 / 4 * (1 - (V / (fd_fl * c * fseg.t / 3**0.5))**2)**0.5
-        b_fl = fseg.b - fseg.s/2 - 0.8*fseg.r
-        Zu_D_sh = fsolve(lambda Z: (M_pl2_hole + DM_pl2 + M_pl_sh(Z)) / fseg.b - Z, F_tR)[0]
-        Zu_D_fl = fsolve(lambda Z: (M_pl2_hole + DM_pl2 + M_pl_fl(Z)) / b_fl - Z, F_tR)[0]
-        assert Zu_A == pytest.approx(F_tR)
-        assert Zu_D == pytest.approx(min(Zu_D_sh, Zu_D_fl))
-
-
     def test_prying_lever_ratio (self):
         from dataclasses import replace
         fseg = self.fseg(30*deg, 1.0, 0.0*deg)
@@ -493,18 +468,168 @@ class TestPolynomialLFlangeSegment:
         assert replace(fseg, t=1.1*(a + b))._a_red == pytest.approx(a)
 
 
+    def ULS_reference (self, fseg):
+        # Independent evaluation of the ultimate shell forces of an L-flange
+        # (IEC 61400-6, eqs. G.2 to G.11), solving each fixed-point equation
+        # with fsolve and limiting the result to the plastic resistance of
+        # the shell in tension and of the flange in shear.
+        from scipy.optimize import fsolve
+        fd_sh, fd_fl = fseg.fy_sh / fseg.gamma_M0, fseg.fy_fl / fseg.gamma_M0
+        s = fseg.s * min(1, fseg.s_ratio)
+        F_tR = 0.9 * fseg.bolt.ultimate_tensile_stress * fseg.bolt.thread_cross_section.area / 1.25
+        D = fseg.nut.bearing_diameter
+        c = fseg.central_angle * (fseg.R - s/2)
+        N_pl, V_pl = fd_sh * c * s, fd_fl * c * fseg.t / 3**0.5
+        M_pl3 = lambda Z: min(fd_sh * c * s**2 / 4 * max(0, 1 - (Z/N_pl)**2),
+                              fd_fl * c * fseg.t**2 / 4 * max(0, 1 - (Z/V_pl)**2)**0.5)
+        Zu = lambda M, b: min(fsolve(lambda Z: (M + M_pl3(Z)) / b - Z, F_tR)[0], N_pl, V_pl)
+        a = fseg._a_red
+        return {
+            "A": F_tR,
+            "B": Zu(F_tR * a, a + fseg.b),
+            "D": Zu(fd_fl * (c - fseg.Do) * fseg.t**2 / 4 + F_tR/2 * (D + fseg.Do)/4, fseg.b),
+            "E": Zu(fd_fl * c * fseg.t**2 / 4, fseg.b - (D + fseg.Do)/4)}
+
+
+    def test_ULS_defaults (self):
+        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
+        assert fseg.steel_grade == "S355"
+        assert fseg.gamma_M0 == 1.1
+        assert fseg.fy_sh == pytest.approx(325e6)   # s = 72 mm
+        assert fseg.fy_fl == pytest.approx(285e6)   # t = 200 mm
+
+        # Grade and thickness of the thinner shell
+        from dataclasses import replace
+        fseg = replace(fseg, steel_grade="S460", s_ratio=0.5)
+        assert fseg.fy_sh == pytest.approx(440e6)   # 36 mm
+        assert fseg.fy_fl == pytest.approx(390e6)
+
+
+    def test_failure_mode (self):
+        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
+        ref = self.ULS_reference(fseg)
+        assert fseg.Zu_A == pytest.approx(ref["A"])
+        assert fseg.Zu_B == pytest.approx(ref["B"])
+        assert fseg.Zu_D == pytest.approx(ref["D"])
+        assert fseg.Zu_E == pytest.approx(ref["E"])
+        assert fseg.Zu == pytest.approx(min(ref.values()))
+        assert fseg.failure_mode == "B"
+
+
+    def test_failure_mode_D (self):
+        # A thin flange with a thick shell: the plastic hinge M_pl,3 is in the
+        # flange and mode D governs. The lever arm is b for both hinge
+        # locations (IEC 61400-6, eqs. G.3 to G.5).
+        from dataclasses import replace
+        fseg = replace(self.fseg(30*deg, 1.0, 0.0*deg), s=0.120, t=0.110)
+        ref = self.ULS_reference(fseg)
+        assert fseg._M_pl_V_fl(fseg.Zu_D) < fseg._M_pl_N_sh(fseg.Zu_D)
+        for mode in "ABDE":
+            assert getattr(fseg, f"Zu_{mode}") == pytest.approx(ref[mode])
+        assert fseg.failure_mode == "D"
+        assert fseg.Zu == pytest.approx(ref["D"])
+
+
+    def test_ULS_gamma_M0 (self):
+        from dataclasses import replace
+        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
+        fseg2 = replace(fseg, gamma_M0=1.0)
+        assert fseg2._M_pl_fl == pytest.approx(1.1 * fseg._M_pl_fl)
+        assert fseg2._N_pl_sh == pytest.approx(1.1 * fseg._N_pl_sh)
+        assert fseg2.Zu_A == pytest.approx(fseg.Zu_A)     # bolt: not affected
+        for mode in "BDE":
+            assert getattr(fseg2, f"Zu_{mode}") > getattr(fseg, f"Zu_{mode}")
+            assert getattr(fseg2, f"Zu_{mode}") == pytest.approx(self.ULS_reference(fseg2)[mode])
+
+
+    def test_ULS_cap (self):
+        # A thin shell: mode E would exceed the plastic tensile resistance of the shell
+        from dataclasses import replace
+        fseg = replace(self.fseg(30*deg, 1.0, 0.0*deg), s=0.030)
+        N_pl = fseg.fy_sh / fseg.gamma_M0 * fseg._c * fseg.s
+        assert fseg._Zu_cap == pytest.approx(N_pl)
+        assert fseg.Zu_E == pytest.approx(N_pl)
+        assert fseg.Zu_E == pytest.approx(self.ULS_reference(fseg)["E"])
+
+
+    def test_ULS_thinner_bottom_shell (self):
+        from dataclasses import replace
+        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
+        thin = replace(fseg, s_ratio=0.8)
+        assert thin._s_min == pytest.approx(0.8 * fseg.s)
+        assert thin._N_pl_sh < fseg._N_pl_sh
+        for mode in "ABDE":
+            assert getattr(thin, f"Zu_{mode}") == pytest.approx(self.ULS_reference(thin)[mode])
+
+
+    def test_ULS_washer_diameter (self):
+        from dataclasses import replace
+        from pyflange.bolts import FlatWasher
+        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
+        s_nut = fseg.nut.inscribed_diameter
+
+        # No washer: bearing diameter of the nut
+        assert fseg._D_washer == fseg.nut.bearing_diameter
+
+        # Wide washer: outer diameter of the washer (IEC 61400-6, Figure G.3)
+        washer = FlatWasher(outer_diameter=s_nut + 0.030, inner_diameter=0.086, thickness=0.010)
+        assert replace(fseg, washer=washer)._D_washer == pytest.approx(s_nut + 0.030)
+
+        # Narrow washer: limited to s_nut + 2*h_w
+        washer = FlatWasher(outer_diameter=s_nut + 0.015, inner_diameter=0.086, thickness=0.010)
+        wseg = replace(fseg, washer=washer)
+        assert wseg._D_washer == pytest.approx(s_nut + 0.020)
+        assert wseg._b_E == pytest.approx(fseg.b - (s_nut + 0.020 + fseg.Do)/4)
+        assert wseg._DM_pl2 == pytest.approx(wseg._F_tR/2 * (s_nut + 0.020 + fseg.Do)/4)
+
+
+    def test_ULS_is_cached (self):
+        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
+        assert fseg.Zu is fseg.Zu
+        assert fseg.failure_mode is fseg.failure_mode
+
+
+    def test_ULS_invalid_lever_arm (self):
+        from dataclasses import replace
+        fseg = replace(self.fseg(30*deg, 1.0, 0.0*deg), b=0.040)   # b'_E < 0
+        with pytest.raises(ValueError):
+            fseg.Zu_E
+
+
     def test_validate (self):
         fseg = self.fseg(30*deg, 1.0, 0.0*deg)
-        fseg.validate(335e6, 285e6)     # failure mode B: no error
+        fseg.validate()     # failure mode B: no error
 
-        fseg.failure_mode = lambda *args, **kwargs: ("A", [])
+        fseg.failure_mode = "A"
         with pytest.raises(ValueError):
-            fseg.validate(335e6, 285e6)
+            fseg.validate()
 
 
     @pytest.mark.parametrize("path", validation_cases("L"), ids=os.path.basename)
     def test_validation_cases (self, path):
         check_validation_case(path)
+
+
+
+class TestSteelYieldStress:
+
+    def test_table (self):
+        assert steel_yield_stress("S355", 0.016) == 355e6
+        assert steel_yield_stress("S355", 0.0161) == 345e6
+        assert steel_yield_stress("S355", 0.200) == 285e6
+        assert steel_yield_stress("S355", 0.400) == 265e6
+        assert steel_yield_stress("S235", 0.050) == 215e6
+        assert steel_yield_stress("S275", 0.090) == 235e6
+        assert steel_yield_stress("S460", 0.010) == 460e6
+        assert steel_yield_stress("S500", 0.300) == 450e6
+
+    def test_invalid (self):
+        with pytest.raises(ValueError):
+            steel_yield_stress("S690", 0.050)
+        with pytest.raises(ValueError):
+            steel_yield_stress("S355", 0.401)
+        with pytest.raises(ValueError):
+            steel_yield_stress("S355", 0.0)
 
 
 
@@ -518,6 +643,14 @@ class TestPolynomialLFlangeSegmentED2:
     def test_inheritance (self):
         fseg = self.fseg()
         assert isinstance(fseg, PolynomialLFlangeSegment)
+
+    def test_ULS (self):
+        # The ED2 changes do not affect the ULS failure modes
+        fseg = self.fseg()
+        amd1 = TestPolynomialLFlangeSegment().fseg()
+        for name in ("Zu_A", "Zu_B", "Zu_D", "Zu_E", "Zu", "failure_mode", "fy_sh", "fy_fl"):
+            assert getattr(fseg, name) == getattr(amd1, name)
+        fseg.validate()
 
     def test_a_star (self):
         fseg = self.fseg()
@@ -882,41 +1015,140 @@ class TestPolynomialTFlangeSegment:
                 assert fseg.bolt_bending_moment(Z) == pytest.approx(expected)
 
 
-    def test_failure_mode (self):
-        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
-        fy_fl, gamma_0 = 285e6, 1.1
-        fm, (Zu_A, Zu_B, Zu_D, Zu_E) = fseg.failure_mode(335e6, fy_fl, gamma_0)
-        assert fm == "A"
-
-        # Independent check of IEC 61400-6, eqs. G.24 to G.29: each ultimate force
-        # is a fixed point of the corresponding equation, with the shear force
-        # in the flange equal to half of the segment force.
-        fd = fy_fl / gamma_0
-        F_tR = fseg.bolt.ultimate_tensile_capacity()
-        Dw = fseg.nut.bearing_diameter
-        c = fseg.central_angle * (fseg.R - fseg.s/2)
-        b_BD = fseg.b - fseg.s/2 - 4/5*fseg.r
-        b_E = fseg.b - (Dw + fseg.Do)/4 - fseg.s/2 - 4/5*fseg.r
+    def ULS_reference (self, fseg):
+        # Independent evaluation of the ultimate shell forces of a T-flange
+        # (IEC 61400-6, eqs. G.6 to G.11 and G.24 to G.29): each ultimate
+        # force is a fixed point of the corresponding equation, with the shear
+        # force in the flange equal to half of the segment force, limited to
+        # the plastic resistance of the shell in tension and of the flange in shear.
+        from scipy.optimize import fsolve
+        fd_sh, fd = fseg.fy_sh / fseg.gamma_M0, fseg.fy_fl / fseg.gamma_M0
+        s = fseg.s * min(1, fseg.s_ratio)
+        F_tR = 0.9 * fseg.bolt.ultimate_tensile_stress * fseg.bolt.thread_cross_section.area / 1.25
+        if fseg.washer is None:
+            Dw = fseg.nut.bearing_diameter
+        else:
+            # Figure G.3: washer diameter, limited for narrow washers
+            Dw, s_nut, h_w = fseg.washer.outer_diameter, fseg.nut.inscribed_diameter, fseg.washer.thickness
+            Dw = Dw if Dw - s_nut >= 2*h_w else s_nut + 2*h_w
+        c = fseg.central_angle * (fseg.R - s/2)
+        b_BD = fseg.b - s/2 - 4/5*fseg.r
+        b_E = fseg.b - (Dw + fseg.Do)/4 - s/2 - 4/5*fseg.r
         M_pl2_hole = fd * (c - fseg.Do) * fseg.t**2 / 4
         M_pl2 = fd * c * fseg.t**2 / 4
         DM_pl2 = F_tR/2 * (Dw + fseg.Do)/4
         V_pl = fd * fseg.t * c / 3**0.5
+        Z_cap = min(fd_sh * c * s, 2 * V_pl)
         M_pl3 = lambda Fu: M_pl2 * (1 - (Fu/2 / V_pl)**2)**0.5 if Fu/2 < V_pl else 0
+        Zu = lambda M, b: min(fsolve(lambda Z: 2 * (M + M_pl3(Z)) / b - Z, F_tR)[0], Z_cap)
         a = fseg._a_red
+        return {
+            "A": 2 * F_tR,
+            "B": Zu(F_tR*a, a + b_BD),
+            "D": Zu(M_pl2_hole + DM_pl2, b_BD),
+            "E": Zu(M_pl2, b_E)}
 
-        assert Zu_A == pytest.approx(2 * F_tR)
-        assert Zu_B == pytest.approx(2 * (F_tR*a + M_pl3(Zu_B)) / (a + b_BD))
-        assert Zu_D == pytest.approx(2 * (M_pl2_hole + DM_pl2 + M_pl3(Zu_D)) / b_BD)
-        assert Zu_E == pytest.approx(2 * (M_pl2 + M_pl3(Zu_E)) / b_E)
+
+    def test_ULS_defaults (self):
+        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
+        assert fseg.steel_grade == "S355"
+        assert fseg.gamma_M0 == 1.1
+        assert fseg.fy_sh == pytest.approx(315e6)   # s = 90 mm
+        assert fseg.fy_fl == pytest.approx(295e6)   # t = 120 mm
+
+
+    def test_failure_mode (self):
+        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
+        ref = self.ULS_reference(fseg)
+        for mode in "ABDE":
+            assert getattr(fseg, f"Zu_{mode}") == pytest.approx(ref[mode])
+        assert fseg.Zu == pytest.approx(min(ref.values()))
+        assert fseg.failure_mode == "A"
+        assert fseg.Zu_B < fseg._Zu_cap     # mode B found by iteration, not capped
+
+
+    def ULS_fseg (self):
+        # A thinner flange with a longer b than the fixture: modes D and E
+        # are found by iteration (IEC 61400-6, eqs. G.26 and G.27), below the
+        # plastic resistance of shell and flange, and mode B governs.
+        from dataclasses import replace
+        return replace(self.fseg(30*deg, 1.0, 0.0*deg), t=0.080, b=0.140)
+
+
+    def test_failure_modes_uncapped (self):
+        fseg = self.ULS_fseg()
+        ref = self.ULS_reference(fseg)
+        for mode in "BDE":
+            Zu = getattr(fseg, f"Zu_{mode}")
+            assert Zu < 0.99 * fseg._Zu_cap
+            assert 0 < fseg._M_pl3(Zu) < fseg._M_pl_fl     # partial M-V interaction
+        for mode in "ABDE":
+            assert getattr(fseg, f"Zu_{mode}") == pytest.approx(ref[mode])
+        assert fseg.failure_mode == "B"
+        assert fseg.Zu == pytest.approx(ref["B"])
+        with pytest.raises(ValueError):
+            fseg.validate()     # T-flanges require mode A
+
+
+    def test_ULS_washer_diameter (self):
+        from dataclasses import replace
+        from pyflange.bolts import FlatWasher
+        fseg = self.ULS_fseg()
+        s_nut = fseg.nut.inscribed_diameter
+        assert fseg._D_washer == fseg.nut.bearing_diameter     # no washer
+
+        # Wide washer: outer diameter of the washer (IEC 61400-6, Figure G.3)
+        wide = replace(fseg, washer=FlatWasher(outer_diameter=s_nut + 0.015, inner_diameter=0.052, thickness=0.005))
+        assert wide._D_washer == pytest.approx(s_nut + 0.015)
+
+        # Narrow washer: limited to s_nut + 2*h_w
+        narrow = replace(fseg, washer=FlatWasher(outer_diameter=s_nut + 0.005, inner_diameter=0.052, thickness=0.005))
+        assert narrow._D_washer == pytest.approx(s_nut + 0.010)
+        assert narrow._b_E == pytest.approx(fseg.b - (s_nut + 0.010 + fseg.Do)/4 - fseg.s/2 - 0.8*fseg.r)
+
+        for wseg in (wide, narrow):
+            ref = self.ULS_reference(wseg)
+            assert wseg.Zu_D < wseg._Zu_cap and wseg.Zu_E < wseg._Zu_cap
+            for mode in "ABDE":
+                assert getattr(wseg, f"Zu_{mode}") == pytest.approx(ref[mode])
+
+        # A larger D gives a larger moment increment (eq. G.9) and a shorter b'_E (eq. G.29)
+        assert wide.Zu_D > narrow.Zu_D
+        assert wide.Zu_E > narrow.Zu_E
+
+
+    def test_ULS_thinner_bottom_shell (self):
+        from dataclasses import replace
+        fseg = self.ULS_fseg()
+        thin = replace(fseg, s_ratio=0.8)
+        assert thin._s_min == pytest.approx(0.8 * fseg.s)
+        assert thin._b_BD == pytest.approx(fseg._b_BD + 0.1 * fseg.s)     # eq. G.28 with the thinner shell
+        assert thin._N_pl_sh < fseg._N_pl_sh
+        assert thin.fy_sh == steel_yield_stress("S355", 0.8 * fseg.s)
+        ref = self.ULS_reference(thin)
+        for mode in "ABDE":
+            assert getattr(thin, f"Zu_{mode}") == pytest.approx(ref[mode])
+        for mode in "BDE":
+            assert getattr(thin, f"Zu_{mode}") < getattr(fseg, f"Zu_{mode}")
+
+
+    def test_ULS_cap (self):
+        # In the test fixture, mode E is limited by the shear resistance of the
+        # two halves of the flange, 2*V_pl,Fl, or by the tensile resistance of the shell.
+        fseg = self.fseg(30*deg, 1.0, 0.0*deg)
+        V_pl = fseg.fy_fl / fseg.gamma_M0 * fseg._c * fseg.t / 3**0.5
+        N_pl = fseg.fy_sh / fseg.gamma_M0 * fseg._c * fseg.s
+        assert fseg._Zu_cap == pytest.approx(min(2*V_pl, N_pl))
+        assert fseg.Zu_E == pytest.approx(fseg._Zu_cap)
 
 
     def test_validate (self):
         fseg = self.fseg(30*deg, 1.0, 0.0*deg)
-        fseg.validate(335e6, 285e6)     # failure mode A: no error
+        fseg.validate()     # failure mode A: no error
 
-        fseg.failure_mode = lambda *args, **kwargs: ("B", [])
+        fseg.failure_mode = "B"
         with pytest.raises(ValueError):
-            fseg.validate(335e6, 285e6)
+            fseg.validate()
 
 
     def test_polynomial_initial_slope (self):
@@ -1006,6 +1238,14 @@ class TestPolynomialTFlangeSegmentED2:
     def test_inheritance (self):
         fseg = self.fseg()
         assert isinstance(fseg, PolynomialTFlangeSegment)
+
+    def test_ULS (self):
+        # The ED2 changes do not affect the ULS failure modes
+        fseg = self.fseg()
+        amd1 = TestPolynomialTFlangeSegment().fseg()
+        for name in ("Zu_A", "Zu_B", "Zu_D", "Zu_E", "Zu", "failure_mode", "fy_sh", "fy_fl"):
+            assert getattr(fseg, name) == getattr(amd1, name)
+        fseg.validate()
 
     def test_gap_stiffness (self):
         for gap_angle in (20*deg, 30*deg, 60*deg, 120*deg, 180*deg):

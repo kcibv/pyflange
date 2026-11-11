@@ -3,6 +3,75 @@
 The notable changes of each PyFlange version. The complete history is
 available in the [GitHub repository](https://github.com/kcibv/pyflange/commits/main).
 
+## 0.16.0 (unreleased)
+
+!!! warning "Breaking changes"
+    The ULS failure modes of the flange segments are now computed from
+    properties of the segment instead of method arguments:
+
+    - `failure_mode(fy_sh, fy_fl, gamma_0)` is replaced by the cached
+      property `failure_mode` (the governing mode, a string) and by the
+      properties `Zu_A`, `Zu_B`, `Zu_D`, `Zu_E` (the ultimate shell forces).
+      Calling `fseg.failure_mode(...)` now raises
+      `TypeError: 'str' object is not callable`.
+    - `validate(fy_sh, fy_fl, gamma_0)` is now `validate()`, without
+      arguments.
+    - The yield stresses are no longer given directly: they are derived from
+      the new field `steel_grade` (default `"S355"`) and from the thickness
+      of shell and flange. The material factor is the new field `gamma_M0`
+      (default 1.1).
+
+    Migration:
+
+    ```python
+    # before
+    mode, (Zu_A, Zu_B, Zu_D, Zu_E) = fseg.failure_mode(fy_sh=355e6, fy_fl=335e6)
+    fseg.validate(fy_sh=355e6, fy_fl=335e6)
+
+    # after (steel_grade="S355" and gamma_M0=1.1 are the defaults)
+    fseg = PolynomialLFlangeSegment(..., steel_grade="S355", gamma_M0=1.1)
+    mode = fseg.failure_mode
+    Zu_A, Zu_B, Zu_D, Zu_E = fseg.Zu_A, fseg.Zu_B, fseg.Zu_D, fseg.Zu_E
+    fseg.validate()
+    ```
+
+    To use other yield stresses than those of the table, set them before
+    reading any ULS property: `fseg.fy_sh = 355e6; fseg.fy_fl = 335e6`.
+
+- **ULS checks** (ref. [2], section G.1) for L- and T-flange segments,
+  including the ED2 classes: cached properties `fy_sh`, `fy_fl`, `Zu_A`,
+  `Zu_B`, `Zu_D`, `Zu_E`, `Zu` (the ultimate shell force F<sub>u</sub> of
+  eq. G.1, the lowest of the four) and `failure_mode`.
+- New fields `steel_grade` and `gamma_M0` of `PolynomialLFlangeSegment` and
+  `PolynomialTFlangeSegment`, also available as optional keys of the JSON
+  `FlangeSegment` section (format version unchanged) and as arguments of
+  `stats.standard_PolynomialLFlangeSegment_sampler`.
+- New `flangesegments.steel_yield_stress(grade, thickness)`: yield stress of
+  S235, S275, S355, S460 and S500 for thicknesses up to 400 mm, after
+  EN 10025-2.
+- The verbose JSON report (`pyflange determ`, `pyflange inspect`) contains a
+  new `ULS` object with the yield stresses, the ultimate shell forces and the
+  governing failure mode.
+- **ULS failure modes checked against IEC 61400-6:2020+AMD1:2025, Annex G.
+  The following changes affect the ultimate shell forces:**
+    - L-flanges, modes B, D and E: the plastic hinge M<sub>pl,3</sub> in the
+      flange now uses the same lever arm as the hinge in the shell (b, or
+      b'<sub>E</sub> for mode E), as in eqs. G.3 to G.5, instead of the
+      shorter T-flange distance `b - s/2 - 0.8 r`. This lowers Zu by a few
+      percent when the flange hinge governs (thick shell, thin flange); the
+      previous values were non-conservative.
+    - Modes B, D and E are limited to the plastic resistance of the shell in
+      tension and of the flange in shear, above which eq. G.11 is not
+      defined. Before, the ultimate force could exceed them (e.g. the L-flange
+      of the test suite had Zu_E above the shell tensile resistance).
+    - The washer diameter D of eqs. G.9 and G.29 is limited to "width
+      across flats of the nut + 2 × washer height" for narrow washers
+      (Figure G.3).
+    - The shell resistance uses the thinner of the top and bottom shell
+      (`s_ratio < 1`), as G.2.1 a).
+    - The fixed-point equations are solved by bisection instead of `fsolve`,
+      which is robust to the kink of the interaction formula.
+
 ## 0.15.0 (2026-11-02)
 
 - `PolynomialLFlangeSegmentED2` validated against the SGRE ED2 reference

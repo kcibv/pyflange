@@ -84,7 +84,7 @@ fseg = PolynomialLFlangeSegment(
     gap = Gap(height=gap_height, angle=gap_angle),
     k_shell = shell_stiffness(D/2, 54*mm, gap_angle))
 
-fseg.validate(fy_sh=355*MPa, fy_fl=335*MPa)     # failure mode B must govern
+fseg.validate()                                 # failure mode B must govern (S355 by default)
 
 Fs = fseg.bolt_axial_force(500*kN)              # bolt force for a 500 kN shell force
 Ms = fseg.bolt_bending_moment(500*kN)           # bolt bending moment

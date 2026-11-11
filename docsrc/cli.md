@@ -59,7 +59,8 @@ pyflange determ case.json --gap-angle 45 --gap-height 1.5 --tilt-angle 0.2 --smf
 
 The main results in the report are `damage`, `FatigueLife` and, in the
 `FlangeSegment` section, `BoltPreload`, the polynomial points `Point1` to
-`Point4` and the curves `TransferFunctions`.
+`Point4`, the curves `TransferFunctions` and the ULS results `ULS` (ultimate
+shell forces of the failure modes and governing mode).
 
 ### sample
 

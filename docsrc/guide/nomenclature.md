@@ -62,7 +62,11 @@ segment, positive in tension.
 | `shell_force_at_small_displacement`, `bolt_force_at_small_displacement` | Z<sub>3</sub>, F<sub>S,3</sub> | Point 3. |
 | `shell_force_at_closed_gap` | Z<sub>close</sub> | Point 4: shell force that closes the gap. |
 | `bolt_moment_at_rest`, `..._at_tensile_ULS`, `..._at_small_displacement` | M<sub>S,1</sub>, M<sub>S,2</sub>, M<sub>S,3</sub> | Bolt moments at the points. |
-| `failure_mode(...)` | F<sub>u,A</sub>, F<sub>u,B</sub>, F<sub>u,D</sub>, F<sub>u,E</sub> | Ultimate shell forces of the failure modes (ref. [2], G.1.2). |
+| `Zu_A`, `Zu_B`, `Zu_D`, `Zu_E` | F<sub>u,A</sub>, F<sub>u,B</sub>, F<sub>u,D</sub>, F<sub>u,E</sub> | Ultimate shell forces of the failure modes (ref. [2], G.1.2). |
+| `Zu` | F<sub>u</sub> | Ultimate shell force of the segment, the lowest of the failure modes (ref. [2], eq. G.1). |
+| `failure_mode` | | Governing ULS failure mode. |
+| `steel_grade`, `fy_sh`, `fy_fl` | f<sub>y,Bl</sub>, f<sub>y,Fl</sub> | Steel grade and yield stresses of shell and flange. |
+| `gamma_M0` | | Material factor: f<sub>y,d</sub> = f<sub>y</sub> / γ<sub>M0</sub>. |
 
 The JSON result files (`pyflange determ`) also report internal quantities,
 such as `a_prime` (a'), `Z0` (Z<sub>0</sub>), `DZ_gap` (ΔZ<sub>gap</sub>),
