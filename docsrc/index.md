@@ -106,6 +106,15 @@ Fs = fseg.bolt_axial_force(500e3)       # bolt force for a 500 kN shell force
 | Monte Carlo simulation of the bolt fatigue damage | [Monte Carlo tutorials](tutorials/montecarlo-cli.md), [`stats`](apis/stats.md) |
 | Case files, batch runs, results in Excel | [Command line](cli.md), [`io`](apis/io.md) |
 
+!!! warning "The ULS features are not thoroughly validated yet"
+    The ultimate shell forces `Zu`, `Zu_A` … `Zu_E`, the governing
+    `failure_mode` and the `validate()` check that relies on it have not
+    been thoroughly validated and tested yet: they are covered by unit tests
+    only, not by the [validation](guide/validation.md#uls-features) against
+    the SGRE reference workbooks. Please review these results before relying
+    on them, and share your feedback as a
+    [GitHub issue](https://github.com/kcibv/pyflange/issues).
+
 ## Background
 
 ### The Bolt & Beautiful project

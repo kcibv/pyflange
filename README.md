@@ -26,6 +26,14 @@ effect of flange gaps and flange inclination. On top of it, PyFlange provides:
 PyFlange was developed within the Bolt & Beautiful GROW project by KCI,
 Siemens Gamesa, JBO and TNO.
 
+> **The ULS features have not been thoroughly validated and tested yet.**
+> The ultimate shell forces `Zu`, `Zu_A` ... `Zu_E`, the governing
+> `failure_mode` and the `validate()` check that relies on it are covered by
+> unit tests only, not by the validation against the SGRE reference
+> workbooks. Please review these results before relying on them, and share
+> your feedback, findings and comparisons with your own calculations by
+> [opening a GitHub issue](https://github.com/kcibv/pyflange/issues).
+
 **Documentation: <https://kcibv.github.io/pyflange/>**
 
 

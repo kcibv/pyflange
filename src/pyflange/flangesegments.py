@@ -217,6 +217,14 @@ class PolynomialFlangeSegment (FlangeSegment):
     are derived from `steel_grade` and the thickness of shell and flange. All
     of them are cached: create a new segment (e.g. with `dataclasses.replace`)
     to change its parameters.
+
+    Warning:
+        The ULS features (`Zu_A`, `Zu_B`, `Zu_D`, `Zu_E`, `Zu`,
+        `failure_mode` and `validate`) have not been thoroughly validated and
+        tested yet: they are covered by unit tests only, not by the
+        validation against the SGRE reference workbooks. Please review their
+        results and share your feedback at
+        <https://github.com/kcibv/pyflange/issues>.
     '''
 
     a: float        # distance between inner face of the flange and center of the bolt hole
@@ -1181,6 +1189,14 @@ class PolynomialLFlangeSegment (PolynomialFlangeSegment):
     mode). The polynomial model is valid only if failure mode B governs, which
     is checked by `validate()`.
 
+    Warning:
+        The ULS features (`Zu_A`, `Zu_B`, `Zu_D`, `Zu_E`, `Zu`,
+        `failure_mode` and `validate`) have not been thoroughly validated and
+        tested yet: they are covered by unit tests only, not by the
+        validation against the SGRE reference workbooks. Please review their
+        results and share your feedback at
+        <https://github.com/kcibv/pyflange/issues>.
+
     Attributes:
         a (float): Distance from inner flange face to bolt hole center.
         b (float): Distance from bolt hole center to shell center-line.
@@ -1494,6 +1510,14 @@ class PolynomialTFlangeSegment (PolynomialFlangeSegment):
     failure mode, per bolt pair), `Zu` (the lowest of them) and `failure_mode`
     (the governing mode). The polynomial model is valid only if failure mode A
     governs, which is checked by `validate()`.
+
+    Warning:
+        The ULS features (`Zu_A`, `Zu_B`, `Zu_D`, `Zu_E`, `Zu`,
+        `failure_mode` and `validate`) have not been thoroughly validated and
+        tested yet: they are covered by unit tests only, not by the
+        validation against the SGRE reference workbooks. Please review their
+        results and share your feedback at
+        <https://github.com/kcibv/pyflange/issues>.
 
     Attributes:
         a (float): Distance from inner flange face to bolt hole center.

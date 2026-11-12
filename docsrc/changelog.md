@@ -82,6 +82,10 @@ available in the [GitHub repository](https://github.com/kcibv/pyflange/commits/m
   docstring.
 - The API pages show the members inherited from the base classes (e.g.
   `bolt_axial_force`, `Zu` and `validate` on the L- and T-flange pages).
+- The README and the documentation state that the ULS features have not been
+  thoroughly validated and tested yet, and invite the users to review them
+  and to give their feedback (see
+  [Validation](guide/validation.md#uls-features)).
 
 ## 0.15.0 (2026-11-02)
 

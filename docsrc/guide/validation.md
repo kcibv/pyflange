@@ -108,6 +108,25 @@ case and writes its results to the ED2 workbook.
   workbooks yet. It is tested against the formulas of ref. [5] in the unit
   tests.
 
+## ULS features
+
+!!! warning "Not thoroughly validated yet"
+    The ULS features of the flange segments have not been thoroughly
+    validated and tested yet.
+
+The ultimate limit state of ref. [2], section G.1 (the ultimate shell forces
+`Zu`, `Zu_A`, `Zu_B`, `Zu_D`, `Zu_E`, the governing `failure_mode` and the
+`validate()` check that relies on it, see
+[Validity of the model](model.md#validity-of-the-model)) is not part of the
+reference workbooks, so it is not covered by the validation cases above. It
+is checked only by the unit tests.
+
+You are invited to review these features: compare them with your own
+calculations or with other implementations of ref. [2], section G.1, and
+share your feedback, whether you find a difference or a confirmation, as a
+[GitHub issue](https://github.com/kcibv/pyflange/issues) (see
+[Contributing](../contributing.md)).
+
 ## Unit tests
 
 Besides the validation, the test suite (`py -m pytest`) contains unit tests

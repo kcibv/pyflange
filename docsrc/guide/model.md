@@ -93,6 +93,15 @@ mode at the ultimate limit state (ref. [2], G.1.2 and G.2.1):
   flange and shell, eq. G.30);
 - **T-flanges**: failure mode A (bolt failure, eq. G.31).
 
+!!! warning "Not thoroughly validated yet"
+    The ULS features described in this section (the ultimate shell forces,
+    the governing failure mode and `validate()`) have not been thoroughly
+    validated and tested yet: they are covered by unit tests only, not by
+    the [validation](validation.md#uls-features) against the SGRE reference
+    workbooks. Please review these results before relying on them, and share
+    your feedback, findings and comparisons with your own calculations as a
+    [GitHub issue](https://github.com/kcibv/pyflange/issues).
+
 The flange segments compute the ultimate limit state of ref. [2], section
 G.1 (Petersen/Seidel method):
 
