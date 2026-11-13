@@ -53,11 +53,11 @@ fseg = PolynomialTFlangeSegment(
 
 
 # --8<-- [start:validate]
-mode, Zu = fseg.failure_mode(fy_sh=355*MPa, fy_fl=355*MPa)
-print(f"Governing failure mode: {mode}")
-print(f"Ultimate shell forces A, B, D, E [kN]: {[round(Z/kN) for Z in Zu]}")
+print(f"Yield stress of shell and flange [MPa]: {fseg.fy_sh/MPa:.0f}, {fseg.fy_fl/MPa:.0f}")
+print(f"Ultimate shell forces A, B, D, E [kN]: {[round(Z/kN) for Z in (fseg.Zu_A, fseg.Zu_B, fseg.Zu_D, fseg.Zu_E)]}")
+print(f"Governing failure mode: {fseg.failure_mode}, Zu = {fseg.Zu/kN:.0f} kN")
 
-fseg.validate(fy_sh=355*MPa, fy_fl=355*MPa)    # T-flanges: failure mode A must govern
+fseg.validate()     # T-flanges: failure mode A must govern
 # --8<-- [end:validate]
 
 

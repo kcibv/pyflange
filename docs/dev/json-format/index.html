@@ -1978,8 +1978,9 @@ results. PyFlange always writes the current version.</p>
 </span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="nt">"s_ratio"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"r"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span>
 </span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="nt">"k_shell"</span><span class="p">:</span><span class="w"> </span><span class="s2">"interp"</span><span class="p">,</span>
 </span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="nt">"PPL"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="nt">"DFT"</span><span class="p">:</span><span class="w"> </span><span class="mf">300e-6</span><span class="p">,</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="nt">"settlement_factor"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="p">}</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="nt">"settlement_factor"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="nt">"steel_grade"</span><span class="p">:</span><span class="w"> </span><span class="s2">"S355"</span><span class="p">,</span><span class="w"> </span><span class="nt">"gamma_M0"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.1</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="p">}</span>
 </span></code></pre></div>
 <table>
 <thead>
@@ -2135,9 +2136,24 @@ results. PyFlange always writes the current version.</p>
 <td>-</td>
 <td>Factor reducing the settlement preload losses (e.g. 1.0 for torque tightening, 0.5 for tension tightening).</td>
 </tr>
+<tr>
+<td><code>steel_grade</code></td>
+<td>string</td>
+<td>-</td>
+<td>Steel grade of shell and flange (<code>"S235"</code>, <code>"S275"</code>, <code>"S355"</code>, <code>"S460"</code> or <code>"S500"</code>), from which the yield stresses of the ULS failure modes are derived (see <code>pyflange.flangesegments.steel_yield_stress</code>). Optional, default <code>"S355"</code>.</td>
+</tr>
+<tr>
+<td><code>gamma_M0</code></td>
+<td>number</td>
+<td>-</td>
+<td>Material partial safety factor for the plastic resistance of shell and flange in the ULS failure modes. Optional, default 1.1.</td>
+</tr>
 </tbody>
 </table>
-<p>All keys are required, except <code>type</code>, <code>washer</code> and one of <code>preload_ratio</code> / <code>Fv</code>.</p>
+<p>All keys are required, except <code>type</code>, <code>washer</code>, <code>steel_grade</code>, <code>gamma_M0</code> and
+one of <code>preload_ratio</code> / <code>Fv</code>. <code>steel_grade</code> and <code>gamma_M0</code> were added in
+PyFlange 0.16.0 without changing the format version: older PyFlange versions
+ignore them.</p>
 <h3 id="bolts">Bolts<a class="headerlink" href="#bolts" title="Permanent link">&para;</a></h3>
 <p>The <code>type</code> key selects one of the following bolt kinds.</p>
 <p><strong><code>StandardMetricBolt</code></strong>: a bolt with standard ISO dimensions and material
@@ -2585,7 +2601,9 @@ back as cases. They contain:</p>
   Markov matrix <code>BoltStressMarkovMatrix</code> (stresses in Pa) and a report of the
   flange segment intermediate quantities, added to the <code>FlangeSegment</code>
   section (<code>BoltPreload</code>, <code>Point1</code> to <code>Point4</code>, polynomial coefficients,
-  <code>TransferFunctions</code>, stiffnesses, etc.).</li>
+  <code>TransferFunctions</code>, stiffnesses, etc.), including the <code>ULS</code> object with the
+  yield stresses <code>fy_sh</code> and <code>fy_fl</code> (Pa), the ultimate shell forces <code>Zu_A</code>,
+  <code>Zu_B</code>, <code>Zu_D</code>, <code>Zu_E</code> and <code>Zu</code> (N) and the governing <code>FailureMode</code>.</li>
 </ul>
 <h2 id="changes-from-version-010">Changes from version 0.1.0<a class="headerlink" href="#changes-from-version-010" title="Permanent link">&para;</a></h2>
 <p>Version 0.2.0 is a superset of version 0.1.0. The changes are:</p>

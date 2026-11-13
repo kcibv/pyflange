@@ -1393,6 +1393,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#0160-2026-11-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.16.0 (2026-11-13)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#0150-2026-11-02" class="md-nav__link">
     <span class="md-ellipsis">
       0.15.0 (2026-11-02)
@@ -1668,6 +1677,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#0160-2026-11-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      0.16.0 (2026-11-13)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#0150-2026-11-02" class="md-nav__link">
     <span class="md-ellipsis">
       0.15.0 (2026-11-02)
@@ -1883,6 +1901,90 @@
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
 <p>The notable changes of each PyFlange version. The complete history is
 available in the <a href="https://github.com/kcibv/pyflange/commits/main">GitHub repository</a>.</p>
+<h2 id="0160-2026-11-13">0.16.0 (2026-11-13)<a class="headerlink" href="#0160-2026-11-13" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Breaking changes</p>
+<p>The ULS failure modes of the flange segments are now computed from
+properties of the segment instead of method arguments:</p>
+<ul>
+<li><code>failure_mode(fy_sh, fy_fl, gamma_0)</code> is replaced by the cached
+  property <code>failure_mode</code> (the governing mode, a string) and by the
+  properties <code>Zu_A</code>, <code>Zu_B</code>, <code>Zu_D</code>, <code>Zu_E</code> (the ultimate shell forces).
+  Calling <code>fseg.failure_mode(...)</code> now raises
+  <code>TypeError: 'str' object is not callable</code>.</li>
+<li><code>validate(fy_sh, fy_fl, gamma_0)</code> is now <code>validate()</code>, without
+  arguments.</li>
+<li>The yield stresses are no longer given directly: they are derived from
+  the new field <code>steel_grade</code> (default <code>"S355"</code>) and from the thickness
+  of shell and flange. The material factor is the new field <code>gamma_M0</code>
+  (default 1.1).</li>
+</ul>
+<p>Migration:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># before</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">mode</span><span class="p">,</span> <span class="p">(</span><span class="n">Zu_A</span><span class="p">,</span> <span class="n">Zu_B</span><span class="p">,</span> <span class="n">Zu_D</span><span class="p">,</span> <span class="n">Zu_E</span><span class="p">)</span> <span class="o">=</span> <span class="n">fseg</span><span class="o">.</span><span class="n">failure_mode</span><span class="p">(</span><span class="n">fy_sh</span><span class="o">=</span><span class="mf">355e6</span><span class="p">,</span> <span class="n">fy_fl</span><span class="o">=</span><span class="mf">335e6</span><span class="p">)</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">fseg</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">fy_sh</span><span class="o">=</span><span class="mf">355e6</span><span class="p">,</span> <span class="n">fy_fl</span><span class="o">=</span><span class="mf">335e6</span><span class="p">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># after (steel_grade="S355" and gamma_M0=1.1 are the defaults)</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">fseg</span> <span class="o">=</span> <span class="n">PolynomialLFlangeSegment</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">steel_grade</span><span class="o">=</span><span class="s2">"S355"</span><span class="p">,</span> <span class="n">gamma_M0</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">mode</span> <span class="o">=</span> <span class="n">fseg</span><span class="o">.</span><span class="n">failure_mode</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">Zu_A</span><span class="p">,</span> <span class="n">Zu_B</span><span class="p">,</span> <span class="n">Zu_D</span><span class="p">,</span> <span class="n">Zu_E</span> <span class="o">=</span> <span class="n">fseg</span><span class="o">.</span><span class="n">Zu_A</span><span class="p">,</span> <span class="n">fseg</span><span class="o">.</span><span class="n">Zu_B</span><span class="p">,</span> <span class="n">fseg</span><span class="o">.</span><span class="n">Zu_D</span><span class="p">,</span> <span class="n">fseg</span><span class="o">.</span><span class="n">Zu_E</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">fseg</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+</span></code></pre></div>
+<p>To use other yield stresses than those of the table, set them before
+reading any ULS property: <code>fseg.fy_sh = 355e6; fseg.fy_fl = 335e6</code>.</p>
+</div>
+<ul>
+<li><strong>ULS checks</strong> (ref. [2], section G.1) for L- and T-flange segments,
+  including the ED2 classes: cached properties <code>fy_sh</code>, <code>fy_fl</code>, <code>Zu_A</code>,
+  <code>Zu_B</code>, <code>Zu_D</code>, <code>Zu_E</code>, <code>Zu</code> (the ultimate shell force F<sub>u</sub> of
+  eq. G.1, the lowest of the four) and <code>failure_mode</code>.</li>
+<li>New fields <code>steel_grade</code> and <code>gamma_M0</code> of <code>PolynomialLFlangeSegment</code> and
+  <code>PolynomialTFlangeSegment</code>, also available as optional keys of the JSON
+  <code>FlangeSegment</code> section (format version unchanged) and as arguments of
+  <code>stats.standard_PolynomialLFlangeSegment_sampler</code>.</li>
+<li>New <code>flangesegments.steel_yield_stress(grade, thickness)</code>: yield stress of
+  S235, S275, S355, S460 and S500 for thicknesses up to 400 mm, after
+  EN 10025-2.</li>
+<li>The verbose JSON report (<code>pyflange determ</code>, <code>pyflange inspect</code>) contains a
+  new <code>ULS</code> object with the yield stresses, the ultimate shell forces and the
+  governing failure mode.</li>
+<li><strong>ULS failure modes checked against IEC 61400-6:2020+AMD1:2025, Annex G.
+  The following changes affect the ultimate shell forces:</strong><ul>
+<li>L-flanges, modes B, D and E: the plastic hinge M<sub>pl,3</sub> in the
+  flange now uses the same lever arm as the hinge in the shell (b, or
+  b'<sub>E</sub> for mode E), as in eqs. G.3 to G.5, instead of the
+  shorter T-flange distance <code>b - s/2 - 0.8 r</code>. This lowers Zu by a few
+  percent when the flange hinge governs (thick shell, thin flange); the
+  previous values were non-conservative.</li>
+<li>Modes B, D and E are limited to the plastic resistance of the shell in
+  tension and of the flange in shear, above which eq. G.11 is not
+  defined. Before, the ultimate force could exceed them (e.g. the L-flange
+  of the test suite had Zu_E above the shell tensile resistance).</li>
+<li>The washer diameter D of eqs. G.9 and G.29 is limited to "width
+  across flats of the nut + 2 × washer height" for narrow washers
+  (Figure G.3).</li>
+<li>The shell resistance uses the thinner of the top and bottom shell
+  (<code>s_ratio &lt; 1</code>), as G.2.1 a).</li>
+<li>The fixed-point equations are solved by bisection instead of <code>fsolve</code>,
+  which is robust to the kink of the interaction formula.</li>
+</ul>
+</li>
+<li>The code shared by <code>PolynomialLFlangeSegment</code> and
+  <code>PolynomialTFlangeSegment</code> has been moved to <code>PolynomialFlangeSegment</code>,
+  with no change in the results (all the quantities of the L-, T- and ED2
+  segments were verified to be bit-identical before and after). This only
+  matters for code that subclasses <code>PolynomialFlangeSegment</code> directly: it is
+  now a dataclass with the fields common to L- and T-flanges, it implements
+  the reference points of the polynomials (ref. [2], Table G.1), and the
+  child classes must implement the abstract quantities listed in its
+  docstring.</li>
+<li>The API pages show the members inherited from the base classes (e.g.
+  <code>bolt_axial_force</code>, <code>Zu</code> and <code>validate</code> on the L- and T-flange pages).</li>
+<li>The README and the documentation state that the ULS features have not been
+  thoroughly validated and tested yet, and invite the users to review them
+  and to give their feedback (see
+  <a href="../guide/validation/#uls-features">Validation</a>).</li>
+</ul>
 <h2 id="0150-2026-11-02">0.15.0 (2026-11-02)<a class="headerlink" href="#0150-2026-11-02" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>PolynomialLFlangeSegmentED2</code> validated against the SGRE ED2 reference

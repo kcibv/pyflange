@@ -1815,10 +1815,13 @@ to <code>main</code> and <code>dev</code>.</p>
 <li>set <code>version = "0.14.0"</code> in <code>pyproject.toml</code>, date the release in
    <code>docsrc/changelog.md</code> and merge into <code>main</code>;</li>
 <li>
-<p>on <code>main</code>, run the tests and build the package locally:</p>
+<p>on <code>main</code>, run the tests and build the package locally (<code>dist/</code> is
+   not committed: the workflow builds the packages it publishes from the
+   tag, the local build only checks that they build cleanly):</p>
 <div class="language-doscon highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">py -m pytest</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">py -m build</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="go">py -m twine check --strict dist/pyflange-0.14.0*</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">rmdir /s /q dist</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="go">py -m build</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="go">py -m twine check --strict dist/*</span>
 </span></code></pre></div>
 </li>
 <li>

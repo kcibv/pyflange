@@ -998,6 +998,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#uls-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      ULS features
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#unit-tests" class="md-nav__link">
     <span class="md-ellipsis">
       Unit tests
@@ -1542,6 +1551,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#uls-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      ULS features
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#unit-tests" class="md-nav__link">
     <span class="md-ellipsis">
       Unit tests
@@ -1779,6 +1797,23 @@ case and writes its results to the ED2 workbook.</p>
   workbooks yet. It is tested against the formulas of ref. [5] in the unit
   tests.</li>
 </ul>
+<h2 id="uls-features">ULS features<a class="headerlink" href="#uls-features" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Not thoroughly validated yet</p>
+<p>The ULS features of the flange segments have not been thoroughly
+validated and tested yet.</p>
+</div>
+<p>The ultimate limit state of ref. [2], section G.1 (the ultimate shell forces
+<code>Zu</code>, <code>Zu_A</code>, <code>Zu_B</code>, <code>Zu_D</code>, <code>Zu_E</code>, the governing <code>failure_mode</code> and the
+<code>validate()</code> check that relies on it, see
+<a href="../model/#validity-of-the-model">Validity of the model</a>) is not part of the
+reference workbooks, so it is not covered by the validation cases above. It
+is checked only by the unit tests.</p>
+<p>You are invited to review these features: compare them with your own
+calculations or with other implementations of ref. [2], section G.1, and
+share your feedback, whether you find a difference or a confirmation, as a
+<a href="https://github.com/kcibv/pyflange/issues">GitHub issue</a> (see
+<a href="../../contributing/">Contributing</a>).</p>
 <h2 id="unit-tests">Unit tests<a class="headerlink" href="#unit-tests" title="Permanent link">&para;</a></h2>
 <p>Besides the validation, the test suite (<code>py -m pytest</code>) contains unit tests
 of every module, and runs the example scripts of the

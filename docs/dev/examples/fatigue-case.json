@@ -43,7 +43,9 @@
 
         "PPL": 0.05,
         "DFT": 300e-6,
-        "settlement_factor": 0.5
+        "settlement_factor": 0.5,
+        "steel_grade": "S355",
+        "gamma_M0": 1.1
     },
 
     "BoltFatigueCurve": {

@@ -1916,9 +1916,29 @@ segment, positive in tension.</p>
 <td>Bolt moments at the points.</td>
 </tr>
 <tr>
-<td><code>failure_mode(...)</code></td>
+<td><code>Zu_A</code>, <code>Zu_B</code>, <code>Zu_D</code>, <code>Zu_E</code></td>
 <td>F<sub>u,A</sub>, F<sub>u,B</sub>, F<sub>u,D</sub>, F<sub>u,E</sub></td>
 <td>Ultimate shell forces of the failure modes (ref. [2], G.1.2).</td>
+</tr>
+<tr>
+<td><code>Zu</code></td>
+<td>F<sub>u</sub></td>
+<td>Ultimate shell force of the segment, the lowest of the failure modes (ref. [2], eq. G.1).</td>
+</tr>
+<tr>
+<td><code>failure_mode</code></td>
+<td></td>
+<td>Governing ULS failure mode.</td>
+</tr>
+<tr>
+<td><code>steel_grade</code>, <code>fy_sh</code>, <code>fy_fl</code></td>
+<td>f<sub>y,Bl</sub>, f<sub>y,Fl</sub></td>
+<td>Steel grade and yield stresses of shell and flange.</td>
+</tr>
+<tr>
+<td><code>gamma_M0</code></td>
+<td></td>
+<td>Material factor: f<sub>y,d</sub> = f<sub>y</sub> / γ<sub>M0</sub>.</td>
 </tr>
 </tbody>
 </table>

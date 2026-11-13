@@ -1705,8 +1705,12 @@ references to the IEC equations.</p>
 <td><a href="tutorials/design-gaps/">Design gaps and ED2 tutorial</a></td>
 </tr>
 <tr>
+<td>ULS resistance of the flange segment and governing failure mode</td>
+<td><a href="apis/flangesegments/"><code>Zu</code>, <code>Zu_A</code>, <code>Zu_B</code>, <code>Zu_D</code>, <code>Zu_E</code>, <code>failure_mode</code></a></td>
+</tr>
+<tr>
 <td>Check that the polynomial model is applicable (governing ULS failure mode)</td>
-<td><a href="apis/flangesegments/"><code>failure_mode</code>, <code>validate</code></a></td>
+<td><a href="apis/flangesegments/"><code>validate</code></a></td>
 </tr>
 <tr>
 <td>Design gap heights (log-normal AMD1, Weibull ED2)</td>
@@ -1738,6 +1742,16 @@ references to the IEC equations.</p>
 </tr>
 </tbody>
 </table>
+<div class="admonition warning">
+<p class="admonition-title">The ULS features are not thoroughly validated yet</p>
+<p>The ultimate shell forces <code>Zu</code>, <code>Zu_A</code>, <code>Zu_B</code>, <code>Zu_D</code>, <code>Zu_E</code>, the governing
+<code>failure_mode</code> and the <code>validate()</code> check that relies on it have not
+been thoroughly validated and tested yet: they are covered by unit tests
+only, not by the <a href="guide/validation/#uls-features">validation</a> against
+the SGRE reference workbooks. Please review these results before relying
+on them, and share your feedback as a
+<a href="https://github.com/kcibv/pyflange/issues">GitHub issue</a>.</p>
+</div>
 <h2 id="background">Background<a class="headerlink" href="#background" title="Permanent link">&para;</a></h2>
 <h3 id="the-bolt-beautiful-project">The Bolt &amp; Beautiful project<a class="headerlink" href="#the-bolt-beautiful-project" title="Permanent link">&para;</a></h3>
 <p>PyFlange has been developed within <strong>Bolt &amp; Beautiful</strong>, a
