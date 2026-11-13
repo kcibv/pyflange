@@ -204,9 +204,12 @@ class PolynomialFlangeSegment (FlangeSegment):
     `_I_tg`, the bolt moment `_bolt_moment(Z, Fs)`, the shell force at full
     prying `_ideal_shell_force_at_tensile_ULS`, the total gap closing force
     `_total_gap_neutralization_shell_force`, the displacement `_u`, the
-    segment stiffness `_k_seg`, the gap stiffness factor `_f_tot` and the
-    initial slope `_polynomial_initial_slope`. The dataclass fields, common to
-    all the child classes, are documented in the child classes.
+    segment stiffness `_k_seg`, the gap stiffness factor `_f_tot`, the
+    initial slope `_polynomial_initial_slope` and, for the ultimate limit
+    state, the distances between the plastic hinges `_b_BD` (modes B and D)
+    and `_b_E` (mode E) and the resistance of the plastic hinge in/close to
+    the shell `_M_pl3(Z)`. The dataclass fields, common to all the child
+    classes, are documented in the child classes.
 
     This class also implements the ultimate limit state of ref. [2],
     section G.1 (Petersen/Seidel method), common to L- and T-flanges: the

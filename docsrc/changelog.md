@@ -3,7 +3,7 @@
 The notable changes of each PyFlange version. The complete history is
 available in the [GitHub repository](https://github.com/kcibv/pyflange/commits/main).
 
-## 0.16.0 (unreleased)
+## 0.16.0 (2026-11-13)
 
 !!! warning "Breaking changes"
     The ULS failure modes of the flange segments are now computed from
